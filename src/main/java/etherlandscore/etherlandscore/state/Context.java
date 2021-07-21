@@ -33,4 +33,5 @@ public class Context {
     public Plot getPlot(Integer id) {
         return plots.get(id);
     }
+    public Gamer getGamer(UUID uuid){return gamers.get(uuid);}
 }

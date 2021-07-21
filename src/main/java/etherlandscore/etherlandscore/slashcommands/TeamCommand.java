@@ -4,6 +4,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.command.CommandSender;
 import org.jetlang.fibers.Fiber;
@@ -11,6 +12,7 @@ import org.jetlang.fibers.Fiber;
 public class TeamCommand extends ListenerClient {
     private final Fiber fiber;
     private final Channels channels;
+
     public TeamCommand(Channels channels, Fiber fiber) {
         super(channels, fiber);
         this.fiber = fiber;
@@ -39,7 +41,12 @@ public class TeamCommand extends ListenerClient {
         TeamCommand.withSubcommand(new CommandAPICommand("info")
                 .withPermission("etherlands.public")
                 .executesPlayer((sender, args) -> {
-                    sender.sendMessage("/team info <teamname>");
+                    Gamer gamer = context.getGamer(sender.getUniqueId());
+                    if(!gamer.getTeam().equals("")) {
+                        team_info(sender,gamer.getTeam());
+                    }else {
+                        sender.sendMessage("/team info <teamname>");
+                    }
                 }));
         TeamCommand.withSubcommand(new CommandAPICommand("create")
                 .withArguments(new StringArgument("team-name"))

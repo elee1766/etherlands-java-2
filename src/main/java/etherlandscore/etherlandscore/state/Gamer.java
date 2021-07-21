@@ -8,22 +8,22 @@ import java.util.UUID;
 public class Gamer extends StateHolder {
 
     private final UUID uuid;
-
-    private String team;
+    private String team = "";
 
     public Gamer(UUID uuid) {
         this.uuid = uuid;
     }
-
     public void setTeam(String team) {
         this.team = team;
     }
-
     public UUID getUuid() {
         return uuid;
     }
-
     public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
+    }
+
+    public String getTeam() {
+        return team;
     }
 }

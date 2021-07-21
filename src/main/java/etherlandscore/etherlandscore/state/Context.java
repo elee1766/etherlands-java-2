@@ -34,4 +34,8 @@ public class Context {
         return plots.get(id);
     }
     public Gamer getGamer(UUID uuid){return gamers.get(uuid);}
+
+    public Team getTeam(String team) {
+        return teams.get(team);
+    }
 }

@@ -1,12 +1,14 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 public class TeamCommand extends ListenerClient {
@@ -18,8 +20,6 @@ public class TeamCommand extends ListenerClient {
         this.fiber = fiber;
         this.channels = channels;
     }
-
-
     public void register(){
         CommandAPICommand TeamCommand = new CommandAPICommand("team").withPermission("etherlands.public")
                 .executesPlayer((sender, args) -> {
@@ -63,8 +63,36 @@ public class TeamCommand extends ListenerClient {
                 })
         );
         TeamCommand.withSubcommand(new CommandAPICommand("invite")
+                .withArguments(new PlayerArgument("player"))
                 .withPermission("etherlands.public")
                 .executesPlayer((sender, args) -> {
+                    Gamer inviter = context.getGamer(sender.getUniqueId());
+                    Gamer receiver = context.getGamer(((Player) args[0]).getUniqueId());
+                    if(inviter != null){
+                        Team team = context.getTeam(inviter.getTeam());
+                        if(team.canInvite(inviter)){
+                            team.inviteGamer(receiver.getUuid());
+                        }
+                        receiver.getPlayer().sendMessage("you have 5 min to accept invite to " + inviter.getTeam());
+                    }
+                })
+        );
+
+        TeamCommand.withSubcommand(new CommandAPICommand("join")
+                .withArguments(new PlayerArgument("team").replaceSuggestions(info->getTeamStrings()))
+                .withPermission("etherlands.public")
+                .executesPlayer((sender, args) -> {
+                    Gamer joiner = context.getGamer(sender.getUniqueId());
+                    if(joiner != null){
+                        Team team = context.getTeam((String) args[0]);
+                        if(team != null){
+                            if(team.canJoin(joiner)){
+                                team.addMember(this.channels,joiner);
+                            }else{
+                                sender.sendMessage("you must be invited before joining " + args[0]);
+                            }
+                        }
+                    }
                 })
         );
         TeamCommand.register();

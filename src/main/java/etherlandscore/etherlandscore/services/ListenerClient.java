@@ -4,7 +4,7 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.stateholder.GlobalState;
+import etherlandscore.etherlandscore.state.Context;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetlang.fibers.Fiber;
@@ -17,29 +17,29 @@ public class ListenerClient extends ServerModule {
     Channels channels;
     Fiber fiber;
 
-    public GlobalState globalState;
+    public Context context;
 
     protected ListenerClient(Channels channels, Fiber fiber) {
         super(fiber);
         this.channels = channels;
         this.fiber = fiber;
-        this.globalState = new GlobalState();
+        this.context = new Context();
         this.register();
     }
     private void register(){
         channels.global_update.subscribe(fiber, global->{
-            this.globalState = global;
+            this.context = global;
         });
         channels.gamer_update.subscribe( fiber, player-> {
-            this.globalState.getGamers().put(player.getUuid(),player);
+            this.context.getGamers().put(player.getUuid(),player);
         });
         channels.team_update.subscribe( fiber, team-> {
-            this.globalState.getTeams().put(team.getName(),team);
+            this.context.getTeams().put(team.getName(),team);
         });
     }
 
     protected String[] getChunkStrings() {
-        return this.globalState.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
+        return this.context.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
     }
 
     protected String[] getAccessFlagStrings(){
@@ -56,7 +56,7 @@ public class ListenerClient extends ServerModule {
     }
 
     protected String[] getTeamStrings(){
-        return this.globalState.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
+        return this.context.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
     }
 
 

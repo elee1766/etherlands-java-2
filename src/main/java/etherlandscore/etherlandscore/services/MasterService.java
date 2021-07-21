@@ -6,10 +6,10 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
-import etherlandscore.etherlandscore.stateholder.GamerState;
-import etherlandscore.etherlandscore.stateholder.GlobalState;
-import etherlandscore.etherlandscore.stateholder.PlotState;
-import etherlandscore.etherlandscore.stateholder.TeamState;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
@@ -22,8 +22,8 @@ public class MasterService extends ServerModule {
 
     private final Gson gson;
 
-    private final GlobalState globalState;
-    private final JsonPersister<GlobalState> globalStatePersister;
+    private final Context context;
+    private final JsonPersister<Context> globalStatePersister;
 
     public MasterService(Channels channels, Fiber fiber) {
         super(fiber);
@@ -33,30 +33,30 @@ public class MasterService extends ServerModule {
         this.gson = new GsonBuilder().create();
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
         this.globalStatePersister =new JsonPersister<>(root + "/db.json");
-        GlobalState writer = globalStatePersister.readJson(gson, GlobalState.class);
-        this.globalState = Objects.requireNonNullElseGet(writer, GlobalState::new);
-        this.channels.global_update.publish(globalState);
+        Context writer = globalStatePersister.readJson(gson, Context.class);
+        this.context = Objects.requireNonNullElseGet(writer, Context::new);
+        this.channels.global_update.publish(context);
         this.channels.master_command.subscribe(fiber,this::process_command);
     }
 
     public void save(){
-        globalStatePersister.overwrite(gson.toJson(this.globalState));
+        globalStatePersister.overwrite(gson.toJson(this.context));
     }
 
-    public void team_create_team(GamerState a, String b){
-        GamerState gamer = globalState.getGamers().get(a.getUuid());
+    public void team_create_team(Gamer a, String b){
+        Gamer gamer = context.getGamers().get(a.getUuid());
         if(gamer != null & b != null) {
-            TeamState team = new TeamState(gamer, b);
-            if(!globalState.getTeams().containsKey(b)) {
-                globalState.getTeams().put(b,team);
-                this.channels.global_update.publish(globalState);
+            Team team = new Team(gamer, b);
+            if(!context.getTeams().containsKey(b)) {
+                context.getTeams().put(b,team);
+                this.channels.global_update.publish(context);
             }
         }
     }
 
-    public void team_add_gamer(TeamState a, GamerState b) {
-        GamerState gamer = globalState.getGamers().get(b.getUuid());
-        TeamState team = globalState.getTeams().get(a.getName());
+    public void team_add_gamer(Team a, Gamer b) {
+        Gamer gamer = context.getGamers().get(b.getUuid());
+        Team team = context.getTeams().get(a.getName());
         if(team != null && gamer != null) {
             team.addMember(gamer);
             gamer_update(gamer);
@@ -64,9 +64,9 @@ public class MasterService extends ServerModule {
         }
     }
 
-    public void team_remove_gamer(TeamState a, GamerState b) {
-        GamerState gamer = globalState.getGamers().get(b.getUuid());
-        TeamState team = globalState.getTeams().get(a.getName());
+    public void team_remove_gamer(Team a, Gamer b) {
+        Gamer gamer = context.getGamers().get(b.getUuid());
+        Team team = context.getTeams().get(a.getName());
         if(team != null && gamer != null) {
             team.removeMember(gamer);
             gamer_update(gamer);
@@ -75,16 +75,16 @@ public class MasterService extends ServerModule {
     }
 
     public void gamer_create_gamer(UUID uuid){
-        if(!this.globalState.getGamers().containsKey(uuid)){
-            GamerState gamer = new GamerState(uuid);
-            this.globalState.getGamers().put(uuid,gamer);
+        if(!this.context.getGamers().containsKey(uuid)){
+            Gamer gamer = new Gamer(uuid);
+            this.context.getGamers().put(uuid,gamer);
             gamer_update(gamer);
         }
     }
 
-    public void plot_set_owner(PlotState a, String address){
-        UUID ownerUUID = this.globalState.getLinked().getOrDefault(address,null);
-        PlotState plot = this.globalState.getPlot(a.getId());
+    public void plot_set_owner(Plot a, String address){
+        UUID ownerUUID = this.context.getLinked().getOrDefault(address,null);
+        Plot plot = this.context.getPlot(a.getId());
 
     }
 
@@ -95,13 +95,13 @@ public class MasterService extends ServerModule {
                 gamer_create_gamer((UUID) args[0]);
                 break;
             case "team_add_gamer":
-                team_add_gamer((TeamState) args[0], (GamerState) args[1]);
+                team_add_gamer((Team) args[0], (Gamer) args[1]);
                 break;
             case "team_remove_gamer":
-                team_remove_gamer((TeamState) args[0],(GamerState) args[1]);
+                team_remove_gamer((Team) args[0],(Gamer) args[1]);
                 break;
             case "team_create_team":
-                team_create_team((GamerState) args[0], (String) args[1]);
+                team_create_team((Gamer) args[0], (String) args[1]);
                 break;
             default:
                 break;
@@ -109,11 +109,11 @@ public class MasterService extends ServerModule {
         save();
     }
 
-    private void gamer_update(GamerState gamer){
+    private void gamer_update(Gamer gamer){
         this.channels.gamer_update.publish(gamer);
     }
 
-    private void team_update(TeamState team){
+    private void team_update(Team team){
         this.channels.team_update.publish(team);
     }
 }

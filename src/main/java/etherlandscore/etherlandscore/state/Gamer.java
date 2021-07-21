@@ -1,17 +1,17 @@
-package etherlandscore.etherlandscore.stateholder;
+package etherlandscore.etherlandscore.state;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class GamerState extends StateHolder {
+public class Gamer extends StateHolder {
 
     private final UUID uuid;
 
     private String team;
 
-    public GamerState(UUID uuid) {
+    public Gamer(UUID uuid) {
         this.uuid = uuid;
     }
 
@@ -26,5 +26,4 @@ public class GamerState extends StateHolder {
     public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
-
 }

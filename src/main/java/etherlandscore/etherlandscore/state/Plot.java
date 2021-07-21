@@ -1,4 +1,4 @@
-package etherlandscore.etherlandscore.stateholder;
+package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -8,7 +8,7 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
 
-public class PlotState extends StateHolder{
+public class Plot extends StateHolder{
     private transient Chunk chunk;
 
     private final Integer id;
@@ -18,7 +18,7 @@ public class PlotState extends StateHolder{
     private UUID ownerUUID;
     private String ownerServerName;
 
-    public PlotState(Integer id, Integer x, Integer z, String ownerAddress) {
+    public Plot(Integer id, Integer x, Integer z, String ownerAddress) {
         this.chunk = Bukkit.getWorld("world").getChunkAt(x,z);
         this.id = id;
         this.x = x;

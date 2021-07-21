@@ -1,4 +1,4 @@
-package etherlandscore.etherlandscore.stateholder;
+package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -8,27 +8,27 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class TeamState extends StateHolder{
+public class Team extends StateHolder{
     private final String name;
     private UUID owner;
     private Set<UUID> members = new HashSet<>();
 
-    public TeamState(GamerState gamer, String name) {
+    public Team(Gamer gamer, String name) {
         this.name = name;
         this.owner = gamer.getUuid();
     }
-    public void addMember(Channels channels, GamerState gamer){
+    public void addMember(Channels channels, Gamer gamer){
         channels.master_command.publish(new Message("team_addMember", this,gamer));
     }
 
-    public void addMember(GamerState gamer){
+    public void addMember(Gamer gamer){
         members.add(gamer.getUuid());
     }
-    public void removeMember(Channels channels, GamerState gamer){
+    public void removeMember(Channels channels, Gamer gamer){
         channels.master_command.publish(new Message("team_removeMember",this,gamer));
     }
 
-    public void removeMember(GamerState gamer){
+    public void removeMember(Gamer gamer){
         members.remove(gamer.getUuid());
     }
 

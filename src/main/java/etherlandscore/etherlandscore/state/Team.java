@@ -4,14 +4,14 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Team extends StateHolder{
     private final String name;
     private UUID owner;
     private Set<UUID> members = new HashSet<>();
+
+    private transient Map<UUID,Integer> invites = new HashMap<>();
 
     public Team(Gamer gamer, String name) {
         this.name = name;

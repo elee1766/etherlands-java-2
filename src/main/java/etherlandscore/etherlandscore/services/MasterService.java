@@ -82,6 +82,10 @@ public class MasterService extends ServerModule {
         }
     }
 
+    public void friend_add(Gamer a, Gamer b) {
+        a.addFriend(b);
+    }
+
     public void plot_set_owner(Plot a, String address){
         UUID ownerUUID = this.context.getLinked().getOrDefault(address,null);
         Plot plot = this.context.getPlot(a.getId());

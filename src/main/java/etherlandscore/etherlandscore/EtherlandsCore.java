@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.slashcommands.CommandDisabler;
 import etherlandscore.etherlandscore.slashcommands.PlotCommand;
 import etherlandscore.etherlandscore.slashcommands.TeamCommand;
+import etherlandscore.etherlandscore.slashcommands.FriendCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -41,6 +42,10 @@ public final class EtherlandsCore extends JavaPlugin {
         modules.add(plotCommand);
         plotCommand.register();
 
+        Fiber friendCommandFiber = new ThreadFiber();
+        FriendCommand friendCommand = new FriendCommand(channels,friendCommandFiber);
+        modules.add(friendCommand);
+        friendCommand.register();
 
         Fiber databaseFiber = new ThreadFiber();
         modules.add(new MasterService(channels,databaseFiber));

@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import etherlandscore.etherlandscore.stateholder.GamerState;
 import etherlandscore.etherlandscore.stateholder.GlobalState;
+import etherlandscore.etherlandscore.stateholder.PlotState;
 import etherlandscore.etherlandscore.stateholder.TeamState;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
@@ -35,7 +36,7 @@ public class MasterService extends ServerModule {
         GlobalState writer = globalStatePersister.readJson(gson, GlobalState.class);
         this.globalState = Objects.requireNonNullElseGet(writer, GlobalState::new);
         this.channels.global_update.publish(globalState);
-        this.channels.command.subscribe(fiber,this::process_command);
+        this.channels.master_command.subscribe(fiber,this::process_command);
     }
 
     public void save(){
@@ -79,6 +80,12 @@ public class MasterService extends ServerModule {
             this.globalState.getGamers().put(uuid,gamer);
             gamer_update(gamer);
         }
+    }
+
+    public void plot_set_owner(PlotState a, String address){
+        UUID ownerUUID = this.globalState.getLinked().getOrDefault(address,null);
+        PlotState plot = this.globalState.getPlot(a.getId());
+
     }
 
     private void process_command(Message message){

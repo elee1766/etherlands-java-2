@@ -22,7 +22,7 @@ public class PlayerEventListener extends ListenerClient implements Listener{
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getServer().getConsoleSender().sendMessage("hello there!");
-        channels.command.publish(new Message("gamer_create_gamer",
+        channels.master_command.publish(new Message("gamer_create_gamer",
                 event.getPlayer().getUniqueId()
         ));
     }

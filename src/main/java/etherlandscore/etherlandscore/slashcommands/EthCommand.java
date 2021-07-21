@@ -28,7 +28,6 @@ public class EthCommand extends ListenerClient {
                 .withPermission("etherlands.public")
                 .withArguments(new StringArgument("player").includeSuggestions(info -> Arrays.append(getPlayerStrings(), "__global__")))
                 .executesPlayer((sender, args) -> {
-                    this.channels.requestLinkRescan.publish(sender.getUniqueId());
                 })
         );
         EthCommand.register();

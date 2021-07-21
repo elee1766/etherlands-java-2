@@ -83,7 +83,9 @@ public class MasterService extends ServerModule {
     }
 
     public void friend_add(Gamer a, Gamer b) {
-        a.addFriend(b);
+        Gamer gamer1 = context.getGamers().get(a.getUuid());
+        Gamer gamer2 = context.getGamers().get(b.getUuid());
+        gamer1.addFriend(gamer2);
     }
 
     public void plot_set_owner(Plot a, String address){
@@ -106,6 +108,9 @@ public class MasterService extends ServerModule {
                 break;
             case "team_create_team":
                 team_create_team((Gamer) args[0], (String) args[1]);
+                break;
+            case "friend_add":
+                friend_add((Gamer) args[0], (Gamer) args[1]);
                 break;
             default:
                 break;

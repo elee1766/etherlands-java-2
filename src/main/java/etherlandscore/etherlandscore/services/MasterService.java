@@ -7,7 +7,10 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
-import etherlandscore.etherlandscore.state.*;
+import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
@@ -22,7 +25,6 @@ public class MasterService extends ServerModule {
 
     private final Context context;
     private final JsonPersister<Context> globalStatePersister;
-    private final JsonPersister<LocaleStrings> localeStringsPersister;
 
     public MasterService(Channels channels, Fiber fiber) {
         super(fiber);
@@ -31,9 +33,6 @@ public class MasterService extends ServerModule {
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
         this.globalStatePersister = new JsonPersister<>(root + "/db.json");
         Context writer = globalStatePersister.readJson(gson, Context.class);
-        String locale = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
-        this.localeStringsPersister = new JsonPersister<>(root + "/locale.json");
-        LocaleStrings locales = localeStringsPersister.readJson(gson, LocaleStrings.class);
         this.context = Objects.requireNonNullElseGet(writer, Context::new);
         this.channels.global_update.publish(context);
         this.channels.master_command.subscribe(fiber, this::process_command);

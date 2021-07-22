@@ -4,8 +4,9 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.LocaleStrings;
+import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -40,9 +41,9 @@ public class FriendCommand extends ListenerClient {
                   if (!gamer.getFriends().contains(newFriend)) {
                     gamer.addFriend(this.channels, newFriend);
                   } else {
-                    sender.sendMessage(locales.getFriends().get("fail"));
+                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
                   }
-                  sender.sendMessage(locales.getFriends().get("success"));
+                  sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
                 }));
 
     FriendCommand.withSubcommand(

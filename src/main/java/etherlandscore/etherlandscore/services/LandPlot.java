@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.services;
 
-
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 import org.web3j.abi.EventEncoder;
@@ -107,16 +106,27 @@ public class LandPlot extends Contract {
     public static final String FUNC_TRANSFEROWNERSHIP = "transferOwnership";
 
     public static final Event APPROVAL_EVENT = new Event("Approval",
-            Arrays.asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}));
+            Arrays.asList(new TypeReference<Address>(true) {
+            }, new TypeReference<Address>(true) {
+            }, new TypeReference<Uint256>(true) {
+            }));
 
     public static final Event APPROVALFORALL_EVENT = new Event("ApprovalForAll",
-            Arrays.asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Bool>() {}));
+            Arrays.asList(new TypeReference<Address>(true) {
+            }, new TypeReference<Address>(true) {
+            }, new TypeReference<Bool>() {
+            }));
 
     public static final Event OWNERSHIPTRANSFERRED_EVENT = new Event("OwnershipTransferred",
-            Arrays.asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}));
+            Arrays.asList(new TypeReference<Address>(true) {
+            }, new TypeReference<Address>(true) {
+            }));
 
     public static final Event TRANSFER_EVENT = new Event("Transfer",
-            Arrays.asList(new TypeReference<Address>(true) {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}));
+            Arrays.asList(new TypeReference<Address>(true) {
+            }, new TypeReference<Address>(true) {
+            }, new TypeReference<Uint256>(true) {
+            }));
 
     protected static final HashMap<String, String> _addresses;
 
@@ -140,6 +150,46 @@ public class LandPlot extends Contract {
 
     protected LandPlot(String contractAddress, Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
         super(BINARY, contractAddress, web3j, transactionManager, contractGasProvider);
+    }
+
+    @Deprecated
+    public static LandPlot load(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
+        return new LandPlot(contractAddress, web3j, credentials, gasPrice, gasLimit);
+    }
+
+    @Deprecated
+    public static LandPlot load(String contractAddress, Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+        return new LandPlot(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
+    }
+
+    public static LandPlot load(String contractAddress, Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider) {
+        return new LandPlot(contractAddress, web3j, credentials, contractGasProvider);
+    }
+
+    public static LandPlot load(String contractAddress, Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+        return new LandPlot(contractAddress, web3j, transactionManager, contractGasProvider);
+    }
+
+    public static RemoteCall<LandPlot> deploy(Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider) {
+        return deployRemoteCall(LandPlot.class, web3j, credentials, contractGasProvider, BINARY, "");
+    }
+
+    @Deprecated
+    public static RemoteCall<LandPlot> deploy(Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
+        return deployRemoteCall(LandPlot.class, web3j, credentials, gasPrice, gasLimit, BINARY, "");
+    }
+
+    public static RemoteCall<LandPlot> deploy(Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+        return deployRemoteCall(LandPlot.class, web3j, transactionManager, contractGasProvider, BINARY, "");
+    }
+
+    @Deprecated
+    public static RemoteCall<LandPlot> deploy(Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
+        return deployRemoteCall(LandPlot.class, web3j, transactionManager, gasPrice, gasLimit, BINARY, "");
+    }
+
+    public static String getPreviouslyDeployedAddress(String networkId) {
+        return _addresses.get(networkId);
     }
 
     public List<ApprovalEventResponse> getApprovalEvents(TransactionReceipt transactionReceipt) {
@@ -283,7 +333,8 @@ public class LandPlot extends Contract {
     public RemoteFunctionCall<Boolean> _claimAvailable() {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC__CLAIMAVAILABLE,
                 Arrays.asList(),
-                Arrays.asList(new TypeReference<Bool>() {}));
+                Arrays.asList(new TypeReference<Bool>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, Boolean.class);
     }
 
@@ -291,35 +342,40 @@ public class LandPlot extends Contract {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC__OWNED,
                 Arrays.asList(new Int128(param0),
                         new Int128(param1)),
-                Arrays.asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(new TypeReference<Uint256>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteFunctionCall<BigInteger> _plotPriceDistances(BigInteger param0) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC__PLOTPRICEDISTANCES,
                 Arrays.asList(new Uint256(param0)),
-                Arrays.asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(new TypeReference<Uint256>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteFunctionCall<BigInteger> _plotPrices(BigInteger param0) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC__PLOTPRICES,
                 Arrays.asList(new Uint256(param0)),
-                Arrays.asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(new TypeReference<Uint256>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteFunctionCall<BigInteger> _worldLimit() {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC__WORLDLIMIT,
                 Arrays.asList(),
-                Arrays.asList(new TypeReference<Uint128>() {}));
+                Arrays.asList(new TypeReference<Uint128>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteFunctionCall<BigInteger> _worldSize() {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC__WORLDSIZE,
                 Arrays.asList(),
-                Arrays.asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(new TypeReference<Uint256>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
@@ -364,7 +420,8 @@ public class LandPlot extends Contract {
     public RemoteFunctionCall<BigInteger> balanceOf(String owner) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_BALANCEOF,
                 Arrays.asList(new Address(owner)),
-                Arrays.asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(new TypeReference<Uint256>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
@@ -372,21 +429,24 @@ public class LandPlot extends Contract {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_CALCULATELANDCOST,
                 Arrays.asList(new Int128(x),
                         new Int128(z)),
-                Arrays.asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(new TypeReference<Uint256>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteFunctionCall<BigInteger> chunk_x(BigInteger param0) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_CHUNK_X,
                 Arrays.asList(new Uint256(param0)),
-                Arrays.asList(new TypeReference<Int128>() {}));
+                Arrays.asList(new TypeReference<Int128>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteFunctionCall<BigInteger> chunk_y(BigInteger param0) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_CHUNK_Y,
                 Arrays.asList(new Uint256(param0)),
-                Arrays.asList(new TypeReference<Int128>() {}));
+                Arrays.asList(new TypeReference<Int128>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
@@ -406,7 +466,8 @@ public class LandPlot extends Contract {
     public RemoteFunctionCall<String> getApproved(BigInteger tokenId) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_GETAPPROVED,
                 Arrays.asList(new Uint256(tokenId)),
-                Arrays.asList(new TypeReference<Address>() {}));
+                Arrays.asList(new TypeReference<Address>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
@@ -414,14 +475,17 @@ public class LandPlot extends Contract {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_GETCHUNKCLAIM,
                 Arrays.asList(new Int128(x),
                         new Int128(z)),
-                Arrays.asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(new TypeReference<Uint256>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteFunctionCall<Tuple2<BigInteger, BigInteger>> getClaimInfo(BigInteger tokenId) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_GETCLAIMINFO,
                 Arrays.asList(new Uint256(tokenId)),
-                Arrays.asList(new TypeReference<Int128>() {}, new TypeReference<Int128>() {}));
+                Arrays.asList(new TypeReference<Int128>() {
+                }, new TypeReference<Int128>() {
+                }));
         return new RemoteFunctionCall<Tuple2<BigInteger, BigInteger>>(function,
                 new Callable<Tuple2<BigInteger, BigInteger>>() {
                     @Override
@@ -447,7 +511,8 @@ public class LandPlot extends Contract {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_ISAPPROVEDFORALL,
                 Arrays.asList(new Address(owner),
                         new Address(operator)),
-                Arrays.asList(new TypeReference<Bool>() {}));
+                Arrays.asList(new TypeReference<Bool>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, Boolean.class);
     }
 
@@ -478,21 +543,24 @@ public class LandPlot extends Contract {
     public RemoteFunctionCall<String> name() {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_NAME,
                 Arrays.asList(),
-                Arrays.asList(new TypeReference<Utf8String>() {}));
+                Arrays.asList(new TypeReference<Utf8String>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteFunctionCall<String> owner() {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_OWNER,
                 Arrays.asList(),
-                Arrays.asList(new TypeReference<Address>() {}));
+                Arrays.asList(new TypeReference<Address>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteFunctionCall<String> ownerOf(BigInteger tokenId) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_OWNEROF,
                 Arrays.asList(new Uint256(tokenId)),
-                Arrays.asList(new TypeReference<Address>() {}));
+                Arrays.asList(new TypeReference<Address>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
@@ -537,21 +605,24 @@ public class LandPlot extends Contract {
     public RemoteFunctionCall<Boolean> supportsInterface(byte[] interfaceId) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_SUPPORTSINTERFACE,
                 Arrays.asList(new org.web3j.abi.datatypes.generated.Bytes4(interfaceId)),
-                Arrays.asList(new TypeReference<Bool>() {}));
+                Arrays.asList(new TypeReference<Bool>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, Boolean.class);
     }
 
     public RemoteFunctionCall<String> symbol() {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_SYMBOL,
                 Arrays.asList(),
-                Arrays.asList(new TypeReference<Utf8String>() {}));
+                Arrays.asList(new TypeReference<Utf8String>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
     public RemoteFunctionCall<String> tokenURI(BigInteger tokenId) {
         final org.web3j.abi.datatypes.Function function = new org.web3j.abi.datatypes.Function(FUNC_TOKENURI,
                 Arrays.asList(new Uint256(tokenId)),
-                Arrays.asList(new TypeReference<Utf8String>() {}));
+                Arrays.asList(new TypeReference<Utf8String>() {
+                }));
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
@@ -573,47 +644,7 @@ public class LandPlot extends Contract {
         return executeRemoteCallTransaction(function);
     }
 
-    @Deprecated
-    public static LandPlot load(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
-        return new LandPlot(contractAddress, web3j, credentials, gasPrice, gasLimit);
-    }
-
-    @Deprecated
-    public static LandPlot load(String contractAddress, Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
-        return new LandPlot(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
-    }
-
-    public static LandPlot load(String contractAddress, Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider) {
-        return new LandPlot(contractAddress, web3j, credentials, contractGasProvider);
-    }
-
-    public static LandPlot load(String contractAddress, Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
-        return new LandPlot(contractAddress, web3j, transactionManager, contractGasProvider);
-    }
-
-    public static RemoteCall<LandPlot> deploy(Web3j web3j, Credentials credentials, ContractGasProvider contractGasProvider) {
-        return deployRemoteCall(LandPlot.class, web3j, credentials, contractGasProvider, BINARY, "");
-    }
-
-    @Deprecated
-    public static RemoteCall<LandPlot> deploy(Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
-        return deployRemoteCall(LandPlot.class, web3j, credentials, gasPrice, gasLimit, BINARY, "");
-    }
-
-    public static RemoteCall<LandPlot> deploy(Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
-        return deployRemoteCall(LandPlot.class, web3j, transactionManager, contractGasProvider, BINARY, "");
-    }
-
-    @Deprecated
-    public static RemoteCall<LandPlot> deploy(Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
-        return deployRemoteCall(LandPlot.class, web3j, transactionManager, gasPrice, gasLimit, BINARY, "");
-    }
-
     protected String getStaticDeployedAddress(String networkId) {
-        return _addresses.get(networkId);
-    }
-
-    public static String getPreviouslyDeployedAddress(String networkId) {
         return _addresses.get(networkId);
     }
 

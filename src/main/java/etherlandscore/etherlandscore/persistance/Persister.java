@@ -20,6 +20,28 @@ public class Persister {
         this.filepath = filepath;
     }
 
+    // Read no trim
+    public static String readRaw(String toReadPath) {
+        StringBuilder result = new StringBuilder();
+        try {
+            String line;
+            File file = new File(toReadPath);
+            if (file.exists()) {
+                FileReader fileReader = new FileReader(file);
+                BufferedReader bufferedReader = new BufferedReader(fileReader);
+                while ((line = bufferedReader.readLine()) != null) {
+                    result.append(line).append("\n");
+                }
+                fileReader.close();
+            } else {
+                logger.log(Level.WARNING, String.format("Unable to read file at : %s. Returning empty", toReadPath));
+            }
+        } catch (Exception e) {
+            logger.log(Level.WARNING, String.format("Unable to read file at : %s", toReadPath), e);
+        }
+        return result.toString();
+    }
+
     public void overwrite(String toWrite) {
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filepath, false));
@@ -58,28 +80,6 @@ public class Persister {
             }
         } catch (Exception e) {
             logger.log(Level.WARNING, String.format("Unable to read file at : %s", filepath), e);
-        }
-        return result.toString();
-    }
-
-    // Read no trim
-    public static String readRaw(String toReadPath) {
-        StringBuilder result = new StringBuilder();
-        try {
-            String line;
-            File file = new File(toReadPath);
-            if (file.exists()) {
-                FileReader fileReader = new FileReader(file);
-                BufferedReader bufferedReader = new BufferedReader(fileReader);
-                while ((line = bufferedReader.readLine()) != null) {
-                    result.append(line).append("\n");
-                }
-                fileReader.close();
-            } else {
-                logger.log(Level.WARNING, String.format("Unable to read file at : %s. Returning empty", toReadPath));
-            }
-        } catch (Exception e) {
-            logger.log(Level.WARNING, String.format("Unable to read file at : %s", toReadPath), e);
         }
         return result.toString();
     }

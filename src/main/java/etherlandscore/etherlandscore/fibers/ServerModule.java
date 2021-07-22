@@ -9,12 +9,11 @@ public class ServerModule {
         this.fiber = fiber;
     }
 
-    public void start(){
+    public void start() {
         fiber.start();
     }
 
-    public void stop(){
+    public void stop() {
         fiber.dispose();
     }
-
 }

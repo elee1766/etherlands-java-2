@@ -1,9 +1,9 @@
 package etherlandscore.etherlandscore.enums;
 
 public enum AccessFlags {
-        NONE,
-        BUILD,
-        DESTROY,
-        INTERACT,
-        ACCESS,
+    NONE,
+    BUILD,
+    DESTROY,
+    INTERACT,
+    ACCESS,
 }

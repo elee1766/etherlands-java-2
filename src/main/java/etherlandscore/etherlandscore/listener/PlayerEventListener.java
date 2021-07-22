@@ -9,12 +9,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetlang.fibers.Fiber;
 
-public class PlayerEventListener extends ListenerClient implements Listener{
+public class PlayerEventListener extends ListenerClient implements Listener {
 
     private final Fiber fiber;
     private final Channels channels;
+
     public PlayerEventListener(Channels channels, Fiber fiber) {
-        super(channels,fiber);
+        super(channels, fiber);
         this.fiber = fiber;
         this.channels = channels;
     }

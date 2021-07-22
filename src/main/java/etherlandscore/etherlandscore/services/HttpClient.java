@@ -13,16 +13,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class HttpClient extends ServerModule implements HttpHandler {
     private final Channels channels;
+
     public HttpClient(Channels channels, Fiber fiber) {
         super(fiber);
         this.channels = channels;
     }
+
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         Map<String, String> requestParamValue = null;
@@ -32,17 +34,17 @@ public class HttpClient extends ServerModule implements HttpHandler {
         }
     }
 
-    private Map<String,String> handleGetRequest(HttpExchange httpExchange) throws UnsupportedEncodingException {
-        Map<String ,String> queryMap = new HashMap<>();
-        String[] pairs = httpExchange.getRequestURI().getQuery().toString().split("&");
+    private Map<String, String> handleGetRequest(HttpExchange httpExchange) throws UnsupportedEncodingException {
+        Map<String, String> queryMap = new HashMap<>();
+        String[] pairs = httpExchange.getRequestURI().getQuery().split("&");
         for (String pair : pairs) {
             int idx = pair.indexOf("=");
-            queryMap.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+            queryMap.put(URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8), URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8));
         }
         return queryMap;
     }
 
-    private void handleResponse(HttpExchange httpExchange, Map<String,String> queryArgs) throws IOException {
+    private void handleResponse(HttpExchange httpExchange, Map<String, String> queryArgs) throws IOException {
         OutputStream outputStream = httpExchange.getResponseBody();
         StringBuilder htmlBuilder = new StringBuilder();
         htmlBuilder.append("<html>").
@@ -79,7 +81,6 @@ public class HttpClient extends ServerModule implements HttpHandler {
                     } catch (Exception e) {
                         htmlBuilder
                                 .append("failed to verify your message-signature combination");
-
                         Bukkit.getLogger().info(e.toString());
                         Bukkit.getLogger().info(e.getMessage());
                         e.printStackTrace();
@@ -93,13 +94,13 @@ public class HttpClient extends ServerModule implements HttpHandler {
                                 .append(info.uuid())
                                 .append("<br>");
                         channels.master_command.publish(new Message("player_link_address", info));
-                    }else {
+                    } else {
                         htmlBuilder
                                 .append("fields did not match");
                     }
                 }
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             Bukkit.getLogger().info(e.toString());
             Bukkit.getLogger().info(e.getMessage());
             e.printStackTrace();
@@ -107,7 +108,6 @@ public class HttpClient extends ServerModule implements HttpHandler {
         htmlBuilder
                 .append("</body>")
                 .append("</html>");
-
         // encode HTML content
         String htmlResponse = htmlBuilder.toString();//StringEscapeUtils.escapeHtml(htmlBuilder.toString());
         // this line is a must
@@ -116,5 +116,4 @@ public class HttpClient extends ServerModule implements HttpHandler {
         outputStream.flush();
         outputStream.close();
     }
-
 }

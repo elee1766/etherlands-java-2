@@ -1,4 +1,3 @@
-
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
@@ -12,13 +11,14 @@ import org.jetlang.fibers.Fiber;
 public class EthCommand extends ListenerClient {
     private final Fiber fiber;
     private final Channels channels;
+
     public EthCommand(Channels channels, Fiber fiber) {
-        super(channels,fiber);
+        super(channels, fiber);
         this.fiber = fiber;
         this.channels = channels;
     }
 
-    public void register(){
+    public void register() {
         CommandAPICommand EthCommand = new CommandAPICommand("eth").withPermission("etherlands.public").executesPlayer(this::runHelpCommand);
         EthCommand.withSubcommand(new CommandAPICommand("help")
                 .withPermission("etherlands.public")
@@ -33,7 +33,7 @@ public class EthCommand extends ListenerClient {
         EthCommand.register();
     }
 
-    void runHelpCommand(Player sender, Object[] args){
+    void runHelpCommand(Player sender, Object[] args) {
         sender.sendMessage("relink");
     }
 }

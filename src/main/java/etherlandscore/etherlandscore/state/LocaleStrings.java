@@ -1,12 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
-
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.Message;
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class LocaleStrings {
 
@@ -21,12 +16,13 @@ public class LocaleStrings {
     public Map<String, String> getFriends() {
         return friends;
     }
+
     public Map<String, String> getPlots() {
         return plots;
     }
+
     public Map<String, String> getTeams() {
         return teams;
     }
-
 }
 

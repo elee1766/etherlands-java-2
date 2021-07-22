@@ -18,7 +18,7 @@ public class JsonPersister<DtoType> extends Persister {
 
     @SuppressWarnings("unchecked")
     public DtoType readJson(Gson gson, Class clazz) {
-        try{
+        try {
             JsonReader reader = new JsonReader(new StringReader(read()));
             reader.setLenient(true);
             return gson.fromJson(reader, clazz);

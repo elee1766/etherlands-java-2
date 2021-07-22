@@ -9,20 +9,17 @@ import org.bouncycastle.util.Arrays;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-import java.util.UUID;
-
-import static net.md_5.bungee.api.ChatColor.*;
-
 public class PlotCommand extends ListenerClient {
     private final Fiber fiber;
     private final Channels channels;
+
     public PlotCommand(Channels channels, Fiber fiber) {
-        super(channels,fiber);
+        super(channels, fiber);
         this.fiber = fiber;
         this.channels = channels;
     }
 
-    public void register(){
+    public void register() {
         CommandAPICommand ChunkCommand = new CommandAPICommand("plot").withPermission("etherlands.public").executesPlayer(this::runHelpCommand);
         ChunkCommand.withSubcommand(new CommandAPICommand("help")
                 .withPermission("etherlands.public")
@@ -44,12 +41,10 @@ public class PlotCommand extends ListenerClient {
                 .executesPlayer((sender, args) -> {
                 })
         );
-
         ChunkCommand.withSubcommand(new CommandAPICommand("info")
                 .withPermission("etherlands.public")
                 .executesPlayer((sender, args) -> {
                 }));
-
         ChunkCommand.withSubcommand(new CommandAPICommand("info")
                 .withArguments(new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
                 .withPermission("etherlands.public")
@@ -64,7 +59,7 @@ public class PlotCommand extends ListenerClient {
         ChunkCommand.register();
     }
 
-    void runHelpCommand(Player sender, Object[] args){
+    void runHelpCommand(Player sender, Object[] args) {
         sender.sendMessage("update info invite join delete");
     }
 }

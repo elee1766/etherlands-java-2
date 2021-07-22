@@ -10,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.stream.Stream;
 
 public class ListenerClient extends ServerModule {
@@ -30,17 +31,26 @@ public class ListenerClient extends ServerModule {
     channels.global_update.subscribe(
         fiber,
         global -> {
-          this.context = global;
+          context = global;
         });
     channels.gamer_update.subscribe(
         fiber,
         player -> {
-          this.context.getGamers().put(player.getUuid(), player);
+          context.getGamers().put(player.getUuid(), player);
         });
     channels.team_update.subscribe(
         fiber,
         team -> {
-          this.context.getTeams().put(team.getName(), team);
+          context.getTeams().put(team.getName(), team);
+        });
+    channels.plot_update.subscribe(
+        fiber,
+        plot -> {
+          context.getPlots().put(plot.getId(), plot);
+          if (!context.getPlotLocations().containsKey(plot.getX())) {
+            context.getPlotLocations().put(plot.getX(), new HashMap<>());
+          }
+          context.getPlotLocations().get(plot.getX()).put(plot.getZ(), plot.getId());
         });
   }
 

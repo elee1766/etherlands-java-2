@@ -1,22 +1,30 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class TeamCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
+  private final Map<String, Map<UUID, Long>> invites = new HashMap<>();
 
   public TeamCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
     this.fiber = fiber;
     this.channels = channels;
+    register();
   }
 
   public void register() {
@@ -36,25 +44,25 @@ public class TeamCommand extends ListenerClient {
                 }));
     TeamCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  team_info(sender, (String) args[0]);
-                }));
-    TeamCommand.withSubcommand(
-        new CommandAPICommand("info")
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   if (!gamer.getTeam().equals("")) {
                     team_info(sender, gamer.getTeam());
-                    sender.sendMessage("you have left " + gamer.getTeam());
                   } else {
-                    sender.sendMessage("/team info <team-name>");
+                    sender.sendMessage("/team info <teamname>");
                   }
                 }));
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("info")
+            .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  team_info(sender, (String) args[0]);
+                }));
+
     TeamCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(new StringArgument("team-name"))
@@ -75,8 +83,70 @@ public class TeamCommand extends ListenerClient {
                 }));
     TeamCommand.withSubcommand(
         new CommandAPICommand("invite")
+            .withArguments(new PlayerArgument("player"))
             .withPermission("etherlands.public")
-            .executesPlayer((sender, args) -> {}));
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer inviter = context.getGamer(sender.getUniqueId());
+                  Gamer receiver = context.getGamer(((Player) args[0]).getUniqueId());
+                  if (inviter != null) {
+                    Team team = context.getTeam(inviter.getTeam());
+                    if (team != null) {
+                      if (team.canInvite(inviter)) {
+                        if (!this.invites.containsKey(team.getName())) {
+                          this.invites.put(team.getName(), new HashMap<>());
+                        }
+                        team.inviteGamer(this.invites.get(team.getName()), receiver.getUuid());
+                        receiver
+                            .getPlayer()
+                            .sendMessage("you have been invited to " + inviter.getTeam());
+                        receiver
+                            .getPlayer()
+                            .sendMessage(
+                                "send command \"/team join " + inviter.getTeam() + "\" to join");
+                      }
+                    }
+                  }
+                }));
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("join")
+            .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer joiner = context.getGamer(sender.getUniqueId());
+                  if (joiner != null) {
+                    Team team = context.getTeam((String) args[0]);
+                    if (team != null) {
+                      if (team.canJoin(
+                          this.invites.getOrDefault(team.getName(), new HashMap<>()), joiner)) {
+                        team.addMember(this.channels, joiner);
+                        sender.sendMessage("welcome to " + args[0]);
+                      } else {
+                        sender.sendMessage("you must be invited before joining " + args[0]);
+                      }
+                    }
+                  }
+                }));
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("leave")
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  if (!gamer.getTeam().equals("")) {
+                    Team team = context.getTeam(gamer.getTeam());
+                    if (team.getOwnerUUID().equals(gamer.getUuid())) {
+                      sender.sendMessage("you cannot leave the team you own");
+                    } else {
+                      team.removeMember(channels, gamer);
+                      sender.sendMessage("you have left " + gamer.getTeam());
+                    }
+                  } else {
+                    sender.sendMessage("you are not in a team");
+                  }
+                }));
+
     TeamCommand.register();
   }
 

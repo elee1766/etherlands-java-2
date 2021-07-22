@@ -34,6 +34,9 @@ public class BlockBreakAction extends PermissionedAction {
     // first check if plot is in a team
     if (plot.hasTeam()) {
       Team team = getContext().getTeam(plot.getTeam());
+      if (!team.getName().equals(plot.getTeam())) {
+        return super.rollback();
+      }
       Set<String> regionNames = plot.getRegions();
       SortedSet<Region> regionSet = new TreeSet<>();
       for (String regionName : regionNames) {
@@ -53,6 +56,9 @@ public class BlockBreakAction extends PermissionedAction {
       Gamer owner = getContext().getGamer(plot.getOwner());
       if (owner == null) {
         return super.rollback();
+      }
+      if (gamer.getUuid().equals(plot.getOwner())) {
+        return super.process();
       }
       if (owner.getFriends().contains(gamer.getUuid())) {
         return super.process();

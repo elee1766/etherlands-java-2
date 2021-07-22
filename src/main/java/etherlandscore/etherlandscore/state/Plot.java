@@ -79,4 +79,12 @@ public class Plot extends StateHolder {
   public Set<String> getRegions() {
     return regions;
   }
+
+  public Integer getZ() {
+    return z;
+  }
+
+  public Integer getX() {
+    return x;
+  }
 }

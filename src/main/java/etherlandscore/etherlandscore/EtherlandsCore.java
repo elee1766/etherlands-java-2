@@ -2,7 +2,9 @@ package etherlandscore.etherlandscore;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
+import etherlandscore.etherlandscore.listener.BlockEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
+import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.slashcommands.CommandDisabler;
 import etherlandscore.etherlandscore.slashcommands.FriendCommand;
@@ -12,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,25 +25,30 @@ public final class EtherlandsCore extends JavaPlugin {
     getLogger().info("onEnable is called!");
     List<ServerModule> modules = new ArrayList<>();
     Channels channels = new Channels();
-    getLogger().info("Hooking Event ListenerS");
+    getLogger().info("Hooking Event Listeners");
     Fiber playerEventListenerFiber = new ThreadFiber();
     PlayerEventListener playerEventListener =
         new PlayerEventListener(channels, playerEventListenerFiber);
     modules.add(playerEventListener);
     getServer().getPluginManager().registerEvents(playerEventListener, this);
+    Fiber blockEventListenerFiber = new ThreadFiber();
+    BlockEventListener blockEventListener =
+        new BlockEventListener(channels, blockEventListenerFiber);
+    modules.add(blockEventListener);
+    getServer().getPluginManager().registerEvents(blockEventListener, this);
     new CommandDisabler().disable();
     Fiber teamCommandFiber = new ThreadFiber();
-    TeamCommand teamCommand = new TeamCommand(channels, teamCommandFiber);
-    modules.add(teamCommand);
-    teamCommand.register();
+    modules.add(new TeamCommand(channels, teamCommandFiber));
     Fiber plotCommandFiber = new ThreadFiber();
-    PlotCommand plotCommand = new PlotCommand(channels, plotCommandFiber);
-    modules.add(plotCommand);
-    plotCommand.register();
+    modules.add(new PlotCommand(channels, plotCommandFiber));
     Fiber friendCommandFiber = new ThreadFiber();
-    FriendCommand friendCommand = new FriendCommand(channels, friendCommandFiber);
-    modules.add(friendCommand);
-    friendCommand.register();
+    modules.add(new FriendCommand(channels, friendCommandFiber));
+    Fiber ethersFiber = new ThreadFiber();
+    try {
+      modules.add(new EthereumService(channels, ethersFiber));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     Fiber databaseFiber = new ThreadFiber();
     modules.add(new MasterService(channels, databaseFiber));
     for (var m : modules) {

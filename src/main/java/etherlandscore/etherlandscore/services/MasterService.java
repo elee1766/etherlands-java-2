@@ -89,6 +89,8 @@ public class MasterService extends ServerModule {
         Gamer gamer1 = context.getGamers().get(a.getUuid());
         Gamer gamer2 = context.getGamers().get(b.getUuid());
         gamer1.addFriend(gamer2);
+        gamer_update(gamer1);
+        gamer_update(gamer2);
     }
 
 
@@ -96,6 +98,8 @@ public class MasterService extends ServerModule {
         Gamer gamer1 = context.getGamers().get(a.getUuid());
         Gamer gamer2 = context.getGamers().get(b.getUuid());
         gamer1.removeFriend(gamer2);
+        gamer_update(gamer1);
+        gamer_update(gamer2);
     }
 
     public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {

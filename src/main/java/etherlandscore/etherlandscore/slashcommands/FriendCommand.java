@@ -53,7 +53,7 @@ public class FriendCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Gamer newFriend = context.getGamer(((Player) args[0]).getUniqueId());
-                  if (gamer.getFriends().contains(newFriend)) {
+                  if (gamer.getFriends().contains(newFriend.getUuid())) {
                     gamer.removeFriend(this.channels, newFriend);
                   } else {
                     sender.sendMessage(locales.getFriends().get("fail"));

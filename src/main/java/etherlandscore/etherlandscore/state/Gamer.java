@@ -15,7 +15,7 @@ public class Gamer extends StateHolder {
   private final UUID uuid;
 
   private String team;
-  private Set<Gamer> friends;
+  private Set<UUID> friends;
 
   public Gamer(UUID uuid) {
     this.uuid = uuid;
@@ -31,11 +31,11 @@ public class Gamer extends StateHolder {
   }
 
   public void addFriend(Gamer gamer) {
-    friends.add(gamer);
+    friends.add(gamer.getUuid());
   }
 
   public void removeFriend(Gamer gamer) {
-    friends.remove(gamer);
+    friends.remove(gamer.getUuid());
   }
 
   public Set getFriends() {

@@ -24,7 +24,7 @@ public class BlockPlaceAction extends PermissionedAction {
     Plot plot =
         getContext()
             .findPlot(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
-    // ops can always build
+    // ops can always build/destroy
     if (gamer.getPlayer().isOp()) {
       return super.process();
     }

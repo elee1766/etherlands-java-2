@@ -6,10 +6,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Context;
-import etherlandscore.etherlandscore.state.Plot;
-import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.state.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
@@ -24,6 +21,7 @@ public class MasterService extends ServerModule {
 
     private final Context context;
     private final JsonPersister<Context> globalStatePersister;
+    private final JsonPersister<LocaleStrings> localeStringsPersister;
 
     public MasterService(Channels channels, Fiber fiber) {
         super(fiber);
@@ -34,10 +32,17 @@ public class MasterService extends ServerModule {
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
         this.globalStatePersister =new JsonPersister<>(root + "/db.json");
         Context writer = globalStatePersister.readJson(gson, Context.class);
+
+        String locale = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
+        this.localeStringsPersister =new JsonPersister<>(root + "/locale.json");
+        LocaleStrings locales = localeStringsPersister.readJson(gson, LocaleStrings.class);
+
         this.context = Objects.requireNonNullElseGet(writer, Context::new);
         this.channels.global_update.publish(context);
         this.channels.master_command.subscribe(fiber,this::process_command);
     }
+
+
 
     public void save(){
         globalStatePersister.overwrite(gson.toJson(this.context));
@@ -49,7 +54,6 @@ public class MasterService extends ServerModule {
             Team team = new Team(gamer, b);
             if(!context.getTeams().containsKey(b)) {
                 context.getTeams().put(b,team);
-                gamer.setTeam(team.getName());
                 this.channels.global_update.publish(context);
             }
         }
@@ -60,7 +64,6 @@ public class MasterService extends ServerModule {
         Team team = context.getTeams().get(a.getName());
         if(team != null && gamer != null) {
             team.addMember(gamer);
-            gamer.setTeam(team.getName());
             gamer_update(gamer);
             team_update(team);
         }
@@ -70,12 +73,9 @@ public class MasterService extends ServerModule {
         Gamer gamer = context.getGamers().get(b.getUuid());
         Team team = context.getTeams().get(a.getName());
         if(team != null && gamer != null) {
-            if(!gamer.getUuid().equals(team.getOwnerUUID())) {
-                team.removeMember(gamer);
-                gamer.setTeam("");
-                gamer_update(gamer);
-                team_update(team);
-            }
+            team.removeMember(gamer);
+            gamer_update(gamer);
+            team_update(team);
         }
     }
 
@@ -101,7 +101,6 @@ public class MasterService extends ServerModule {
 
     private void process_command(Message message){
         Object[] args = message.getArgs();
-        Bukkit.getLogger().info("[master] received command:" + message.getCommand());
         switch(message.getCommand()) {
             case "gamer_create_gamer":
                 gamer_create_gamer((UUID) args[0]);
@@ -119,7 +118,6 @@ public class MasterService extends ServerModule {
                 friend_add((Gamer) args[0], (Gamer) args[1]);
                 break;
             default:
-                Bukkit.getLogger().info("unknown command:" + message.getCommand());
                 break;
         }
         save();

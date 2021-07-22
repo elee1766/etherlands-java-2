@@ -45,7 +45,7 @@ public class BlockBreakAction extends PermissionedAction {
                 }
             }
             super.rollback();
-        }else {
+        }else{
             Gamer owner = getContext().getGamer(plot.getOwner());
             if (owner == null) {
                 return super.rollback();

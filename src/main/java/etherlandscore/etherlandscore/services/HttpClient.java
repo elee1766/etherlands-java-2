@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,10 +34,10 @@ public class HttpClient extends ServerModule implements HttpHandler {
 
     private Map<String,String> handleGetRequest(HttpExchange httpExchange) throws UnsupportedEncodingException {
         Map<String ,String> queryMap = new HashMap<>();
-        String[] pairs = httpExchange.getRequestURI().getQuery().split("&");
+        String[] pairs = httpExchange.getRequestURI().getQuery().toString().split("&");
         for (String pair : pairs) {
             int idx = pair.indexOf("=");
-            queryMap.put(URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8), URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8));
+            queryMap.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
         }
         return queryMap;
     }

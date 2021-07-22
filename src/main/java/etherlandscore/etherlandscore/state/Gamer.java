@@ -11,11 +11,13 @@ import java.util.UUID;
 public class Gamer extends StateHolder {
 
     private final UUID uuid;
-    private String team = "";
+
+    private String team;
 
     public Gamer(UUID uuid) {
         this.uuid = uuid;
     }
+
     private List<Gamer> friends;
 
     public void addFriend(Channels channels, Gamer gamer) {
@@ -27,17 +29,17 @@ public class Gamer extends StateHolder {
     }
 
     public List getFriends() {return friends;}
+
     public void setTeam(String team) {
         this.team = team;
     }
+
     public UUID getUuid() {
         return uuid;
     }
+
     public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
 
-    public String getTeam() {
-        return team;
-    }
 }

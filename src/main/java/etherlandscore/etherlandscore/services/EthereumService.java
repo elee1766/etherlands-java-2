@@ -2,8 +2,8 @@ package etherlandscore.etherlandscore.services;
 
 import com.sun.net.httpserver.HttpServer;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.state.Plot;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -84,7 +84,7 @@ public class EthereumService extends ListenerClient {
         Bukkit.getLogger().info(owneraddr + " " + x.toString() + " " + z.toString());
         if (x != 0 || z != 0) {
             if (owneraddr != null) {
-                this.channels.master_command.publish(new Message("plot_create_plot", new Plot(chunkId, x, z, owneraddr)));
+                this.channels.master_command.publish(new Message<>(MasterCommand.plot_update_plot, chunkId, x, z, owneraddr));
             }
         }
     }

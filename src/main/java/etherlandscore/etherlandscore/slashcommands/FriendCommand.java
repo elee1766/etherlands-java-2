@@ -1,11 +1,12 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.LocaleStrings;
+import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 public class FriendCommand extends ListenerClient {
@@ -17,6 +18,7 @@ public class FriendCommand extends ListenerClient {
     super(channels, fiber);
     this.fiber = fiber;
     this.channels = channels;
+    register();
   }
 
   public void register() {
@@ -29,15 +31,30 @@ public class FriendCommand extends ListenerClient {
                 });
     FriendCommand.withSubcommand(
         new CommandAPICommand("add")
-            .withArguments(
-                new StringArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
+            .withArguments(new PlayerArgument("friend"))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamers().get(sender.getUniqueId());
-                  Gamer newFriend = context.getGamers().get(args[0]);
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Gamer newFriend = context.getGamer(((Player) args[0]).getUniqueId());
                   if (!gamer.getFriends().contains(newFriend)) {
                     gamer.addFriend(this.channels, newFriend);
+                  } else {
+                    sender.sendMessage(locales.getFriends().get("fail"));
+                  }
+                  sender.sendMessage(locales.getFriends().get("success"));
+                }));
+
+    FriendCommand.withSubcommand(
+        new CommandAPICommand("remove")
+            .withArguments(new PlayerArgument("friend"))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Gamer newFriend = context.getGamer(((Player) args[0]).getUniqueId());
+                  if (gamer.getFriends().contains(newFriend.getUuid())) {
+                    gamer.removeFriend(this.channels, newFriend);
                   } else {
                     sender.sendMessage(locales.getFriends().get("fail"));
                   }

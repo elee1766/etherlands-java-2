@@ -3,6 +3,7 @@ package etherlandscore.etherlandscore.state;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
+import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +34,12 @@ public class Context {
   }
 
   public void createTeam(Channels channels, Gamer gamer, String name) {
-    channels.master_command.publish(new Message(MasterCommand.team_create_team, gamer, name));
+    channels.master_command.publish(new Message<>(MasterCommand.team_create_team, gamer, name));
   }
 
   public Plot findPlot(Integer x, Integer z) {
     Integer id = plotLocations.getOrDefault(x, new HashMap<>()).getOrDefault(z, null);
+    Bukkit.getLogger().info(x + " " + z + " " + id);
     if (id != null) {
       return getPlot(id);
     }
@@ -58,5 +60,9 @@ public class Context {
 
   public Map<Integer, Plot> getPlots() {
     return plots;
+  }
+
+  public Map<Integer, Map<Integer, Integer>> getPlotLocations() {
+    return plotLocations;
   }
 }

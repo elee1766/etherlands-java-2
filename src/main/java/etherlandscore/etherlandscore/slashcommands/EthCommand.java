@@ -16,6 +16,7 @@ public class EthCommand extends ListenerClient {
     super(channels, fiber);
     this.fiber = fiber;
     this.channels = channels;
+    register();
   }
 
   public void register() {

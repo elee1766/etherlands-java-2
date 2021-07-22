@@ -6,6 +6,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,21 +15,33 @@ public class Gamer extends StateHolder {
   private final UUID uuid;
 
   private String team;
-  private Set<Gamer> friends;
+  private Set<UUID> friends;
 
   public Gamer(UUID uuid) {
     this.uuid = uuid;
   }
 
   public void addFriend(Channels channels, Gamer gamer) {
-    channels.master_command.publish(new Message(MasterCommand.gamer_add_friend, this, gamer));
+    channels.master_command.publish(new Message<>(MasterCommand.gamer_add_friend, this, gamer));
+  }
+
+  public void removeFriend(Channels channels, Gamer newFriend) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.gamer_remove_friend, this, newFriend));
   }
 
   public void addFriend(Gamer gamer) {
-    friends.add(gamer);
+    friends.add(gamer.getUuid());
+  }
+
+  public void removeFriend(Gamer gamer) {
+    friends.remove(gamer.getUuid());
   }
 
   public Set getFriends() {
+    if (friends == null) {
+      friends = new HashSet<>();
+    }
     return friends;
   }
 

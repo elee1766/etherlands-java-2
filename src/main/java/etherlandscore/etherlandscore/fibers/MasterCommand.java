@@ -10,5 +10,5 @@ public enum MasterCommand {
   region_remove_plot,
   region_add_plot,
   player_link_address,
-  team_add_gamer
+  plot_create_plot, team_add_gamer
 }

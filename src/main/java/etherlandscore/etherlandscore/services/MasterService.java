@@ -16,7 +16,6 @@ import java.util.UUID;
 
 public class MasterService extends ServerModule {
     private final Channels channels;
-    private final Fiber fiber;
 
     private final Gson gson;
 
@@ -27,7 +26,6 @@ public class MasterService extends ServerModule {
     public MasterService(Channels channels, Fiber fiber) {
         super(fiber);
         this.channels = channels;
-        this.fiber = fiber;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
         this.globalStatePersister = new JsonPersister<>(root + "/db.json");
@@ -106,11 +104,14 @@ public class MasterService extends ServerModule {
         Object[] args = message.getArgs();
         switch (message.getCommand()) {
             case gamer_create_gamer -> gamer_create_gamer((UUID) args[0]);
+            case plot_create_plot -> plot_create_plot((Integer) args[0], (Integer) args[1], (Integer) args[2],(String) args[3]);
             case team_add_gamer -> team_add_gamer((Team) args[0], (Gamer) args[1]);
             case team_remove_gamer -> team_remove_gamer((Team) args[0], (Gamer) args[1]);
             case team_create_team -> team_create_team((Gamer) args[0], (String) args[1]);
             case gamer_add_friend -> friend_add((Gamer) args[0], (Gamer) args[1]);
             case plot_set_owner -> plot_set_owner((Plot) args[0], (String) args[1]);
+            case region_set_priority, player_link_address, region_add_plot, region_remove_plot -> {
+            }
         }
         save();
     }

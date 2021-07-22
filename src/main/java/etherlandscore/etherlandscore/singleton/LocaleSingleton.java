@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import org.bukkit.Bukkit;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class LocaleSingleton {
   private static LocaleStrings locale = null;
@@ -20,12 +19,18 @@ public class LocaleSingleton {
     new File(root).mkdirs();
     File json = new File(root+"/locale.json");
     try {
-      json.createNewFile();
+      if(json.createNewFile()){
+        LocaleSingleton.loadDefaults(root);
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
     this.localeStringsPersister = new JsonPersister<>(root + "/locale.json");
     locale = localeStringsPersister.readJson(this.gson, LocaleStrings.class);
+  }
+
+  private static void loadDefaults(String root) throws IOException {
+    //figure out how to load defaults into file
   }
 
   public static LocaleSingleton getInstance(){

@@ -28,7 +28,7 @@ public class MasterService extends ServerModule {
         this.channels = channels;
         this.fiber = fiber;
 
-        this.gson = new GsonBuilder().create();
+        this.gson = new GsonBuilder().setPrettyPrinter.create();
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
         this.globalStatePersister =new JsonPersister<>(root + "/db.json");
         Context writer = globalStatePersister.readJson(gson, Context.class);

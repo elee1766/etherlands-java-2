@@ -12,18 +12,17 @@ import org.jetlang.fibers.Fiber;
 
 public class PlayerEventListener extends ListenerClient implements Listener {
 
-    private final Channels channels;
+  private final Channels channels;
 
-    public PlayerEventListener(Channels channels, Fiber fiber) {
-        super(channels, fiber);
-        this.channels = channels;
-    }
+  public PlayerEventListener(Channels channels, Fiber fiber) {
+    super(channels, fiber);
+    this.channels = channels;
+  }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Bukkit.getServer().getConsoleSender().sendMessage("hello there!");
-        channels.master_command.publish(new Message<>(MasterCommand.gamer_create_gamer,
-                event.getPlayer().getUniqueId()
-        ));
-    }
+  @EventHandler
+  public void onPlayerJoin(PlayerJoinEvent event) {
+    Bukkit.getServer().getConsoleSender().sendMessage("hello there!");
+    channels.master_command.publish(
+        new Message<>(MasterCommand.gamer_create_gamer, event.getPlayer().getUniqueId()));
+  }
 }

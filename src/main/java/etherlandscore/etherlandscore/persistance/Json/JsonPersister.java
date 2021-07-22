@@ -12,27 +12,27 @@ import java.util.Set;
 
 public class JsonPersister<DtoType> extends Persister {
 
-    public JsonPersister(String filepath) {
-        super(filepath);
-    }
+  public JsonPersister(String filepath) {
+    super(filepath);
+  }
 
-    @SuppressWarnings("unchecked")
-    public DtoType readJson(Gson gson, Class clazz) {
-        try {
-            JsonReader reader = new JsonReader(new StringReader(read()));
-            reader.setLenient(true);
-            return gson.fromJson(reader, clazz);
-        } catch (Exception e) {
-            return null;
-        }
+  @SuppressWarnings("unchecked")
+  public DtoType readJson(Gson gson, Class clazz) {
+    try {
+      JsonReader reader = new JsonReader(new StringReader(read()));
+      reader.setLenient(true);
+      return gson.fromJson(reader, clazz);
+    } catch (Exception e) {
+      return null;
     }
+  }
 
-    public Set<JsonObject> loadSet(Gson gson) {
-        Set<JsonObject> result = new HashSet<>();
-        List<String> lines = readLines();
-        for (String arrayString : lines) {
-            result.add(gson.fromJson(arrayString, JsonObject.class));
-        }
-        return result;
+  public Set<JsonObject> loadSet(Gson gson) {
+    Set<JsonObject> result = new HashSet<>();
+    List<String> lines = readLines();
+    for (String arrayString : lines) {
+      result.add(gson.fromJson(arrayString, JsonObject.class));
     }
+    return result;
+  }
 }

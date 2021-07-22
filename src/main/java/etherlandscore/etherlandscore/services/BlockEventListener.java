@@ -8,16 +8,15 @@ import org.jetlang.fibers.Fiber;
 
 public class BlockEventListener extends ListenerClient implements Listener {
 
-    public final Fiber fiber;
-    public final Channels channels;
-    public BlockEventListener(Channels channels, Fiber fiber) {
-        super(channels, fiber);
-        this.fiber = fiber;
-        this.channels = channels;
-    }
+  public final Fiber fiber;
+  public final Channels channels;
 
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent breakEvent) {
+  public BlockEventListener(Channels channels, Fiber fiber) {
+    super(channels, fiber);
+    this.fiber = fiber;
+    this.channels = channels;
+  }
 
-    }
+  @EventHandler
+  public void onBlockBreak(BlockBreakEvent breakEvent) {}
 }

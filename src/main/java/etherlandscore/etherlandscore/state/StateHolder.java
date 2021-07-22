@@ -1,4 +1,3 @@
 package etherlandscore.etherlandscore.state;
 
-public class StateHolder {
-}
+public class StateHolder {}

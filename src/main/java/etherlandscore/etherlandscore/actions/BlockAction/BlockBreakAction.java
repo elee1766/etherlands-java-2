@@ -17,6 +17,7 @@ public class BlockBreakAction extends PermissionedAction {
         super(context, event);
         this.event = event;
     }
+    @Override
     public boolean process(){
         Gamer gamer = getContext().getGamer(event.getPlayer().getUniqueId());
         Plot plot = getContext().findPlot(event.getBlock().getChunk().getX(),event.getBlock().getChunk().getZ());

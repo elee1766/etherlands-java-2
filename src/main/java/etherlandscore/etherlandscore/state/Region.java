@@ -1,16 +1,20 @@
 package etherlandscore.etherlandscore.state;
 
+import etherlandscore.etherlandscore.enums.AccessFlags;
+import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
 
-import java.util.Set;
+import java.util.*;
 
-public class Region extends StateHolder {
+public class Region extends StateHolder implements Comparable<Region> {
     private final Set<Integer> plotIds;
     private final String team;
     private final String name;
     private final boolean isGlobal;
     private Integer priority = 0;
+
+    private final Map<UUID,Map<AccessFlags, FlagValue>> gamerFlags = new HashMap<>();
 
     Region(Team team, String name, Set<Integer> plotIds) {
         this.team = team.getName();
@@ -41,5 +45,19 @@ public class Region extends StateHolder {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+
+    public Integer getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public int compareTo(Region r){
+        return getPriority().compareTo(r.getPriority());
+    }
+
+    public FlagValue checkFlags(AccessFlags flag, Gamer gamer) {
+        Map<AccessFlags, FlagValue> flagMap = gamerFlags.getOrDefault(gamer.getUuid(),new HashMap<>());
+        return flagMap.getOrDefault(flag,FlagValue.NONE);
     }
 }

@@ -5,7 +5,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Gamer extends StateHolder {
@@ -13,7 +13,7 @@ public class Gamer extends StateHolder {
     private final UUID uuid;
 
     private String team;
-    private List<Gamer> friends;
+    private Set<Gamer> friends ;
 
     public Gamer(UUID uuid) {
         this.uuid = uuid;
@@ -27,7 +27,7 @@ public class Gamer extends StateHolder {
         friends.add(gamer);
     }
 
-    public List getFriends() {
+    public Set getFriends() {
         return friends;
     }
 

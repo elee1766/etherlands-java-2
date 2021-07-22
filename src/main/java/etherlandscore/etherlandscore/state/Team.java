@@ -4,15 +4,13 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Team extends StateHolder {
     private final String name;
     private final UUID owner;
     private final Set<UUID> members = new HashSet<>();
-    private final Set<Region> regions = new HashSet<>();
+    private final Map<String, Region> regions = new HashMap<>();
 
     public Team(Gamer gamer, String name) {
         this.name = name;
@@ -45,5 +43,9 @@ public class Team extends StateHolder {
 
     public String getOwner() {
         return Bukkit.getPlayer(this.owner).getName();
+    }
+
+    public Region getRegion(String x) {
+        return this.regions.getOrDefault(x,null);
     }
 }

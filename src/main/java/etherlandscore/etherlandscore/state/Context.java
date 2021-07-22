@@ -13,6 +13,7 @@ public class Context {
     private final Map<String, Team> teams = new HashMap<>();
     private final Map<String, UUID> linked = new HashMap<>();
     private final Map<Integer, Plot> plots = new HashMap<>();
+    private final Map<Integer, Map<Integer, Integer>> plotLocations  = new HashMap<>();
 
     public Context createState(Context state) {
         return state;
@@ -32,6 +33,14 @@ public class Context {
 
     public void createTeam(Channels channels, Gamer gamer, String name) {
         channels.master_command.publish(new Message("team_create_team", gamer, name));
+    }
+
+    public Plot findPlot(Integer x, Integer z){
+        Integer id = plotLocations.getOrDefault(x,new HashMap<>()).getOrDefault(z,null);
+        if(id!=null){
+            return getPlot(id);
+        }
+        return null;
     }
 
     public Plot getPlot(Integer id) {

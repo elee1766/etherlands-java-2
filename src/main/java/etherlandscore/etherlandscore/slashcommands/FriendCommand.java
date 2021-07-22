@@ -7,8 +7,14 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+
+import java.util.Iterator;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class FriendCommand extends ListenerClient {
   private final Fiber fiber;
@@ -61,6 +67,18 @@ public class FriendCommand extends ListenerClient {
                   }
                   sender.sendMessage(locales.getFriends().get("success"));
                 }));
+      FriendCommand.withSubcommand(
+              new CommandAPICommand("list")
+                      .withPermission("etherlands.public")
+                      .executesPlayer(
+                              (sender, args) -> {
+                                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                                  if(gamer.getFriends()!=null) {
+                                      gamer.friendList(channels);
+                                  }else{
+                                      sender.sendMessage(locales.getFriends().get("empty"));
+                                  }
+                              }));
     FriendCommand.register();
   }
 }

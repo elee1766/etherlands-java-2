@@ -101,6 +101,11 @@ public class MasterService extends ServerModule {
         gamer_update(gamer2);
     }
 
+    private void gamer_friend_list(Gamer a) {
+        Gamer gamer = context.getGamers().get(a.getUuid());
+        gamer.friendList();
+    }
+
     public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {
         if (!context.getPlots().containsKey(id)) {
             context.getPlots().put(id,new Plot(id,x,z,owner));
@@ -132,6 +137,7 @@ public class MasterService extends ServerModule {
             case team_create_team -> team_create_team((Gamer) args[0], (String) args[1]);
             case gamer_add_friend -> gamer_add_friend((Gamer) args[0], (Gamer) args[1]);
             case gamer_remove_friend -> gamer_remove_friend((Gamer) args[0],(Gamer) args[1]);
+            case gamer_friend_list -> gamer_friend_list((Gamer) args[0]);
             case plot_set_owner -> plot_set_owner((Plot) args[0], (String) args[1]);
             case region_set_priority, player_link_address, region_add_plot, region_remove_plot -> {
             }

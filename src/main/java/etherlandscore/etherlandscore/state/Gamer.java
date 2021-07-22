@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +31,19 @@ public class Gamer extends StateHolder {
         new Message<>(MasterCommand.gamer_remove_friend, this, newFriend));
   }
 
+  public void friendList(Channels channels){
+    channels.master_command.publish(
+       new Message<>(MasterCommand.gamer_friend_list,this));
+  }
+
+  public void friendList(){
+    Set<UUID> flist = this.getFriends();
+    String friendslist = "";
+    for (UUID value : flist) {
+      friendslist += Bukkit.getPlayer(value).getName() + ", ";
+    }
+    this.getPlayer().sendMessage(friendslist);
+  }
   public void addFriend(Gamer gamer) {
     friends.add(gamer.getUuid());
   }

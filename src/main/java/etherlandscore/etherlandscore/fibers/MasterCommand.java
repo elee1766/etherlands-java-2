@@ -12,5 +12,6 @@ public enum MasterCommand {
   player_link_address,
   plot_update_plot,
   gamer_remove_friend,
+  gamer_friend_list,
   team_add_gamer
 }

@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import etherlandscore.etherlandscore.eth.LinkInformation;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import org.bukkit.Bukkit;
@@ -93,7 +94,7 @@ public class HttpClient extends ServerModule implements HttpHandler {
                                 .append("with minecraft player UUID")
                                 .append(info.uuid())
                                 .append("<br>");
-                        channels.master_command.publish(new Message("player_link_address", info));
+                        channels.master_command.publish(new Message(MasterCommand.player_link_address, info));
                     } else {
                         htmlBuilder
                                 .append("fields did not match");

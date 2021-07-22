@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -35,7 +36,7 @@ public class Plot extends StateHolder {
     }
 
     public void setOwner(Channels channels, String ownerAddress) {
-        channels.master_command.publish(new Message("plot_set_owner", ownerAddress));
+        channels.master_command.publish(new Message(MasterCommand.plot_set_owner, ownerAddress));
     }
 
     public void setOwner(String ownerAddress, UUID ownerUUID) {

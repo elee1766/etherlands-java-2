@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 
@@ -18,7 +19,7 @@ public class Team extends StateHolder {
     }
 
     public void addMember(Channels channels, Gamer gamer) {
-        channels.master_command.publish(new Message("team_addMember", this, gamer));
+        channels.master_command.publish(new Message(MasterCommand.team_add_gamer, this, gamer));
     }
 
     public void addMember(Gamer gamer) {
@@ -26,7 +27,7 @@ public class Team extends StateHolder {
     }
 
     public void removeMember(Channels channels, Gamer gamer) {
-        channels.master_command.publish(new Message("team_removeMember", this, gamer));
+        channels.master_command.publish(new Message(MasterCommand.team_remove_gamer, this, gamer));
     }
 
     public void removeMember(Gamer gamer) {

@@ -3,6 +3,7 @@ package etherlandscore.etherlandscore.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
@@ -101,28 +102,15 @@ public class MasterService extends ServerModule {
         Plot plot = this.context.getPlot(a.getId());
     }
 
-    private void process_command(Message message) {
+    private void process_command(Message<MasterCommand> message) {
         Object[] args = message.getArgs();
         switch (message.getCommand()) {
-            case "gamer_create_gamer":
-                gamer_create_gamer((UUID) args[0]);
-                break;
-            case "team_add_gamer":
-                team_add_gamer((Team) args[0], (Gamer) args[1]);
-                break;
-            case "team_remove_gamer":
-                team_remove_gamer((Team) args[0], (Gamer) args[1]);
-                break;
-            case "team_create_team":
-                team_create_team((Gamer) args[0], (String) args[1]);
-                break;
-            case "friend_add":
-                friend_add((Gamer) args[0], (Gamer) args[1]);
-                break;
-            case "plot_set_owner":
-                plot_set_owner((Plot) args[0], (String) args[1]);
-            default:
-                break;
+            case gamer_create_gamer -> gamer_create_gamer((UUID) args[0]);
+            case team_add_gamer -> team_add_gamer((Team) args[0], (Gamer) args[1]);
+            case team_remove_gamer -> team_remove_gamer((Team) args[0], (Gamer) args[1]);
+            case team_create_team -> team_create_team((Gamer) args[0], (String) args[1]);
+            case gamer_add_friend -> friend_add((Gamer) args[0], (Gamer) args[1]);
+            case plot_set_owner -> plot_set_owner((Plot) args[0], (String) args[1]);
         }
         save();
     }

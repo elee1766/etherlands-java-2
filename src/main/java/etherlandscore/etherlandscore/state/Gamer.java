@@ -38,11 +38,11 @@ public class Gamer extends StateHolder {
 
   public void friendList(){
     Set<UUID> flist = this.getFriends();
-    String friendslist = "";
+    String friends = "";
     for (UUID value : flist) {
-      friendslist += Bukkit.getPlayer(value).getName() + ", ";
+      friends += Bukkit.getPlayer(value).getName() + ", ";
     }
-    this.getPlayer().sendMessage(friendslist);
+    this.getPlayer().sendMessage(friends);
   }
   public void addFriend(Gamer gamer) {
     friends.add(gamer.getUuid());

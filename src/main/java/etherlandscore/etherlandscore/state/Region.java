@@ -3,9 +3,13 @@ package etherlandscore.etherlandscore.state;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class Region extends StateHolder implements Comparable<Region> {
     private final Set<Integer> plotIds;
@@ -24,7 +28,7 @@ public class Region extends StateHolder implements Comparable<Region> {
     }
 
     public void addPlot(Channels channels, Plot plot) {
-        channels.master_command.publish(new Message("region_add_plot", this, plot));
+        channels.master_command.publish(new Message(MasterCommand.region_add_plot, this, plot));
     }
 
     public void addPlot(Plot plot) {
@@ -32,7 +36,7 @@ public class Region extends StateHolder implements Comparable<Region> {
     }
 
     public void removePlot(Channels channels, Plot plot) {
-        channels.master_command.publish(new Message("region_remove_plot", this, plot));
+        channels.master_command.publish(new Message(MasterCommand.region_remove_plot, this, plot));
     }
 
     public void removePlot(Plot plot) {
@@ -40,7 +44,7 @@ public class Region extends StateHolder implements Comparable<Region> {
     }
 
     public void setPriority(Channels channels, Integer priority) {
-        channels.master_command.publish(new Message("region_set_priority", this, priority));
+        channels.master_command.publish(new Message(MasterCommand.region_set_priority, this, priority));
     }
 
     public void setPriority(Integer priority) {

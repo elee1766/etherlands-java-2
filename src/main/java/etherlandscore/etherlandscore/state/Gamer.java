@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,7 +21,7 @@ public class Gamer extends StateHolder {
     }
 
     public void addFriend(Channels channels, Gamer gamer) {
-        channels.master_command.publish(new Message("friend_add", this, gamer));
+        channels.master_command.publish(new Message(MasterCommand.gamer_add_friend, this, gamer));
     }
 
     public void addFriend(Gamer gamer) {

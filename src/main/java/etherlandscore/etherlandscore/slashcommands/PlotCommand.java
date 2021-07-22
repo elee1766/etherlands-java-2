@@ -4,6 +4,8 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.EthersCommand;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import org.bouncycastle.util.Arrays;
 import org.bukkit.entity.Player;
@@ -54,6 +56,7 @@ public class PlotCommand extends ListenerClient {
                 .withArguments(new IntegerArgument("chunkId"))
                 .withPermission("etherlands.public")
                 .executes((sender, args) -> {
+                    this.channels.ethers_command.publish(new Message<>(EthersCommand.ethers_query_nft, args[0]));
                 })
         );
         ChunkCommand.register();

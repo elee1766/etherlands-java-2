@@ -57,12 +57,9 @@ public class EthereumService extends ListenerClient {
             }
         };
         landPlot = LandPlot.load("0x45072d88faea89dd42791808f8b491ab70b279fa", web3, txnManager, gasProvider);
-        this.channels.master_command.subscribe(fiber, x -> {
-            try {
-                queryChunkId((Integer) x.getArgs()[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Bukkit.getLogger().warning(e.getMessage());
+        this.channels.ethers_command.subscribe(fiber, x -> {
+            switch (x.getCommand()) {
+                case ethers_query_nft -> queryChunkId((Integer) x.getArgs()[0]);
             }
         });
         listenHttp();

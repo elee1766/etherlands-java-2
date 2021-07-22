@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 
 import java.util.HashMap;
@@ -32,7 +33,7 @@ public class Context {
     }
 
     public void createTeam(Channels channels, Gamer gamer, String name) {
-        channels.master_command.publish(new Message("team_create_team", gamer, name));
+        channels.master_command.publish(new Message(MasterCommand.team_create_team, gamer, name));
     }
 
     public Plot findPlot(Integer x, Integer z){

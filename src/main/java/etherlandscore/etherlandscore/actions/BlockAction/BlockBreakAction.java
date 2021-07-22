@@ -21,6 +21,10 @@ public class BlockBreakAction extends PermissionedAction {
     public boolean process(){
         Gamer gamer = getContext().getGamer(event.getPlayer().getUniqueId());
         Plot plot = getContext().findPlot(event.getBlock().getChunk().getX(),event.getBlock().getChunk().getZ());
+        //ops can always build
+        if(gamer.getPlayer().isOp()){
+            return super.process();
+        }
         if(plot == null){
             return super.rollback();
         }
@@ -56,9 +60,7 @@ public class BlockBreakAction extends PermissionedAction {
                 return super.process();
             }
         }
-        if(gamer.getPlayer().isOp()){
-            return super.process();
-        }
+
         return super.rollback();
     }
 

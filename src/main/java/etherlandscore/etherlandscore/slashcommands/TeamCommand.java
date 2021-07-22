@@ -11,9 +11,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class TeamCommand extends ListenerClient {
     private final Fiber fiber;
     private final Channels channels;
+    private final Map<UUID, Long> invites = new HashMap<>();
 
     public TeamCommand(Channels channels, Fiber fiber) {
         super(channels, fiber);
@@ -44,6 +49,7 @@ public class TeamCommand extends ListenerClient {
                     Gamer gamer = context.getGamer(sender.getUniqueId());
                     if(!gamer.getTeam().equals("")) {
                         team_info(sender,gamer.getTeam());
+                        sender.sendMessage("you have left "+ gamer.getTeam());
                     }else {
                         sender.sendMessage("/team info <teamname>");
                     }
@@ -57,8 +63,8 @@ public class TeamCommand extends ListenerClient {
                         return;
                     }
                     if(context.getGamers().containsKey(sender.getUniqueId())){
-                            context.createTeam(this.channels, context.getGamers().get(sender.getUniqueId()),(String) args[0]);
-                            sender.sendMessage("team created!");
+                        context.createTeam(this.channels, context.getGamers().get(sender.getUniqueId()),(String) args[0]);
+                        sender.sendMessage("team created!");
                     }
                 })
         );
@@ -68,30 +74,45 @@ public class TeamCommand extends ListenerClient {
                 .executesPlayer((sender, args) -> {
                     Gamer inviter = context.getGamer(sender.getUniqueId());
                     Gamer receiver = context.getGamer(((Player) args[0]).getUniqueId());
-                    if(inviter != null){
+                    if(inviter != null) {
                         Team team = context.getTeam(inviter.getTeam());
-                        if(team.canInvite(inviter)){
-                            team.inviteGamer(receiver.getUuid());
+                        if (team != null) {
+                            if (team.canInvite(inviter)) {
+                                team.inviteGamer(this.invites, receiver.getUuid());
+                                receiver.getPlayer().sendMessage("you have 5 min to accept invite to " + inviter.getTeam());
+                            }
                         }
-                        receiver.getPlayer().sendMessage("you have 5 min to accept invite to " + inviter.getTeam());
                     }
                 })
         );
 
         TeamCommand.withSubcommand(new CommandAPICommand("join")
-                .withArguments(new PlayerArgument("team").replaceSuggestions(info->getTeamStrings()))
+                .withArguments(new StringArgument("team").replaceSuggestions(info->getTeamStrings()))
                 .withPermission("etherlands.public")
                 .executesPlayer((sender, args) -> {
                     Gamer joiner = context.getGamer(sender.getUniqueId());
                     if(joiner != null){
                         Team team = context.getTeam((String) args[0]);
                         if(team != null){
-                            if(team.canJoin(joiner)){
+                            if(team.canJoin(this.invites, joiner)){
                                 team.addMember(this.channels,joiner);
+                                sender.sendMessage("welcome to " + args[0]);
                             }else{
                                 sender.sendMessage("you must be invited before joining " + args[0]);
                             }
                         }
+                    }
+                })
+        );
+        TeamCommand.withSubcommand(new CommandAPICommand("leave")
+                .withPermission("etherlands.public")
+                .executesPlayer((sender, args) -> {
+                    Gamer gamer = context.getGamer(sender.getUniqueId());
+                    if(!gamer.getTeam().equals("")) {
+                        Team team = context.getTeam(gamer.getTeam());
+                        team.removeMember(this.channels,gamer);
+                    }else {
+                        sender.sendMessage("you are not in a team");
                     }
                 })
         );
@@ -106,6 +127,7 @@ public class TeamCommand extends ListenerClient {
         Team team = context.getTeams().get(name);
         sender.sendMessage("team name:" + team.getName());
         sender.sendMessage("team owner:" + team.getOwner());
+        sender.sendMessage("team size:" + team.getMembers().size());
         return true;
     }
 }

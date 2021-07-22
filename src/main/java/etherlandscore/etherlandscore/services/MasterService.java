@@ -30,7 +30,7 @@ public class MasterService extends ServerModule {
         this.channels = channels;
         this.fiber = fiber;
 
-        this.gson = new GsonBuilder().create();
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
         this.globalStatePersister =new JsonPersister<>(root + "/db.json");
         Context writer = globalStatePersister.readJson(gson, Context.class);
@@ -49,6 +49,7 @@ public class MasterService extends ServerModule {
             Team team = new Team(gamer, b);
             if(!context.getTeams().containsKey(b)) {
                 context.getTeams().put(b,team);
+                gamer.setTeam(team.getName());
                 this.channels.global_update.publish(context);
             }
         }
@@ -59,6 +60,7 @@ public class MasterService extends ServerModule {
         Team team = context.getTeams().get(a.getName());
         if(team != null && gamer != null) {
             team.addMember(gamer);
+            gamer.setTeam(team.getName());
             gamer_update(gamer);
             team_update(team);
         }
@@ -68,9 +70,12 @@ public class MasterService extends ServerModule {
         Gamer gamer = context.getGamers().get(b.getUuid());
         Team team = context.getTeams().get(a.getName());
         if(team != null && gamer != null) {
-            team.removeMember(gamer);
-            gamer_update(gamer);
-            team_update(team);
+            if(!gamer.getUuid().equals(team.getOwnerUUID())) {
+                team.removeMember(gamer);
+                gamer.setTeam("");
+                gamer_update(gamer);
+                team_update(team);
+            }
         }
     }
 
@@ -96,6 +101,7 @@ public class MasterService extends ServerModule {
 
     private void process_command(Message message){
         Object[] args = message.getArgs();
+        Bukkit.getLogger().info("[master] received command:" + message.getCommand());
         switch(message.getCommand()) {
             case "gamer_create_gamer":
                 gamer_create_gamer((UUID) args[0]);
@@ -113,6 +119,7 @@ public class MasterService extends ServerModule {
                 friend_add((Gamer) args[0], (Gamer) args[1]);
                 break;
             default:
+                Bukkit.getLogger().info("unknown command:" + message.getCommand());
                 break;
         }
         save();

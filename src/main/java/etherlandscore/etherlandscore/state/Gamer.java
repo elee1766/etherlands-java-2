@@ -1,45 +1,50 @@
 package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Gamer extends StateHolder {
 
-    private final UUID uuid;
+  private final UUID uuid;
 
-    private String team;
+  private String team;
+  private Set<Gamer> friends;
 
-    public Gamer(UUID uuid) {
-        this.uuid = uuid;
-    }
+  public Gamer(UUID uuid) {
+    this.uuid = uuid;
+  }
 
-    private List<Gamer> friends;
+  public void addFriend(Channels channels, Gamer gamer) {
+    channels.master_command.publish(new Message(MasterCommand.gamer_add_friend, this, gamer));
+  }
 
-    public void addFriend(Channels channels, Gamer gamer) {
-        channels.master_command.publish(new Message("friend_add", this,gamer));
-    }
+  public void addFriend(Gamer gamer) {
+    friends.add(gamer);
+  }
 
-    public void addFriend(Gamer gamer) {
-        friends.add(gamer);
-    }
+  public Set getFriends() {
+    return friends;
+  }
 
-    public List getFriends() {return friends;}
+  public UUID getUuid() {
+    return uuid;
+  }
 
-    public void setTeam(String team) {
-        this.team = team;
-    }
+  public String getTeam() {
+    return team;
+  }
 
-    public UUID getUuid() {
-        return uuid;
-    }
+  public void setTeam(String team) {
+    this.team = team;
+  }
 
-    public Player getPlayer() {
-        return Bukkit.getPlayer(uuid);
-    }
-
+  public Player getPlayer() {
+    return Bukkit.getPlayer(uuid);
+  }
 }

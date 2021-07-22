@@ -1,46 +1,52 @@
 package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-public class Team extends StateHolder{
-    private final String name;
-    private UUID owner;
-    private Set<UUID> members = new HashSet<>();
+public class Team extends StateHolder {
+  private final String name;
+  private final UUID owner;
+  private final Set<UUID> members = new HashSet<>();
+  private final Map<String, Region> regions = new HashMap<>();
 
-    public Team(Gamer gamer, String name) {
-        this.name = name;
-        this.owner = gamer.getUuid();
-    }
-    public void addMember(Channels channels, Gamer gamer){
-        channels.master_command.publish(new Message("team_addMember", this,gamer));
-    }
+  public Team(Gamer gamer, String name) {
+    this.name = name;
+    this.owner = gamer.getUuid();
+  }
 
-    public void addMember(Gamer gamer){
-        members.add(gamer.getUuid());
-    }
-    public void removeMember(Channels channels, Gamer gamer){
-        channels.master_command.publish(new Message("team_removeMember",this,gamer));
-    }
+  public void addMember(Channels channels, Gamer gamer) {
+    channels.master_command.publish(new Message(MasterCommand.team_add_gamer, this, gamer));
+  }
 
-    public void removeMember(Gamer gamer){
-        members.remove(gamer.getUuid());
-    }
+  public void addMember(Gamer gamer) {
+    members.add(gamer.getUuid());
+  }
 
-    public Set<UUID> getMembers(){
-        return members;
-    }
+  public void removeMember(Channels channels, Gamer gamer) {
+    channels.master_command.publish(new Message(MasterCommand.team_remove_gamer, this, gamer));
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void removeMember(Gamer gamer) {
+    members.remove(gamer.getUuid());
+  }
 
-    public String getOwner() {
-        return Bukkit.getPlayer(this.owner).getName();
-    }
+  public Set<UUID> getMembers() {
+    return members;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getOwner() {
+    return Bukkit.getPlayer(this.owner).getName();
+  }
+
+  public Region getRegion(String x) {
+    return this.regions.getOrDefault(x, null);
+  }
 }

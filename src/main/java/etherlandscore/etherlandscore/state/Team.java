@@ -10,8 +10,11 @@ import java.util.UUID;
 
 public class Team extends StateHolder{
     private final String name;
-    private UUID owner;
-    private Set<UUID> members = new HashSet<>();
+    private final UUID owner;
+    private final Set<UUID> members = new HashSet<>();
+    private final Set<Region> regions = new HashSet<>();
+
+
 
     public Team(Gamer gamer, String name) {
         this.name = name;

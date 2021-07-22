@@ -39,13 +39,20 @@ public class TeamCommand extends ListenerClient {
         TeamCommand.withSubcommand(new CommandAPICommand("info")
                 .withPermission("etherlands.public")
                 .executesPlayer((sender, args) -> {
-                    sender.sendMessage("/team info <teamname>");
+                    Gamer gamer = context.getGamer(sender.getUniqueId());
+                    if(!gamer.getTeam().equals("")) {
+                        team_info(sender,gamer.getTeam());
+                        sender.sendMessage("you have left "+ gamer.getTeam());
+                    }else {
+                        sender.sendMessage("/team info <team-name>");
+                    }
+
                 }));
         TeamCommand.withSubcommand(new CommandAPICommand("create")
                 .withArguments(new StringArgument("team-name"))
                 .withPermission("etherlands.public")
                 .executesPlayer((sender, args) -> {
-                    if(context.getTeams().containsKey(args[0])){
+                    if(context.getTeams().containsKey((String) args[0])){
                         sender.sendMessage("a team already exists by that name");
                         return;
                     }

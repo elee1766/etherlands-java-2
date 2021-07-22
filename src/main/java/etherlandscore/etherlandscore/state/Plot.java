@@ -9,7 +9,7 @@ import org.bukkit.OfflinePlayer;
 import java.util.UUID;
 
 public class Plot extends StateHolder{
-    private transient Chunk chunk;
+    private final transient Chunk chunk;
 
     private final Integer id;
     private final Integer x;

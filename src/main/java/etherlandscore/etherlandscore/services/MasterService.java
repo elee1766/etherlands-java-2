@@ -93,10 +93,18 @@ public class MasterService extends ServerModule {
         gamer1.addFriend(gamer2);
     }
 
+    public void plot_create_plot(Integer id, Integer x, Integer z, String owner){
+        if(!context.getPlots().containsKey(id)) {
+            Plot plot = new Plot(id, x, z, owner);
+            context.getPlots().put(id, plot);
+            plot_update(plot);
+        }
+    }
+
+
     public void plot_set_owner(Plot a, String address){
         UUID ownerUUID = this.context.getLinked().getOrDefault(address,null);
         Plot plot = this.context.getPlot(a.getId());
-
     }
 
     private void process_command(Message message){
@@ -118,6 +126,8 @@ public class MasterService extends ServerModule {
             case "friend_add":
                 friend_add((Gamer) args[0], (Gamer) args[1]);
                 break;
+            case "plot_set_owner":
+                plot_set_owner((Plot) args[0],(String) args[1]);
             default:
                 Bukkit.getLogger().info("unknown command:" + message.getCommand());
                 break;
@@ -131,5 +141,9 @@ public class MasterService extends ServerModule {
 
     private void team_update(Team team){
         this.channels.team_update.publish(team);
+    }
+
+    private void plot_update(Plot plot) {
+        this.channels.plot_update.publish(plot);
     }
 }

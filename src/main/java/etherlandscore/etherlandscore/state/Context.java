@@ -38,4 +38,8 @@ public class Context {
     public Team getTeam(String team) {
         return teams.get(team);
     }
+
+    public Map<Integer, Plot> getPlots() {
+        return plots;
+    }
 }

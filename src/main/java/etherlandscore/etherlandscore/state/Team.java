@@ -11,6 +11,7 @@ public class Team extends StateHolder{
     private final String name;
     private final UUID owner;
     private final Set<UUID> members = new HashSet<>();
+    private final Set<Region> regions = new HashSet<>();
 
     private final transient Map<UUID, Long> invites = new HashMap<>();
 

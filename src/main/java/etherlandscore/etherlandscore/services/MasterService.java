@@ -14,6 +14,8 @@ import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
+import java.io.IOException;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,6 +33,12 @@ public class MasterService extends ServerModule {
         this.channels = channels;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
+        File json = new File(root + "/db.json");
+        try {
+            json.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.globalStatePersister = new JsonPersister<>(root + "/db.json");
         Context writer = globalStatePersister.readJson(gson, Context.class);
         this.context = Objects.requireNonNullElseGet(writer, Context::new);

@@ -34,7 +34,7 @@ public class FriendCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  sender.sendMessage("add");
+                  sender.sendMessage("add, remove, list");
                 });
     FriendCommand.withSubcommand(
         new CommandAPICommand("add")
@@ -44,12 +44,12 @@ public class FriendCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Gamer newFriend = context.getGamer(((Player) args[0]).getUniqueId());
-                  if (!gamer.getFriends().contains(newFriend)) {
+                  if (!gamer.getFriends().contains(newFriend.getUuid())) {
                     gamer.addFriend(this.channels, newFriend);
+                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
                   } else {
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
                   }
-                  sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
                 }));
 
     FriendCommand.withSubcommand(
@@ -62,10 +62,10 @@ public class FriendCommand extends ListenerClient {
                   Gamer newFriend = context.getGamer(((Player) args[0]).getUniqueId());
                   if (gamer.getFriends().contains(newFriend.getUuid())) {
                     gamer.removeFriend(this.channels, newFriend);
+                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
                   } else {
-                    sender.sendMessage(locales.getFriends().get("fail"));
+                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
                   }
-                  sender.sendMessage(locales.getFriends().get("success"));
                 }));
       FriendCommand.withSubcommand(
               new CommandAPICommand("list")
@@ -73,10 +73,10 @@ public class FriendCommand extends ListenerClient {
                       .executesPlayer(
                               (sender, args) -> {
                                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                                  if(gamer.getFriends()!=null) {
+                                  if(gamer.getFriends().size()>0) {
                                       gamer.friendList(channels);
                                   }else{
-                                      sender.sendMessage(locales.getFriends().get("empty"));
+                                      LocaleSingleton.getLocale().getFriends().get("empty");
                                   }
                               }));
     FriendCommand.register();

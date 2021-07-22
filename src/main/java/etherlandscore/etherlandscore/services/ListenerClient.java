@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.state.Context;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Arrays;
@@ -69,6 +70,11 @@ public class ListenerClient extends ServerModule {
   protected String[] getPlayerStrings() {
     OfflinePlayer[] players = Bukkit.getServer().getOfflinePlayers();
     return Arrays.stream(players).map(OfflinePlayer::getName).toArray(String[]::new);
+  }
+
+  protected String[] getOnlinePlayerStrings() {
+    Player[] players = Bukkit.getServer().getOnlinePlayers().toArray(Player[]::new);
+    return Arrays.stream(players).map(Player::getName).toArray(String[]::new);
   }
 
   protected String[] getTeamStrings() {

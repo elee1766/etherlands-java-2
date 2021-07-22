@@ -83,7 +83,7 @@ public class TeamCommand extends ListenerClient {
                 }));
     TeamCommand.withSubcommand(
         new CommandAPICommand("invite")
-            .withArguments(new PlayerArgument("player"))
+            .withArguments(new PlayerArgument("player").replaceSuggestions(info->getOnlinePlayerStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {

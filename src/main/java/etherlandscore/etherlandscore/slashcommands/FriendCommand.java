@@ -32,7 +32,7 @@ public class FriendCommand extends ListenerClient {
                 });
     FriendCommand.withSubcommand(
         new CommandAPICommand("add")
-            .withArguments(new PlayerArgument("friend"))
+            .withArguments(new PlayerArgument("friend").replaceSuggestions(info->getPlayerStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
@@ -48,7 +48,7 @@ public class FriendCommand extends ListenerClient {
 
     FriendCommand.withSubcommand(
         new CommandAPICommand("remove")
-            .withArguments(new PlayerArgument("friend"))
+            .withArguments(new PlayerArgument("friend").replaceSuggestions(info->getPlayerStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {

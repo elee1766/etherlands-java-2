@@ -2,7 +2,6 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.state.*;
 import org.bukkit.event.block.BlockBreakEvent;
 
@@ -37,17 +36,12 @@ public class BlockBreakAction extends PermissionedAction {
                 regionSet.add(team.getRegion(regionName));
             }
             for (Region region : regionSet) {
-                if(region == null){
-                    continue;
-                }
-                if(region.checkFlags(this.flag,gamer) == FlagValue.NONE){
-                    continue;
-                }
-                if(region.checkFlags(this.flag,gamer) == FlagValue.ALLOW){
-                    return super.process();
-                }
-                if(region.checkFlags(this.flag,gamer) == FlagValue.DENY){
-                    return super.rollback();
+                switch (region.checkFlags(this.flag, gamer)) {
+                    case ALLOW:
+                        return super.process();
+                    case DENY:
+                        return super.rollback();
+                    default:
                 }
             }
             super.rollback();

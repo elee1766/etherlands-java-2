@@ -6,6 +6,7 @@ import etherlandscore.etherlandscore.listener.BlockEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
+import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.slashcommands.CommandDisabler;
 import etherlandscore.etherlandscore.slashcommands.FriendCommand;
 import etherlandscore.etherlandscore.slashcommands.PlotCommand;
@@ -25,6 +26,9 @@ public final class EtherlandsCore extends JavaPlugin {
     getLogger().info("onEnable is called!");
     List<ServerModule> modules = new ArrayList<>();
     Channels channels = new Channels();
+
+    getLogger().info("Creating Locale Singleton");
+    LocaleSingleton.getLocale();
     getLogger().info("Hooking Event Listeners");
     Fiber playerEventListenerFiber = new ThreadFiber();
     PlayerEventListener playerEventListener =

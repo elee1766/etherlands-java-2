@@ -13,7 +13,6 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.Gamer;
-import jnr.ffi.Struct;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -44,19 +43,11 @@ public class FlagCommand extends ListenerClient {
     Player player = gamer.getPlayer();
     ArrayList<TextComponent> tc = new ArrayList<TextComponent>();
     String sep = "";
-    TextComponent allow = new TextComponent ("Allow");
-    TextComponent deny = new TextComponent (" Deny");
-    TextComponent none = new TextComponent (" None\n");
+
     TextComponent component = new TextComponent("");
     TextComponent topBorder = new TextComponent("============== FLAGS ==============\n");
     TextComponent next = new TextComponent("next");
     topBorder.setColor(ChatColor.YELLOW);
-    allow.setColor(ChatColor.YELLOW);
-    deny.setColor(ChatColor.YELLOW);
-    none.setColor(ChatColor.YELLOW);
-    allow.setUnderlined(true);
-    deny.setUnderlined(true);
-    none.setUnderlined(true);
 
     tc.add(topBorder);
 
@@ -64,15 +55,28 @@ public class FlagCommand extends ListenerClient {
       for(int i = 0; i<30 - String.valueOf(f).length();i++){
         sep = sep+"-";
       }
-      TextComponent ff = new TextComponent(String.valueOf(f)+ " " + sep + " ");
-      allow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flag set " + String.valueOf(f) + " allow"));
-      deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flag set " + String.valueOf(f) + " deny"));
-      deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flag set " + String.valueOf(f) + " none"));
+      String currentFlag = String.valueOf(f);
+      TextComponent ff = new TextComponent(currentFlag+ " " + sep + " ");
+      TextComponent allow = new TextComponent ("Allow");
+      TextComponent deny = new TextComponent (" Deny");
+      TextComponent none = new TextComponent (" None\n");
+      allow.setColor(ChatColor.YELLOW);
+      deny.setColor(ChatColor.YELLOW);
+      none.setColor(ChatColor.YELLOW);
+      allow.setUnderlined(true);
+      deny.setUnderlined(true);
+      none.setUnderlined(true);
+      allow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " ALLOW"));
+      deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " DENY"));
+      none.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " NONE"));
       ff.setColor(ChatColor.YELLOW);
+      TextComponent a = allow;
+      TextComponent d = deny;
+      TextComponent n = none;
       tc.add(ff);
-      tc.add(allow);
-      tc.add(deny);
-      tc.add(none);
+      tc.add(a);
+      tc.add(d);
+      tc.add(n);
       sep = "";
     }
 
@@ -99,13 +103,21 @@ public class FlagCommand extends ListenerClient {
                 }));
 
     FlagCommand.withSubcommand(
-        new CommandAPICommand("set")
-            .withArguments(new StringArgument("flag").replaceSuggestions(info -> getAccessFlagStrings()),new StringArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
+        new CommandAPICommand("plot")
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  //set the flags here boiii
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  plotMenu(this.channels,gamer);
                 }));
+    FlagCommand.withSubcommand(
+            new CommandAPICommand("set")
+                    .withArguments(new StringArgument("flag").replaceSuggestions(info -> getAccessFlagStrings()),new StringArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
+                    .withPermission("etherlands.public")
+                    .executesPlayer(
+                            (sender, args) -> {
+                              //set the flags here boiii
+                            }));
 
 
     FlagCommand.register();

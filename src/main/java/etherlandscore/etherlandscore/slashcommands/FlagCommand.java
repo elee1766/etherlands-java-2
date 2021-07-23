@@ -3,6 +3,7 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
@@ -12,6 +13,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.Gamer;
+import jnr.ffi.Struct;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -97,13 +99,14 @@ public class FlagCommand extends ListenerClient {
                 }));
 
     FlagCommand.withSubcommand(
-        new CommandAPICommand("plot")
+        new CommandAPICommand("set")
+            .withArguments(new StringArgument("flag").replaceSuggestions(info -> getAccessFlagStrings()),new StringArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  plotMenu(this.channels,gamer);
+                  //set the flags here boiii
                 }));
+
 
     FlagCommand.register();
   }

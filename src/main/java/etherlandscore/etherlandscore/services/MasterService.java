@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
+import etherlandscore.etherlandscore.slashcommands.FlagCommand;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
@@ -114,6 +115,11 @@ public class MasterService extends ServerModule {
         gamer.friendList();
     }
 
+    private void flag_plot(Gamer a){
+        Gamer gamer = context.getGamers().get(a.getUuid());
+        FlagCommand.plotMenu(gamer);
+    }
+
     public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {
         if (!context.getPlots().containsKey(id)) {
             context.getPlots().put(id,new Plot(id,x,z,owner));
@@ -146,6 +152,7 @@ public class MasterService extends ServerModule {
             case gamer_add_friend -> gamer_add_friend((Gamer) args[0], (Gamer) args[1]);
             case gamer_remove_friend -> gamer_remove_friend((Gamer) args[0],(Gamer) args[1]);
             case gamer_friend_list -> gamer_friend_list((Gamer) args[0]);
+            case flag_plot -> flag_plot((Gamer) args[0]);
             case plot_set_owner -> plot_set_owner((Plot) args[0], (String) args[1]);
             case region_set_priority, player_link_address, region_add_plot, region_remove_plot -> {
             }

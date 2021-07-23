@@ -7,10 +7,7 @@ import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
-import etherlandscore.etherlandscore.slashcommands.CommandDisabler;
-import etherlandscore.etherlandscore.slashcommands.FriendCommand;
-import etherlandscore.etherlandscore.slashcommands.PlotCommand;
-import etherlandscore.etherlandscore.slashcommands.TeamCommand;
+import etherlandscore.etherlandscore.slashcommands.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -47,6 +44,8 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new PlotCommand(channels, plotCommandFiber));
     Fiber friendCommandFiber = new ThreadFiber();
     modules.add(new FriendCommand(channels, friendCommandFiber));
+    Fiber flagCommandFiber = new ThreadFiber();
+    modules.add(new FlagCommand(channels, flagCommandFiber));
     Fiber ethersFiber = new ThreadFiber();
     try {
       modules.add(new EthereumService(channels, ethersFiber));

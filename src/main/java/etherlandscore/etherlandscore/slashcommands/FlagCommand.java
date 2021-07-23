@@ -45,6 +45,7 @@ public class FlagCommand extends ListenerClient {
     String sep = "";
 
     TextComponent component = new TextComponent("");
+    TextComponent space = new TextComponent(" ");
     TextComponent topBorder = new TextComponent("============== FLAGS ==============\n");
     TextComponent next = new TextComponent("next");
     topBorder.setColor(ChatColor.YELLOW);
@@ -57,27 +58,22 @@ public class FlagCommand extends ListenerClient {
       }
       String currentFlag = String.valueOf(f);
       TextComponent ff = new TextComponent(currentFlag+ " " + sep + " ");
-      TextComponent allow = new TextComponent ("Allow");
-      TextComponent deny = new TextComponent (" Deny");
-      TextComponent none = new TextComponent (" None\n");
-      allow.setColor(ChatColor.YELLOW);
-      deny.setColor(ChatColor.YELLOW);
-      none.setColor(ChatColor.YELLOW);
-      allow.setUnderlined(true);
-      deny.setUnderlined(true);
-      none.setUnderlined(true);
-      allow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " ALLOW"));
-      deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " DENY"));
-      none.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " NONE"));
       ff.setColor(ChatColor.YELLOW);
-      TextComponent a = allow;
-      TextComponent d = deny;
-      TextComponent n = none;
       tc.add(ff);
-      tc.add(a);
-      tc.add(d);
-      tc.add(n);
-      sep = "";
+      for(FlagValue fv : FlagValue.values()){
+        TextComponent value = new TextComponent(String.valueOf(fv));
+        if(fv.toString()=="NONE") { //if flagvalue is set for the given accessflag
+          value.setColor(ChatColor.YELLOW);
+        }else{
+          value.setColor(ChatColor.DARK_GRAY);
+        }
+        value.setUnderlined(true);
+        value.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " " + fv));
+        tc.add(value);
+        tc.add(space);
+      }
+      TextComponent newLine = new TextComponent("\n");
+      tc.add(newLine);
     }
 
     for(TextComponent comps : tc) {

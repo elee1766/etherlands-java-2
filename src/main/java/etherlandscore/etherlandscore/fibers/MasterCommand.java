@@ -13,5 +13,6 @@ public enum MasterCommand {
   plot_update_plot,
   gamer_remove_friend,
   gamer_friend_list,
+  flag_plot,
   group_add_gamer, group_remove_gamer, group_set_priority, team_add_region, team_remove_region, team_create_group, team_delete_group, team_create_region, team_delete_region, team_delegate_plot, plot_reclaim_plot, team_add_gamer
 }

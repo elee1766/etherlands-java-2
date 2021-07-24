@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import etherlandscore.etherlandscore.readonly.ReadContext;
+import etherlandscore.etherlandscore.slashcommands.FlagCommand;
 import etherlandscore.etherlandscore.state.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
@@ -192,6 +193,11 @@ public class MasterService extends ServerModule {
     private void team_delete_group(Team a, Group b) {
     }
 
+    private void flag_plot(Gamer gamer){
+        Gamer g = context.getGamer(gamer.getUuid());
+        FlagCommand.plotMenu(g);
+    }
+
     private void process_command(Message<MasterCommand> message) {
         Object[] _args = message.getArgs();
         switch (message.getCommand()) {
@@ -222,6 +228,8 @@ public class MasterService extends ServerModule {
             case group_add_gamer -> group_add_gamer((Group) _args[0], (Gamer) _args[1]);
             case group_remove_gamer -> group_remove_gamer((Group) _args[0], (Gamer) _args[1]);
             case group_set_priority -> group_set_priority((Group) _args[0], (Integer) _args[1]);
+            //menu commands
+            case flag_plot -> flag_plot((Gamer) _args[0]);
         }
         global_update();
         save();

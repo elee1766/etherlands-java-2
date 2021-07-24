@@ -4,19 +4,18 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.readonly.ReadContext;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.stream.Stream;
 
 public class ListenerClient extends ServerModule {
 
-  public Context context;
+  public ReadContext context;
   Channels channels;
   Fiber fiber;
 
@@ -24,35 +23,10 @@ public class ListenerClient extends ServerModule {
     super(fiber);
     this.channels = channels;
     this.fiber = fiber;
-    this.context = new Context();
-    this.register();
+    this.context = MasterService.state();
   }
 
   private void register() {
-    channels.global_update.subscribe(
-        fiber,
-        global -> {
-          context = global;
-        });
-    channels.gamer_update.subscribe(
-        fiber,
-        player -> {
-          context.getGamers().put(player.getUuid(), player);
-        });
-    channels.team_update.subscribe(
-        fiber,
-        team -> {
-          context.getTeams().put(team.getName(), team);
-        });
-    channels.plot_update.subscribe(
-        fiber,
-        plot -> {
-          context.getPlots().put(plot.getId(), plot);
-          if (!context.getPlotLocations().containsKey(plot.getX())) {
-            context.getPlotLocations().put(plot.getX(), new HashMap<>());
-          }
-          context.getPlotLocations().get(plot.getX()).put(plot.getZ(), plot.getId());
-        });
   }
 
   protected String[] getChunkStrings() {

@@ -8,14 +8,12 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import etherlandscore.etherlandscore.readonly.ReadContext;
-import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.state.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
-import java.io.IOException;
 import java.io.File;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -51,34 +49,23 @@ public class MasterService extends ServerModule {
         globalStatePersister.overwrite(gson.toJson(context));
     }
 
-    public void team_create_team(Gamer a, String b) {
-        Gamer gamer = context.getGamers().get(a.getUuid());
-        if (gamer != null & b != null) {
-            Team team = new Team(gamer, b);
-            if (!context.getTeams().containsKey(b)) {
-                context.getTeams().put(b, team);
-                gamer.setTeam(team.getName());
-            }
-        }
-    }
-
-    public void team_add_gamer(Team a, Gamer b) {
-        Gamer gamer = context.getGamers().get(b.getUuid());
-        Team team = context.getTeams().get(a.getName());
-        if (team != null && gamer != null) {
-            team.addMember(gamer);
+    public void team_create_team(Gamer gamer, String name) {
+        Team team = new Team(gamer, name);
+        if (!context.getTeams().containsKey(name)) {
+            context.getTeams().put(name, team);
             gamer.setTeam(team.getName());
         }
     }
 
-    public void team_remove_gamer(Team a, Gamer b) {
-        Gamer gamer = context.getGamers().get(b.getUuid());
-        Team team = context.getTeams().get(a.getName());
-        if (team != null && gamer != null) {
-            team.removeMember(gamer);
-            gamer.setTeam("");
-            gamer.clearGroups();
-        }
+    public void team_add_gamer(Team team, Gamer gamer) {
+        team.addMember(gamer);
+        gamer.setTeam(team.getName());
+    }
+
+    public void team_remove_gamer(Team team, Gamer gamer) {
+        team.removeMember(gamer);
+        gamer.setTeam("");
+        gamer.clearGroups();
     }
 
     public void context_create_gamer(UUID uuid) {
@@ -89,32 +76,18 @@ public class MasterService extends ServerModule {
     }
 
     public void gamer_add_friend(Gamer a, Gamer b) {
-        Gamer gamer1 = context.getGamers().get(a.getUuid());
-        Gamer gamer2 = context.getGamers().get(b.getUuid());
-        gamer1.addFriend(gamer2);
+        a.addFriend(b);
     }
 
 
     private void gamer_remove_friend(Gamer a, Gamer b) {
-        Gamer gamer1 = context.getGamers().get(a.getUuid());
-        Gamer gamer2 = context.getGamers().get(b.getUuid());
-        gamer1.removeFriend(gamer2);
+        a.removeFriend(b);
     }
 
-    private void gamer_friend_list(Gamer a) {
-        Gamer gamer = context.getGamers().get(a.getUuid());
-        gamer.friendList();
-    }
-    private void region_add_plot(Region a, Plot b){
-      Team team = context.getTeam(a.getTeam());
-      Region region = team.getRegion(a.getName());
-      Plot plot = context.getPlot(b.getId());
+    private void region_add_plot(Region region, Plot plot){
       region.addPlot(plot);
     }
-    private void region_remove_plot(Region a, Plot b){
-        Team team = context.getTeam(a.getTeam());
-        Region region = team.getRegion(a.getName());
-        Plot plot = context.getPlot(b.getId());
+    private void region_remove_plot(Region region, Plot plot){
         region.removePlot(plot);
     }
 
@@ -123,70 +96,52 @@ public class MasterService extends ServerModule {
             context.getPlots().put(id,new Plot(id,x,z,owner));
         }
         Plot plot = context.getPlot(id);
-        if(!context.getPlotLocations().containsKey(plot.getX())){
-            context.getPlotLocations().put(plot.getX(),new HashMap<>());
-        }
-        context.getPlotLocations().get(plot.getX()).put(plot.getZ(), plot.getId());
+        context.getPlotLocations().put(plot.getX(),plot.getZ(),plot.getId());
         plot_set_owner(plot,owner);
     }
 
 
-    public void plot_set_owner(Plot a, String address) {
+    public void plot_set_owner(Plot plot, String address) {
         UUID ownerUUID = context.getLinks().getOrDefault(address, null);
-        Plot plot = context.getPlot(a.getId());
         plot.setOwner(address,ownerUUID);
     }
 
-    private void team_delegate_plot(Team a, Plot b) {
-        Team team = context.getTeam(a.getName());
-        Plot plot = context.getPlot(b.getId());
+    private void team_delegate_plot(Team team, Plot plot) {
         plot_reclaim_plot(plot);
         team.addPlot(plot);
         plot.setTeam(team.getName());
     }
 
-    private void plot_reclaim_plot(Plot a) {
-        Plot plot = context.getPlot(a.getId());
+    private void plot_reclaim_plot(Plot plot) {
         plot.removeTeam();
     }
 
-    private void gamer_link_address(Gamer a, String address){
-      Gamer gamer = context.getGamer(a.getUuid());
+    private void gamer_link_address(Gamer gamer, String address){
       gamer.setAddress(address);
       context.getLinks().put(address,gamer.getUuid());
     }
 
-    private void team_create_region(Team a, String name) {
-      Team team = context.getTeam(a.getName());
+    private void team_create_region(Team team, String name) {
       team.createRegion(name);
     }
 
-    private void team_delete_region(Team a, Region region) {
-        Team team = context.getTeam(a.getName());
+    private void team_delete_region(Team team, Region region) {
         team.removeRegion(region.getName());
     }
-    private void group_add_gamer(Group a, Gamer b) {
-        Gamer gamer = context.getGamer(b.getUuid());
-        Group group = gamer.getGroupObject(a.getName());
+    private void group_add_gamer(Group group, Gamer gamer) {
         gamer.addGroup(group);
         group.addMember(gamer);
     }
-    private void group_remove_gamer(Group a, Gamer b) {
-        Team team = a.getTeamObject();
-        Gamer gamer = context.getGamer(b.getUuid());
-        Group group = team.getGroup(a.getName());
-        group.removeMember(b);
-        gamer.removeGroup(a.getName());
+    private void group_remove_gamer(Group group, Gamer gamer) {
+        group.removeMember(gamer);
+        gamer.removeGroup(group.getName());
     }
 
-    private void team_create_group(Team a, String b) {
-        Team team = context.getTeam(a.getName());
-        team.createGroup(b);
+    private void team_create_group(Team team, String name) {
+        team.createGroup(name);
     }
 
-    private void group_set_priority(Group a, Integer b) {
-        Team team = context.getTeam(a.getTeamObject().getName());
-        Group group = team.getGroup(a.getName());
+    private void group_set_priority(Group group, Integer b) {
         group.setPriority(b);
     }
 
@@ -200,7 +155,6 @@ public class MasterService extends ServerModule {
             // gamer commands
             case gamer_add_friend -> gamer_add_friend((Gamer) _args[0], (Gamer) _args[1]);
             case gamer_remove_friend -> gamer_remove_friend((Gamer) _args[0],(Gamer) _args[1]);
-            case gamer_friend_list -> gamer_friend_list((Gamer) _args[0]);
             case gamer_link_address -> gamer_link_address((Gamer) _args[0], (String) _args[1]);
             //plot commands
             case plot_update_plot -> plot_update_plot((Integer) _args[0], (Integer) _args[1], (Integer) _args[2],(String) _args[3]);
@@ -228,9 +182,6 @@ public class MasterService extends ServerModule {
         global_update();
         save();
     }
-
-
-
 
 
     private void region_set_priority(Region a, Integer priority){

@@ -26,6 +26,10 @@ public class ReadContext extends Context {
   }
 
   @Override
+  public Plot getPlot(Integer x, Integer z){
+    return super.getPlot(x,z);
+  }
+  @Override
   public Team getTeam(String team) {
     return super.getTeam(team);
   }

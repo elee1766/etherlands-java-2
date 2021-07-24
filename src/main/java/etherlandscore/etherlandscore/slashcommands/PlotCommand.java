@@ -66,7 +66,7 @@ public class PlotCommand extends ListenerClient {
               Chunk chunk = loc.getChunk();
               int x = chunk.getX();
               int z = chunk.getZ();
-              Plot plot = context.findPlot(x,z);
+              Plot plot = context.getPlot(x,z);
               PlotPrinter printer = new PlotPrinter(plot);
               printer.printPlot(sender);
               sender.sendMessage("This land is unclaimed");
@@ -112,7 +112,7 @@ public class PlotCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Chunk chunk = gamer.getPlayer().getChunk();
-                  Plot plot = context.findPlot(chunk.getX(), chunk.getZ());
+                  Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
                   if (plot.getOwner().equals(gamer.getUuid())) {
                     plot.reclaimPlot(this.channels);
                   }

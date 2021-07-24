@@ -52,8 +52,8 @@ public class TeamCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  if (!gamer.getTeam().equals("")) {
-                    team_info(sender, gamer.getTeam());
+                  if (!gamer.hasTeam()) {
+                    team_info(sender, gamer.getTeamObject());
                   } else {
                     sender.sendMessage("/team info <teamname>");
                   }
@@ -64,7 +64,7 @@ public class TeamCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  team_info(sender, (String) args[0]);
+                  team_info(sender, context.getTeam((String) args[0]));
                 }));
 
     TeamCommand.withSubcommand(
@@ -94,7 +94,7 @@ public class TeamCommand extends ListenerClient {
                   Gamer inviter = context.getGamer(sender.getUniqueId());
                   Gamer receiver = context.getGamer(((Player) args[0]).getUniqueId());
                   if (inviter != null) {
-                    Team team = context.getTeam(inviter.getTeam());
+                    Team team = inviter.getTeamObject();
                     if (team != null) {
                       if (team.canInvite(inviter)) {
                         if (!this.invites.containsKey(team.getName())) {
@@ -103,11 +103,11 @@ public class TeamCommand extends ListenerClient {
                         team.inviteGamer(this.invites.get(team.getName()), receiver.getUuid());
                         receiver
                             .getPlayer()
-                            .sendMessage("you have been invited to " + inviter.getTeam());
+                            .sendMessage("you have been invited to " + inviter.getTeamName());
                         receiver
                             .getPlayer()
                             .sendMessage(
-                                "send command \"/team join " + inviter.getTeam() + "\" to join");
+                                "send command \"/team join " + inviter.getTeamName() + "\" to join");
                       }
                     }
                   }
@@ -138,13 +138,13 @@ public class TeamCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  if (!gamer.getTeam().equals("")) {
-                    Team team = context.getTeam(gamer.getTeam());
+                  if (!gamer.getTeamName().equals("")) {
+                    Team team = context.getTeam(gamer.getTeamName());
                     if (team.getOwnerUUID().equals(gamer.getUuid())) {
                       sender.sendMessage("you cannot leave the team you own");
                     } else {
                       team.removeMember(channels, gamer);
-                      sender.sendMessage("you have left " + gamer.getTeam());
+                      sender.sendMessage("you have left " + gamer.getTeamName());
                     }
                   } else {
                     sender.sendMessage("you are not in a team");
@@ -176,7 +176,7 @@ public class TeamCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
                   Chunk chunk = gamer.getPlayer().getChunk();
-                  Plot plot = context.findPlot(chunk.getX(),chunk.getZ());
+                  Plot plot = context.getPlot(chunk.getX(),chunk.getZ());
                     if (plot.getOwner().equals(gamer.getUuid())) {
                       team.delegatePlot(this.channels, plot);
                     }
@@ -184,12 +184,7 @@ public class TeamCommand extends ListenerClient {
     TeamCommand.register();
   }
 
-  private boolean team_info(CommandSender sender, String name) {
-    if (!context.getTeams().containsKey(name)) {
-      sender.sendMessage("could not find team with name name " + name);
-      return false;
-    }
-    Team team = context.getTeams().get(name);
+  private boolean team_info(CommandSender sender, Team team) {
     sender.sendMessage("team name:" + team.getName());
     sender.sendMessage("team owner:" + team.getOwner());
     return true;

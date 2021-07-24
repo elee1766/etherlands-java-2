@@ -3,7 +3,7 @@ package etherlandscore.etherlandscore.state;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import org.bukkit.Bukkit;
+import etherlandscore.etherlandscore.util.Map2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,8 @@ public class Context {
   private final Map<String, Team> teams = new HashMap<>();
   private final Map<String, UUID> linked = new HashMap<>();
   private final Map<Integer, Plot> plots = new HashMap<>();
-  private final Map<Integer, Map<Integer, Integer>> plotLocations = new HashMap<>();
+  //private final Map<Integer, Map<Integer, Integer>> plotLocations = new HashMap<>();
+  private final Map2<Integer,Integer,Integer> plotLocations = new Map2<>();
 
 
 
@@ -35,15 +36,9 @@ public class Context {
     channels.master_command.publish(new Message<>(MasterCommand.team_create_team, gamer, name));
   }
 
-  public Plot findPlot(Integer x, Integer z) {
-    Integer id = plotLocations.getOrDefault(x, new HashMap<>()).getOrDefault(z, null);
-    Bukkit.getLogger().info(x + " " + z + " " + id);
-    if (id != null) {
-      return getPlot(id);
-    }
-    return null;
+  public Plot getPlot(Integer x, Integer z) {
+    return getPlot(plotLocations.get(x,z));
   }
-
   public Plot getPlot(Integer id) {
     return plots.get(id);
   }
@@ -60,7 +55,7 @@ public class Context {
     return plots;
   }
 
-  public Map<Integer, Map<Integer, Integer>> getPlotLocations() {
+  public Map2<Integer, Integer, Integer> getPlotLocations() {
     return plotLocations;
   }
 }

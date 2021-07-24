@@ -64,7 +64,7 @@ public class Gamer extends StateHolder {
     return uuid;
   }
 
-  public String getTeam() {
+  public String getTeamName() {
     return team;
   }
 
@@ -88,7 +88,7 @@ public class Gamer extends StateHolder {
   }
 
   public Group getGroupObject(String name) {
-    return state().getTeam(this.getTeam()).getGroup(name);
+    return state().getTeam(this.getTeamName()).getGroup(name);
   }
 
   public void setAddress(String address) {

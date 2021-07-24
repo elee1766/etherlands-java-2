@@ -1,14 +1,12 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.PlayerArgument;
+import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.Menus.SelectorMenu;
-import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 public class FriendCommand extends ListenerClient {
@@ -38,7 +36,7 @@ public class FriendCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Gamer newFriend = context.getGamer(((Player) args[0]).getUniqueId());
+                  Gamer newFriend = (Gamer) args[0];
                   if (!gamer.getFriends().contains(newFriend.getUuid())) {
                     gamer.addFriend(this.channels, newFriend);
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
@@ -62,9 +60,9 @@ public class FriendCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Gamer newFriend = context.getGamer(((Player) args[0]).getUniqueId());
-                  if (gamer.getFriends().contains(newFriend.getUuid())) {
-                    gamer.removeFriend(this.channels, newFriend);
+                  Gamer oldFriend = (Gamer) args[0];
+                  if (gamer.getFriends().contains(oldFriend.getUuid())) {
+                    gamer.removeFriend(this.channels, oldFriend);
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
                   } else {
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));

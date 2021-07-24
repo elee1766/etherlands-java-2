@@ -38,8 +38,6 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(blockEventListener);
     getServer().getPluginManager().registerEvents(blockEventListener, this);
 
-    CustomArguments customArguments = new CustomArguments();
-
     new CommandDisabler().disable();
     Fiber teamCommandFiber = new ThreadFiber();
     modules.add(new TeamCommand(channels, teamCommandFiber));

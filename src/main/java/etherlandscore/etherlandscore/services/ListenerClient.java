@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.readonly.ReadContext;
+import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.Gamer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -26,10 +27,16 @@ public class ListenerClient extends ServerModule {
     super(fiber);
     this.channels = channels;
     this.fiber = fiber;
-    this.context = MasterService.state();
+    this.context = new ReadContext(new Context());
+    register();
   }
 
   private void register() {
+    channels.global_update.subscribe(
+        fiber,
+        global -> {
+          context = new ReadContext(global);
+        });
   }
 
   protected String[] getChunkStrings() {

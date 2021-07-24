@@ -1,36 +1,37 @@
 package etherlandscore.etherlandscore.readonly;
 
+import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
 import etherlandscore.etherlandscore.state.Team;
 
+import java.util.Map;
 import java.util.UUID;
 
-public class ReadContext extends Context {
-
+public class ReadContext{
   private final Context context;
-
   public ReadContext(Context context){
     this.context = context;
   }
-
-  @Override
   public Gamer getGamer(UUID uuid) {
-    return super.getGamer(uuid);
+    return context.getGamer(uuid);
   }
-
-  @Override
   public Plot getPlot(Integer id) {
-    return super.getPlot(id);
+    return context.getPlot(id);
+  }
+  public Plot getPlot(Integer x, Integer z){
+    return context.getPlot(x,z);
+  }
+  public Team getTeam(String team) {
+    return context.getTeam(team);
+  }
+  public Map<String,Team> getTeams(){return context.getTeams();}
+  public Map<UUID,Gamer> getGamers(){return context.getGamers();}
+  public Map<Integer,Plot> getPlots(){return context.getPlots();}
+
+  public void createTeam(Channels channels, Gamer gamer, String arg) {
+    context.createTeam(channels,gamer,arg);
   }
 
-  @Override
-  public Plot getPlot(Integer x, Integer z){
-    return super.getPlot(x,z);
-  }
-  @Override
-  public Team getTeam(String team) {
-    return super.getTeam(team);
-  }
 }

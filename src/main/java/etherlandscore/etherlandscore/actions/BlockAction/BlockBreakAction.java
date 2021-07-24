@@ -2,7 +2,11 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.state.*;
+import etherlandscore.etherlandscore.readonly.ReadContext;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.state.Region;
+import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import java.util.Set;
@@ -13,7 +17,7 @@ public class BlockBreakAction extends PermissionedAction {
   private final BlockBreakEvent event;
   private final AccessFlags flag = AccessFlags.DESTROY;
 
-  public BlockBreakAction(Context context, BlockBreakEvent event) {
+  public BlockBreakAction(ReadContext context, BlockBreakEvent event) {
     super(context, event);
     this.event = event;
   }

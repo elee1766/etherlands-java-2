@@ -1,14 +1,14 @@
 package etherlandscore.etherlandscore.actions;
 
-import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.readonly.ReadContext;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 
 public class PermissionedAction {
   private final Event event;
-  private final Context context;
+  private final ReadContext context;
 
-  public PermissionedAction(Context context, Event event) {
+  public PermissionedAction(ReadContext context, Event event) {
     this.event = event;
     this.context = context;
   }
@@ -20,7 +20,7 @@ public class PermissionedAction {
     return false;
   }
 
-  public Context getContext() {
+  public ReadContext getContext() {
     return context;
   }
 

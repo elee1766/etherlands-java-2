@@ -14,7 +14,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class ListenerClient extends ServerModule {
@@ -67,13 +69,19 @@ public class ListenerClient extends ServerModule {
 
   public Argument gamerArgument(String nodeName){
     return new CustomArgument<Gamer>(nodeName, input ->{
-      Player player = Bukkit.getPlayer(nodeName);
+      Player player = Bukkit.getPlayer(input);
+      Bukkit.getLogger().info(input);
       if(player != null){
         return context.getGamer(player.getUniqueId());
       }else{
         throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("Player not found."));
       }
-    }).replaceSuggestions(sender-> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new));
+    }).replaceSuggestions(sender-> {
+      String[] strings = getOnlinePlayerStrings();
+      List<String> list = new ArrayList<String>(Arrays.asList(strings));
+      list.remove(sender.sender().getName());
+      return list.toArray(new String[0]);
+    });
   }
 
 

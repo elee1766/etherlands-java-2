@@ -3,6 +3,7 @@ package etherlandscore.etherlandscore.state;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class Group extends StateHolder{
+public class Group extends StateHolder implements Comparable<Group>{
   private final String name;
   private final String team;
 
@@ -68,5 +69,10 @@ public class Group extends StateHolder{
 
   public Team getTeamObject() {
     return state().getTeam(this.team);
+  }
+
+  @Override
+  public int compareTo(@NotNull Group o) {
+    return this.getPriority().compareTo(o.getPriority());
   }
 }

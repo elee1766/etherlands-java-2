@@ -3,7 +3,6 @@ package etherlandscore.etherlandscore.state;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.Menus.Prettifier;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -66,7 +65,7 @@ public class Gamer extends StateHolder {
     return uuid;
   }
 
-  public String getTeam() {
+  public String getTeamName() {
     return team;
   }
 
@@ -90,7 +89,7 @@ public class Gamer extends StateHolder {
   }
 
   public Group getGroupObject(String name) {
-    return state().getTeam(this.getTeam()).getGroup(name);
+    return state().getTeam(this.getTeamName()).getGroup(name);
   }
 
   public void setAddress(String address) {

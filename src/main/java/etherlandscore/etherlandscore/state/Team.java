@@ -16,6 +16,7 @@ public class Team extends StateHolder {
   private final Map<String, Region> regions = new HashMap<>();
   private final Map<String,Group> groups = new HashMap<>();
 
+
   public Team(Gamer gamer, String name) {
     this.name = name;
     this.owner = gamer.getUuid();
@@ -30,13 +31,11 @@ public class Team extends StateHolder {
   public void deleteGroup(Channels channels, String name){
     channels.master_command.publish(new Message<>(MasterCommand.team_delete_group,name));
   }
-
   public void createGroup(String name){
     if(!this.groups.containsKey(name)){
       this.groups.put(name, new Group(this,name,1,false));
     }
   }
-
   public void deleteGroup(String name){
     if(this.groups.containsKey(name)){
       if(!this.groups.get(name).isDefault()){

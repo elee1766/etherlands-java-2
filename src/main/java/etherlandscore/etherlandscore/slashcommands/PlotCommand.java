@@ -9,7 +9,6 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
-import etherlandscore.etherlandscore.Menus.Prettifier;
 import org.bouncycastle.util.Arrays;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -66,8 +65,8 @@ public class PlotCommand extends ListenerClient {
               Chunk chunk = loc.getChunk();
               int x = chunk.getX();
               int z = chunk.getZ();
-              Plot plot = context.findPlot(x,z);
-              if(!plot.equals(null)) {
+              Plot plot = context.getPlot(x,z);
+              if(plot != null) {
                 plot.info(gamer);
               }else{
                 sender.sendMessage("This land is unclaimed");
@@ -114,7 +113,7 @@ public class PlotCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Chunk chunk = gamer.getPlayer().getChunk();
-                  Plot plot = context.findPlot(chunk.getX(), chunk.getZ());
+                  Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
                   if (plot.getOwner().equals(gamer.getUuid())) {
                     plot.reclaimPlot(this.channels);
                   }

@@ -23,6 +23,6 @@ public class PlayerEventListener extends ListenerClient implements Listener {
   public void onPlayerJoin(PlayerJoinEvent event) {
     Bukkit.getServer().getConsoleSender().sendMessage("hello there!");
     channels.master_command.publish(
-        new Message<>(MasterCommand.gamer_create_gamer, event.getPlayer().getUniqueId()));
+        new Message<>(MasterCommand.context_create_gamer, event.getPlayer().getUniqueId()));
   }
 }

@@ -2,12 +2,17 @@ package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.EthersCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Plot;
 import org.bouncycastle.util.Arrays;
+import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -70,6 +75,37 @@ public class PlotCommand extends ListenerClient {
                 (sender, args) -> {
                   this.channels.ethers_command.publish(
                       new Message<>(EthersCommand.ethers_query_nft, args[0]));
+                }));
+
+    ChunkCommand.withSubcommand(
+        new CommandAPICommand("reclaim")
+            .withArguments(new IntegerRangeArgument("plot-ids"))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  IntegerRange range = (IntegerRange) args[0];
+                  for (int i = range.getLowerBound();
+                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
+                       i++) {
+                    if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
+                      context.getPlot(i).reclaimPlot(this.channels);
+                    }
+                  }
+                }));
+
+    ChunkCommand.withSubcommand(
+        new CommandAPICommand("reclaim")
+            .withArguments(new IntegerRangeArgument("plot-ids"))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Chunk chunk = gamer.getPlayer().getChunk();
+                  Plot plot = context.findPlot(chunk.getX(), chunk.getZ());
+                  if (plot.getOwner().equals(gamer.getUuid())) {
+                    plot.reclaimPlot(this.channels);
+                  }
                 }));
     ChunkCommand.register();
   }

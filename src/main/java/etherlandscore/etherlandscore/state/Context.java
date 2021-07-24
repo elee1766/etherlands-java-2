@@ -17,15 +17,13 @@ public class Context {
   private final Map<Integer, Plot> plots = new HashMap<>();
   private final Map<Integer, Map<Integer, Integer>> plotLocations = new HashMap<>();
 
-  public Context createState(Context state) {
-    return state;
-  }
+
 
   public Map<UUID, Gamer> getGamers() {
     return gamers;
   }
 
-  public Map<String, UUID> getLinked() {
+  public Map<String, UUID> getLinks() {
     return linked;
   }
 

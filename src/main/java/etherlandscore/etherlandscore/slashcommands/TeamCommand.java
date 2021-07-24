@@ -1,12 +1,16 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Plot;
 import etherlandscore.etherlandscore.state.Team;
+import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
@@ -147,6 +151,36 @@ public class TeamCommand extends ListenerClient {
                   }
                 }));
 
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("delegate")
+            .withArguments(new IntegerRangeArgument("plot-ids"))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Team team = gamer.getTeamObject();
+                  IntegerRange range = (IntegerRange) args[0];
+                  for (int i = range.getLowerBound();
+                      i <= Math.min(context.getPlots().size(), range.getUpperBound());
+                      i++) {
+                    if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
+                      team.delegatePlot(this.channels, context.getPlot(i));
+                    }
+                  }
+                }));
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("delegate")
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Team team = gamer.getTeamObject();
+                  Chunk chunk = gamer.getPlayer().getChunk();
+                  Plot plot = context.findPlot(chunk.getX(),chunk.getZ());
+                    if (plot.getOwner().equals(gamer.getUuid())) {
+                      team.delegatePlot(this.channels, plot);
+                    }
+                }));
     TeamCommand.register();
   }
 

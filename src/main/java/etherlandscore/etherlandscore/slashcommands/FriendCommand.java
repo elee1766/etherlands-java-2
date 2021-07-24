@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -45,6 +46,14 @@ public class FriendCommand extends ListenerClient {
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
                   }
                 }));
+    FriendCommand.withSubcommand(
+            new CommandAPICommand("add")
+                    .withPermission("etherlands.public")
+                    .executesPlayer(
+                            (sender, args) -> {
+                              Gamer gamer = context.getGamer(sender.getUniqueId());
+                              SelectorMenu.menu(gamer,getPlayerStrings(), "friend add");
+                            }));
 
     FriendCommand.withSubcommand(
         new CommandAPICommand("remove")
@@ -61,6 +70,14 @@ public class FriendCommand extends ListenerClient {
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
                   }
                 }));
+    FriendCommand.withSubcommand(
+            new CommandAPICommand("remove")
+                    .withPermission("etherlands.public")
+                    .executesPlayer(
+                            (sender, args) -> {
+                              Gamer gamer = context.getGamer(sender.getUniqueId());
+                              SelectorMenu.menu(gamer, getPlayerStrings(), "friend remove");
+                            }));
       FriendCommand.withSubcommand(
               new CommandAPICommand("list")
                       .withPermission("etherlands.public")

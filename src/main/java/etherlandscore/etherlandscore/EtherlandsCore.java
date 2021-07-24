@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore;
 
+import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.listener.BlockEventListener;
@@ -46,6 +47,8 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new FriendCommand(channels, friendCommandFiber));
     Fiber flagCommandFiber = new ThreadFiber();
     modules.add(new FlagCommand(channels, flagCommandFiber));
+    Fiber flagMenuFiber = new ThreadFiber();
+    modules.add(new FlagMenu(channels, flagMenuFiber));
     Fiber ethersFiber = new ThreadFiber();
     try {
       modules.add(new EthereumService(channels, ethersFiber));

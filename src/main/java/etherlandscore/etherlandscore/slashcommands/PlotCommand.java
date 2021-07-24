@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.Menus.Prettifier;
 import org.bouncycastle.util.Arrays;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -58,13 +59,16 @@ public class PlotCommand extends ListenerClient {
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
             .withPermission("etherlands.public")
-            .executesPlayer((sender, args) -> {}));
+            .executesPlayer((sender, args) -> {
+            }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(
                 new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
             .withPermission("etherlands.public")
-            .executes((sender, args) -> {}));
+            .executes((sender, args) -> {
+              //PlotItem.info(sender,"Plot Info", however you could pass the plot as an object);
+            }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("update")
             .withArguments(new IntegerArgument("chunkId"))

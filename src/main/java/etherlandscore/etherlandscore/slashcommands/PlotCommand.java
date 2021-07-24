@@ -1,9 +1,7 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.IntegerArgument;
-import dev.jorel.commandapi.arguments.IntegerRangeArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.EthersCommand;
@@ -11,8 +9,10 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.Menus.Prettifier;
 import org.bouncycastle.util.Arrays;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -60,13 +60,25 @@ public class PlotCommand extends ListenerClient {
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
             .withPermission("etherlands.public")
-            .executesPlayer((sender, args) -> {}));
+            .executesPlayer((sender, args) -> {
+              Gamer gamer = context.getGamer(sender.getUniqueId());
+              Location loc = sender.getLocation();
+              Chunk chunk = loc.getChunk();
+              int x = chunk.getX();
+              int z = chunk.getZ();
+              Plot plot = context.findPlot(x,z);
+              if(!plot.equals(null)) {
+                plot.info(gamer);
+              }else{
+                sender.sendMessage("This land is unclaimed");
+              }
+            }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(
                 new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
             .withPermission("etherlands.public")
-            .executes((sender, args) -> {}));
+            .executes((sender, args) -> { }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("update")
             .withArguments(new IntegerArgument("chunkId"))

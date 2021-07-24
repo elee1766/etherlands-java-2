@@ -30,7 +30,7 @@ public class GamerPrinter {
       try {
         f.addExtra(field.getName());
         f.addExtra(": ");
-        f.addExtra(String.valueOf(field.get(this)));
+        f.addExtra(String.valueOf(field.get(this.gamer)));
       } catch (IllegalAccessException ex) {
         System.out.println(ex);
       }

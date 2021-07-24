@@ -33,7 +33,7 @@ public class PlotPrinter {
       try {
         f.addExtra(field.getName());
         f.addExtra(": ");
-        f.addExtra(String.valueOf(field.get(this)));
+        f.addExtra(String.valueOf(field.get(this.plot)));
       } catch (IllegalAccessException ex) {
         System.out.println(ex);
       }

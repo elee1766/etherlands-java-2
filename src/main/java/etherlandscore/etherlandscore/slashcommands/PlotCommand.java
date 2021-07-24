@@ -67,7 +67,7 @@ public class PlotCommand extends ListenerClient {
                 new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
             .withPermission("etherlands.public")
             .executes((sender, args) -> {
-              //PlotItem.info(sender,"Plot Info", however you could pass the plot as an object);
+              //PlotObject.info(sender);
             }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("update")

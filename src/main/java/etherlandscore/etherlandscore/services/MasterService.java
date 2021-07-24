@@ -8,10 +8,13 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import etherlandscore.etherlandscore.readonly.ReadContext;
+import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.state.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
+import java.io.IOException;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -27,6 +30,12 @@ public class MasterService extends ServerModule {
         this.channels = channels;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
+        File json = new File(root + "/db.json");
+        try {
+            json.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.globalStatePersister = new JsonPersister<>(root + "/db.json");
         Context writer = globalStatePersister.readJson(gson, Context.class);
         context = Objects.requireNonNullElseGet(writer, Context::new);
@@ -94,7 +103,6 @@ public class MasterService extends ServerModule {
         Gamer gamer = context.getGamers().get(a.getUuid());
         gamer.friendList();
     }
-
     private void region_add_plot(Region a, Plot b){
       Team team = context.getTeam(a.getTeam());
       Region region = team.getRegion(a.getName());
@@ -213,6 +221,7 @@ public class MasterService extends ServerModule {
             case group_add_gamer -> group_add_gamer((Group) _args[0], (Gamer) _args[1]);
             case group_remove_gamer -> group_remove_gamer((Group) _args[0], (Gamer) _args[1]);
             case group_set_priority -> group_set_priority((Group) _args[0], (Integer) _args[1]);
+            //flag commands
         }
         global_update();
         save();

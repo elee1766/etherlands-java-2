@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListenerRegistration;
@@ -24,6 +25,7 @@ public class PlotPrinter {
     TextComponent titlebar = new TextComponent("");
     TextComponent allcomp = new TextComponent("");
     titlebar.addExtra("============== PlotInfo ==============\n\n");
+    titlebar.setColor(ChatColor.AQUA);
     allcomp.addExtra(titlebar);
     TextComponent info = new TextComponent("");
     Field[] fields = plot.getDeclaredFields();
@@ -31,9 +33,19 @@ public class PlotPrinter {
       TextComponent f = new TextComponent("");
       f.addExtra(" ");
       try {
-        f.addExtra(field.getName());
+        TextComponent names = new TextComponent(field.getName());
+        names.setColor(ChatColor.AQUA);
+        f.addExtra(names);
         f.addExtra(": ");
-        f.addExtra(String.valueOf(field.get(this.plot)));
+        String val = String.valueOf(field.get(this.plot));
+        if(field.getName()=="ownerAddress"){
+          String edited = val.substring(0,6);
+          edited = edited+"..."+val.substring(val.length()-3);
+          val = edited;
+        }
+        TextComponent value = new TextComponent(val);
+        value.setColor(ChatColor.DARK_AQUA);
+        f.addExtra(value);
       } catch (IllegalAccessException ex) {
         System.out.println(ex);
       }

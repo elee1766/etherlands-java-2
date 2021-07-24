@@ -7,15 +7,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class Gamer extends StateHolder {
 
   private final UUID uuid;
 
-  private String team;
+  private String team = "";
+
+  private Set<String> groups = new HashSet<>();
+
+  private String address;
   private Set<UUID> friends;
 
   public Gamer(UUID uuid) {
@@ -31,18 +36,13 @@ public class Gamer extends StateHolder {
         new Message<>(MasterCommand.gamer_remove_friend, this, newFriend));
   }
 
-  public void friendList(Channels channels){
-    channels.master_command.publish(
-       new Message<>(MasterCommand.gamer_friend_list,this));
-  }
-
   public void friendList(){
     Set<UUID> flist = this.getFriends();
-    String friends = "";
+    StringBuilder friends = new StringBuilder();
     for (UUID value : flist) {
-      friends += Bukkit.getPlayer(value).getName() + ", ";
+      friends.append(Bukkit.getPlayer(value).getName()).append(", ");
     }
-    this.getPlayer().sendMessage(friends);
+    this.getPlayer().sendMessage(friends.toString());
   }
   public void addFriend(Gamer gamer) {
     friends.add(gamer.getUuid());
@@ -52,7 +52,7 @@ public class Gamer extends StateHolder {
     friends.remove(gamer.getUuid());
   }
 
-  public Set getFriends() {
+  public Set<UUID> getFriends() {
     if (friends == null) {
       friends = new HashSet<>();
     }
@@ -67,11 +67,45 @@ public class Gamer extends StateHolder {
     return team;
   }
 
+  public Team getTeamObject(){
+    return state().getTeam(team);
+  }
+
   public void setTeam(String team) {
     this.team = team;
   }
+  public boolean hasTeam(){
+    if(team == null){
+      return false;
+    }
+    return team.equals("");
+  }
+
 
   public Player getPlayer() {
     return Bukkit.getPlayer(uuid);
+  }
+
+  public Group getGroupObject(String name) {
+    return state().getTeam(this.getTeam()).getGroup(name);
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+  public String getAddress(){
+    return address;
+  }
+
+  public void removeGroup(String name) {
+    groups.remove(name);
+  }
+
+  public void addGroup(Group group) {
+    groups.add(group.getName());
+  }
+
+  public void clearGroups(){
+    groups.clear();
   }
 }

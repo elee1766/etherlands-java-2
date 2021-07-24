@@ -12,13 +12,56 @@ public class Team extends StateHolder {
   private final String name;
   private final UUID owner;
   private final Set<UUID> members = new HashSet<>();
+  private final Set<Integer> plots = new HashSet<>();
   private final Map<String, Region> regions = new HashMap<>();
+  private final Map<String,Group> groups = new HashMap<>();
 
   public Team(Gamer gamer, String name) {
     this.name = name;
     this.owner = gamer.getUuid();
+    this.regions.put("global", new Region(this,"global",new HashSet<>(),-1,true));
+    this.groups.put("default", new Group(this,"default",-1,true));
+    this.groups.put("manager", new Group(this,"manager",100,true));
   }
 
+  public void createGroup(Channels channels, String name){
+    channels.master_command.publish(new Message<>(MasterCommand.team_create_group,name));
+  }
+  public void deleteGroup(Channels channels, String name){
+    channels.master_command.publish(new Message<>(MasterCommand.team_delete_group,name));
+  }
+
+  public void createGroup(String name){
+    if(!this.groups.containsKey(name)){
+      this.groups.put(name, new Group(this,name,1,false));
+    }
+  }
+
+  public void deleteGroup(String name){
+    if(this.groups.containsKey(name)){
+      if(!this.groups.get(name).isDefault()){
+        this.groups.remove(name);
+      }
+    }
+  }
+  public void createRegion(Channels channels, String name){
+    channels.master_command.publish(new Message<>(MasterCommand.team_add_region,name));
+  }
+  public void removeRegion(Channels channels, String name){
+    channels.master_command.publish(new Message<>(MasterCommand.team_remove_region,name));
+  }
+  public void createRegion(String name){
+    if(!this.regions.containsKey(name)){
+      this.regions.put(name,new Region(this,name,new HashSet<>(),1,false));
+    }
+  }
+  public void removeRegion(String name) {
+    if (this.regions.containsKey(name)) {
+      if (!this.regions.get(name).isDefault()) {
+        this.regions.remove(name);
+      }
+    }
+  }
   public void addMember(Channels channels, Gamer gamer) {
     channels.master_command.publish(new Message<>(MasterCommand.team_add_gamer, this, gamer));
   }
@@ -71,5 +114,21 @@ public class Team extends StateHolder {
       return invite > Instant.now().getEpochSecond();
     }
     return false;
+  }
+
+  public void delegatePlot(Channels channels, Plot plot) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_delegate_plot,this,plot));
+  }
+
+  public void addPlot(Plot plot){
+    this.plots.add(plot.getId());
+  }
+
+  public void removePlot(Plot plot){
+    this.plots.remove(plot.getId());
+  }
+
+  public Group getGroup(String name) {
+    return getGroup(name);
   }
 }

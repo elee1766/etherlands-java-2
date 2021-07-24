@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class Plot extends StateHolder {
   private final transient Chunk chunk;
 
@@ -18,9 +20,9 @@ public class Plot extends StateHolder {
   private final Integer id;
   private final Integer x;
   private final Integer z;
-  private String ownerAddress;
+  private String ownerAddress = "";
   private UUID ownerUUID;
-  private String ownerServerName;
+  private String ownerServerName = "";
   private String team = "";
 
   public Plot(Integer id, Integer x, Integer z, String ownerAddress) {
@@ -68,13 +70,23 @@ public class Plot extends StateHolder {
     return team;
   }
 
+  public Team getTeamObject(){
+    return state().getTeam(team);
+  }
+
   public void setTeam(String name) {
     this.team = name;
+  }
+
+  public void setTeam(Team team){
+    this.team = team.getName();
   }
 
   public UUID getOwner() {
     return ownerUUID;
   }
+
+  public Gamer getOwnerObject() {return state().getGamer(ownerUUID);}
 
   public Set<String> getRegions() {
     return regions;
@@ -86,5 +98,13 @@ public class Plot extends StateHolder {
 
   public Integer getX() {
     return x;
+  }
+
+  public void reclaimPlot(Channels channels) {
+    channels.master_command.publish(new Message<>(MasterCommand.plot_reclaim_plot,this));
+  }
+
+  public void removeTeam(){
+    this.team = "";
   }
 }

@@ -95,7 +95,7 @@ public class HttpClient extends ServerModule implements HttpHandler {
                 .append("with minecraft player UUID")
                 .append(info.uuid())
                 .append("<br>");
-            channels.master_command.publish(new Message(MasterCommand.player_link_address, info));
+            channels.master_command.publish(new Message(MasterCommand.gamer_link_address, info));
           } else {
             htmlBuilder.append("fields did not match");
           }

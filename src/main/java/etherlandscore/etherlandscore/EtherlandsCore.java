@@ -49,6 +49,8 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new FlagCommand(channels, flagCommandFiber));
     Fiber flagMenuFiber = new ThreadFiber();
     modules.add(new FlagMenu(channels, flagMenuFiber));
+    Fiber gamerCommandFiber = new ThreadFiber();
+    modules.add(new GamerCommand(channels, gamerCommandFiber));
     Fiber ethersFiber = new ThreadFiber();
     try {
       modules.add(new EthereumService(channels, ethersFiber));

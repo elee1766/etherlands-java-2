@@ -80,9 +80,7 @@ public class MasterService extends ServerModule {
     }
 
     public void gamer_add_friend(Gamer a, Gamer b) {
-        Gamer gamer1 = context.getGamers().get(a.getUuid());
-        Gamer gamer2 = context.getGamers().get(b.getUuid());
-        gamer1.addFriend(gamer2);
+        a.addFriend(b);
     }
 
 

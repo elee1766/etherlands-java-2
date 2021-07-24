@@ -8,13 +8,12 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import etherlandscore.etherlandscore.readonly.ReadContext;
-import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.state.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;

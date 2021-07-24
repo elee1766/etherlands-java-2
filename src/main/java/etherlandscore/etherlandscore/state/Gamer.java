@@ -8,9 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
@@ -111,22 +110,11 @@ public class Gamer extends StateHolder {
     groups.clear();
   }
 
-  public TextComponent info(){
-    TextComponent info = new TextComponent("");
+  public Field[] getDeclaredFields(){
     Field[] fields = this.getClass().getDeclaredFields();
-    for(Field field : fields) {
-      TextComponent f = new TextComponent("");
-      f.addExtra(" ");
-      try {
-        f.addExtra(field.getName());
-        f.addExtra(": ");
-        f.addExtra(String.valueOf(field.get(this)));
-      } catch (IllegalAccessException ex) {
-        System.out.println(ex);
-      }
-      f.addExtra("\n");
-      info.addExtra(f);
+    for(Field f : fields){
+      f.setAccessible(true);
     }
-    return info;
+    return fields;
   }
 }

@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.Menus.PlotPrinter;
 import org.bouncycastle.util.Arrays;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -66,11 +67,9 @@ public class PlotCommand extends ListenerClient {
               int x = chunk.getX();
               int z = chunk.getZ();
               Plot plot = context.getPlot(x,z);
-              if(plot != null) {
-                plot.info(gamer);
-              }else{
-                sender.sendMessage("This land is unclaimed");
-              }
+              PlotPrinter printer = new PlotPrinter(plot);
+              printer.printPlot(sender);
+              sender.sendMessage("This land is unclaimed");
             }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")

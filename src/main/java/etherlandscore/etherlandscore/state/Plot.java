@@ -1,14 +1,11 @@
 package etherlandscore.etherlandscore.state;
 
-import etherlandscore.etherlandscore.Menus.Prettifier;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -111,23 +108,11 @@ public class Plot extends StateHolder {
     this.team = "";
   }
 
-  public void info(Gamer gamer){
-    Player p = gamer.getPlayer();
-    TextComponent info = new TextComponent("");
-    Field[] fields = this.getClass().getDeclaredFields();
-    for(Field field : fields) {
-      TextComponent f = new TextComponent("");
-      f.addExtra(" ");
-      try {
-        f.addExtra(field.getName());
-        f.addExtra(": ");
-        f.addExtra(String.valueOf(field.get(this)));
-      } catch (IllegalAccessException ex) {
-        System.out.println(ex);
-      }
-      f.addExtra("\n");
-      info.addExtra(f);
+  public Field[] getDeclaredFields(){
+    Field[] fields = super.getClass().getDeclaredFields();
+    for(Field f : fields){
+      f.setAccessible(true);
     }
-    Prettifier.prettyPrint(p, "Plot Info", info);
+    return fields;
   }
 }

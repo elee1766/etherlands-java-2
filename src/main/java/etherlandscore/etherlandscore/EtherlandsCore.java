@@ -24,7 +24,6 @@ public final class EtherlandsCore extends JavaPlugin {
     getLogger().info("onEnable is called!");
     List<ServerModule> modules = new ArrayList<>();
     Channels channels = new Channels();
-
     getLogger().info("Creating Locale Singleton");
     LocaleSingleton.getLocale();
     getLogger().info("Hooking Event Listeners");
@@ -38,6 +37,9 @@ public final class EtherlandsCore extends JavaPlugin {
         new BlockEventListener(channels, blockEventListenerFiber);
     modules.add(blockEventListener);
     getServer().getPluginManager().registerEvents(blockEventListener, this);
+
+    CustomArguments customArguments = new CustomArguments();
+
     new CommandDisabler().disable();
     Fiber teamCommandFiber = new ThreadFiber();
     modules.add(new TeamCommand(channels, teamCommandFiber));

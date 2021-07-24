@@ -23,7 +23,7 @@ public class BlockBreakAction extends PermissionedAction {
     Gamer gamer = getContext().getGamer(event.getPlayer().getUniqueId());
     Plot plot =
         getContext()
-            .findPlot(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+            .getPlot(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
     // ops can always build
     if (gamer.getPlayer().isOp()) {
       return super.process();

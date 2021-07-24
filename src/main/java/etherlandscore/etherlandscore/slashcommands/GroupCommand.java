@@ -21,16 +21,16 @@ public class GroupCommand extends ListenerClient {
   }
 
   public void register() {
-    CommandAPICommand ChunkCommand =
+    CommandAPICommand GroupCommand =
         new CommandAPICommand("group")
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand);
-    ChunkCommand.withSubcommand(
+    GroupCommand.withSubcommand(
         new CommandAPICommand("help")
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand)
     );
-    ChunkCommand.withSubcommand(
+    GroupCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(new StringArgument("group-name"))
             .withPermission("etherlands.public")
@@ -45,7 +45,24 @@ public class GroupCommand extends ListenerClient {
                 }
             )
     );
-    ChunkCommand.register();
+
+    GroupCommand.withSubcommand(
+        new CommandAPICommand("add")
+            .withArguments(gamerArgument("player"))
+            .withPermission("etherlands.public")
+            .executesPlayer((sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Team team = gamer.getTeamObject();
+                  if(team!= null){
+                    team.createRegion(this.channels, (String) args[0]);
+                  }else{
+                    runNoTeam(sender);
+                  }
+                }
+            )
+    );
+
+    GroupCommand.register();
   }
 
   void runHelpCommand(Player sender, Object[] args) {

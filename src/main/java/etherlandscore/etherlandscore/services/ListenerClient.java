@@ -1,10 +1,13 @@
 package etherlandscore.etherlandscore.services;
 
+import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.CustomArgument;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.readonly.ReadContext;
+import etherlandscore.etherlandscore.state.Gamer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -54,4 +57,17 @@ public class ListenerClient extends ServerModule {
   protected String[] getTeamStrings() {
     return this.context.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
   }
+
+  public Argument gamerArgument(String nodeName){
+    return new CustomArgument<Gamer>(nodeName, input ->{
+      Player player = Bukkit.getPlayer(nodeName);
+      if(player != null){
+        return context.getGamer(player.getUniqueId());
+      }else{
+        throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("Player not found."));
+      }
+    }).replaceSuggestions(sender-> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new));
+  }
+
+
 }

@@ -119,6 +119,11 @@ public class Gamer extends StateHolder {
 
   public void setTeam(String team) {
     this.team = team;
+    if (hasTeam()) {
+      groups.add("member");
+    }else{
+      groups.remove("member");
+    }
   }
 
   @Override

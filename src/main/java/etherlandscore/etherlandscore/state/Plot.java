@@ -52,14 +52,21 @@ public class Plot extends StateHolder {
         for (String regionName : regions) {
           Region region = team.getRegion(regionName);
           if(region.getPriority() > bestPriority){
-            for (String groupName : gamer.getGroups()) {
-              res = region.readGroupPermission(team.getGroup(groupName),flag);
+            Set<String> groupNames = gamer.getGroups();
+            for (String groupName : groupNames) {
+              if (!region
+                  .readGroupPermission(team.getGroup(groupName), flag)
+                  .equals(FlagValue.NONE)) {
+                res = region.readGroupPermission(team.getGroup(groupName),flag);
+                bestPriority = region.getPriority();
+              }
             }
             if(!region.readGamerPermission(gamer,flag).equals(FlagValue.NONE)){
               res = region.readGamerPermission(gamer,flag);
+              bestPriority = region.getPriority();
             }
           }
-        }
+       }
         return res == FlagValue.ALLOW;
       }else{
         FlagValue res = team.getRegion("global").readGroupPermission(team.getGroup("outsiders"),flag);

@@ -23,8 +23,8 @@ public class Team extends StateHolder {
     this.owner = gamer.getUuid();
     this.regions.put("global", new Region(this, "global", new HashSet<>(), -1, true));
     this.groups.put("outsiders", new Group(this, "outsiders", -5, true));
-    this.groups.put("default", new Group(this, "default", -1, true));
-    this.groups.put("manager", new Group(this, "manager", 1, true));
+    this.groups.put("member", new Group(this, "member", -1, true));
+    this.groups.put("manager", new Group(this, "manager", 50, true));
   }
 
   public void addMember(Channels channels, Gamer gamer) {
@@ -68,7 +68,7 @@ public class Team extends StateHolder {
 
   public void createRegion(String name) {
     if (!this.regions.containsKey(name)) {
-      this.regions.put(name, new Region(this, name, new HashSet<>(), 1, false));
+      this.regions.put(name, new Region(this, name, new HashSet<>(), 10, false));
     }
   }
 

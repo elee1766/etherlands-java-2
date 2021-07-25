@@ -21,40 +21,20 @@ public class PlotPrinter {
     this.plot = plot;
   }
 
-  public void printPlot(Player sender){
-    TextComponent titlebar = new TextComponent("");
-    TextComponent allcomp = new TextComponent("");
-    titlebar.addExtra("============== PlotInfo ==============\n\n");
-    titlebar.setColor(ChatColor.AQUA);
-    allcomp.addExtra(titlebar);
-    TextComponent info = new TextComponent("");
+  public void printPlot(Player sender) {
+    TextComponent print = new TextComponent("");
+    MessageFormatter prettyPrint = new MessageFormatter(print);
+    prettyPrint.addBar("=", "PlotInfo");
+
     Field[] fields = plot.getDeclaredFields();
-    for(Field field : fields) {
-      TextComponent f = new TextComponent("");
-      f.addExtra(" ");
+    for (Field field : fields) {
       try {
-        TextComponent names = new TextComponent(field.getName());
-        names.setColor(ChatColor.AQUA);
-        f.addExtra(names);
-        f.addExtra(": ");
-        String val = String.valueOf(field.get(this.plot));
-        if(field.getName()=="ownerAddress"){
-          String edited = val.substring(0,6);
-          edited = edited+"..."+val.substring(val.length()-3);
-          val = edited;
-        }
-        TextComponent value = new TextComponent(val);
-        value.setColor(ChatColor.DARK_AQUA);
-        f.addExtra(value);
+        prettyPrint.addField(field.getName(), String.valueOf(field.get(this.plot)));
       } catch (IllegalAccessException ex) {
         System.out.println(ex);
       }
-      f.addExtra("\n");
-      info.addExtra(f);
     }
-
-    allcomp.addExtra(info);
-    sender.sendMessage(allcomp);
+    prettyPrint.printOut(sender);
   }
 
 }

@@ -10,6 +10,8 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
 import etherlandscore.etherlandscore.Menus.PlotPrinter;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bouncycastle.util.Arrays;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -67,9 +69,15 @@ public class PlotCommand extends ListenerClient {
               int x = chunk.getX();
               int z = chunk.getZ();
               Plot plot = context.getPlot(x,z);
-              PlotPrinter printer = new PlotPrinter(plot);
-              printer.printPlot(sender);
-              sender.sendMessage("This land is unclaimed");
+              if(plot == null){
+                TextComponent unclaimed = new TextComponent("This Land is unclaimed");
+                unclaimed.setColor(ChatColor.YELLOW);
+                sender.sendMessage(unclaimed);
+              }else {
+                PlotPrinter printer = new PlotPrinter(plot);
+                printer.printPlot(sender);
+              }
+
             }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")

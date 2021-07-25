@@ -15,7 +15,7 @@ import java.util.UUID;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class Plot extends StateHolder {
-  private final transient Chunk chunk;
+  private transient Chunk chunk = null;
 
   private final Set<String> regions = new HashSet<>();
   private final Integer id;
@@ -34,7 +34,14 @@ public class Plot extends StateHolder {
     this.ownerAddress = ownerAddress;
   }
 
+  public void addRegion(Region region) {
+    this.regions.add(region.getName());
+  }
+
   public Chunk getChunk() {
+    if(chunk == null){
+      this.chunk = Bukkit.getWorld("world").getChunkAt(x,z);
+    }
     return chunk;
   }
 
@@ -68,6 +75,14 @@ public class Plot extends StateHolder {
 
   public String getTeam() {
     return team;
+  }
+
+  public boolean isOwner(Gamer gamer) {
+    return gamer.getUuid().equals(getOwner());
+  }
+
+  public void removeRegion(Region region) {
+    this.regions.remove(region.getName());
   }
 
   public void setTeam(String name) {

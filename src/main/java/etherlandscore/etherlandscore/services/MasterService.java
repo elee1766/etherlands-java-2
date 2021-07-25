@@ -2,6 +2,8 @@ package etherlandscore.etherlandscore.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import etherlandscore.etherlandscore.enums.AccessFlags;
+import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -88,6 +90,8 @@ public class MasterService extends ServerModule {
             case group_remove_gamer -> context.group_remove_gamer((Group) _args[0], (Gamer) _args[1]);
             case group_set_priority -> context.group_set_priority((Group) _args[0], (Integer) _args[1]);
             //flag commands
+            case region_set_group_permission -> context.region_set_group_permission((Region) _args[0], (Group) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
+            case region_set_gamer_permission -> context.region_set_gamer_permission((Region) _args[0], (Gamer) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
         }
         global_update();
         save();

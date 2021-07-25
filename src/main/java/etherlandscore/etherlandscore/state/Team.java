@@ -22,8 +22,9 @@ public class Team extends StateHolder {
     this.name = name;
     this.owner = gamer.getUuid();
     this.regions.put("global", new Region(this, "global", new HashSet<>(), -1, true));
+    this.groups.put("outsiders", new Group(this, "outsiders", -5, true));
     this.groups.put("default", new Group(this, "default", -1, true));
-    this.groups.put("manager", new Group(this, "manager", 100, true));
+    this.groups.put("manager", new Group(this, "manager", 1, true));
   }
 
   public void addMember(Channels channels, Gamer gamer) {
@@ -52,7 +53,7 @@ public class Team extends StateHolder {
   }
 
   public void createGroup(Channels channels, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_create_group, name));
+    channels.master_command.publish(new Message<>(MasterCommand.team_create_group,this, name));
   }
 
   public void createGroup(String name) {
@@ -62,7 +63,7 @@ public class Team extends StateHolder {
   }
 
   public void createRegion(Channels channels, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_add_region, name));
+    channels.master_command.publish(new Message<>(MasterCommand.team_create_region,this, name));
   }
 
   public void createRegion(String name) {
@@ -80,15 +81,11 @@ public class Team extends StateHolder {
   }
 
   public void deleteGroup(Channels channels, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_delete_group, name));
+    channels.master_command.publish(new Message<>(MasterCommand.team_delete_group,this, name));
   }
 
-  public void deleteGroup(String name) {
-    if (this.groups.containsKey(name)) {
-      if (!this.groups.get(name).isDefault()) {
-        this.groups.remove(name);
-      }
-    }
+  public void deleteRegion(Channels channels, Region arg) {
+   channels.master_command.publish(new Message<>(MasterCommand.team_delete_region,this,arg));
   }
 
   public Group getGroup(String name) {
@@ -115,6 +112,10 @@ public class Team extends StateHolder {
     return this.owner;
   }
 
+  public Set<Integer> getPlots() {
+    return plots;
+  }
+
   public Region getRegion(String x) {
     return this.regions.getOrDefault(x, null);
   }
@@ -128,19 +129,37 @@ public class Team extends StateHolder {
     Bukkit.getLogger().info(arg.toString() + " " + invites.get(arg).toString());
   }
 
+
+  public boolean canAction(Gamer actor, Gamer receiver){
+    if(isManager(actor) && !isManager(receiver)){
+      return true;
+    }else return isOwner(actor);
+  }
+
   public boolean isManager(Gamer manager) {
     if (manager.getUuid().equals(getOwnerUUID())) {
       return true;
     }
-    return this.getMembers().contains(manager.getUuid());
+    return this.getGroup("manager").getMembers().contains(manager.getUuid());
+  }
+
+  public boolean isMember(Gamer gamer) {
+    if(isManager(gamer)){
+      return true;
+    }
+    return members.contains(gamer.getUuid());
   }
 
   public boolean isOwner(Gamer manager) {
     return manager.getUuid().equals(getOwnerUUID());
   }
 
-  public void removeGroup(String name) {
-    groups.remove(name);
+  public void deleteGroup(String name) {
+    if (groups.containsKey(name)) {
+      if (!groups.get(name).isDefault()) {
+        groups.remove(name);
+      }
+    }
   }
 
   public void removeMember(Channels channels, Gamer gamer) {
@@ -151,19 +170,14 @@ public class Team extends StateHolder {
     members.remove(gamer.getUuid());
   }
 
-  public void removePlot(Plot plot) {
-    this.plots.remove(plot.getId());
-  }
-
-  public void removeRegion(Channels channels, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_remove_region, name));
-  }
-
-  public void removeRegion(String name) {
-    plots.forEach(
-        (plt) -> {
-          state().getPlot(plt).removeTeam();
-        });
-    this.regions.remove(name);
-  }
+  public void deleteRegion(String name) {
+    if (regions.containsKey(name)) {
+      if (!regions.get(name).isDefault()) {
+        for (Integer plot : plots) {
+          state().getPlot(plot).removeTeam();
+        }
+        this.regions.remove(name);
+      }
+      }
+    }
 }

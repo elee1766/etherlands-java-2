@@ -15,8 +15,6 @@ public enum MasterCommand {
   group_add_gamer,
   group_remove_gamer,
   group_set_priority,
-  team_add_region,
-  team_remove_region,
   team_create_group,
   team_delete_group,
   team_create_region,

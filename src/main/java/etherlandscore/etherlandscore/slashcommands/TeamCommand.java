@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class TeamCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
@@ -37,14 +39,14 @@ public class TeamCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  sender.sendMessage("create info invite join delete");
+                  sender.sendMessage("create info invite join");
                 });
     TeamCommand.withSubcommand(
         new CommandAPICommand("help")
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  sender.sendMessage("create info invite join delete leave kick");
+                  sender.sendMessage("create info invite join delete leave kick delegate");
                 }));
     TeamCommand.withSubcommand(
         new CommandAPICommand("info")
@@ -73,13 +75,12 @@ public class TeamCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  if (context.getTeams().containsKey((String) args[0])) {
+                  if (context.hasTeam((String) args[0])) {
                     sender.sendMessage("a team already exists by that name");
                     return;
                   }
-                  if (context.getGamers().containsKey(sender.getUniqueId())) {
-                    context.createTeam(
-                        this.channels, context.getGamer(sender.getUniqueId()), (String) args[0]);
+                  if (context.hasGamer(sender.getUniqueId())) {
+                    context.createTeam(this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
                     sender.sendMessage("team created!");
                   }
                 }));

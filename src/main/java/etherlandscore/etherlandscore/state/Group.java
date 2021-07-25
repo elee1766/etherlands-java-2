@@ -20,7 +20,6 @@ public class Group extends StateHolder implements Comparable<Group> {
   private Integer priority;
 
   public Group(Team team, String name, Integer priority, boolean isDefault) {
-
     this.name = name;
     this.team = team.getName();
     this.priority = priority;
@@ -28,7 +27,8 @@ public class Group extends StateHolder implements Comparable<Group> {
   }
 
   public void addMember(Channels channels, Gamer gamer) {
-    channels.master_command.publish(new Message<>(MasterCommand.group_add_gamer, gamer));
+    if(isDefault) return;
+    channels.master_command.publish(new Message<>(MasterCommand.group_add_gamer,this, gamer));
   }
 
   public void addMember(Gamer gamer) {
@@ -67,7 +67,8 @@ public class Group extends StateHolder implements Comparable<Group> {
   }
 
   public void removeMember(Channels channels, Gamer gamer) {
-    channels.master_command.publish(new Message<>(MasterCommand.group_remove_gamer, gamer));
+    if(isDefault) return;
+    channels.master_command.publish(new Message<>(MasterCommand.group_remove_gamer,this, gamer));
   }
 
   public void removeMember(Gamer gamer) {
@@ -75,6 +76,7 @@ public class Group extends StateHolder implements Comparable<Group> {
   }
 
   public void setPriority(Channels channels, Integer priority) {
-    channels.master_command.publish(new Message<>(MasterCommand.group_set_priority, priority));
+    if(isDefault) return;
+    channels.master_command.publish(new Message<>(MasterCommand.group_set_priority,this, priority));
   }
 }

@@ -34,7 +34,9 @@ public class Region extends StateHolder implements Comparable<Region> {
   }
 
   public void addPlot(Plot plot) {
-    this.plotIds.add(plot.getId());
+    if (!isDefault) {
+      this.plotIds.add(plot.getId());
+    }
   }
 
   public FlagValue checkFlags(AccessFlags flag, Gamer gamer) {
@@ -60,6 +62,14 @@ public class Region extends StateHolder implements Comparable<Region> {
 
   public Integer getPriority() {
     return this.priority;
+  }
+
+  public void setGroupPermission(Group group, AccessFlags flag, FlagValue value) {
+    this.groupPermissionMap.put(group.getName(),flag,value);
+  }
+
+  public void setGamerPermission(Gamer gamer, AccessFlags flag, FlagValue value) {
+    this.gamerPermissionMap.put(gamer.getUuid(),flag,value);
   }
 
   public void setPriority(Integer newPriority) {

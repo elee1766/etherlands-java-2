@@ -1,8 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.enums.AccessFlags;
+import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.util.Map2;
 
 import java.util.HashMap;
@@ -25,9 +24,6 @@ public class Context {
     }
   }
 
-  public void createTeam(Channels channels, Gamer gamer, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_create_team, gamer, name));
-  }
 
   public void gamer_add_friend(Gamer a, Gamer b) {
     a.addFriend(b);
@@ -111,11 +107,20 @@ public class Context {
   }
 
   public void region_add_plot(Region region, Plot plot) {
+    plot.addRegion(region);
     region.addPlot(plot);
   }
 
   public void region_remove_plot(Region region, Plot plot) {
+    plot.removeRegion(region);
     region.removePlot(plot);
+  }
+
+  public void region_set_group_permission(Region region, Group group, AccessFlags flag, FlagValue value) {
+    region.setGroupPermission(group,flag,value);
+  }
+  public void region_set_gamer_permission(Region region, Gamer gamer, AccessFlags flag, FlagValue value) {
+    region.setGamerPermission(gamer,flag,value);
   }
 
   public void region_set_priority(Region region, Integer priority) {
@@ -150,15 +155,32 @@ public class Context {
   }
 
   public void team_delete_group(Team team, Group group) {
-    team.removeGroup(group.getName());
+    for (UUID member : team.getMembers()) {
+      getGamer(member).setTeam("");
+    }
+    getGamer(team.getOwnerUUID()).setTeam("");
+    team.deleteGroup(group.getName());
   }
 
   public void team_delete_region(Team team, Region region) {
-    team.removeRegion(region.getName());
+    for (Integer plotId: team.getPlots()) {
+      getPlot(plotId).removeRegion(region);
+    }
+    team.deleteRegion(region.getName());
   }
 
   public void team_delete_team(Team team) {
-    teams.remove(team.getName());
+    for (UUID member : team.getMembers()) {
+      Gamer gamer = getGamer(member);
+      gamer.setTeam("");
+      gamer.clearGroups();
+    }
+    getGamer(team.getOwnerUUID()).setTeam("");
+    for (Integer id : team.getPlots()) {
+      getPlot(id).removeTeam();
+    }
+
+  teams.remove(team.getName());
   }
 
   public void team_remove_gamer(Team team, Gamer gamer) {

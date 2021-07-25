@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.*;
 
@@ -129,5 +130,13 @@ public class Team extends StateHolder {
 
   public Group getGroup(String name) {
     return getGroup(name);
+  }
+
+  public Field[] getDeclaredFields(){
+    Field[] fields = this.getClass().getDeclaredFields();
+    for(Field f : fields){
+      f.setAccessible(true);
+    }
+    return fields;
   }
 }

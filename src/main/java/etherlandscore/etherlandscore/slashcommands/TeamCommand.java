@@ -5,6 +5,8 @@ import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
+import etherlandscore.etherlandscore.Menus.GamerPrinter;
+import etherlandscore.etherlandscore.Menus.TeamPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
@@ -64,7 +66,10 @@ public class TeamCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  team_info(sender, context.getTeam((String) args[0]));
+                  Player player = (Player)args[0];
+                  Gamer gamer = context.getGamer(player.getUniqueId());
+                  TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]));
+                  printer.printTeam(sender);
                 }));
 
     TeamCommand.withSubcommand(

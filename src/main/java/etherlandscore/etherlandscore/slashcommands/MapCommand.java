@@ -14,7 +14,6 @@ import org.jetlang.fibers.Fiber;
 public class MapCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
-  private final LocaleStrings locales = new LocaleStrings();
 
   public MapCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
@@ -29,7 +28,7 @@ public class MapCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  MapMenu map = new MapMenu(context.getGamer(sender.getUniqueId()),channels,fiber);
+                  MapMenu map = new MapMenu(context.getGamer(sender.getUniqueId()),this.channels,this.fiber);
                   map.mapMenu();
                 });
     MapCommand.register();

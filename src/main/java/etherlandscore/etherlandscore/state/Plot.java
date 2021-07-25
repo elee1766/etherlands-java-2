@@ -41,6 +41,7 @@ public class Plot extends StateHolder {
   }
 
   public boolean canGamerPerform(AccessFlags flag, Gamer gamer) {
+    try{
     if(gamer.getPlayer().isOp()){
       return true;
     }
@@ -74,10 +75,17 @@ public class Plot extends StateHolder {
       }
     }else{
       Gamer owner = getOwnerObject();
+      if(owner==null){
+        return false;
+      }
       if(owner.equals(gamer)){
         return true;
       }
       return owner.getFriends().contains(gamer.getUuid());
+    }
+    }catch(Exception e){
+      Bukkit.getLogger().info(e.toString() + "\n"  + e.getMessage());
+      return false;
     }
   }
 

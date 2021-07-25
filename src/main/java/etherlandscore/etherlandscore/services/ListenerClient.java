@@ -70,7 +70,6 @@ public class ListenerClient extends ServerModule {
   public Argument gamerArgument(String nodeName){
     return new CustomArgument<Gamer>(nodeName, input ->{
       Player player = Bukkit.getPlayer(input);
-      Bukkit.getLogger().info(input);
       if(player != null){
         return context.getGamer(player.getUniqueId());
       }else{
@@ -81,6 +80,28 @@ public class ListenerClient extends ServerModule {
       List<String> list = new ArrayList<String>(Arrays.asList(strings));
       list.remove(sender.sender().getName());
       return list.toArray(new String[0]);
+    });
+  }
+  public Argument teamMemberArgument(String nodeName){
+    return new CustomArgument<Gamer>(nodeName, input->{
+      Player player = Bukkit.getPlayer(input);
+      if(player != null){
+        return context.getGamer(player.getUniqueId());
+      }else{
+        throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("Player not found."));
+      }
+    }).replaceSuggestions(sender-> {
+      String[] strings = getOnlinePlayerStrings();
+      List<String> list = new ArrayList<String>(Arrays.asList(strings));
+      list.remove(sender.sender().getName());
+      return list.toArray(new String[0]);
+    });
+  }
+  public Argument cleanNameArgument(String nodeName){
+    return new CustomArgument<String>(nodeName, input ->{
+      String output = input.replaceAll(
+          "[^a-zA-Z0-9_]", "");
+      return output;
     });
   }
 

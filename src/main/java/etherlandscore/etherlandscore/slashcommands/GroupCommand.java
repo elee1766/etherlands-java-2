@@ -1,7 +1,6 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
@@ -32,7 +31,7 @@ public class GroupCommand extends ListenerClient {
     );
     GroupCommand.withSubcommand(
         new CommandAPICommand("create")
-            .withArguments(new StringArgument("group-name"))
+            .withArguments(cleanNameArgument("groupname"))
             .withPermission("etherlands.public")
             .executesPlayer((sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
@@ -48,7 +47,7 @@ public class GroupCommand extends ListenerClient {
 
     GroupCommand.withSubcommand(
         new CommandAPICommand("add")
-            .withArguments(gamerArgument("player"))
+            .withArguments(teamMemberArgument("player"))
             .withPermission("etherlands.public")
             .executesPlayer((sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());

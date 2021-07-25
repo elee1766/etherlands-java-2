@@ -69,7 +69,7 @@ public class TeamCommand extends ListenerClient {
 
     TeamCommand.withSubcommand(
         new CommandAPICommand("create")
-            .withArguments(new StringArgument("team-name"))
+            .withArguments(cleanNameArgument("teamname"))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
@@ -80,7 +80,7 @@ public class TeamCommand extends ListenerClient {
                   if (context.getGamers().containsKey(sender.getUniqueId())) {
                     context.createTeam(
                         this.channels,
-                        context.getGamers().get(sender.getUniqueId()),
+                        context.getGamer(sender.getUniqueId()),
                         (String) args[0]);
                     sender.sendMessage("team created!");
                   }

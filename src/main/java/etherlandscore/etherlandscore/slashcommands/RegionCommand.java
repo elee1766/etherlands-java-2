@@ -35,7 +35,7 @@ public class RegionCommand extends ListenerClient {
     );
     ChunkCommand.withSubcommand(
         new CommandAPICommand("create")
-            .withArguments(new StringArgument("region-name"))
+            .withArguments(cleanNameArgument("regionname"))
             .withPermission("etherlands.public")
             .executesPlayer((sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
@@ -50,7 +50,7 @@ public class RegionCommand extends ListenerClient {
     );
     ChunkCommand.withSubcommand(
         new CommandAPICommand("add")
-            .withArguments(new StringArgument("region-name"))
+            .withArguments(new StringArgument("regionname"))
             .withArguments(new IntegerRangeArgument("plot-ids"))
             .withPermission("etherlands.public")
             .executesPlayer(

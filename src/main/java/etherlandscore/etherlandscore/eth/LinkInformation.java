@@ -24,12 +24,20 @@ public class LinkInformation {
     return MESSAGE_PREFIX.concat(String.valueOf(messageLength)).getBytes();
   }
 
+  public boolean didPass() {
+    return didpass;
+  }
+
   private byte[] getEthereumMessageHash(byte[] message) {
     byte[] prefix = getEthereumMessagePrefix(message.length);
     byte[] result = new byte[prefix.length + message.length];
     System.arraycopy(prefix, 0, result, 0, prefix.length);
     System.arraycopy(message, 0, result, prefix.length, message.length);
     return result;
+  }
+
+  public String getPubkey() {
+    return publickey;
   }
 
   public String pubkey() throws SignatureException {
@@ -54,19 +62,11 @@ public class LinkInformation {
     return pubkey;
   }
 
-  public boolean didPass() {
-    return didpass;
-  }
-
-  public String getPubkey() {
-    return publickey;
+  public String timestamp() {
+    return message.split("_")[1];
   }
 
   public String uuid() {
     return message.split("_")[0];
-  }
-
-  public String timestamp() {
-    return message.split("_")[1];
   }
 }

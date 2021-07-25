@@ -11,15 +11,13 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class Group extends StateHolder implements Comparable<Group>{
+public class Group extends StateHolder implements Comparable<Group> {
   private final String name;
   private final String team;
 
   private final Set<UUID> members = new HashSet<>();
-
-  private Integer priority;
-
   private final boolean isDefault;
+  private Integer priority;
 
   public Group(Team team, String name, Integer priority, boolean isDefault) {
 
@@ -29,50 +27,54 @@ public class Group extends StateHolder implements Comparable<Group>{
     this.isDefault = isDefault;
   }
 
-  public void addMember(Channels channels, Gamer gamer){
-    channels.master_command.publish(new Message<>(MasterCommand.group_add_gamer,gamer));
+  public void addMember(Channels channels, Gamer gamer) {
+    channels.master_command.publish(new Message<>(MasterCommand.group_add_gamer, gamer));
   }
 
-  public void removeMember(Channels channels, Gamer gamer){
-    channels.master_command.publish(new Message<>(MasterCommand.group_remove_gamer,gamer));
-  }
-
-  public void addMember(Gamer gamer){
+  public void addMember(Gamer gamer) {
     this.members.add(gamer.getUuid());
   }
 
-  public void removeMember(Gamer gamer){
-    this.members.remove(gamer.getUuid());
+  @Override
+  public int compareTo(@NotNull Group o) {
+    return this.getPriority().compareTo(o.getPriority());
   }
 
-  public void setPriority(Channels channels, Integer priority){
-    channels.master_command.publish(new Message<>(MasterCommand.group_set_priority,priority));
-  }
-
-  public Integer getPriority(){
-    return priority;
-  }
-
-  public void setPriority(Integer newPriority){
-    if(isDefault) return;
-    if(newPriority < 0) this.priority = 0;
-    if(newPriority > 100) this.priority = 0;
-  }
-
-  public boolean isDefault() {
-    return this.isDefault;
+  public Set<UUID> getMembers() {
+    return members;
   }
 
   public String getName() {
     return name;
   }
 
+  public Integer getPriority() {
+    return priority;
+  }
+
+  public void setPriority(Integer newPriority) {
+    if (isDefault) return;
+    if (newPriority < 0) this.priority = 0;
+    if (newPriority > 100) this.priority = 0;
+  }
+
   public Team getTeamObject() {
     return state().getTeam(this.team);
   }
 
-  @Override
-  public int compareTo(@NotNull Group o) {
-    return this.getPriority().compareTo(o.getPriority());
+  public boolean isDefault() {
+    return this.isDefault;
+  }
+
+  public void removeMember(Channels channels, Gamer gamer) {
+    channels.master_command.publish(new Message<>(MasterCommand.group_remove_gamer, gamer));
+  }
+
+  public void removeMember(Gamer gamer) {
+    this.members.remove(gamer.getUuid());
+  }
+
+  public void setPriority(Channels channels, Integer priority) {
+    channels.master_command.publish(new Message<>(MasterCommand.group_set_priority, priority));
   }
 }

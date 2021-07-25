@@ -13,18 +13,18 @@ public class PermissionedAction {
     this.context = context;
   }
 
-  public boolean rollback() {
-    if (event instanceof Cancellable) {
-      ((Cancellable) event).setCancelled(true);
-    }
-    return false;
-  }
-
   public ReadContext getContext() {
     return context;
   }
 
   public boolean process() {
     return true;
+  }
+
+  public boolean rollback() {
+    if (event instanceof Cancellable) {
+      ((Cancellable) event).setCancelled(true);
+    }
+    return false;
   }
 }

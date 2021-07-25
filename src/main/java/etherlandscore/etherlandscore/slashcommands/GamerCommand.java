@@ -32,11 +32,12 @@ public class GamerCommand extends ListenerClient {
                 });
     GamerCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(new PlayerArgument("gamer").replaceSuggestions(info->getPlayerStrings()))
+            .withArguments(
+                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Player player = (Player)args[0];
+                  Player player = (Player) args[0];
                   Gamer gamer = context.getGamer(player.getUniqueId());
                   GamerPrinter printer = new GamerPrinter(gamer);
                   printer.printGamer(sender);

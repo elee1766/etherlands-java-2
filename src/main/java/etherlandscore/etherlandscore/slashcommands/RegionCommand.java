@@ -31,23 +31,21 @@ public class RegionCommand extends ListenerClient {
     ChunkCommand.withSubcommand(
         new CommandAPICommand("help")
             .withPermission("etherlands.public")
-            .executesPlayer(this::runHelpCommand)
-    );
+            .executesPlayer(this::runHelpCommand));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("regionname"))
             .withPermission("etherlands.public")
-            .executesPlayer((sender, args) -> {
+            .executesPlayer(
+                (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
-                    if(team != null){
-                      team.createRegion(this.channels, (String) args[0]);
-                    }else{
-                      runNoTeam(sender);
+                  if (team != null) {
+                    team.createRegion(this.channels, (String) args[0]);
+                  } else {
+                    runNoTeam(sender);
                   }
-                }
-            )
-    );
+                }));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("add")
             .withArguments(new StringArgument("regionname"))
@@ -85,8 +83,8 @@ public class RegionCommand extends ListenerClient {
                     if (team.getOwnerUUID().equals(gamer.getUuid())) {
                       IntegerRange range = (IntegerRange) args[1];
                       for (int i = range.getLowerBound();
-                           i <= Math.min(context.getPlots().size(), range.getUpperBound());
-                           i++) {
+                          i <= Math.min(context.getPlots().size(), range.getUpperBound());
+                          i++) {
                         region.removePlot(this.channels, context.getPlot(i));
                       }
                     }
@@ -101,7 +99,8 @@ public class RegionCommand extends ListenerClient {
   void runHelpCommand(Player sender, Object[] args) {
     sender.sendMessage("create");
   }
-  void runNoTeam(Player sender){
+
+  void runNoTeam(Player sender) {
     sender.sendMessage("you must be in a team to manage regions");
   }
 }

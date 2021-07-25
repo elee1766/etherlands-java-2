@@ -29,68 +29,75 @@ public class Region extends StateHolder implements Comparable<Region> {
     this.priority = priority;
   }
 
-  public void setGroupPermission(Channels channels, Group group, AccessFlags flag, FlagValue value){
-    channels.master_command.publish(
-        new Message<>(MasterCommand.region_set_group_permission,this,group,flag,value)
-    );
-  }
-  public void setGamerPermission(Channels channels, Gamer gamer, AccessFlags flag, FlagValue value){
-    channels.master_command.publish(
-        new Message<>(MasterCommand.region_set_gamer_permission,this,gamer,flag,value)
-    );
-  }
-
   public void addPlot(Channels channels, Plot plot) {
     channels.master_command.publish(new Message<>(MasterCommand.region_add_plot, this, plot));
   }
+
   public void addPlot(Plot plot) {
     this.plotIds.add(plot.getId());
   }
 
-  public void removePlot(Channels channels, Plot plot) {
-    channels.master_command.publish(new Message<>(MasterCommand.region_remove_plot, this, plot));
-  }
-  public void removePlot(Plot plot) {
-    this.plotIds.remove(plot.getId());
-  }
-
-  public void setPriority(Channels channels, Integer priority) {
-    channels.master_command.publish(new Message<>(MasterCommand.region_set_priority, this, priority));
-  }
-
-  public Integer getPriority() {
-    return this.priority;
-  }
-  public void setPriority(Integer newPriority){
-    if(isDefault) return;
-    if(newPriority < 0) this.priority = 0;
-    if(newPriority > 100) this.priority = 0;
-  }
-
-
   public FlagValue checkFlags(AccessFlags flag, Gamer gamer) {
-    return gamerPermissionMap.getOrDefault(gamer.getUuid(),flag,FlagValue.NONE);
+    return gamerPermissionMap.getOrDefault(gamer.getUuid(), flag, FlagValue.NONE);
   }
 
   public FlagValue checkFlags(AccessFlags flag, Group group) {
-    return groupPermissionMap.getOrDefault(group.getName(),flag,FlagValue.NONE);
+    return groupPermissionMap.getOrDefault(group.getName(), flag, FlagValue.NONE);
   }
 
-  public boolean isDefault() {
-    return isDefault;
+  public void clearGroupPermission(String name) {
+    groupPermissionMap.clearGroup(name);
   }
 
-
-  public Team getTeam() {
-    return state().getTeam(getName());
+  @Override
+  public int compareTo(Region r) {
+    return getPriority().compareTo(r.getPriority());
   }
 
   public String getName() {
     return name;
   }
 
-  @Override
-  public int compareTo(Region r) {
-    return getPriority().compareTo(r.getPriority());
+  public Integer getPriority() {
+    return this.priority;
+  }
+
+  public void setPriority(Integer newPriority) {
+    if (isDefault) return;
+    if (newPriority < 0) this.priority = 0;
+    if (newPriority > 100) this.priority = 0;
+  }
+
+  public Team getTeam() {
+    return state().getTeam(getName());
+  }
+
+  public boolean isDefault() {
+    return isDefault;
+  }
+
+  public void removePlot(Channels channels, Plot plot) {
+    channels.master_command.publish(new Message<>(MasterCommand.region_remove_plot, this, plot));
+  }
+
+  public void removePlot(Plot plot) {
+    this.plotIds.remove(plot.getId());
+  }
+
+  public void setGamerPermission(
+      Channels channels, Gamer gamer, AccessFlags flag, FlagValue value) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.region_set_gamer_permission, this, gamer, flag, value));
+  }
+
+  public void setGroupPermission(
+      Channels channels, Group group, AccessFlags flag, FlagValue value) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.region_set_group_permission, this, group, flag, value));
+  }
+
+  public void setPriority(Channels channels, Integer priority) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.region_set_priority, this, priority));
   }
 }

@@ -33,6 +33,57 @@ public class ListenerClient extends ServerModule {
     register();
   }
 
+  public Argument cleanNameArgument(String nodeName) {
+    return new CustomArgument<>(nodeName, input -> input.replaceAll("[^a-zA-Z0-9_]", ""));
+  }
+
+  public Argument gamerArgument(String nodeName) {
+    return new CustomArgument<Gamer>(
+            nodeName,
+            input -> {
+              Player player = Bukkit.getPlayer(input);
+              if (player != null) {
+                return context.getGamer(player.getUniqueId());
+              } else {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("Player not found."));
+              }
+            })
+        .replaceSuggestions(
+            sender -> {
+              String[] strings = getOnlinePlayerStrings();
+              List<String> list = new ArrayList<String>(Arrays.asList(strings));
+              list.remove(sender.sender().getName());
+              return list.toArray(new String[0]);
+            });
+  }
+
+  protected String[] getAccessFlagStrings() {
+    return Stream.of(AccessFlags.values()).map(AccessFlags::name).toArray(String[]::new);
+  }
+
+  protected String[] getChunkStrings() {
+    return this.context.getPlots().keySet().stream().map(Object::toString).toArray(String[]::new);
+  }
+
+  protected String[] getFlagValueStrings() {
+    return Stream.of(FlagValue.values()).map(FlagValue::name).toArray(String[]::new);
+  }
+
+  protected String[] getOnlinePlayerStrings() {
+    Player[] players = Bukkit.getServer().getOnlinePlayers().toArray(Player[]::new);
+    return Arrays.stream(players).map(Player::getName).toArray(String[]::new);
+  }
+
+  protected String[] getPlayerStrings() {
+    OfflinePlayer[] players = Bukkit.getServer().getOfflinePlayers();
+    return Arrays.stream(players).map(OfflinePlayer::getName).toArray(String[]::new);
+  }
+
+  protected String[] getTeamStrings() {
+    return this.context.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
+  }
+
   private void register() {
     channels.global_update.subscribe(
         fiber,
@@ -41,69 +92,24 @@ public class ListenerClient extends ServerModule {
         });
   }
 
-  protected String[] getChunkStrings() {
-    return this.context.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
+  public Argument teamMemberArgument(String nodeName) {
+    return new CustomArgument<>(
+            nodeName,
+            input -> {
+              Player player = Bukkit.getPlayer(input);
+              if (player != null) {
+                return context.getGamer(player.getUniqueId());
+              } else {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("Player not found."));
+              }
+            })
+        .replaceSuggestions(
+            sender -> {
+              String[] strings = getOnlinePlayerStrings();
+              List<String> list = new ArrayList<String>(Arrays.asList(strings));
+              list.remove(sender.sender().getName());
+              return list.toArray(new String[0]);
+            });
   }
-
-  protected String[] getAccessFlagStrings() {
-    return Stream.of(AccessFlags.values()).map(AccessFlags::name).toArray(String[]::new);
-  }
-
-  protected String[] getFlagValueStrings() {
-    return Stream.of(FlagValue.values()).map(FlagValue::name).toArray(String[]::new);
-  }
-
-  protected String[] getPlayerStrings() {
-    OfflinePlayer[] players = Bukkit.getServer().getOfflinePlayers();
-    return Arrays.stream(players).map(OfflinePlayer::getName).toArray(String[]::new);
-  }
-
-  protected String[] getOnlinePlayerStrings() {
-    Player[] players = Bukkit.getServer().getOnlinePlayers().toArray(Player[]::new);
-    return Arrays.stream(players).map(Player::getName).toArray(String[]::new);
-  }
-
-  protected String[] getTeamStrings() {
-    return this.context.getTeams().keySet().stream().map(Object::toString).toArray(String[]::new);
-  }
-
-  public Argument gamerArgument(String nodeName){
-    return new CustomArgument<Gamer>(nodeName, input ->{
-      Player player = Bukkit.getPlayer(input);
-      if(player != null){
-        return context.getGamer(player.getUniqueId());
-      }else{
-        throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("Player not found."));
-      }
-    }).replaceSuggestions(sender-> {
-      String[] strings = getOnlinePlayerStrings();
-      List<String> list = new ArrayList<String>(Arrays.asList(strings));
-      list.remove(sender.sender().getName());
-      return list.toArray(new String[0]);
-    });
-  }
-  public Argument teamMemberArgument(String nodeName){
-    return new CustomArgument<Gamer>(nodeName, input->{
-      Player player = Bukkit.getPlayer(input);
-      if(player != null){
-        return context.getGamer(player.getUniqueId());
-      }else{
-        throw new CustomArgument.CustomArgumentException(new CustomArgument.MessageBuilder("Player not found."));
-      }
-    }).replaceSuggestions(sender-> {
-      String[] strings = getOnlinePlayerStrings();
-      List<String> list = new ArrayList<String>(Arrays.asList(strings));
-      list.remove(sender.sender().getName());
-      return list.toArray(new String[0]);
-    });
-  }
-  public Argument cleanNameArgument(String nodeName){
-    return new CustomArgument<String>(nodeName, input ->{
-      String output = input.replaceAll(
-          "[^a-zA-Z0-9_]", "");
-      return output;
-    });
-  }
-
-
 }

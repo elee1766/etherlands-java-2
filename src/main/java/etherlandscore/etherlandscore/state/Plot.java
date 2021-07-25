@@ -38,6 +38,70 @@ public class Plot extends StateHolder {
     return chunk;
   }
 
+  public Field[] getDeclaredFields() {
+    Field[] fields = super.getClass().getDeclaredFields();
+    for (Field f : fields) {
+      f.setAccessible(true);
+    }
+    return fields;
+  }
+
+  public String getDeedHolder() {
+    return this.ownerAddress;
+  }
+
+  public Integer getId() {
+    return this.id;
+  }
+
+  public UUID getOwner() {
+    return ownerUUID;
+  }
+
+  public Gamer getOwnerObject() {
+    return state().getGamer(ownerUUID);
+  }
+
+  public Set<String> getRegions() {
+    return regions;
+  }
+
+  public String getTeam() {
+    return team;
+  }
+
+  public void setTeam(String name) {
+    this.team = name;
+  }
+
+  public void setTeam(Team team) {
+    this.team = team.getName();
+  }
+
+  public Team getTeamObject() {
+    return state().getTeam(team);
+  }
+
+  public Integer getX() {
+    return x;
+  }
+
+  public Integer getZ() {
+    return z;
+  }
+
+  public boolean hasTeam() {
+    return !team.equals("");
+  }
+
+  public void reclaimPlot(Channels channels) {
+    channels.master_command.publish(new Message<>(MasterCommand.plot_reclaim_plot, this));
+  }
+
+  public void removeTeam() {
+    this.team = "";
+  }
+
   public void setOwner(Channels channels, String ownerAddress) {
     channels.master_command.publish(new Message(MasterCommand.plot_set_owner, ownerAddress));
   }
@@ -53,66 +117,5 @@ public class Plot extends StateHolder {
         this.ownerServerName = "player-uuid: [" + ownerUUID + "]";
       }
     }
-  }
-
-  public String getDeedHolder() {
-    return this.ownerAddress;
-  }
-
-  public Integer getId() {
-    return this.id;
-  }
-
-  public boolean hasTeam() {
-    return !team.equals("");
-  }
-
-  public String getTeam() {
-    return team;
-  }
-
-  public Team getTeamObject(){
-    return state().getTeam(team);
-  }
-
-  public void setTeam(String name) {
-    this.team = name;
-  }
-
-  public void setTeam(Team team){
-    this.team = team.getName();
-  }
-
-  public UUID getOwner() {
-    return ownerUUID;
-  }
-
-  public Gamer getOwnerObject() {return state().getGamer(ownerUUID);}
-
-  public Set<String> getRegions() {
-    return regions;
-  }
-
-  public Integer getZ() {
-    return z;
-  }
-
-  public Integer getX() {
-    return x;
-  }
-
-  public void reclaimPlot(Channels channels) {
-    channels.master_command.publish(new Message<>(MasterCommand.plot_reclaim_plot,this));
-  }
-  public void removeTeam(){
-    this.team = "";
-  }
-
-  public Field[] getDeclaredFields(){
-    Field[] fields = super.getClass().getDeclaredFields();
-    for(Field f : fields){
-      f.setAccessible(true);
-    }
-    return fields;
   }
 }

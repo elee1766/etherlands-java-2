@@ -44,19 +44,6 @@ public class Persister {
     return result.toString();
   }
 
-  public void overwrite(String toWrite) {
-    try {
-      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filepath, false));
-      bufferedWriter.write(toWrite, 0, toWrite.length());
-      bufferedWriter.close();
-    } catch (Exception e) {
-      logger.log(
-          Level.WARNING,
-          String.format("Unable to overwrite file : %s. ToWrite: %s", filepath, toWrite),
-          e);
-    }
-  }
-
   public void appendTo(String toWrite) {
     try {
       BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filepath, true));
@@ -67,6 +54,29 @@ public class Persister {
       logger.log(
           Level.WARNING,
           String.format("Unable to append to file : %s. ToWrite: %s", filepath, toWrite),
+          e);
+    }
+  }
+
+  public boolean fileExists() {
+    return Files.exists(Paths.get(filepath));
+  }
+
+  public void getAll(Callback<String> stringCallback) {
+    for (String s : readLines()) {
+      stringCallback.onMessage(s.trim());
+    }
+  }
+
+  public void overwrite(String toWrite) {
+    try {
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filepath, false));
+      bufferedWriter.write(toWrite, 0, toWrite.length());
+      bufferedWriter.close();
+    } catch (Exception e) {
+      logger.log(
+          Level.WARNING,
+          String.format("Unable to overwrite file : %s. ToWrite: %s", filepath, toWrite),
           e);
     }
   }
@@ -93,11 +103,6 @@ public class Persister {
     return result.toString();
   }
 
-  // Read no trim
-  public String readRaw() {
-    return Persister.readRaw(filepath);
-  }
-
   public List<String> readLines() {
     List<String> result = new ArrayList<String>();
     try {
@@ -120,13 +125,8 @@ public class Persister {
     return result;
   }
 
-  public void getAll(Callback<String> stringCallback) {
-    for (String s : readLines()) {
-      stringCallback.onMessage(s.trim());
-    }
-  }
-
-  public boolean fileExists() {
-    return Files.exists(Paths.get(filepath));
+  // Read no trim
+  public String readRaw() {
+    return Persister.readRaw(filepath);
   }
 }

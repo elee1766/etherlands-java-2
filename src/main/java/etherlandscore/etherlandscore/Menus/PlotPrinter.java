@@ -1,15 +1,8 @@
 package etherlandscore.etherlandscore.Menus;
 
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.services.MasterService;
-import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.messaging.PluginMessageListenerRegistration;
-import org.jetlang.fibers.Fiber;
 
 import java.lang.reflect.Field;
 
@@ -36,5 +29,4 @@ public class PlotPrinter {
     }
     prettyPrint.printOut(sender);
   }
-
 }

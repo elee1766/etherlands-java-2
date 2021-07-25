@@ -8,59 +8,24 @@ import org.bukkit.Bukkit;
 import java.time.Instant;
 import java.util.*;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class Team extends StateHolder {
   private final String name;
   private final UUID owner;
   private final Set<UUID> members = new HashSet<>();
   private final Set<Integer> plots = new HashSet<>();
   private final Map<String, Region> regions = new HashMap<>();
-  private final Map<String,Group> groups = new HashMap<>();
-
+  private final Map<String, Group> groups = new HashMap<>();
 
   public Team(Gamer gamer, String name) {
     this.name = name;
     this.owner = gamer.getUuid();
-    this.regions.put("global", new Region(this,"global",new HashSet<>(),-1,true));
-    this.groups.put("default", new Group(this,"default",-1,true));
-    this.groups.put("manager", new Group(this,"manager",100,true));
+    this.regions.put("global", new Region(this, "global", new HashSet<>(), -1, true));
+    this.groups.put("default", new Group(this, "default", -1, true));
+    this.groups.put("manager", new Group(this, "manager", 100, true));
   }
 
-  public void createGroup(Channels channels, String name){
-    channels.master_command.publish(new Message<>(MasterCommand.team_create_group,name));
-  }
-  public void deleteGroup(Channels channels, String name){
-    channels.master_command.publish(new Message<>(MasterCommand.team_delete_group,name));
-  }
-  public void createGroup(String name){
-    if(!this.groups.containsKey(name)){
-      this.groups.put(name, new Group(this,name,1,false));
-    }
-  }
-  public void deleteGroup(String name){
-    if(this.groups.containsKey(name)){
-      if(!this.groups.get(name).isDefault()){
-        this.groups.remove(name);
-      }
-    }
-  }
-  public void createRegion(Channels channels, String name){
-    channels.master_command.publish(new Message<>(MasterCommand.team_add_region,name));
-  }
-  public void removeRegion(Channels channels, String name){
-    channels.master_command.publish(new Message<>(MasterCommand.team_remove_region,name));
-  }
-  public void createRegion(String name){
-    if(!this.regions.containsKey(name)){
-      this.regions.put(name,new Region(this,name,new HashSet<>(),1,false));
-    }
-  }
-  public void removeRegion(String name) {
-    if (this.regions.containsKey(name)) {
-      if (!this.regions.get(name).isDefault()) {
-        this.regions.remove(name);
-      }
-    }
-  }
   public void addMember(Channels channels, Gamer gamer) {
     channels.master_command.publish(new Message<>(MasterCommand.team_add_gamer, this, gamer));
   }
@@ -69,12 +34,69 @@ public class Team extends StateHolder {
     members.add(gamer.getUuid());
   }
 
-  public void removeMember(Channels channels, Gamer gamer) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_remove_gamer, this, gamer));
+  public void addPlot(Plot plot) {
+    this.plots.add(plot.getId());
   }
 
-  public void removeMember(Gamer gamer) {
-    members.remove(gamer.getUuid());
+  public boolean canInvite(Gamer inviter) {
+    return inviter.getUuid().equals(this.owner);
+  }
+
+  public boolean canJoin(Map<UUID, Long> invites, Gamer joiner) {
+    Long invite = invites.get(joiner.getUuid());
+    if (invite != null) {
+      Bukkit.getLogger().info(invite.toString());
+      return invite > Instant.now().getEpochSecond();
+    }
+    return false;
+  }
+
+  public void createGroup(Channels channels, String name) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_create_group, name));
+  }
+
+  public void createGroup(String name) {
+    if (!this.groups.containsKey(name)) {
+      this.groups.put(name, new Group(this, name, 1, false));
+    }
+  }
+
+  public void createRegion(Channels channels, String name) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_add_region, name));
+  }
+
+  public void createRegion(String name) {
+    if (!this.regions.containsKey(name)) {
+      this.regions.put(name, new Region(this, name, new HashSet<>(), 1, false));
+    }
+  }
+
+  public void delegatePlot(Channels channels, Plot plot) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_delegate_plot, this, plot));
+  }
+
+  public void delete(Channels channels) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_delete_team, this));
+  }
+
+  public void deleteGroup(Channels channels, String name) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_delete_group, name));
+  }
+
+  public void deleteGroup(String name) {
+    if (this.groups.containsKey(name)) {
+      if (!this.groups.get(name).isDefault()) {
+        this.groups.remove(name);
+      }
+    }
+  }
+
+  public Group getGroup(String name) {
+    return groups.get(name);
+  }
+
+  public Map<String, Group> getGroups() {
+    return groups;
   }
 
   public Set<UUID> getMembers() {
@@ -97,8 +119,8 @@ public class Team extends StateHolder {
     return this.regions.getOrDefault(x, null);
   }
 
-  public boolean canInvite(Gamer inviter) {
-    return inviter.getUuid().equals(this.owner);
+  public Map<String, Region> getRegions() {
+    return regions;
   }
 
   public void inviteGamer(Map<UUID, Long> invites, UUID arg) {
@@ -106,28 +128,42 @@ public class Team extends StateHolder {
     Bukkit.getLogger().info(arg.toString() + " " + invites.get(arg).toString());
   }
 
-  public boolean canJoin(Map<UUID, Long> invites, Gamer joiner) {
-    Long invite = invites.get(joiner.getUuid());
-    if (invite != null) {
-      Bukkit.getLogger().info(invite.toString());
-      return invite > Instant.now().getEpochSecond();
+  public boolean isManager(Gamer manager) {
+    if (manager.getUuid().equals(getOwnerUUID())) {
+      return true;
     }
-    return false;
+    return this.getMembers().contains(manager.getUuid());
   }
 
-  public void delegatePlot(Channels channels, Plot plot) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_delegate_plot,this,plot));
+  public boolean isOwner(Gamer manager) {
+    return manager.getUuid().equals(getOwnerUUID());
   }
 
-  public void addPlot(Plot plot){
-    this.plots.add(plot.getId());
+  public void removeGroup(String name) {
+    groups.remove(name);
   }
 
-  public void removePlot(Plot plot){
+  public void removeMember(Channels channels, Gamer gamer) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_remove_gamer, this, gamer));
+  }
+
+  public void removeMember(Gamer gamer) {
+    members.remove(gamer.getUuid());
+  }
+
+  public void removePlot(Plot plot) {
     this.plots.remove(plot.getId());
   }
 
-  public Group getGroup(String name) {
-    return getGroup(name);
+  public void removeRegion(Channels channels, String name) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_remove_region, name));
+  }
+
+  public void removeRegion(String name) {
+    plots.forEach(
+        (plt) -> {
+          state().getPlot(plt).removeTeam();
+        });
+    this.regions.remove(name);
   }
 }

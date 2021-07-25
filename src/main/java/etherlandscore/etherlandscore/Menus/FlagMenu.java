@@ -25,7 +25,7 @@ public class FlagMenu extends ListenerClient {
     this.channels = channels;
   }
 
-  public static void plotMenu(Gamer gamer){
+  public static void plotMenu(Gamer gamer) {
     Player player = gamer.getPlayer();
     ArrayList<TextComponent> tc = new ArrayList<TextComponent>();
     String sep = "";
@@ -38,23 +38,24 @@ public class FlagMenu extends ListenerClient {
 
     tc.add(topBorder);
 
-    for(AccessFlags f : AccessFlags.values()){
-      for(int i = 0; i<30 - String.valueOf(f).length();i++){
-        sep = sep+"-";
+    for (AccessFlags f : AccessFlags.values()) {
+      for (int i = 0; i < 30 - String.valueOf(f).length(); i++) {
+        sep = sep + "-";
       }
       String currentFlag = String.valueOf(f);
-      TextComponent ff = new TextComponent(currentFlag+ " " + sep + " ");
+      TextComponent ff = new TextComponent(currentFlag + " " + sep + " ");
       ff.setColor(ChatColor.YELLOW);
       tc.add(ff);
-      for(FlagValue fv : FlagValue.values()){
+      for (FlagValue fv : FlagValue.values()) {
         TextComponent value = new TextComponent(String.valueOf(fv));
-        if(fv.toString()=="NONE") { //if flagvalue is set for the given accessflag
+        if (fv.toString() == "NONE") { // if flagvalue is set for the given accessflag
           value.setColor(ChatColor.YELLOW);
-        }else{
+        } else {
           value.setColor(ChatColor.DARK_GRAY);
         }
         value.setUnderlined(true);
-        value.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " " + fv));
+        value.setClickEvent(
+            new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " " + fv));
         tc.add(value);
         tc.add(space);
       }
@@ -62,10 +63,9 @@ public class FlagMenu extends ListenerClient {
       tc.add(newLine);
     }
 
-    for(TextComponent comps : tc) {
+    for (TextComponent comps : tc) {
       component.addExtra(comps);
     }
     player.sendMessage(component);
   }
-
 }

@@ -27,39 +27,36 @@ public class GroupCommand extends ListenerClient {
     GroupCommand.withSubcommand(
         new CommandAPICommand("help")
             .withPermission("etherlands.public")
-            .executesPlayer(this::runHelpCommand)
-    );
+            .executesPlayer(this::runHelpCommand));
     GroupCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("groupname"))
             .withPermission("etherlands.public")
-            .executesPlayer((sender, args) -> {
+            .executesPlayer(
+                (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
-                    if(team!= null){
-                      team.createRegion(this.channels, (String) args[0]);
-                    }else{
-                      runNoTeam(sender);
-                    }
-                }
-            )
-    );
+                  if (team != null) {
+                    team.createRegion(this.channels, (String) args[0]);
+                  } else {
+                    runNoTeam(sender);
+                  }
+                }));
 
     GroupCommand.withSubcommand(
         new CommandAPICommand("add")
             .withArguments(teamMemberArgument("player"))
             .withPermission("etherlands.public")
-            .executesPlayer((sender, args) -> {
+            .executesPlayer(
+                (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
-                  if(team!= null){
+                  if (team != null) {
                     team.createRegion(this.channels, (String) args[0]);
-                  }else{
+                  } else {
                     runNoTeam(sender);
                   }
-                }
-            )
-    );
+                }));
 
     GroupCommand.register();
   }
@@ -67,7 +64,8 @@ public class GroupCommand extends ListenerClient {
   void runHelpCommand(Player sender, Object[] args) {
     sender.sendMessage("create");
   }
-  void runNoTeam(Player sender){
+
+  void runNoTeam(Player sender) {
     sender.sendMessage("you must be in a team to manage groups");
   }
 }

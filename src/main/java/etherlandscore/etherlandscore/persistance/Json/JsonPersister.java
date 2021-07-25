@@ -16,6 +16,15 @@ public class JsonPersister<DtoType> extends Persister {
     super(filepath);
   }
 
+  public Set<JsonObject> loadSet(Gson gson) {
+    Set<JsonObject> result = new HashSet<>();
+    List<String> lines = readLines();
+    for (String arrayString : lines) {
+      result.add(gson.fromJson(arrayString, JsonObject.class));
+    }
+    return result;
+  }
+
   @SuppressWarnings("unchecked")
   public DtoType readJson(Gson gson, Class clazz) {
     try {
@@ -25,14 +34,5 @@ public class JsonPersister<DtoType> extends Persister {
     } catch (Exception e) {
       return null;
     }
-  }
-
-  public Set<JsonObject> loadSet(Gson gson) {
-    Set<JsonObject> result = new HashSet<>();
-    List<String> lines = readLines();
-    for (String arrayString : lines) {
-      result.add(gson.fromJson(arrayString, JsonObject.class));
-    }
-    return result;
   }
 }

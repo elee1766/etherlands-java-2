@@ -4,9 +4,12 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
+import etherlandscore.etherlandscore.Menus.GroupPrinter;
+import etherlandscore.etherlandscore.Menus.RegionPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Group;
 import etherlandscore.etherlandscore.state.Region;
 import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.entity.Player;
@@ -94,6 +97,18 @@ public class RegionCommand extends ListenerClient {
                     runNoTeam(sender);
                   }
                 }));
+    ChunkCommand.withSubcommand(
+            new CommandAPICommand("info")
+                    .withArguments(new StringArgument("region").replaceSuggestions(info->getTeamStrings()))//make this suggest groups
+                    .withPermission("etherlands.public")
+                    .executesPlayer(
+                            (sender, args) -> {
+                              Player player = sender.getPlayer();
+                              Gamer gamer = context.getGamer(sender.getUniqueId());
+                              Team team = context.getTeam(gamer.getTeamName());
+                              RegionPrinter printer = new RegionPrinter(team.getRegions());
+                              printer.printRegion(sender);
+                            }));
 
     ChunkCommand.register();
   }

@@ -67,7 +67,6 @@ public class TeamCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Player player = (Player)args[0];
-                  Gamer gamer = context.getGamer(player.getUniqueId());
                   TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]));
                   printer.printTeam(sender);
                 }));

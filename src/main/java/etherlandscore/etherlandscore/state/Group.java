@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -69,6 +70,14 @@ public class Group extends StateHolder implements Comparable<Group>{
 
   public Team getTeamObject() {
     return state().getTeam(this.team);
+  }
+
+  public Field[] getDeclaredFields(){
+    Field[] fields = this.getClass().getDeclaredFields();
+    for(Field f : fields){
+      f.setAccessible(true);
+    }
+    return fields;
   }
 
   @Override

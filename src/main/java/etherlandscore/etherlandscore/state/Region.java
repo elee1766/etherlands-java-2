@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.util.Map2;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.UUID;
 
@@ -87,6 +88,14 @@ public class Region extends StateHolder implements Comparable<Region> {
 
   public String getName() {
     return name;
+  }
+
+  public Field[] getDeclaredFields(){
+    Field[] fields = this.getClass().getDeclaredFields();
+    for(Field f : fields){
+      f.setAccessible(true);
+    }
+    return fields;
   }
 
   @Override

@@ -98,6 +98,8 @@ public class Team extends StateHolder {
     return this.regions.getOrDefault(x, null);
   }
 
+  public Map<String, Region> getRegions(){return this.regions;}
+
   public boolean canInvite(Gamer inviter) {
     return inviter.getUuid().equals(this.owner);
   }

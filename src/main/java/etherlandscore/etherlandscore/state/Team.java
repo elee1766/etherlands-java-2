@@ -180,4 +180,17 @@ public class Team extends StateHolder {
       }
       }
     }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Team team = (Team) o;
+    return getName().equals(team.getName());
+  }
+
+  @Override
+  public int hashCode() {
+    return getName().hashCode();
+  }
 }

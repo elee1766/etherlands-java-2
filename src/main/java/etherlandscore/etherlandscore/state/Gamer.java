@@ -54,6 +54,10 @@ public class Gamer extends StateHolder {
     return address;
   }
 
+  public Set<String> getGroups() {
+    return groups;
+  }
+
   public void setAddress(String address) {
     this.address = address;
   }
@@ -115,5 +119,18 @@ public class Gamer extends StateHolder {
 
   public void setTeam(String team) {
     this.team = team;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Gamer gamer = (Gamer) o;
+    return getUuid() != null ? getUuid().equals(gamer.getUuid()) : gamer.getUuid() == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return getUuid() != null ? getUuid().hashCode() : 0;
   }
 }

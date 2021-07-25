@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
+import etherlandscore.etherlandscore.enums.AccessFlags;
+import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -36,6 +38,40 @@ public class Plot extends StateHolder {
 
   public void addRegion(Region region) {
     this.regions.add(region.getName());
+  }
+
+  public boolean canGamerPerform(AccessFlags flag, Gamer gamer) {
+    if(gamer.getPlayer().isOp()){
+      return true;
+    }
+    if(hasTeam()){
+      Team team = getTeamObject();
+      if(gamer.getTeamObject().equals(team)){
+        Integer bestPriority = -100;
+        FlagValue res = FlagValue.NONE;
+        for (String regionName : regions) {
+          Region region = team.getRegion(regionName);
+          if(region.getPriority() > bestPriority){
+            for (String groupName : gamer.getGroups()) {
+              res = region.readGroupPermission(team.getGroup(groupName),flag);
+            }
+            if(!region.readGamerPermission(gamer,flag).equals(FlagValue.NONE)){
+              res = region.readGamerPermission(gamer,flag);
+            }
+          }
+        }
+        return res == FlagValue.ALLOW;
+      }else{
+        FlagValue res = team.getRegion("global").readGroupPermission(team.getGroup("outsiders"),flag);
+        return res == FlagValue.ALLOW;
+      }
+    }else{
+      Gamer owner = getOwnerObject();
+      if(owner.equals(gamer)){
+        return true;
+      }
+      return owner.getFriends().contains(gamer.getUuid());
+    }
   }
 
   public Chunk getChunk() {
@@ -132,5 +168,18 @@ public class Plot extends StateHolder {
         this.ownerServerName = "player-uuid: [" + ownerUUID + "]";
       }
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Plot plot = (Plot) o;
+    return getId().equals(plot.getId());
+  }
+
+  @Override
+  public int hashCode() {
+    return getId().hashCode();
   }
 }

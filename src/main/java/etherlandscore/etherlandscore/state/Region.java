@@ -100,10 +100,18 @@ public class Region extends StateHolder implements Comparable<Region> {
         new Message<>(MasterCommand.region_set_gamer_permission, this, gamer, flag, value));
   }
 
+  public FlagValue readGamerPermission(Gamer gamer,AccessFlags flag){
+    return gamerPermissionMap.get(gamer.getUuid(),flag);
+  };
+
   public void setGroupPermission(
       Channels channels, Group group, AccessFlags flag, FlagValue value) {
     channels.master_command.publish(
         new Message<>(MasterCommand.region_set_group_permission, this, group, flag, value));
+  }
+
+  public FlagValue readGroupPermission(Group group, AccessFlags flag){
+    return groupPermissionMap.get(group.getName(),flag);
   }
 
   public void setPriority(Channels channels, Integer priority) {

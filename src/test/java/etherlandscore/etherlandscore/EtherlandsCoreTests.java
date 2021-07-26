@@ -3,27 +3,31 @@ package etherlandscore.etherlandscore;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
+import org.bukkit.GameMode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
-public class EtherlandsCoreTests<EtherlandsScore> {
-  private ServerMock server;
-  private EtherlandsCore plugin;
+public class EtherlandsCoreTests {
+  ServerMock server;
+  EtherlandsCore plugin;
+  PlayerMock playerMock;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     server = MockBukkit.mock();
-    plugin = (EtherlandsCore) MockBukkit.load(EtherlandsCore.class);
+    plugin = MockBukkit.load(EtherlandsCore.class);
+    server.setPlayers(0);
+    playerMock = server.addPlayer();
   }
-
   @After
   public void tearDown() {
     MockBukkit.unmock();
   }
 
   @Test
-  public void playerJoin() {
-    PlayerMock player = server.addPlayer();
+  public void playerTest() {
+    playerMock.sendMessage("Hello");
   }
 }

@@ -9,11 +9,9 @@ import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
-import org.jetbrains.annotations.NotNull;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 
@@ -21,16 +19,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public final class EtherlandsCore extends JavaPlugin {
 
-  public EtherlandsCore() {
+  public EtherlandsCore()
+  {
     super();
   }
 
-  protected EtherlandsCore(JavaPluginLoader loader, PluginDescriptionFile descriptionFile, File dataFolder, File file) {
-    super(loader, descriptionFile, dataFolder, file);
+  protected EtherlandsCore(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file)
+  {
+    super(loader, description, dataFolder, file);
   }
 
   @Override
@@ -51,7 +50,6 @@ public final class EtherlandsCore extends JavaPlugin {
         new BlockEventListener(channels, blockEventListenerFiber);
     modules.add(blockEventListener);
     getServer().getPluginManager().registerEvents(blockEventListener, this);
-
     new CommandDisabler().disable();
     Fiber regionCommandFiber = new ThreadFiber();
     modules.add(new RegionCommand(channels,regionCommandFiber));

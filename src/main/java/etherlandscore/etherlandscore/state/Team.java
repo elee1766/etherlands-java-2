@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.*;
 
@@ -120,6 +121,10 @@ public class Team extends StateHolder {
     return this.regions.getOrDefault(x, null);
   }
 
+
+
+  public boolean canInvite(Gamer inviter) {
+    return inviter.getUuid().equals(this.owner);
   public Map<String, Region> getRegions() {
     return regions;
   }
@@ -192,5 +197,13 @@ public class Team extends StateHolder {
   @Override
   public int hashCode() {
     return getName().hashCode();
+  }
+
+  public Field[] getDeclaredFields(){
+    Field[] fields = this.getClass().getDeclaredFields();
+    for(Field f : fields){
+      f.setAccessible(true);
+    }
+    return fields;
   }
 }

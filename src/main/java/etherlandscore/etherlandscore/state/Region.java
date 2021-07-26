@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.util.Map2;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.UUID;
 
@@ -100,6 +101,17 @@ public class Region extends StateHolder implements Comparable<Region> {
         new Message<>(MasterCommand.region_set_gamer_permission, this, gamer, flag, value));
   }
 
+  public Field[] getDeclaredFields(){
+    Field[] fields = this.getClass().getDeclaredFields();
+    for(Field f : fields){
+      f.setAccessible(true);
+    }
+    return fields;
+  }
+
+  @Override
+  public int compareTo(Region r) {
+    return getPriority().compareTo(r.getPriority());
   public FlagValue readGamerPermission(Gamer gamer,AccessFlags flag){
     return gamerPermissionMap.get(gamer.getUuid(),flag);
   };

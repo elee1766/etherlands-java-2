@@ -3,6 +3,8 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
+import etherlandscore.etherlandscore.Menus.GroupPrinter;
+import etherlandscore.etherlandscore.Menus.RegionPrinter;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
@@ -144,6 +146,18 @@ public class RegionCommand extends ListenerClient {
                     region.setGroupPermission(channels,member,flag,value);
                   }
                 }));
+    ChunkCommand.withSubcommand(
+            new CommandAPICommand("info")
+                    .withArguments(new StringArgument("region").replaceSuggestions(info->getTeamStrings()))//make this suggest groups
+                    .withPermission("etherlands.public")
+                    .executesPlayer(
+                            (sender, args) -> {
+                              Player player = sender.getPlayer();
+                              Gamer gamer = context.getGamer(sender.getUniqueId());
+                              Team team = context.getTeam(gamer.getTeamName());
+                              RegionPrinter printer = new RegionPrinter(team.getRegions());
+                              printer.printRegion(sender);
+                            }));
 
     RegionCommand.register();
   }

@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -74,7 +75,17 @@ public class Group extends StateHolder implements Comparable<Group> {
   public void removeMember(Gamer gamer) {
     this.members.remove(gamer.getUuid());
   }
+  public Field[] getDeclaredFields(){
+    Field[] fields = this.getClass().getDeclaredFields();
+    for(Field f : fields){
+      f.setAccessible(true);
+    }
+    return fields;
+  }
 
+  @Override
+  public int compareTo(@NotNull Group o) {
+    return this.getPriority().compareTo(o.getPriority());
   public void setPriority(Channels channels, Integer priority) {
     if(isDefault) return;
     channels.master_command.publish(new Message<>(MasterCommand.group_set_priority,this, priority));

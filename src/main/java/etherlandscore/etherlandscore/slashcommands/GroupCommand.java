@@ -1,6 +1,10 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.PlayerArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
+import etherlandscore.etherlandscore.Menus.GamerPrinter;
+import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
@@ -43,6 +47,19 @@ public class GroupCommand extends ListenerClient {
                     sender.sendMessage("ur not manager");
                   }
                 }));
+    GroupCommand.withSubcommand(
+            new CommandAPICommand("info")
+                    .withArguments(new StringArgument("group").replaceSuggestions(info->getTeamStrings()))//make this suggest groups
+                    .withPermission("etherlands.public")
+                    .executesPlayer(
+                            (sender, args) -> {
+                              Player player = sender.getPlayer();
+                              Gamer gamer = context.getGamer(sender.getUniqueId());
+                              Group group = context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
+                              GroupPrinter printer = new GroupPrinter(group);
+                              printer.printGroup(sender);
+                            }));
+
     GroupCommand.withSubcommand(
         new CommandAPICommand("delete")
             .withArguments(cleanNameArgument("groupname"))

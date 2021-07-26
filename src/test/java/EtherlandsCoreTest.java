@@ -2,6 +2,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import etherlandscore.etherlandscore.EtherlandsCore;
 import org.bukkit.Bukkit;
+import org.bukkit.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.jupiter.api.*;
@@ -13,8 +14,9 @@ public class EtherlandsCoreTest {
   private EtherlandsCore plugin;
 
   @BeforeEach
-  void init(){
+  void init() {
     server = MockBukkit.mock();
+    plugin = MockBukkit.load(EtherlandsCore.class);
   }
 
   @AfterEach
@@ -23,7 +25,7 @@ public class EtherlandsCoreTest {
   }
 
   @Test
-  void addition(){
+  void bukkitNull() {
     Assertions.assertNotNull(server);
   }
 

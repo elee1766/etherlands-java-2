@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.Menus;
 
-import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Team;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;

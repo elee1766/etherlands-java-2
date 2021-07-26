@@ -83,9 +83,6 @@ public class Group extends StateHolder implements Comparable<Group> {
     return fields;
   }
 
-  @Override
-  public int compareTo(@NotNull Group o) {
-    return this.getPriority().compareTo(o.getPriority());
   public void setPriority(Channels channels, Integer priority) {
     if(isDefault) return;
     channels.master_command.publish(new Message<>(MasterCommand.group_set_priority,this, priority));

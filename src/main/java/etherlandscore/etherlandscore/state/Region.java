@@ -109,9 +109,7 @@ public class Region extends StateHolder implements Comparable<Region> {
     return fields;
   }
 
-  @Override
-  public int compareTo(Region r) {
-    return getPriority().compareTo(r.getPriority());
+
   public FlagValue readGamerPermission(Gamer gamer,AccessFlags flag){
     return gamerPermissionMap.get(gamer.getUuid(),flag);
   };

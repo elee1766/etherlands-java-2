@@ -40,10 +40,6 @@ public class Team extends StateHolder {
     this.plots.add(plot.getId());
   }
 
-  public boolean canInvite(Gamer inviter) {
-    return inviter.getUuid().equals(this.owner);
-  }
-
   public boolean canJoin(Map<UUID, Long> invites, Gamer joiner) {
     Long invite = invites.get(joiner.getUuid());
     if (invite != null) {
@@ -86,7 +82,7 @@ public class Team extends StateHolder {
   }
 
   public void deleteRegion(Channels channels, Region arg) {
-   channels.master_command.publish(new Message<>(MasterCommand.team_delete_region,this,arg));
+    channels.master_command.publish(new Message<>(MasterCommand.team_delete_region,this,arg));
   }
 
   public Group getGroup(String name) {
@@ -125,6 +121,8 @@ public class Team extends StateHolder {
 
   public boolean canInvite(Gamer inviter) {
     return inviter.getUuid().equals(this.owner);
+  }
+
   public Map<String, Region> getRegions() {
     return regions;
   }
@@ -183,8 +181,8 @@ public class Team extends StateHolder {
         }
         this.regions.remove(name);
       }
-      }
     }
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -199,7 +197,7 @@ public class Team extends StateHolder {
     return getName().hashCode();
   }
 
-  public Field[] getDeclaredFields(){
+  public Field[] getDeclaredFields() {
     Field[] fields = this.getClass().getDeclaredFields();
     for(Field f : fields){
       f.setAccessible(true);

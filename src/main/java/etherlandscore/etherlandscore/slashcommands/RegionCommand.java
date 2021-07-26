@@ -2,8 +2,8 @@ package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
-import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.Menus.RegionPrinter;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
@@ -146,7 +146,7 @@ public class RegionCommand extends ListenerClient {
                     region.setGroupPermission(channels,member,flag,value);
                   }
                 }));
-    ChunkCommand.withSubcommand(
+    RegionCommand.withSubcommand(
             new CommandAPICommand("info")
                     .withArguments(new StringArgument("region").replaceSuggestions(info->getTeamStrings()))//make this suggest groups
                     .withPermission("etherlands.public")

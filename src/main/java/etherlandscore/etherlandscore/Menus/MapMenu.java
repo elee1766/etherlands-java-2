@@ -13,7 +13,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-import org.w3c.dom.Text;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class MapMenu extends ListenerClient {
   private final Channels channels;
@@ -80,7 +81,7 @@ public class MapMenu extends ListenerClient {
         boolean friendflag = false;
         boolean selfFlag = false;
         System.out.print("Checking " + x + ", " + z + ": ");
-        Plot plot = context.getPlot(x,z);
+        Plot plot = state().getPlot(x,z);
         System.out.println(plot);
         if (plot != null) {
           System.out.println(plot.getX() + ", " + plot.getZ());

@@ -20,6 +20,11 @@ import java.util.List;
 public final class EtherlandsCore extends JavaPlugin {
 
   @Override
+  public void onDisable() {
+    // Plugin shutdown logic
+  }
+
+  @Override
   public void onEnable() {
     getLogger().info("onEnable is called!");
     List<ServerModule> modules = new ArrayList<>();
@@ -39,6 +44,10 @@ public final class EtherlandsCore extends JavaPlugin {
     getServer().getPluginManager().registerEvents(blockEventListener, this);
 
     new CommandDisabler().disable();
+    Fiber regionCommandFiber = new ThreadFiber();
+    modules.add(new RegionCommand(channels,regionCommandFiber));
+    Fiber groupCommandFiber = new ThreadFiber();
+    modules.add(new GroupCommand(channels, groupCommandFiber));
     Fiber teamCommandFiber = new ThreadFiber();
     modules.add(new TeamCommand(channels, teamCommandFiber));
     Fiber plotCommandFiber = new ThreadFiber();
@@ -67,10 +76,5 @@ public final class EtherlandsCore extends JavaPlugin {
     }
     getLogger().info("onEnable is done!");
     // Plugin startup logic
-  }
-
-  @Override
-  public void onDisable() {
-    // Plugin shutdown logic
   }
 }

@@ -9,11 +9,11 @@ public class Message<T> {
     this.args = args;
   }
 
-  public T getCommand() {
-    return command;
-  }
-
   public Object[] getArgs() {
     return args;
+  }
+
+  public T getCommand() {
+    return command;
   }
 }

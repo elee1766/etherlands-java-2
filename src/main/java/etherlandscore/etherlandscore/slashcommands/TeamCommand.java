@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class TeamCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
@@ -39,14 +41,14 @@ public class TeamCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  sender.sendMessage("create info invite join delete");
+                  sender.sendMessage("create info invite join");
                 });
     TeamCommand.withSubcommand(
         new CommandAPICommand("help")
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  sender.sendMessage("create info invite join delete");
+                  sender.sendMessage("create info invite join delete leave kick delegate");
                 }));
     TeamCommand.withSubcommand(
         new CommandAPICommand("info")
@@ -73,25 +75,23 @@ public class TeamCommand extends ListenerClient {
 
     TeamCommand.withSubcommand(
         new CommandAPICommand("create")
-            .withArguments(new StringArgument("team-name"))
+            .withArguments(cleanNameArgument("teamname"))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  if (context.getTeams().containsKey((String) args[0])) {
+                  if (context.hasTeam((String) args[0])) {
                     sender.sendMessage("a team already exists by that name");
                     return;
                   }
-                  if (context.getGamers().containsKey(sender.getUniqueId())) {
-                    context.createTeam(
-                        this.channels,
-                        context.getGamers().get(sender.getUniqueId()),
-                        (String) args[0]);
+                  if (context.hasGamer(sender.getUniqueId())) {
+                    context.createTeam(this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
                     sender.sendMessage("team created!");
                   }
                 }));
     TeamCommand.withSubcommand(
         new CommandAPICommand("invite")
-            .withArguments(new PlayerArgument("player").replaceSuggestions(info->getOnlinePlayerStrings()))
+            .withArguments(
+                new PlayerArgument("player").replaceSuggestions(info -> getOnlinePlayerStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
@@ -111,7 +111,9 @@ public class TeamCommand extends ListenerClient {
                         receiver
                             .getPlayer()
                             .sendMessage(
-                                "send command \"/team join " + inviter.getTeamName() + "\" to join");
+                                "send command \"/team join "
+                                    + inviter.getTeamName()
+                                    + "\" to join");
                       }
                     }
                   }
@@ -154,6 +156,54 @@ public class TeamCommand extends ListenerClient {
                     sender.sendMessage("you are not in a team");
                   }
                 }));
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("kick")
+            .withPermission("etherlands.public")
+            .withArguments(teamMemberArgument("member"))
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer manager = context.getGamer(sender.getUniqueId());
+                  Gamer kicked = (Gamer) args[0];
+                  Team team = manager.getTeamObject();
+                  if (team.isManager(manager)) {
+                    if (!team.isManager(kicked)) {
+                      team.removeMember(channels, kicked);
+                      sender.sendMessage("you kicked " + kicked.getPlayer().getName());
+                    }
+                    {
+                      sender.sendMessage("cant kick manager");
+                    }
+                  } else {
+                    sender.sendMessage("you must be manager of a team to kick players");
+                  }
+                }));
+
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("kick")
+            .withPermission("etherlands.public")
+            .withArguments(teamMemberArgument("member"))
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer manager = context.getGamer(sender.getUniqueId());
+                  Gamer kicked = (Gamer) args[0];
+                  Team team = manager.getTeamObject();
+                  if (team.isOwner(manager)) {
+                    team.removeMember(channels, kicked);
+                    sender.sendMessage("you kicked " + kicked.getPlayer().getName());
+                    return;
+                  }
+                  if (team.isManager(manager)) {
+                    if (!team.isManager(kicked)) {
+                      team.removeMember(channels, kicked);
+                      sender.sendMessage("you kicked " + kicked.getPlayer().getName());
+                    }
+                    {
+                      sender.sendMessage("cant kick manager");
+                    }
+                  } else {
+                    sender.sendMessage("you must be manager of a team to kick players");
+                  }
+                }));
 
     TeamCommand.withSubcommand(
         new CommandAPICommand("delegate")
@@ -180,17 +230,36 @@ public class TeamCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
                   Chunk chunk = gamer.getPlayer().getChunk();
-                  Plot plot = context.getPlot(chunk.getX(),chunk.getZ());
-                    if (plot.getOwner().equals(gamer.getUuid())) {
-                      team.delegatePlot(this.channels, plot);
-                    }
+                  Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
+                  if (plot.getOwner().equals(gamer.getUuid())) {
+                    team.delegatePlot(this.channels, plot);
+                  }
                 }));
+
+    TeamCommand.withSubcommand(
+        new CommandAPICommand("delete")
+            .withPermission("etherlands.public")
+            .withArguments(new StringArgument("teamname"))
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer manager = context.getGamer(sender.getUniqueId());
+                  String name = (String) args[0];
+                  Team team = manager.getTeamObject();
+                  if (team.isOwner(manager)) {
+                    if (manager.getTeamObject().getName().equals(name)) {
+                      team.delete(channels);
+                    }
+                  }
+                }));
+
     TeamCommand.register();
   }
 
-  private boolean team_info(CommandSender sender, Team team) {
+  private void team_info(CommandSender sender, Team team) {
+    if(team==null){
+      return;
+    }
     sender.sendMessage("team name:" + team.getName());
     sender.sendMessage("team owner:" + team.getOwner());
-    return true;
   }
 }

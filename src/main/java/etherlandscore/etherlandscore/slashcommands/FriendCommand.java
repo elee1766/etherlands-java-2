@@ -45,13 +45,13 @@ public class FriendCommand extends ListenerClient {
                   }
                 }));
     FriendCommand.withSubcommand(
-            new CommandAPICommand("add")
-                    .withPermission("etherlands.public")
-                    .executesPlayer(
-                            (sender, args) -> {
-                              Gamer gamer = context.getGamer(sender.getUniqueId());
-                              SelectorMenu.menu(gamer,getPlayerStrings(), "friend add");
-                            }));
+        new CommandAPICommand("add")
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  SelectorMenu.menu(gamer, getPlayerStrings(), "friend add");
+                }));
 
     FriendCommand.withSubcommand(
         new CommandAPICommand("remove")
@@ -69,25 +69,25 @@ public class FriendCommand extends ListenerClient {
                   }
                 }));
     FriendCommand.withSubcommand(
-            new CommandAPICommand("remove")
-                    .withPermission("etherlands.public")
-                    .executesPlayer(
-                            (sender, args) -> {
-                              Gamer gamer = context.getGamer(sender.getUniqueId());
-                              SelectorMenu.menu(gamer, getPlayerStrings(), "friend remove");
-                            }));
-      FriendCommand.withSubcommand(
-              new CommandAPICommand("list")
-                      .withPermission("etherlands.public")
-                      .executesPlayer(
-                              (sender, args) -> {
-                                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                                  if(gamer.getFriends()!=null) {
-                                      gamer.friendList();
-                                  }else{
-                                      LocaleSingleton.getLocale().getFriends().get("empty");
-                                  }
-                              }));
+        new CommandAPICommand("remove")
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  SelectorMenu.menu(gamer, getPlayerStrings(), "friend remove");
+                }));
+    FriendCommand.withSubcommand(
+        new CommandAPICommand("list")
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  if (gamer.getFriends() != null) {
+                    gamer.friendList();
+                  } else {
+                    LocaleSingleton.getLocale().getFriends().get("empty");
+                  }
+                }));
     FriendCommand.register();
   }
 }

@@ -2,10 +2,11 @@ package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.Menus.RegionPrinter;
+import etherlandscore.etherlandscore.enums.AccessFlags;
+import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
@@ -27,74 +28,122 @@ public class RegionCommand extends ListenerClient {
   }
 
   public void register() {
-    CommandAPICommand ChunkCommand =
+    CommandAPICommand RegionCommand =
         new CommandAPICommand("region")
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand);
-    ChunkCommand.withSubcommand(
+    RegionCommand.withSubcommand(
         new CommandAPICommand("help")
             .withPermission("etherlands.public")
-            .executesPlayer(this::runHelpCommand)
-    );
-    ChunkCommand.withSubcommand(
+            .executesPlayer(this::runHelpCommand));
+    RegionCommand.withSubcommand(
         new CommandAPICommand("create")
-            .withArguments(new StringArgument("region-name"))
+            .withArguments(cleanNameArgument("regionname"))
             .withPermission("etherlands.public")
-            .executesPlayer((sender, args) -> {
+            .executesPlayer(
+                (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
-                    if(team != null){
-                      team.createRegion(this.channels, (String) args[0]);
-                    }else{
-                      runNoTeam(sender);
+                  if (team.isManager(gamer)) {
+                    team.createRegion(this.channels, (String) args[0]);
+                  }else{
+                    sender.sendMessage("ur not manager");
                   }
-                }
-            )
-    );
-    ChunkCommand.withSubcommand(
+                }));
+    RegionCommand.withSubcommand(
+        new CommandAPICommand("delete")
+            .withArguments(teamRegionArgument("regionname"))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Team team = gamer.getTeamObject();
+                  if (team.isManager(gamer)) {
+                    team.deleteRegion(this.channels, (Region) args[0]);
+                  }else{
+                    sender.sendMessage("ur not manager");
+                  }
+                }));
+    RegionCommand.withSubcommand(
         new CommandAPICommand("add")
-            .withArguments(new StringArgument("region-name"))
+            .withAliases("addPlot")
+            .withArguments(teamRegionArgument("regionname"))
             .withArguments(new IntegerRangeArgument("plot-ids"))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
-                  Region region = team.getRegion((String) args[0]);
-                  if (region != null) {
-                    if (team.getOwnerUUID().equals(gamer.getUuid())) {
+                  if (team.isManager(gamer)) {
+                    Region region = (Region) args[0];
                       IntegerRange range = (IntegerRange) args[1];
                       for (int i = range.getLowerBound();
                           i <= Math.min(context.getPlots().size(), range.getUpperBound());
                           i++) {
-                        region.addPlot(this.channels, context.getPlot(i));
+                        if (team.getPlots().contains(i)) {
+                          region.addPlot(this.channels, context.getPlot(i));
+                        }
                       }
                     }
-                  } else {
-                    runNoTeam(sender);
-                  }
                 }));
-    ChunkCommand.withSubcommand(
+    RegionCommand.withSubcommand(
         new CommandAPICommand("remove")
-            .withArguments(new StringArgument("region-name"))
+            .withAliases("removePlot")
+            .withArguments(teamRegionArgument("region-name"))
             .withArguments(new IntegerRangeArgument("plot-ids"))
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
+                  if (team.isManager(gamer)) {
                   Region region = team.getRegion((String) args[0]);
-                  if (region != null) {
-                    if (team.getOwnerUUID().equals(gamer.getUuid())) {
-                      IntegerRange range = (IntegerRange) args[1];
-                      for (int i = range.getLowerBound();
-                           i <= Math.min(context.getPlots().size(), range.getUpperBound());
-                           i++) {
-                        region.removePlot(this.channels, context.getPlot(i));
-                      }
+                    IntegerRange range = (IntegerRange) args[1];
+                  for (int i = range.getLowerBound();
+                      i <= Math.min(context.getPlots().size(), range.getUpperBound());
+                      i++) {
+                      region.removePlot(this.channels, context.getPlot(i));
                     }
-                  } else {
-                    runNoTeam(sender);
+                  }
+                }));
+    RegionCommand.withSubcommand(
+        new CommandAPICommand("set_player")
+            .withAliases("setp","setplayer","setPlayer")
+            .withArguments(teamRegionArgument("region"))
+            .withArguments(teamMemberArgument("member"))
+            .withArguments(accessFlagArgument("flag"))
+            .withArguments(flagValueArgument("value"))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer manager = context.getGamer(sender.getUniqueId());
+                  Team team = manager.getTeamObject();
+                  if(team.isManager(manager)){
+                    Region region = (Region) args[0];
+                    Gamer member = (Gamer) args[1];
+                    AccessFlags flag = (AccessFlags) args[2];
+                    FlagValue value = (FlagValue) args[3];
+                    region.setGamerPermission(channels,member,flag,value);
+                  }
+                }));
+    RegionCommand.withSubcommand(
+        new CommandAPICommand("set_group")
+            .withAliases("setg","setgroup","setGroup")
+            .withArguments(teamRegionArgument("region"))
+            .withArguments(teamGroupArgument("group"))
+            .withArguments(accessFlagArgument("flag"))
+            .withArguments(flagValueArgument("value").replaceSuggestions(info->getFlagValueStrings()))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer manager = context.getGamer(sender.getUniqueId());
+                  Team team = manager.getTeamObject();
+                  if(team.isManager(manager)){
+                    Region region = (Region) args[0];
+                    Group member = (Group) args[1];
+                    AccessFlags flag = (AccessFlags) args[2];
+                    FlagValue value = (FlagValue) args[3];
+                    region.setGroupPermission(channels,member,flag,value);
                   }
                 }));
     ChunkCommand.withSubcommand(
@@ -110,13 +159,14 @@ public class RegionCommand extends ListenerClient {
                               printer.printRegion(sender);
                             }));
 
-    ChunkCommand.register();
+    RegionCommand.register();
   }
 
   void runHelpCommand(Player sender, Object[] args) {
     sender.sendMessage("create");
   }
-  void runNoTeam(Player sender){
+
+  void runNoTeam(Player sender) {
     sender.sendMessage("you must be in a team to manage regions");
   }
 }

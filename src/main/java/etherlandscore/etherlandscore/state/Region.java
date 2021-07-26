@@ -30,64 +30,75 @@ public class Region extends StateHolder implements Comparable<Region> {
     this.priority = priority;
   }
 
-  public void setGroupPermission(Channels channels, Group group, AccessFlags flag, FlagValue value){
-    channels.master_command.publish(
-        new Message<>(MasterCommand.region_set_group_permission,this,group,flag,value)
-    );
-  }
-  public void setGamerPermission(Channels channels, Gamer gamer, AccessFlags flag, FlagValue value){
-    channels.master_command.publish(
-        new Message<>(MasterCommand.region_set_gamer_permission,this,gamer,flag,value)
-    );
-  }
-
   public void addPlot(Channels channels, Plot plot) {
     channels.master_command.publish(new Message<>(MasterCommand.region_add_plot, this, plot));
   }
+
   public void addPlot(Plot plot) {
-    this.plotIds.add(plot.getId());
+    if (!isDefault) {
+      this.plotIds.add(plot.getId());
+    }
   }
 
-  public void removePlot(Channels channels, Plot plot) {
-    channels.master_command.publish(new Message<>(MasterCommand.region_remove_plot, this, plot));
-  }
-  public void removePlot(Plot plot) {
-    this.plotIds.remove(plot.getId());
+  public FlagValue checkFlags(AccessFlags flag, Gamer gamer) {
+    return gamerPermissionMap.getOrDefault(gamer.getUuid(), flag, FlagValue.NONE);
   }
 
-  public void setPriority(Channels channels, Integer priority) {
-    channels.master_command.publish(new Message<>(MasterCommand.region_set_priority, this, priority));
+  public FlagValue checkFlags(AccessFlags flag, Group group) {
+    return groupPermissionMap.getOrDefault(group.getName(), flag, FlagValue.NONE);
+  }
+
+  public void clearGroupPermission(String name) {
+    groupPermissionMap.clearGroup(name);
+  }
+
+  @Override
+  public int compareTo(Region r) {
+    return getPriority().compareTo(r.getPriority());
+  }
+
+  public String getName() {
+    return name;
   }
 
   public Integer getPriority() {
     return this.priority;
   }
-  public void setPriority(Integer newPriority){
-    if(isDefault) return;
-    if(newPriority < 0) this.priority = 0;
-    if(newPriority > 100) this.priority = 0;
+
+  public void setGroupPermission(Group group, AccessFlags flag, FlagValue value) {
+    this.groupPermissionMap.put(group.getName(),flag,value);
   }
 
-
-  public FlagValue checkFlags(AccessFlags flag, Gamer gamer) {
-    return gamerPermissionMap.getOrDefault(gamer.getUuid(),flag,FlagValue.NONE);
+  public void setGamerPermission(Gamer gamer, AccessFlags flag, FlagValue value) {
+    this.gamerPermissionMap.put(gamer.getUuid(),flag,value);
   }
 
-  public FlagValue checkFlags(AccessFlags flag, Group group) {
-    return groupPermissionMap.getOrDefault(group.getName(),flag,FlagValue.NONE);
+  public void setPriority(Integer newPriority) {
+    if (isDefault) return;
+    if (newPriority < 0) this.priority = 0;
+    if (newPriority > 100) this.priority = 0;
+  }
+
+  public Team getTeam() {
+    return state().getTeam(getName());
   }
 
   public boolean isDefault() {
     return isDefault;
   }
 
-
-  public Team getTeam() {
-    return state().getTeam(getName());
+  public void removePlot(Channels channels, Plot plot) {
+    channels.master_command.publish(new Message<>(MasterCommand.region_remove_plot, this, plot));
   }
 
-  public String getName() {
-    return name;
+  public void removePlot(Plot plot) {
+    this.plotIds.remove(plot.getId());
+  }
+
+  public void setGamerPermission(
+      Channels channels, Gamer gamer, AccessFlags flag, FlagValue value) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.region_set_gamer_permission, this, gamer, flag, value));
   }
 
   public Field[] getDeclaredFields(){
@@ -101,5 +112,22 @@ public class Region extends StateHolder implements Comparable<Region> {
   @Override
   public int compareTo(Region r) {
     return getPriority().compareTo(r.getPriority());
+  public FlagValue readGamerPermission(Gamer gamer,AccessFlags flag){
+    return gamerPermissionMap.get(gamer.getUuid(),flag);
+  };
+
+  public void setGroupPermission(
+      Channels channels, Group group, AccessFlags flag, FlagValue value) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.region_set_group_permission, this, group, flag, value));
+  }
+
+  public FlagValue readGroupPermission(Group group, AccessFlags flag){
+    return groupPermissionMap.get(group.getName(),flag);
+  }
+
+  public void setPriority(Channels channels, Integer priority) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.region_set_priority, this, priority));
   }
 }

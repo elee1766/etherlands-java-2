@@ -4,7 +4,8 @@ import com.google.gson.Gson;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import org.bukkit.Bukkit;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 public class LocaleSingleton {
   private static LocaleStrings locale = null;
@@ -13,13 +14,18 @@ public class LocaleSingleton {
   private final Gson gson;
   private final JsonPersister<LocaleStrings> localeStringsPersister;
 
-  private LocaleSingleton(){
+  private LocaleSingleton() {
     this.gson = new Gson();
-    String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
+    String root =
+        Bukkit.getServer()
+            .getPluginManager()
+            .getPlugin("EtherlandsCore")
+            .getDataFolder()
+            .getAbsolutePath();
     new File(root).mkdirs();
-    File json = new File(root+"/locale.json");
+    File json = new File(root + "/locale.json");
     try {
-      if(json.createNewFile()){
+      if (json.createNewFile()) {
         LocaleSingleton.loadDefaults(root);
       }
     } catch (IOException e) {
@@ -29,20 +35,21 @@ public class LocaleSingleton {
     locale = localeStringsPersister.readJson(this.gson, LocaleStrings.class);
   }
 
-  private static void loadDefaults(String root) throws IOException {
-    //figure out how to load defaults into file
-  }
-
-  public static LocaleSingleton getInstance(){
-    if(locale_instance==null){
+  public static LocaleSingleton getInstance() {
+    if (locale_instance == null) {
       locale_instance = new LocaleSingleton();
     }
     return locale_instance;
   }
-  public static LocaleStrings getLocale(){
-    if(locale_instance==null){
+
+  public static LocaleStrings getLocale() {
+    if (locale_instance == null) {
       locale_instance = new LocaleSingleton();
     }
     return locale;
+  }
+
+  private static void loadDefaults(String root) throws IOException {
+    // figure out how to load defaults into file
   }
 }

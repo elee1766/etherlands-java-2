@@ -37,16 +37,6 @@ public class EthereumService extends ListenerClient {
         ClientTransactionManager txnManager = new ClientTransactionManager(web3, "0x5227a7404631Eb7De411232535E36dE8dad318f0");
         ContractGasProvider gasProvider = new ContractGasProvider() {
             @Override
-            public BigInteger getGasPrice(String contractFunc) {
-                return getGasPrice();
-            }
-
-            @Override
-            public BigInteger getGasPrice() {
-                return BigInteger.TEN;
-            }
-
-            @Override
             public BigInteger getGasLimit(String contractFunc) {
                 return getGasLimit();
             }
@@ -54,6 +44,16 @@ public class EthereumService extends ListenerClient {
             @Override
             public BigInteger getGasLimit() {
                 return BigInteger.TEN.pow(3);
+            }
+
+            @Override
+            public BigInteger getGasPrice(String contractFunc) {
+                return getGasPrice();
+            }
+
+            @Override
+            public BigInteger getGasPrice() {
+                return BigInteger.TEN;
             }
         };
         landPlot = LandPlot.load("0x45072d88faea89dd42791808f8b491ab70b279fa", web3, txnManager, gasProvider);

@@ -9,15 +9,27 @@ import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public final class EtherlandsCore extends JavaPlugin {
+
+  public EtherlandsCore() {
+    super();
+  }
+
+  protected EtherlandsCore(JavaPluginLoader loader, PluginDescriptionFile descriptionFile, File dataFolder, File file) {
+    super(loader, descriptionFile, dataFolder, file);
+  }
 
   @Override
   public void onDisable() {
@@ -77,4 +89,5 @@ public final class EtherlandsCore extends JavaPlugin {
     getLogger().info("onEnable is done!");
     // Plugin startup logic
   }
+
 }

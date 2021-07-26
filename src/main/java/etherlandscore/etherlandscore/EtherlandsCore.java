@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -20,38 +21,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public final class EtherlandsCore extends JavaPlugin {
 
-    private final Environment environment;
+  public EtherlandsCore() {
+    super();
+  }
 
-    /**
-     * Invoked in normal environments.
-     */
-    EtherlandsCore() {
-      this.environment = Environment.NORMAL;
-    }
-
-    /**
-     * Invoked in test environments.
-     */
-    public EtherlandsCore(final JavaPluginLoader loader,
-                         final PluginDescriptionFile description,
-                         final File dataFolder,
-                         final File file) {
-      super(loader, description, dataFolder, file);
-      this.environment = Environment.TEST;
-    }
-
-    @NotNull
-    public Environment getEnvironment() {
-      return this.environment;
-    }
-
-    public enum Environment {
-      NORMAL,
-      TEST
-    }
+  protected EtherlandsCore(JavaPluginLoader loader, PluginDescriptionFile descriptionFile, File dataFolder, File file) {
+    super(loader, descriptionFile, dataFolder, file);
+  }
 
   @Override
   public void onEnable() {

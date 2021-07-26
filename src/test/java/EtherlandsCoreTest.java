@@ -4,12 +4,14 @@ import etherlandscore.etherlandscore.EtherlandsCore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.*;
 
 public class EtherlandsCoreTest {
+  public class PluginEnvironmentTest {
+    // Tests in other environments.
+    @Nested
+    @DisplayName("Test environment")
+    class TestEnvironment {
       private ServerMock server;
       private EtherlandsCore plugin;
 
@@ -24,7 +26,7 @@ public class EtherlandsCoreTest {
         MockBukkit.unmock();
       }
 
-      //@Test
+      @Test
       @DisplayName("Server should not be null")
       void serverShouldNotBeNull() {
         Assertions.assertNotNull(server);
@@ -36,4 +38,6 @@ public class EtherlandsCoreTest {
       // Plugin should be enabled
       // Plugin environment should not be null
       // Plugin should be in test environment
+    }
+  }
 }

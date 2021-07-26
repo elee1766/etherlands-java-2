@@ -22,13 +22,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class EtherlandsCore extends JavaPlugin {
-  public EtherlandsCore() {
-    super();
-  }
 
-  protected EtherlandsCore(JavaPluginLoader loader, PluginDescriptionFile descriptionFile, File dataFolder, File file) {
-    super(loader, descriptionFile, dataFolder, file);
-  }
+    private final Environment environment;
+
+    /**
+     * Invoked in normal environments.
+     */
+    EtherlandsCore() {
+      this.environment = Environment.NORMAL;
+    }
+
+    /**
+     * Invoked in test environments.
+     */
+    public EtherlandsCore(final JavaPluginLoader loader,
+                         final PluginDescriptionFile description,
+                         final File dataFolder,
+                         final File file) {
+      super(loader, description, dataFolder, file);
+      this.environment = Environment.TEST;
+    }
+
+    @NotNull
+    public Environment getEnvironment() {
+      return this.environment;
+    }
+
+    public enum Environment {
+      NORMAL,
+      TEST
+    }
 
   @Override
   public void onEnable() {

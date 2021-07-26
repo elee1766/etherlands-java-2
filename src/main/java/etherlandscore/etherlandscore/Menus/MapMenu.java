@@ -14,6 +14,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
+import java.util.ArrayList;
+
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class MapMenu extends ListenerClient {
@@ -68,25 +70,40 @@ public class MapMenu extends ListenerClient {
     int z = chunk.getZ();
     TextComponent title = new TextComponent("===========,[Etherlands Map (" + x + ", " + z + ") " + facing + " ],===========\n");
     map.addExtra(title);
-    x = x - HEIGHT/2-1;
-    z = z - WIDTH/2-1;
+    if(facing == "E"||facing == "W"){
+      x = x - HEIGHT/2-1;
+      z = z - WIDTH/2-1;
+    }else{
+      z = z - HEIGHT/2-1;
+      x = x - WIDTH/2-1;
+    }
+    TextComponent[][] mapArray = new TextComponent[WIDTH][HEIGHT];
     for (int i = 0; i < HEIGHT; i++) {
-      x++;
-      map.addExtra(" |");
-      for (int j = 0; j < WIDTH; j++) {
+      if(facing == "E"||facing == "W"){
+        x++;
+      }else{
         z++;
+      }
+      for (int j = 0; j < WIDTH; j++) {
+        if(facing == "E"||facing == "W"){
+          z++;
+        }else{
+          x++;
+        }
         boolean claimedflag = false;
         boolean ownedflag = false;
         boolean playerflag = false;
         boolean friendflag = false;
         boolean selfFlag = false;
-        System.out.print("Checking " + x + ", " + z + ": ");
-        Plot plot = state().getPlot(x,z);
-        System.out.println(plot);
+        Plot plot;
+        if(facing == "E"||facing == "W"){
+           plot = state().getPlot(x,z);
+        }else{
+          plot = state().getPlot(z, x);
+        }
         if (plot != null) {
-          System.out.println(plot.getX() + ", " + plot.getZ());
           claimedflag = true;
-          if (plot.getOwner().equals(this.gamer)) {
+          if (plot.isOwner(gamer)) {
             ownedflag = true;
           }
         }
@@ -104,24 +121,39 @@ public class MapMenu extends ListenerClient {
           }
         }
         if(selfFlag){
-          map.addExtra(selfKey);
+          mapArray[j][i] = selfKey;
         } else if (friendflag) {
-          map.addExtra(friendKey);
+          mapArray[j][i] = friendKey;
         } else if (playerflag) {
-          map.addExtra(playerKey);
+          mapArray[j][i] = playerKey;
         } else if (ownedflag) {
-          map.addExtra(ownedKey);
+          mapArray[j][i] = ownedKey;
         } else if (claimedflag) {
-          map.addExtra(claimedKey);
+          mapArray[j][i] = claimedKey;
         } else {
-          map.addExtra(unclaimedKey);
+          mapArray[j][i] = unclaimedKey;
         }
       }
+      if(facing == "E"||facing == "W"){
+        z = z - WIDTH;
+      }else{
+        x = x - WIDTH;
+      }
+    }
+    for(int i = 0; i<HEIGHT;i++){
       map.addExtra("|");
-      if (i != HEIGHT-1) {
+      for(int j = 0; j<WIDTH;j++){
+        if(facing=="S"||facing=="E"){
+          map.addExtra(mapArray[WIDTH-j-1][HEIGHT-i-1]);
+        }else{
+          map.addExtra(mapArray[j][i]);
+        }
+
+      }
+      map.addExtra("|");
+      if(i!=HEIGHT-1){
         map.addExtra("\n");
       }
-      z = z - WIDTH;
     }
     BaseComponent[] key = new ComponentBuilder("-").color(ChatColor.GRAY).append(" = Unclaimed ").color(ChatColor.WHITE).
             append("+ = Claimed ").append("+").color(ChatColor.GREEN).append(" = Your Plot \n").color(ChatColor.WHITE).append("^").color(ChatColor.YELLOW).

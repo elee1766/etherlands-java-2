@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore;
 
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIConfig;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
@@ -34,6 +36,7 @@ public final class EtherlandsCore extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    CommandAPI.onEnable(this);
     getLogger().info("onEnable is called!");
     List<ServerModule> modules = new ArrayList<>();
     Channels channels = new Channels();
@@ -83,6 +86,11 @@ public final class EtherlandsCore extends JavaPlugin {
     }
     getLogger().info("onEnable is done!");
     // Plugin startup logic
+  }
+
+  @Override
+  public void onLoad(){
+    CommandAPI.onLoad(new CommandAPIConfig().verboseOutput(true)); //Load with verbose output
   }
 
 }

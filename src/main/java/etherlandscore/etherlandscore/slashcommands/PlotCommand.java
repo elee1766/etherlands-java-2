@@ -69,7 +69,6 @@ public class PlotCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
                   Location loc = sender.getLocation();
                   Chunk chunk = loc.getChunk();
                   int x = chunk.getX();
@@ -89,7 +88,17 @@ public class PlotCommand extends ListenerClient {
             .withArguments(
                 new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
             .withPermission("etherlands.public")
-            .executes((sender, args) -> {}));
+            .executes((sender, args) -> {
+              Plot plot = context.getPlot((int)args[0]);
+              if (plot == null) {
+                TextComponent unclaimed = new TextComponent("This Land is unclaimed");
+                unclaimed.setColor(ChatColor.YELLOW);
+                sender.sendMessage(unclaimed);
+              } else {
+                PlotPrinter printer = new PlotPrinter(plot);
+                printer.printPlot((Player) sender);
+              }
+            }));
 
     ChunkCommand.withSubcommand(
         new CommandAPICommand("update")

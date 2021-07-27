@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore.state;
 
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -37,6 +38,10 @@ public class Group extends StateHolder implements Comparable<Group> {
   public Set<UUID> getMembers() {
     return members;
   }
+
+  public boolean hasMember(Player player){return getMembers().contains(player.getUniqueId());}
+
+  public int memberCount(){return members.size();}
 
   public String getName() {
     return name;

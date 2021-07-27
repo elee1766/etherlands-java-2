@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.util.Map2;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,6 +32,14 @@ public class Region extends StateHolder implements Comparable<Region> {
     if (!isDefault) {
       this.plotIds.add(plot.getId());
     }
+  }
+
+  public Set<Plot> getPlots(){
+    Set<Plot> plots = Collections.emptySet();
+    for(int pId : plotIds){
+      plots.add(state().getPlot(pId));
+    }
+    return plots;
   }
 
   public FlagValue checkFlags(AccessFlags flag, Gamer gamer) {

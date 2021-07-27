@@ -13,6 +13,8 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
 import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.stateWrites.PlotWrites;
+import etherlandscore.etherlandscore.stateWrites.TeamWrites;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bouncycastle.util.Arrays;
@@ -116,7 +118,7 @@ public class PlotCommand extends ListenerClient {
                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
                       i++) {
                     if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-                      context.getPlot(i).reclaimPlot(this.channels);
+                      PlotWrites.reclaimPlot(this.channels, context.getPlot(i));
                     }
                   }
                 }));
@@ -131,7 +133,7 @@ public class PlotCommand extends ListenerClient {
                   Chunk chunk = gamer.getPlayer().getChunk();
                   Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
                   if (plot.getOwner().equals(gamer.getUuid())) {
-                    plot.reclaimPlot(this.channels);
+                    PlotWrites.reclaimPlot(this.channels, plot);
                   }
                 }));
     ChunkCommand.withSubcommand(
@@ -147,7 +149,7 @@ public class PlotCommand extends ListenerClient {
                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
                       i++) {
                     if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-                      team.delegatePlot(this.channels, context.getPlot(i));
+                      TeamWrites.delegatePlot(this.channels, context.getPlot(i),team);
                     }
                   }
                 }));
@@ -161,7 +163,7 @@ public class PlotCommand extends ListenerClient {
                   Chunk chunk = gamer.getPlayer().getChunk();
                   Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
                   if (plot.getOwner().equals(gamer.getUuid())) {
-                    team.delegatePlot(this.channels, plot);
+                    TeamWrites.delegatePlot(this.channels, plot, team);
                   }
                 }));
     ChunkCommand.register();

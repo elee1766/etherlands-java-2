@@ -12,6 +12,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
 import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.stateWrites.TeamWrites;
 import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -130,7 +131,7 @@ public class TeamCommand extends ListenerClient {
                     if (team != null) {
                       if (team.canJoin(
                           this.invites.getOrDefault(team.getName(), new HashMap<>()), joiner)) {
-                        team.addMember(this.channels, joiner);
+                        TeamWrites.addMember(this.channels, joiner, team);
                         sender.sendMessage("welcome to " + args[0]);
                       } else {
                         sender.sendMessage("you must be invited before joining " + args[0]);
@@ -149,7 +150,7 @@ public class TeamCommand extends ListenerClient {
                     if (team.getOwnerUUID().equals(gamer.getUuid())) {
                       sender.sendMessage("you cannot leave the team you own");
                     } else {
-                      team.removeMember(channels, gamer);
+                      TeamWrites.removeMember(channels, gamer, team);
                       sender.sendMessage("you have left " + gamer.getTeamName());
                     }
                   } else {
@@ -167,7 +168,7 @@ public class TeamCommand extends ListenerClient {
                   Team team = manager.getTeamObject();
                   if (team.isManager(manager)) {
                     if (!team.isManager(kicked)) {
-                      team.removeMember(channels, kicked);
+                      TeamWrites.removeMember(channels, kicked, team);
                       sender.sendMessage("you kicked " + kicked.getPlayer().getName());
                     }
                     {
@@ -188,13 +189,13 @@ public class TeamCommand extends ListenerClient {
                   Gamer kicked = (Gamer) args[0];
                   Team team = manager.getTeamObject();
                   if (team.isOwner(manager)) {
-                    team.removeMember(channels, kicked);
+                    TeamWrites.removeMember(channels, kicked, team);
                     sender.sendMessage("you kicked " + kicked.getPlayer().getName());
                     return;
                   }
                   if (team.isManager(manager)) {
                     if (!team.isManager(kicked)) {
-                      team.removeMember(channels, kicked);
+                      TeamWrites.removeMember(channels, kicked, team);
                       sender.sendMessage("you kicked " + kicked.getPlayer().getName());
                     }
                     {
@@ -218,7 +219,7 @@ public class TeamCommand extends ListenerClient {
                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
                       i++) {
                     if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-                      team.delegatePlot(this.channels, context.getPlot(i));
+                      TeamWrites.delegatePlot(this.channels, context.getPlot(i), team);
                     }
                   }
                 }));
@@ -232,7 +233,7 @@ public class TeamCommand extends ListenerClient {
                   Chunk chunk = gamer.getPlayer().getChunk();
                   Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
                   if (plot.getOwner().equals(gamer.getUuid())) {
-                    team.delegatePlot(this.channels, plot);
+                    TeamWrites.delegatePlot(this.channels, plot, team);
                   }
                 }));
 
@@ -247,7 +248,7 @@ public class TeamCommand extends ListenerClient {
                   Team team = manager.getTeamObject();
                   if (team.isOwner(manager)) {
                     if (manager.getTeamObject().getName().equals(name)) {
-                      team.delete(channels);
+                      TeamWrites.delete(channels, team);
                     }
                   }
                 }));

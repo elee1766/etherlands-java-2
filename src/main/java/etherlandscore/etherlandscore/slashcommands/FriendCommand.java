@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.stateWrites.GamerWrites;
 import org.jetlang.fibers.Fiber;
 
 public class FriendCommand extends ListenerClient {
@@ -38,10 +39,10 @@ public class FriendCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Gamer newFriend = (Gamer) args[0];
                   if (!gamer.getFriends().contains(newFriend.getUuid())) {
-                    gamer.addFriend(this.channels, newFriend);
-                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
+                    GamerWrites.addFriend(this.channels, gamer, newFriend);
+                    sender.sendMessage("Friend added successfully");
                   } else {
-                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
+                    sender.sendMessage("Friend failed to be added");
                   }
                 }));
     FriendCommand.withSubcommand(
@@ -62,10 +63,10 @@ public class FriendCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Gamer oldFriend = (Gamer) args[0];
                   if (gamer.getFriends().contains(oldFriend.getUuid())) {
-                    gamer.removeFriend(this.channels, oldFriend);
-                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
+                    GamerWrites.removeFriend(this.channels, gamer, oldFriend);
+                    sender.sendMessage("Friend successfully added");
                   } else {
-                    sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
+                    sender.sendMessage("Friend failed to be added");
                   }
                 }));
     FriendCommand.withSubcommand(
@@ -85,7 +86,7 @@ public class FriendCommand extends ListenerClient {
                   if (gamer.getFriends() != null) {
                     gamer.friendList();
                   } else {
-                    LocaleSingleton.getLocale().getFriends().get("empty");
+                    sender.sendMessage("There are no friends");
                   }
                 }));
     FriendCommand.register();

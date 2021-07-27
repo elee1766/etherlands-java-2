@@ -2,9 +2,6 @@ package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
@@ -160,16 +157,8 @@ public class Plot extends StateHolder {
     return !team.equals("");
   }
 
-  public void reclaimPlot(Channels channels) {
-    channels.master_command.publish(new Message<>(MasterCommand.plot_reclaim_plot, this));
-  }
-
   public void removeTeam() {
     this.team = "";
-  }
-
-  public void setOwner(Channels channels, String ownerAddress) {
-    channels.master_command.publish(new Message(MasterCommand.plot_set_owner, ownerAddress));
   }
 
   public void setOwner(String ownerAddress, UUID ownerUUID) {

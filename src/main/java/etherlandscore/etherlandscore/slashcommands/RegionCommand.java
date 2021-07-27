@@ -13,6 +13,8 @@ import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Group;
 import etherlandscore.etherlandscore.state.Region;
 import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.stateWrites.RegionWrites;
+import etherlandscore.etherlandscore.stateWrites.TeamWrites;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -45,7 +47,7 @@ public class RegionCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
                   if (team.isManager(gamer)) {
-                    team.createRegion(this.channels, (String) args[0]);
+                    TeamWrites.createRegion(this.channels, (String) args[0], team);
                   }else{
                     sender.sendMessage("ur not manager");
                   }
@@ -59,7 +61,7 @@ public class RegionCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
                   if (team.isManager(gamer)) {
-                    team.deleteRegion(this.channels, (Region) args[0]);
+                    TeamWrites.deleteRegion(this.channels, (Region) args[0], team);
                   }else{
                     sender.sendMessage("ur not manager");
                   }
@@ -81,7 +83,7 @@ public class RegionCommand extends ListenerClient {
                           i <= Math.min(context.getPlots().size(), range.getUpperBound());
                           i++) {
                         if (team.getPlots().contains(i)) {
-                          region.addPlot(this.channels, context.getPlot(i));
+                          RegionWrites.addPlot(this.channels, context.getPlot(i),region);
                         }
                       }
                     }
@@ -102,7 +104,7 @@ public class RegionCommand extends ListenerClient {
                   for (int i = range.getLowerBound();
                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
                       i++) {
-                      region.removePlot(this.channels, context.getPlot(i));
+                      RegionWrites.removePlot(this.channels, context.getPlot(i),region);
                     }
                   }
                 }));
@@ -123,7 +125,7 @@ public class RegionCommand extends ListenerClient {
                     Gamer member = (Gamer) args[1];
                     AccessFlags flag = (AccessFlags) args[2];
                     FlagValue value = (FlagValue) args[3];
-                    region.setGamerPermission(channels,member,flag,value);
+                    RegionWrites.setGamerPermission(channels,member,flag,value,region);
                   }
                 }));
     RegionCommand.withSubcommand(
@@ -143,7 +145,7 @@ public class RegionCommand extends ListenerClient {
                     Group member = (Group) args[1];
                     AccessFlags flag = (AccessFlags) args[2];
                     FlagValue value = (FlagValue) args[3];
-                    region.setGroupPermission(channels,member,flag,value);
+                    RegionWrites.setGroupPermission(channels,member,flag,value,region);
                   }
                 }));
     RegionCommand.withSubcommand(

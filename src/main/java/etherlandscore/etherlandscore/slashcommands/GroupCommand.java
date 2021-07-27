@@ -10,6 +10,8 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Group;
 import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.stateWrites.GroupWrites;
+import etherlandscore.etherlandscore.stateWrites.TeamWrites;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -42,7 +44,7 @@ public class GroupCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
                   if (team.isManager(gamer)) {
-                    team.createGroup(this.channels, (String) args[0]);
+                    TeamWrites.createGroup(this.channels, (String) args[0], team);
                   } else {
                     sender.sendMessage("ur not manager");
                   }
@@ -69,7 +71,7 @@ public class GroupCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Team team = gamer.getTeamObject();
                   if (team.isManager(gamer)) {
-                    team.deleteGroup(this.channels, (String) args[0]);
+                    TeamWrites.deleteGroup(this.channels, (String) args[0], team);
                   } else {
                     sender.sendMessage("ur not manager");
                   }
@@ -89,7 +91,7 @@ public class GroupCommand extends ListenerClient {
                   if (team != null) {
                     if (team.canAction(manager, subject)) {
                       if (subject.getTeamName().equals(team.getName())) {
-                        group.addMember(channels, subject);
+                        GroupWrites.addMember(channels, group, subject);
                       }
                     }
                   } else {
@@ -111,7 +113,7 @@ public class GroupCommand extends ListenerClient {
                   if (team != null) {
                     if (team.canAction(manager, subject)) {
                       if (subject.getTeamName().equals(team.getName())) {
-                        group.removeMember(channels, subject);
+                        GroupWrites.removeMember(channels, group, subject);
                       }
                     }
                   } else {

@@ -1,8 +1,5 @@
 package etherlandscore.etherlandscore.state;
 
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -20,16 +17,12 @@ public class Group extends StateHolder implements Comparable<Group> {
   private final boolean isDefault;
   private Integer priority;
 
+
   public Group(Team team, String name, Integer priority, boolean isDefault) {
     this.name = name;
     this.team = team.getName();
     this.priority = priority;
     this.isDefault = isDefault;
-  }
-
-  public void addMember(Channels channels, Gamer gamer) {
-    if(isDefault) return;
-    channels.master_command.publish(new Message<>(MasterCommand.group_add_gamer,this, gamer));
   }
 
   public void addMember(Gamer gamer) {
@@ -67,10 +60,6 @@ public class Group extends StateHolder implements Comparable<Group> {
     return this.isDefault;
   }
 
-  public void removeMember(Channels channels, Gamer gamer) {
-    if(isDefault) return;
-    channels.master_command.publish(new Message<>(MasterCommand.group_remove_gamer,this, gamer));
-  }
 
   public void removeMember(Gamer gamer) {
     this.members.remove(gamer.getUuid());
@@ -83,8 +72,8 @@ public class Group extends StateHolder implements Comparable<Group> {
     return fields;
   }
 
-  public void setPriority(Channels channels, Integer priority) {
-    if(isDefault) return;
-    channels.master_command.publish(new Message<>(MasterCommand.group_set_priority,this, priority));
+  public boolean getDefault(){
+    return isDefault;
   }
+
 }

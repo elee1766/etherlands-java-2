@@ -34,6 +34,8 @@ public class Gamer extends StateHolder {
     groups.clear();
   }
 
+  public boolean hasFriend(Player player) { return this.getFriends().contains(player.getUniqueId());}
+
   public void friendList() {
     Set<UUID> flist = this.getFriends();
     StringBuilder friends = new StringBuilder();

@@ -124,13 +124,12 @@ public class MapMenu extends ListenerClient {
           }
         }
 
-        for(String n : getOnlinePlayerStrings()){
-          Player p = Bukkit.getPlayer(n);
+        for(Player p : getOnlinePlayers()){
           Chunk pc = p.getChunk();
           if(pc.getZ()==z&&pc.getX()==x){
             if(p.equals(player)){
               selfFlag = true;
-            }else if (this.gamer.getFriends().contains(p.getUniqueId())) {
+            }else if (this.gamer.hasFriend(p)) {
               friendflag = true;
             } else {
               playerflag = true;

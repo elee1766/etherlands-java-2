@@ -78,6 +78,16 @@ public class ListenerClient extends ServerModule {
     return Arrays.stream(players).map(Player::getName).toArray(String[]::new);
   }
 
+  protected Player[] getOnlinePlayers(){
+    String[] playerNames = getOnlinePlayerStrings();
+    int playerCount = playerNames.length;
+    Player[] players = new Player[playerCount];
+    for(int i = 0;i<playerCount;i++) {
+      players[i] = Bukkit.getPlayer(playerNames[i]);
+    }
+    return players;
+  }
+
   protected String[] getPlayerStrings() {
     OfflinePlayer[] players = Bukkit.getServer().getOfflinePlayers();
     return Arrays.stream(players).map(OfflinePlayer::getName).toArray(String[]::new);

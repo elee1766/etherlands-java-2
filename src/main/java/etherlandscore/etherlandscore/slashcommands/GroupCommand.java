@@ -55,7 +55,6 @@ public class GroupCommand extends ListenerClient {
                     .withPermission("etherlands.public")
                     .executesPlayer(
                             (sender, args) -> {
-                              Player player = sender.getPlayer();
                               Gamer gamer = context.getGamer(sender.getUniqueId());
                               Group group = context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
                               GroupPrinter printer = new GroupPrinter(group);

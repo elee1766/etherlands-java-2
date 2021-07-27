@@ -8,6 +8,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -22,34 +23,39 @@ public class MapMenu extends ListenerClient {
   private final Channels channels;
   private final Fiber fiber;
   private final Gamer gamer;
+  private final int WIDTH;
+  private final int HEIGHT;
+  private final TextComponent unclaimedKey;
+  private final TextComponent claimedKey;
+  private final TextComponent ownedKey;
+  private final TextComponent playerKey;
+  private final TextComponent selfKey;
+  private final TextComponent friendKey;
 
   public MapMenu(Gamer gamer, Channels channels, Fiber fiber) {
     super(channels, fiber);
     this.channels = channels;
     this.fiber = fiber;
     this.gamer = gamer;
+
+    WIDTH = 45;
+    HEIGHT = 7;
+
+    unclaimedKey = new TextComponent("-");
+    unclaimedKey.setColor(ChatColor.GRAY);
+    claimedKey = new TextComponent("+");
+    claimedKey.setColor(ChatColor.WHITE);
+    ownedKey = new TextComponent("+");
+    ownedKey.setColor(ChatColor.GREEN);
+    playerKey = new TextComponent("+");
+    playerKey.setColor(ChatColor.RED);
+    selfKey = new TextComponent("^");
+    selfKey.setColor(ChatColor.YELLOW);
+    friendKey = new TextComponent("+");
+    friendKey.setColor(ChatColor.DARK_GREEN);
   }
 
-  public void mapMenu() {
-    Player player = this.gamer.getPlayer();
-    int WIDTH = 45;
-    int HEIGHT = 7;
-    TextComponent map = new TextComponent("");
-    TextComponent unclaimedKey = new TextComponent("-");
-    unclaimedKey.setColor(ChatColor.GRAY);
-    TextComponent claimedKey = new TextComponent("+");
-    claimedKey.setColor(ChatColor.WHITE);
-    TextComponent ownedKey = new TextComponent("+");
-    ownedKey.setColor(ChatColor.GREEN);
-    TextComponent playerKey = new TextComponent("+");
-    playerKey.setColor(ChatColor.RED);
-    TextComponent selfKey = new TextComponent("^");
-    selfKey.setColor(ChatColor.YELLOW);
-    TextComponent friendKey = new TextComponent("+");
-    friendKey.setColor(ChatColor.DARK_GREEN);
-    Location playerLoc = player.getLocation();
-    Chunk chunk = playerLoc.getChunk();
-    float yaw = playerLoc.getYaw();
+  public String playerDirection(float yaw){
     String facing;
     if (yaw < 0) {
       yaw += 360;
@@ -65,6 +71,16 @@ public class MapMenu extends ListenerClient {
     } else {
       facing = "N";
     }
+
+    return facing;
+  }
+
+  public void mapMenu() {
+    Player player = this.gamer.getPlayer();
+    TextComponent map = new TextComponent("");
+    Location playerLoc = player.getLocation();
+    Chunk chunk = player.getChunk();
+    String facing = playerDirection(playerLoc.getYaw());
 
     int x = chunk.getX();
     int z = chunk.getZ();
@@ -107,12 +123,14 @@ public class MapMenu extends ListenerClient {
             ownedflag = true;
           }
         }
-        Entity[] entities = player.getWorld().getChunkAt(x,z).getEntities();
-        for (Entity ent : entities) {
-          if (ent instanceof Player) {
-            if(ent.equals(player)){
+
+        for(String n : getPlayerStrings()){
+          Player p = Bukkit.getPlayer(n);
+          Location l = p.getLocation();
+          if(l.getZ()==z&&l.getX()==x){
+            if(p.equals(player)){
               selfFlag = true;
-            }else if (this.gamer.getFriends().contains(ent)) {
+            }else if (this.gamer.getFriends().contains(p.getUniqueId())) {
               friendflag = true;
             } else {
               playerflag = true;
@@ -120,6 +138,7 @@ public class MapMenu extends ListenerClient {
             break;
           }
         }
+
         if(selfFlag){
           mapArray[j][i] = selfKey;
         } else if (friendflag) {
@@ -161,4 +180,5 @@ public class MapMenu extends ListenerClient {
     player.sendMessage(map);
     player.sendMessage(key);
   }
+
 }

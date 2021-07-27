@@ -6,13 +6,17 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Group;
+import etherlandscore.etherlandscore.state.Region;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 import java.util.ArrayList;
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class FlagMenu extends ListenerClient {
   private final Fiber fiber;
@@ -25,10 +29,22 @@ public class FlagMenu extends ListenerClient {
     this.channels = channels;
   }
 
-  public static void plotMenu(Gamer gamer) {
+  public static void helper(String command){
+
+  }
+
+  public static void clickMenu(Gamer gamer, String flagType, String command, Region region, Player player) {
+    clickMenu(gamer, flagType, command, region, player.getName());
+  }
+
+  public static void clickMenu(Gamer gamer, String flagType, String command, Region region, Group group) {
+    clickMenu(gamer, flagType, command, region, group.getName());
+  }
+
+  public static void clickMenu(Gamer gamer, String flagType, String command, Region region, String item) {
+
     Player player = gamer.getPlayer();
     ArrayList<TextComponent> tc = new ArrayList<TextComponent>();
-    String sep = "";
 
     TextComponent component = new TextComponent("");
     TextComponent space = new TextComponent(" ");
@@ -39,6 +55,10 @@ public class FlagMenu extends ListenerClient {
     tc.add(topBorder);
 
     for (AccessFlags f : AccessFlags.values()) {
+      String sep = "";
+      if(f.toString()=="NONE"){
+        continue;
+      }
       for (int i = 0; i < 30 - String.valueOf(f).length(); i++) {
         sep = sep + "-";
       }
@@ -49,13 +69,25 @@ public class FlagMenu extends ListenerClient {
       for (FlagValue fv : FlagValue.values()) {
         TextComponent value = new TextComponent(String.valueOf(fv));
         if (fv.toString() == "NONE") { // if flagvalue is set for the given accessflag
-          value.setColor(ChatColor.YELLOW);
-        } else {
-          value.setColor(ChatColor.DARK_GRAY);
+          continue;
+        } else if(flagType=="player") {
+          Gamer g1 = state().getGamer(Bukkit.getPlayer(item).getUniqueId());
+          if (region.checkFlags(f, g1) == fv) {
+            value.setColor(ChatColor.YELLOW);
+          } else {
+            value.setColor(ChatColor.DARK_GRAY);
+          }
+        } else if(flagType=="group") {
+          Group g1 = gamer.getTeamObject().getGroup(item);
+          if (region.checkFlags(f, g1) == fv) {
+            value.setColor(ChatColor.YELLOW);
+          } else {
+            value.setColor(ChatColor.DARK_GRAY);
+          }
         }
         value.setUnderlined(true);
         value.setClickEvent(
-            new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/flags set " + currentFlag + " " + fv));
+            new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/" + command + " " + region.getName() + " " + item + " "+ currentFlag + " " + fv));
         tc.add(value);
         tc.add(space);
       }

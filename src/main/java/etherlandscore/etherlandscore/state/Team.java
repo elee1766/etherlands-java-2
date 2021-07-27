@@ -28,10 +28,6 @@ public class Team extends StateHolder {
     this.groups.put("manager", new Group(this, "manager", 50, true));
   }
 
-  public void addMember(Channels channels, Gamer gamer) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_add_gamer, this, gamer));
-  }
-
   public void addMember(Gamer gamer) {
     members.add(gamer.getUuid());
   }
@@ -48,43 +44,18 @@ public class Team extends StateHolder {
     }
     return false;
   }
-
-  public void createGroup(Channels channels, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_create_group,this, name));
-  }
-
   public void createGroup(String name) {
     if (!this.groups.containsKey(name)) {
       this.groups.put(name, new Group(this, name, 1, false));
     }
   }
 
-  public void createRegion(Channels channels, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_create_region,this, name));
-  }
 
   public void createRegion(String name) {
     if (!this.regions.containsKey(name)) {
       this.regions.put(name, new Region(this, name, new HashSet<>(), 10, false));
     }
   }
-
-  public void delegatePlot(Channels channels, Plot plot) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_delegate_plot, this, plot));
-  }
-
-  public void delete(Channels channels) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_delete_team, this));
-  }
-
-  public void deleteGroup(Channels channels, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_delete_group,this, name));
-  }
-
-  public void deleteRegion(Channels channels, Region arg) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_delete_region,this,arg));
-  }
-
   public Group getGroup(String name) {
     return groups.get(name);
   }

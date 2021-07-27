@@ -4,9 +4,9 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.readonly.ReadGamer;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
-import etherlandscore.etherlandscore.state.Gamer;
 import org.jetlang.fibers.Fiber;
 
 public class FlagCommand extends ListenerClient {
@@ -42,8 +42,8 @@ public class FlagCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  FlagMenu.plotMenu(gamer);
+                  ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                  FlagMenu.plotMenu(gamer.obj());
                 }));
     FlagCommand.withSubcommand(
         new CommandAPICommand("set")

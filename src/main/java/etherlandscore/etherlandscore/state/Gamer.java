@@ -1,8 +1,5 @@
 package etherlandscore.etherlandscore.state;
 
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -10,8 +7,6 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class Gamer extends StateHolder {
 
@@ -24,11 +19,6 @@ public class Gamer extends StateHolder {
   public Gamer(UUID uuid) {
     this.uuid = uuid;
   }
-
-  public void addFriend(Channels channels, Gamer gamer) {
-    channels.master_command.publish(new Message<>(MasterCommand.gamer_add_friend, this, gamer));
-  }
-
   public void addFriend(Gamer gamer) {
     friends.add(gamer.getUuid());
   }
@@ -77,22 +67,12 @@ public class Gamer extends StateHolder {
     return friends;
   }
 
-  public Group getGroupObject(String name) {
-    return state().getTeam(this.getTeamName()).getGroup(name);
-  }
-
   public Player getPlayer() {
     return Bukkit.getPlayer(uuid);
   }
-
   public String getTeamName() {
     return team;
   }
-
-  public Team getTeamObject() {
-    return state().getTeam(team);
-  }
-
   public UUID getUuid() {
     return uuid;
   }
@@ -102,11 +82,6 @@ public class Gamer extends StateHolder {
       return false;
     }
     return team.equals("");
-  }
-
-  public void removeFriend(Channels channels, Gamer newFriend) {
-    channels.master_command.publish(
-        new Message<>(MasterCommand.gamer_remove_friend, this, newFriend));
   }
 
   public void removeFriend(Gamer gamer) {

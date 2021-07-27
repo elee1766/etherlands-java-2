@@ -1,15 +1,13 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import etherlandscore.etherlandscore.Menus.GamerPrinter;
 import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.readonly.ReadGamer;
+import etherlandscore.etherlandscore.readonly.ReadGroup;
+import etherlandscore.etherlandscore.readonly.ReadTeam;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Group;
-import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -39,8 +37,8 @@ public class GroupCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
+                  ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                  ReadTeam team = gamer.getTeamObject();
                   if (team.isManager(gamer)) {
                     team.createGroup(this.channels, (String) args[0]);
                   } else {
@@ -54,9 +52,9 @@ public class GroupCommand extends ListenerClient {
                     .executesPlayer(
                             (sender, args) -> {
                               Player player = sender.getPlayer();
-                              Gamer gamer = context.getGamer(sender.getUniqueId());
-                              Group group = context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
-                              GroupPrinter printer = new GroupPrinter(group);
+                              ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                              ReadGroup group = context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
+                              GroupPrinter printer = new GroupPrinter(group.obj());
                               printer.printGroup(sender);
                             }));
 
@@ -66,8 +64,8 @@ public class GroupCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
+                  ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                  ReadTeam team = gamer.getTeamObject();
                   if (team.isManager(gamer)) {
                     team.deleteGroup(this.channels, (String) args[0]);
                   } else {
@@ -82,13 +80,13 @@ public class GroupCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer manager = context.getGamer(sender.getUniqueId());
-                  Gamer subject = (Gamer) args[0];
-                  Group group = (Group) args[1];
-                  Team team = manager.getTeamObject();
+                  ReadGamer manager = context.getGamer(sender.getUniqueId());
+                  ReadGamer subject = new ReadGamer(args[0]);
+                  ReadGroup group = new ReadGroup(args[1]);
+                  ReadTeam team = manager.getTeamObject();
                   if (team != null) {
                     if (team.canAction(manager, subject)) {
-                      if (subject.getTeamName().equals(team.getName())) {
+                      if (subject.teamIs(team)) {
                         group.addMember(channels, subject);
                       }
                     }
@@ -104,15 +102,13 @@ public class GroupCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer manager = context.getGamer(sender.getUniqueId());
-                  Gamer subject = (Gamer) args[0];
-                  Group group = (Group) args[1];
-                  Team team = manager.getTeamObject();
-                  if (team != null) {
-                    if (team.canAction(manager, subject)) {
-                      if (subject.getTeamName().equals(team.getName())) {
+                  ReadGamer manager = context.getGamer(sender.getUniqueId());
+                  ReadGamer subject = new ReadGamer(args[0]);
+                  ReadGroup group = new ReadGroup(args[1]);
+                  ReadTeam team = manager.getTeamObject();
+                    if (subject.teamIs(team)) {
+                      if (team.canAction(manager, subject)) {
                         group.removeMember(channels, subject);
-                      }
                     }
                   } else {
                     runNoTeam(sender);

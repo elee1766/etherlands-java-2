@@ -27,10 +27,7 @@ public class Group extends StateHolder implements Comparable<Group> {
     this.isDefault = isDefault;
   }
 
-  public void addMember(Channels channels, Gamer gamer) {
-    if(isDefault) return;
-    channels.master_command.publish(new Message<>(MasterCommand.group_add_gamer,this, gamer));
-  }
+
 
   public void addMember(Gamer gamer) {
     this.members.add(gamer.getUuid());
@@ -67,10 +64,7 @@ public class Group extends StateHolder implements Comparable<Group> {
     return this.isDefault;
   }
 
-  public void removeMember(Channels channels, Gamer gamer) {
-    if(isDefault) return;
-    channels.master_command.publish(new Message<>(MasterCommand.group_remove_gamer,this, gamer));
-  }
+
 
   public void removeMember(Gamer gamer) {
     this.members.remove(gamer.getUuid());

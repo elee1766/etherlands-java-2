@@ -4,9 +4,9 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.Menus.GamerPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.readonly.ReadGamer;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
-import etherlandscore.etherlandscore.state.Gamer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -38,8 +38,8 @@ public class GamerCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Player player = (Player) args[0];
-                  Gamer gamer = context.getGamer(player.getUniqueId());
-                  GamerPrinter printer = new GamerPrinter(gamer);
+                  ReadGamer gamer = context.getGamer(player.getUniqueId());
+                  GamerPrinter printer = new GamerPrinter(gamer.obj());
                   printer.printGamer(sender);
                 }));
     GamerCommand.register();

@@ -3,10 +3,10 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.readonly.ReadGamer;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
-import etherlandscore.etherlandscore.state.Gamer;
 import org.jetlang.fibers.Fiber;
 
 public class FriendCommand extends ListenerClient {
@@ -35,9 +35,9 @@ public class FriendCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Gamer newFriend = (Gamer) args[0];
-                  if (!gamer.getFriends().contains(newFriend.getUuid())) {
+                  ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                  ReadGamer newFriend = new ReadGamer(args[0]);
+                  if (!gamer.isFriend(newFriend)) {
                     gamer.addFriend(this.channels, newFriend);
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
                   } else {
@@ -49,8 +49,8 @@ public class FriendCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  SelectorMenu.menu(gamer, getPlayerStrings(), "friend add");
+                  ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                  SelectorMenu.menu(gamer.obj(), getPlayerStrings(), "friend add");
                 }));
 
     FriendCommand.withSubcommand(
@@ -59,10 +59,10 @@ public class FriendCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Gamer oldFriend = (Gamer) args[0];
-                  if (gamer.getFriends().contains(oldFriend.getUuid())) {
-                    gamer.removeFriend(this.channels, oldFriend);
+                  ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                  ReadGamer oldFriend = new ReadGamer(args[0]);
+                  if (gamer.isFriend(oldFriend)) {
+                    gamer.removeFriend(channels, oldFriend);
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("success"));
                   } else {
                     sender.sendMessage(LocaleSingleton.getLocale().getFriends().get("fail"));
@@ -73,20 +73,14 @@ public class FriendCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  SelectorMenu.menu(gamer, getPlayerStrings(), "friend remove");
+                  ReadGamer gamer = context.getGamer(sender.getUniqueId());
+                  SelectorMenu.menu(gamer.obj(), getPlayerStrings(), "friend remove");
                 }));
     FriendCommand.withSubcommand(
         new CommandAPICommand("list")
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  if (gamer.getFriends() != null) {
-                    gamer.friendList();
-                  } else {
-                    LocaleSingleton.getLocale().getFriends().get("empty");
-                  }
                 }));
     FriendCommand.register();
   }

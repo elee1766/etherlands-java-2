@@ -6,7 +6,6 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.Plot;
-import etherlandscore.etherlandscore.state.Team;
 
 import java.util.Map;
 import java.util.UUID;
@@ -18,8 +17,8 @@ public class ReadContext {
     this.context = context;
   }
 
-  public Gamer getGamer(UUID uuid) {
-    return context.getGamer(uuid);
+  public ReadGamer getGamer(UUID uuid) {
+    return new ReadGamer(context.getGamer(uuid));
   }
 
   public Map<UUID, Gamer> getGamers() {
@@ -34,17 +33,10 @@ public class ReadContext {
     return context.getPlot(x, z);
   }
 
-  public Map<Integer, Plot> getPlots() {
-    return context.getPlots();
+  public ReadTeam getTeam(String team) {
+    return new ReadTeam(context.getTeam(team));
   }
 
-  public Team getTeam(String team) {
-    return context.getTeam(team);
-  }
-
-  public Map<String, Team> getTeams() {
-    return context.getTeams();
-  }
   public void createTeam(Channels channels, Gamer gamer, String name) {
     channels.master_command.publish(new Message<>(MasterCommand.team_create_team, gamer, name));
   }
@@ -54,6 +46,6 @@ public class ReadContext {
   }
 
   public boolean hasTeam(String name) {
-    return getTeams().containsKey(name);
+    return context.getTeams().containsKey(name);
   }
 }

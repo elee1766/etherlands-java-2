@@ -15,4 +15,10 @@ public class GamerSender {
     channels.master_command.publish(
         new Message<>(MasterCommand.gamer_remove_friend, self, newFriend));
   }
+
+  public static void setAddress(Channels channels, Gamer self, String address) {
+    channels.master_command.publish(
+        new Message<>(MasterCommand.gamer_link_address, self, address));
+  }
+
 }

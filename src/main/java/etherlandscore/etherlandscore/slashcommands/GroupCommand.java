@@ -24,6 +24,75 @@ public class GroupCommand extends ListenerClient {
     register();
   }
 
+
+  void runHelpCommand(Player sender, Object[] args) {
+    sender.sendMessage("create");
+  }
+
+  void runNoTeam(Player sender) {
+    sender.sendMessage("you must be in a team to manage groups");
+  }
+
+  void create(Player sender, Object[] args){
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    if (writeTeam.isManager(gamer)) {
+      TeamSender.createGroup(this.channels, (String) args[0], writeTeam);
+    } else {
+      sender.sendMessage("ur not manager");
+    }
+  }
+
+  void info(Player sender, Object[] args){
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Group writeGroup =
+            context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
+    GroupPrinter printer = new GroupPrinter(writeGroup);
+    printer.printGroup(sender);
+  }
+
+  void delete(Player sender, Object[] args){
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    if (writeTeam.isManager(gamer)) {
+      TeamSender.deleteGroup(this.channels, (String) args[0], writeTeam);
+    } else {
+      sender.sendMessage("ur not manager");
+    }
+  }
+
+  void add(Player sender, Object[] args){
+    Gamer manager = context.getGamer(sender.getUniqueId());
+    Gamer subject = (Gamer) args[0];
+    Group writeGroup = (Group) args[1];
+    Team writeTeam = manager.getTeamObject();
+    if (writeTeam != null) {
+      if (writeTeam.canAction(manager, subject)) {
+        if (subject.getTeamName().equals(writeTeam.getName())) {
+          GroupSender.addMember(channels, writeGroup, subject);
+        }
+      }
+    } else {
+      runNoTeam(sender);
+    }
+  }
+
+  void remove(Player sender, Object[] args){
+    Gamer manager = context.getGamer(sender.getUniqueId());
+    Gamer subject = (Gamer) args[0];
+    Group writeGroup = (Group) args[1];
+    Team writeTeam = manager.getTeamObject();
+    if (writeTeam != null) {
+      if (writeTeam.canAction(manager, subject)) {
+        if (subject.getTeamName().equals(writeTeam.getName())) {
+          GroupSender.removeMember(channels, writeGroup, subject);
+        }
+      }
+    } else {
+      runNoTeam(sender);
+    }
+  }
+
   public void register() {
     CommandAPICommand GroupCommand =
         new CommandAPICommand("group")
@@ -37,45 +106,19 @@ public class GroupCommand extends ListenerClient {
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("groupname"))
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team writeTeam = gamer.getTeamObject();
-                  if (writeTeam.isManager(gamer)) {
-                    TeamSender.createGroup(this.channels, (String) args[0], writeTeam);
-                  } else {
-                    sender.sendMessage("ur not manager");
-                  }
-                }));
+            .executesPlayer((this::create)));
     GroupCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(
                 new StringArgument("group")
                     .replaceSuggestions(info -> getTeamStrings())) // make this suggest groups
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Group writeGroup =
-                      context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
-                  GroupPrinter printer = new GroupPrinter(writeGroup);
-                  printer.printGroup(sender);
-                }));
-
+            .executesPlayer((this::info)));
     GroupCommand.withSubcommand(
         new CommandAPICommand("delete")
             .withArguments(cleanNameArgument("groupname"))
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team writeTeam = gamer.getTeamObject();
-                  if (writeTeam.isManager(gamer)) {
-                    TeamSender.deleteGroup(this.channels, (String) args[0], writeTeam);
-                  } else {
-                    sender.sendMessage("ur not manager");
-                  }
-                }));
+            .executesPlayer((this::delete)));
     GroupCommand.withSubcommand(
         new CommandAPICommand("add")
             .withAliases("addPlayer")
@@ -83,52 +126,15 @@ public class GroupCommand extends ListenerClient {
             .withArguments(teamGroupArgument("group"))
             .withPermission("etherlands.public")
             .executesPlayer(
-                (sender, args) -> {
-                  Gamer manager = context.getGamer(sender.getUniqueId());
-                  Gamer subject = (Gamer) args[0];
-                  Group writeGroup = (Group) args[1];
-                  Team writeTeam = manager.getTeamObject();
-                  if (writeTeam != null) {
-                    if (writeTeam.canAction(manager, subject)) {
-                      if (subject.getTeamName().equals(writeTeam.getName())) {
-                        GroupSender.addMember(channels, writeGroup, subject);
-                      }
-                    }
-                  } else {
-                    runNoTeam(sender);
-                  }
-                }));
+                (this::add)));
     GroupCommand.withSubcommand(
         new CommandAPICommand("remove")
             .withAliases("removePlayer")
             .withArguments(teamMemberArgument("player"))
             .withArguments(teamGroupArgument("group"))
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  Gamer manager = context.getGamer(sender.getUniqueId());
-                  Gamer subject = (Gamer) args[0];
-                  Group writeGroup = (Group) args[1];
-                  Team writeTeam = manager.getTeamObject();
-                  if (writeTeam != null) {
-                    if (writeTeam.canAction(manager, subject)) {
-                      if (subject.getTeamName().equals(writeTeam.getName())) {
-                        GroupSender.removeMember(channels, writeGroup, subject);
-                      }
-                    }
-                  } else {
-                    runNoTeam(sender);
-                  }
-                }));
+            .executesPlayer((this::remove)));
 
     GroupCommand.register();
-  }
-
-  void runHelpCommand(Player sender, Object[] args) {
-    sender.sendMessage("create");
-  }
-
-  void runNoTeam(Player sender) {
-    sender.sendMessage("you must be in a team to manage groups");
   }
 }

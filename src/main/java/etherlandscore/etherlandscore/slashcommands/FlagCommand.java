@@ -24,51 +24,44 @@ public class FlagCommand extends ListenerClient {
     register();
   }
 
+  void help(Player sender, Object[] args){
+    sender.sendMessage("/flag menu district_group or district_player, use the onscreen menu to set or unset flags");
+  }
+
+  void districtPlayer(Player sender, Object[] args){
+    Gamer runner = context.getGamer(sender.getUniqueId());
+    FlagMenu.clickMenu(runner, "player", "district set_player", (District) args[0], (Player) args[1]);
+  }
+
+  void districtGroup(Player sender, Object[] args){
+    Gamer runner = context.getGamer(sender.getUniqueId());
+    FlagMenu.clickMenu(runner, "group", "district set_group", (District) args[0], (Group) args[1]);
+  }
+
   public void register() {
     CommandAPICommand flagMenuDistrictPlayer =
-        (new CommandAPICommand("district_player")
+        new CommandAPICommand("district_player")
             .withArguments(teamDistrictArgument("district"))
             .withArguments(
                 new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  Gamer runner = context.getGamer(sender.getUniqueId());
-                  FlagMenu.clickMenu(
-                      runner,
-                      "player",
-                      "district set_player",
-                      (District) args[0],
-                      (Player) args[1]);
-                }));
+            .executesPlayer((this::districtPlayer));
     CommandAPICommand flagMenuDistrictGroup =
-        (new CommandAPICommand("district_group")
+        new CommandAPICommand("district_group")
             .withArguments(teamDistrictArgument("district"))
             .withArguments(teamGroupArgument("group"))
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  Gamer runner = context.getGamer(sender.getUniqueId());
-                  FlagMenu.clickMenu(
-                      runner, "group", "district set_group", (District) args[0], (Group) args[1]);
-                }));
+            .executesPlayer((this::districtGroup));
     CommandAPICommand flagMenu =
         new CommandAPICommand("menu")
             .withSubcommand(flagMenuDistrictGroup)
             .withSubcommand(flagMenuDistrictPlayer)
-            .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  // stuff
-                });
+            .withPermission("etherlands.public");
     CommandAPICommand FlagCommand =
         new CommandAPICommand("flag")
             .withSubcommand(flagMenu)
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  sender.sendMessage("global, plot");
-                });
+            .executesPlayer((this::help));
 
     FlagCommand.register();
   }

@@ -22,26 +22,24 @@ public class GamerCommand extends ListenerClient {
     register();
   }
 
+  void info(Player sender, Object[] args){
+    Player player = (Player) args[0];
+    Gamer gamer = context.getGamer(player.getUniqueId());
+    GamerPrinter printer = new GamerPrinter(gamer);
+    printer.printGamer(sender);
+  }
+
   public void register() {
     CommandAPICommand GamerCommand =
         new CommandAPICommand("gamer")
-            .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  sender.sendMessage("info");
-                });
+            .withPermission("etherlands.public");
     GamerCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(
                 new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .withPermission("etherlands.public")
-            .executesPlayer(
-                (sender, args) -> {
-                  Player player = (Player) args[0];
-                  Gamer gamer = context.getGamer(player.getUniqueId());
-                  GamerPrinter printer = new GamerPrinter(gamer);
-                  printer.printGamer(sender);
-                }));
+            .executesPlayer((this::info)));
+
     GamerCommand.register();
   }
 }

@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.GroupSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -34,6 +35,7 @@ public class GroupCommand extends ListenerClient {
   }
 
   void create(Player sender, Object[] args){
+    Bukkit.getLogger().info("Running /group create");
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
@@ -41,17 +43,17 @@ public class GroupCommand extends ListenerClient {
     } else {
       sender.sendMessage("ur not manager");
     }
+    Bukkit.getLogger().info("/group create complete");
   }
 
   void info(Player sender, Object[] args){
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    Group writeGroup =
-            context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
-    GroupPrinter printer = new GroupPrinter(writeGroup);
+    GroupPrinter printer = new GroupPrinter((Group) args[0]);
     printer.printGroup(sender);
   }
 
   void delete(Player sender, Object[] args){
+    Bukkit.getLogger().info("running /group delete");
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
@@ -59,9 +61,11 @@ public class GroupCommand extends ListenerClient {
     } else {
       sender.sendMessage("ur not manager");
     }
+    Bukkit.getLogger().info("/group delete complete");
   }
 
   void add(Player sender, Object[] args){
+    Bukkit.getLogger().info("running /group add");
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer subject = (Gamer) args[0];
     Group writeGroup = (Group) args[1];
@@ -75,9 +79,11 @@ public class GroupCommand extends ListenerClient {
     } else {
       runNoTeam(sender);
     }
+    Bukkit.getLogger().info("/group add complete");
   }
 
   void remove(Player sender, Object[] args){
+    Bukkit.getLogger().info("running /group remove");
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer subject = (Gamer) args[0];
     Group writeGroup = (Group) args[1];
@@ -91,6 +97,7 @@ public class GroupCommand extends ListenerClient {
     } else {
       runNoTeam(sender);
     }
+    Bukkit.getLogger().info("/group remove complete");
   }
 
   public void register() {
@@ -100,40 +107,31 @@ public class GroupCommand extends ListenerClient {
             .executesPlayer(this::runHelpCommand);
     GroupCommand.withSubcommand(
         new CommandAPICommand("help")
-            .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand));
     GroupCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("groupname"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::create)));
+            .executesPlayer(this::create));
     GroupCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(
-                new StringArgument("group")
-                    .replaceSuggestions(info -> getTeamStrings())) // make this suggest groups
-            .withPermission("etherlands.public")
-            .executesPlayer((this::info)));
+            .withArguments(teamGroupArgument("group"))
+            .executesPlayer(this::info));
     GroupCommand.withSubcommand(
         new CommandAPICommand("delete")
             .withArguments(cleanNameArgument("groupname"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::delete)));
+            .executesPlayer(this::delete));
     GroupCommand.withSubcommand(
         new CommandAPICommand("add")
             .withAliases("addPlayer")
             .withArguments(teamMemberArgument("player"))
             .withArguments(teamGroupArgument("group"))
-            .withPermission("etherlands.public")
-            .executesPlayer(
-                (this::add)));
+            .executesPlayer(this::add));
     GroupCommand.withSubcommand(
         new CommandAPICommand("remove")
             .withAliases("removePlayer")
             .withArguments(teamMemberArgument("player"))
             .withArguments(teamGroupArgument("group"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::remove)));
+            .executesPlayer(this::remove));
 
     GroupCommand.register();
   }

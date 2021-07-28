@@ -7,6 +7,8 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
+import org.bukkit.Bukkit;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -68,38 +70,27 @@ public class FriendCommand extends ListenerClient {
   }
 
   public void register() {
-    CommandAPICommand FriendAdd =
-        new CommandAPICommand("add")
-            .withArguments(gamerArgument("friend"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::friendAdd));
-    CommandAPICommand FriendAddSelector =
-        new CommandAPICommand("add")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::friendAddSelector));
-    CommandAPICommand FriendRemove =
-        new CommandAPICommand("remove")
-            .withArguments(gamerArgument("friend"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::friendRemove));
-    CommandAPICommand FriendRemoveSelector =
-        new CommandAPICommand("remove")
-            .withPermission("etherlands.public")
-            .executesPlayer(
-                (this::friendRemoveSelector));
-    CommandAPICommand List =
-        new CommandAPICommand("list")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::friendList));
     CommandAPICommand FriendCommand =
-            new CommandAPICommand("friend")
-                    .withSubcommand(FriendAdd)
-                    .withSubcommand(FriendAddSelector)
-                    .withSubcommand(FriendRemove)
-                    .withSubcommand(FriendRemoveSelector)
-                    .withSubcommand(List)
-                    .withPermission("etherlands.public")
-                    .executesPlayer((this::help));
+        new CommandAPICommand("friend")
+            .withPermission("etherlands.public")
+            .executesPlayer(this::help);
+    FriendCommand.withSubcommand(
+        new CommandAPICommand("add")
+            .withArguments(gamerArgument("friend"))
+            .executesPlayer(this::friendAdd));
+    FriendCommand.withSubcommand(
+        new CommandAPICommand("add")
+            .executesPlayer(this::friendAddSelector));
+    FriendCommand.withSubcommand(
+        new CommandAPICommand("remove")
+            .withArguments(gamerArgument("friend"))
+            .executesPlayer(this::friendRemove));
+    FriendCommand.withSubcommand(
+        new CommandAPICommand("remove")
+            .executesPlayer(this::friendRemoveSelector));
+    FriendCommand.withSubcommand(
+        new CommandAPICommand("list")
+            .executesPlayer(this::friendList));
     FriendCommand.register();
   }
 }

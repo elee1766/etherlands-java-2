@@ -35,10 +35,8 @@ public class GamerCommand extends ListenerClient {
             .withPermission("etherlands.public");
     GamerCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(
-                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::info)));
+            .withArguments(new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+            .executesPlayer(this::info));
 
     GamerCommand.register();
   }

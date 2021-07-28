@@ -126,32 +126,27 @@ public class DistrictCommand extends ListenerClient {
             .executesPlayer(this::help);
     DistrictCommand.withSubcommand(
         new CommandAPICommand("help")
-            .withPermission("etherlands.public")
             .executesPlayer(this::help));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("districtname"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::create)));
+            .executesPlayer(this::create));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("delete")
             .withArguments(teamDistrictArgument("districtname"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::delete)));
+            .executesPlayer(this::delete));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("add")
             .withAliases("addPlot")
             .withArguments(teamDistrictArgument("districtname"))
             .withArguments(new IntegerRangeArgument("plot-ids"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::add)));
+            .executesPlayer(this::add));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("remove")
             .withAliases("removePlot")
             .withArguments(teamDistrictArgument("district-name"))
             .withArguments(new IntegerRangeArgument("plot-ids"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::remove)));
+            .executesPlayer(this::remove));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("set_player")
             .withAliases("setp", "setplayer", "setPlayer")
@@ -159,23 +154,19 @@ public class DistrictCommand extends ListenerClient {
             .withArguments(teamMemberArgument("member"))
             .withArguments(accessFlagArgument("flag"))
             .withArguments(flagValueArgument("value"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::setPlayer)));
+            .executesPlayer(this::setPlayer));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("set_group")
             .withAliases("setg", "setgroup", "setGroup")
             .withArguments(teamDistrictArgument("district"))
             .withArguments(teamGroupArgument("group"))
             .withArguments(accessFlagArgument("flag"))
-            .withArguments(
-                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
+            .withArguments(flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
             .withPermission("etherlands.public")
-            .executesPlayer((this::setGroup)));
+            .executesPlayer(this::setGroup));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(teamGroupArgument("group"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::info)));
+            .executesPlayer(this::info));
 
     DistrictCommand.register();
   }

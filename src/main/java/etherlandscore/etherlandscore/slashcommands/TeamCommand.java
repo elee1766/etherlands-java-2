@@ -200,64 +200,52 @@ public class TeamCommand extends ListenerClient {
     CommandAPICommand TeamCommand =
         new CommandAPICommand("team")
             .withPermission("etherlands.public")
-            .executesPlayer((this::help));
+            .executesPlayer(this::help);
     TeamCommand.withSubcommand(
         new CommandAPICommand("help")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::help)));
+            .executesPlayer(this::help));
     TeamCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::infoLocal)));
+            .executesPlayer(this::infoLocal));
     TeamCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::info)));
+            .executesPlayer(this::info));
     TeamCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("teamname"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::create)));
+            .executesPlayer(this::create));
     TeamCommand.withSubcommand(
         new CommandAPICommand("invite")
             .withArguments(
                 new PlayerArgument("player").replaceSuggestions(info -> getOnlinePlayerStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::invite)));
+            .executesPlayer(this::invite));
     TeamCommand.withSubcommand(
         new CommandAPICommand("join")
             .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::join)));
+            .executesPlayer(this::join));
     TeamCommand.withSubcommand(
         new CommandAPICommand("leave")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::leave)));
+            .executesPlayer(this::leave));
     TeamCommand.withSubcommand(
         new CommandAPICommand("kick")
-            .withPermission("etherlands.public")
             .withArguments(teamMemberArgument("member"))
-            .executesPlayer((this::kick)));
+            .executesPlayer(this::kick));
     TeamCommand.withSubcommand(
         new CommandAPICommand("kick")
-            .withPermission("etherlands.public")
             .withArguments(teamMemberArgument("member"))
-            .executesPlayer((this::kickOwner)));
+            .executesPlayer(this::kickOwner));
     TeamCommand.withSubcommand(
         new CommandAPICommand("delegate")
             .withArguments(new IntegerRangeArgument("plot-ids"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::delegatePlot)));
+            .executesPlayer(this::delegatePlot));
     TeamCommand.withSubcommand(
         new CommandAPICommand("delegate")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::delegateLocal)));
+            .executesPlayer(this::delegateLocal));
     TeamCommand.withSubcommand(
         new CommandAPICommand("delete")
-            .withPermission("etherlands.public")
             .withArguments(new StringArgument("teamname"))
-            .executesPlayer((this::delegateTeam)));
+            .executesPlayer(this::delegateTeam));
 
     TeamCommand.register();
   }

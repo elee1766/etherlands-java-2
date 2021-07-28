@@ -42,26 +42,22 @@ public class FlagCommand extends ListenerClient {
     CommandAPICommand flagMenuDistrictPlayer =
         new CommandAPICommand("district_player")
             .withArguments(teamDistrictArgument("district"))
-            .withArguments(
-                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::districtPlayer));
+            .withArguments(new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+            .executesPlayer(this::districtPlayer);
     CommandAPICommand flagMenuDistrictGroup =
         new CommandAPICommand("district_group")
             .withArguments(teamDistrictArgument("district"))
             .withArguments(teamGroupArgument("group"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::districtGroup));
+            .executesPlayer(this::districtGroup);
     CommandAPICommand flagMenu =
         new CommandAPICommand("menu")
             .withSubcommand(flagMenuDistrictGroup)
-            .withSubcommand(flagMenuDistrictPlayer)
-            .withPermission("etherlands.public");
+            .withSubcommand(flagMenuDistrictPlayer);
     CommandAPICommand FlagCommand =
         new CommandAPICommand("flag")
             .withSubcommand(flagMenu)
             .withPermission("etherlands.public")
-            .executesPlayer((this::help));
+            .executesPlayer(this::help);
 
     FlagCommand.register();
   }

@@ -1,11 +1,13 @@
 package etherlandscore.etherlandscore.state;
 
+import etherlandscore.etherlandscore.Menus.MapMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;

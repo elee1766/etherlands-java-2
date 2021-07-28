@@ -39,15 +39,11 @@ public class PlotCommand extends ListenerClient {
 
   void infoLocal(Player sender, Object[] args) {
     Plot writePlot;
-    if(args[0]!=null){
-      writePlot = context.getPlot((int) args[0]);
-    }else {
-      Location loc = sender.getLocation();
-      Chunk chunk = loc.getChunk();
-      int x = chunk.getX();
-      int z = chunk.getZ();
-      writePlot = context.getPlot(x, z);
-    }
+    Location loc = sender.getLocation();
+    Chunk chunk = loc.getChunk();
+    int x = chunk.getX();
+    int z = chunk.getZ();
+    writePlot = context.getPlot(x, z);
     if (writePlot == null) {
       TextComponent unclaimed = new TextComponent("This Land is unclaimed");
       unclaimed.setColor(ChatColor.YELLOW);
@@ -131,42 +127,33 @@ public class PlotCommand extends ListenerClient {
             .executesPlayer(this::runHelpCommand);
     ChunkCommand.withSubcommand(
         new CommandAPICommand("help")
-            .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::infoLocal)));
+            .executesPlayer(this::infoLocal));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(
-                new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
-            .withPermission("etherlands.public")
-            .executes((this::infoGiven)));
+            .withArguments(new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
+            .executes(this::infoGiven));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("update")
             .withArguments(new IntegerRangeArgument("chunkId"))
-            .withPermission("etherlands.public")
-            .executes((this::update)));
+            .executes(this::update));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("reclaim")
             .withArguments(new IntegerRangeArgument("plot-ids"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::reclaim)));
+            .executesPlayer(this::reclaim));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("reclaim")
             .withArguments(new IntegerRangeArgument("plot-ids"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::reclaimLocal)));
+            .executesPlayer(this::reclaimLocal));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("delegate")
             .withArguments(new IntegerRangeArgument("plot-ids"))
-            .withPermission("etherlands.public")
-            .executesPlayer((this::delegate)));
+            .executesPlayer(this::delegate));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("delegate")
-            .withPermission("etherlands.public")
-            .executesPlayer((this::delegateLocal)));
+            .executesPlayer(this::delegateLocal));
     ChunkCommand.register();
   }
 }

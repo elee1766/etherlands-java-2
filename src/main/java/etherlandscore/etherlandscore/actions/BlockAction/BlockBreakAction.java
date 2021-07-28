@@ -22,7 +22,9 @@ public class BlockBreakAction extends PermissionedAction {
     Plot writePlot =
         getContext()
             .getPlot(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
-
+    if(writePlot==null){
+      return super.process();
+    }
     Boolean canPerform = writePlot.canGamerPerform(this.flag, gamer);
     // ops can always destroy
     if (gamer.getPlayer().isOp()) {

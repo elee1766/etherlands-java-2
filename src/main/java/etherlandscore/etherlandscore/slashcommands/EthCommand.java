@@ -34,11 +34,9 @@ public class EthCommand extends ListenerClient {
             .executesPlayer(this::runHelpCommand);
     EthCommand.withSubcommand(
         new CommandAPICommand("help")
-            .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand));
     EthCommand.withSubcommand(
         new CommandAPICommand("relink")
-            .withPermission("etherlands.public")
             .withArguments(
                 new StringArgument("player")
                     .includeSuggestions(info -> Arrays.append(getPlayerStrings(), "__global__")))

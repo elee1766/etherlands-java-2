@@ -7,6 +7,8 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
+import java.util.Set;
+
 public class MapCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
@@ -27,7 +29,7 @@ public class MapCommand extends ListenerClient {
     CommandAPICommand MapCommand =
         new CommandAPICommand("map")
             .withPermission("etherlands.public")
-            .executesPlayer((this::map));
+            .executesPlayer(this::map);
     MapCommand.register();
   }
 }

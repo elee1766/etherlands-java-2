@@ -44,27 +44,6 @@ public class PlotCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand));
     ChunkCommand.withSubcommand(
-        new CommandAPICommand("set")
-            .withPermission("etherlands.public")
-            .withArguments(
-                new StringArgument("flag").replaceSuggestions(info -> getAccessFlagStrings()))
-            .withArguments(
-                new StringArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
-            .executesPlayer((sender, args) -> {}));
-    ChunkCommand.withSubcommand(
-        new CommandAPICommand("set")
-            .withPermission("etherlands.public")
-            .withArguments(
-                new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
-            .withArguments(
-                new StringArgument("player")
-                    .includeSuggestions(info -> Arrays.append(getPlayerStrings(), "__global__")))
-            .withArguments(
-                new StringArgument("flag").replaceSuggestions(info -> getAccessFlagStrings()))
-            .withArguments(
-                new StringArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
-            .executesPlayer((sender, args) -> {}));
-    ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
             .withPermission("etherlands.public")
             .executesPlayer(

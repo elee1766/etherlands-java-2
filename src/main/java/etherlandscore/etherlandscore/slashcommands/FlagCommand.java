@@ -2,14 +2,13 @@ package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.PlayerArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Group;
-import etherlandscore.etherlandscore.state.Region;
+import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Group;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -26,44 +25,50 @@ public class FlagCommand extends ListenerClient {
   }
 
   public void register() {
-    CommandAPICommand flagMenuRegionPlayer = (
-    new CommandAPICommand("region_player")
-            .withArguments(teamRegionArgument("region"))
+    CommandAPICommand flagMenuDistrictPlayer =
+        (new CommandAPICommand("district_player")
+            .withArguments(teamDistrictArgument("district"))
             .withArguments(
-                    new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(
-                    (sender, args) -> {
-                      Gamer runner = context.getGamer(sender.getUniqueId());
-                      FlagMenu.clickMenu(runner,"player","region set_player", (Region) args[0], (Player) args[1]);
-                    }));
-    CommandAPICommand flagMenuRegionGroup = (
-            new CommandAPICommand("region_group")
-                    .withArguments(teamRegionArgument("region"))
-                    .withArguments(teamGroupArgument("group"))
-                    .withPermission("etherlands.public")
-                    .executesPlayer(
-                            (sender, args) -> {
-                              Gamer runner = context.getGamer(sender.getUniqueId());
-                              FlagMenu.clickMenu(runner,"group","region set_group", (Region) args[0], (Group) args[1]);
-                            }));
+                (sender, args) -> {
+                  Gamer runner = context.getGamer(sender.getUniqueId());
+                  FlagMenu.clickMenu(
+                      runner,
+                      "player",
+                      "district set_player",
+                      (District) args[0],
+                      (Player) args[1]);
+                }));
+    CommandAPICommand flagMenuDistrictGroup =
+        (new CommandAPICommand("district_group")
+            .withArguments(teamDistrictArgument("district"))
+            .withArguments(teamGroupArgument("group"))
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer runner = context.getGamer(sender.getUniqueId());
+                  FlagMenu.clickMenu(
+                      runner, "group", "district set_group", (District) args[0], (Group) args[1]);
+                }));
     CommandAPICommand flagMenu =
-            new CommandAPICommand("menu")
-                    .withSubcommand(flagMenuRegionGroup)
-                    .withSubcommand(flagMenuRegionPlayer)
-                    .withPermission("etherlands.public")
-                    .executesPlayer((sender, args) -> {
-                      //stuff
-                    });
+        new CommandAPICommand("menu")
+            .withSubcommand(flagMenuDistrictGroup)
+            .withSubcommand(flagMenuDistrictPlayer)
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  // stuff
+                });
     CommandAPICommand FlagCommand =
-            new CommandAPICommand("flag")
-                    .withSubcommand(flagMenu)
-                    .withPermission("etherlands.public")
-                    .executesPlayer(
-                            (sender, args) -> {
-                              sender.sendMessage("global, plot");
-                            });
-
+        new CommandAPICommand("flag")
+            .withSubcommand(flagMenu)
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  sender.sendMessage("global, plot");
+                });
 
     FlagCommand.register();
   }

@@ -1,9 +1,9 @@
 package etherlandscore.etherlandscore.fibers;
 
 import etherlandscore.etherlandscore.state.Context;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Plot;
-import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.Team;
 import org.jetlang.channels.MemoryChannel;
 
 public class Channels {

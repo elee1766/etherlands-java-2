@@ -44,8 +44,8 @@ public final class EtherlandsCore extends JavaPlugin {
     getServer().getPluginManager().registerEvents(blockEventListener, this);
 
     new CommandDisabler().disable();
-    Fiber regionCommandFiber = new ThreadFiber();
-    modules.add(new RegionCommand(channels,regionCommandFiber));
+    Fiber districtCommandFiber = new ThreadFiber();
+    modules.add(new DistrictCommand(channels, districtCommandFiber));
     Fiber groupCommandFiber = new ThreadFiber();
     modules.add(new GroupCommand(channels, groupCommandFiber));
     Fiber teamCommandFiber = new ThreadFiber();

@@ -1,34 +1,32 @@
 package etherlandscore.etherlandscore.Menus;
 
-import etherlandscore.etherlandscore.state.Group;
-import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.state.read.Group;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 
 public class GroupPrinter {
-  private final Group group;
+  private final Group writeGroup;
 
-  public GroupPrinter(Group group) {
+  public GroupPrinter(Group writeGroup) {
     super();
-    this.group = group;
+    this.writeGroup = writeGroup;
   }
 
-  public void printGroup(Player sender){
+  public void printGroup(Player sender) {
     TextComponent print = new TextComponent("");
     MessageFormatter prettyPrint = new MessageFormatter(print);
-    prettyPrint.addBar("=","GroupInfo");
+    prettyPrint.addBar("=", "GroupInfo");
 
-    Field[] fields = group.getDeclaredFields();
-    for(Field field : fields) {
+    Field[] fields = writeGroup.getDeclaredFields();
+    for (Field field : fields) {
       try {
-        prettyPrint.addField(field.getName(), String.valueOf(field.get(this.group)));
+        prettyPrint.addField(field.getName(), String.valueOf(field.get(this.writeGroup)));
       } catch (IllegalAccessException ex) {
         System.out.println(ex);
       }
     }
     prettyPrint.printOut(sender);
   }
-
 }

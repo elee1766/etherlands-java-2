@@ -6,10 +6,10 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.readonly.ReadContext;
 import etherlandscore.etherlandscore.state.Context;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.ReadContext;
+import etherlandscore.etherlandscore.state.read.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -36,22 +36,50 @@ public class ListenerClient extends ServerModule {
     register();
   }
 
+  public Argument accessFlagArgument(String nodeName) {
+    return new CustomArgument<>(
+            nodeName,
+            input -> {
+              try {
+                return AccessFlags.valueOf(input.toUpperCase());
+              } catch (Exception e) {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("flag not recognized"));
+              }
+            })
+        .replaceSuggestions(sender -> getAccessFlagStrings());
+  }
+
   public Argument cleanNameArgument(String nodeName) {
     return new CustomArgument<>(nodeName, input -> input.replaceAll("[^a-zA-Z0-9_]", ""));
   }
 
+  public Argument flagValueArgument(String nodeName) {
+    return new CustomArgument<>(
+            nodeName,
+            input -> {
+              try {
+                return FlagValue.valueOf(input.toUpperCase());
+              } catch (Exception e) {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("flag value not recognized"));
+              }
+            })
+        .replaceSuggestions(sender -> getFlagValueStrings());
+  }
+
   public Argument gamerArgument(String nodeName) {
     return new CustomArgument<Gamer>(
-        nodeName,
-        input -> {
-          Player player = Bukkit.getPlayer(input);
-          if (player != null) {
-            return context.getGamer(player.getUniqueId());
-          } else {
-            throw new CustomArgument.CustomArgumentException(
-                new CustomArgument.MessageBuilder("Player not found."));
-          }
-        })
+            nodeName,
+            input -> {
+              Player player = Bukkit.getPlayer(input);
+              if (player != null) {
+                return context.getGamer(player.getUniqueId());
+              } else {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("Player not found."));
+              }
+            })
         .replaceSuggestions(
             sender -> {
               String[] strings = getOnlinePlayerStrings();
@@ -78,11 +106,11 @@ public class ListenerClient extends ServerModule {
     return Arrays.stream(players).map(Player::getName).toArray(String[]::new);
   }
 
-  protected Player[] getOnlinePlayers(){
+  protected Player[] getOnlinePlayers() {
     String[] playerNames = getOnlinePlayerStrings();
     int playerCount = playerNames.length;
     Player[] players = new Player[playerCount];
-    for(int i = 0;i<playerCount;i++) {
+    for (int i = 0; i < playerCount; i++) {
       players[i] = Bukkit.getPlayer(playerNames[i]);
     }
     return players;
@@ -105,18 +133,68 @@ public class ListenerClient extends ServerModule {
         });
   }
 
+  public Argument teamDistrictArgument(String nodeName) {
+    return new CustomArgument<>(
+            nodeName,
+            (sender, input) -> {
+              Player player = Bukkit.getPlayer(sender.getName());
+              if (player != null) {
+                Gamer gamer = state().getGamer(player.getUniqueId());
+                Team writeTeam = gamer.getTeamObject();
+                return writeTeam.getDistrict(input);
+              } else {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("District not found."));
+              }
+            })
+        .replaceSuggestions(
+            sender -> {
+              Player player = Bukkit.getPlayer(sender.sender().getName());
+              if (player != null) {
+                Gamer gamer = state().getGamer(player.getUniqueId());
+                return gamer.getTeamObject().getDistricts().keySet().toArray(new String[0]);
+              }
+              return null;
+            });
+  }
+
+  public Argument teamGroupArgument(String nodeName) {
+    return new CustomArgument<>(
+            nodeName,
+            (sender, input) -> {
+              Player player = Bukkit.getPlayer(sender.getName());
+              if (player != null) {
+                Gamer gamer = state().getGamer(player.getUniqueId());
+                Team writeTeam = gamer.getTeamObject();
+                return writeTeam.getGroup(input);
+              } else {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("Group not found."));
+              }
+            })
+        .replaceSuggestions(
+            sender -> {
+              Player player = Bukkit.getPlayer(sender.sender().getName());
+              if (player != null) {
+                Gamer gamer = state().getGamer(player.getUniqueId());
+                return gamer.getTeamObject().getGroups().keySet().toArray(new String[0]);
+              }
+              return null;
+            });
+  }
+
   public Argument teamMemberArgument(String nodeName) {
     return new CustomArgument<>(
-        nodeName,
-        input -> {
-          Player player = Bukkit.getPlayer(input);
-          if (player != null) {
-            return context.getGamer(player.getUniqueId());
-          } else {
-            throw new CustomArgument.CustomArgumentException(
-                new CustomArgument.MessageBuilder("Player not found."));
-          }
-        })
+            nodeName,
+            input -> {
+              Player player = Bukkit.getPlayer(input);
+              if (player != null) {
+                return context.getGamer(player.getUniqueId());
+              } else {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("Player not found."));
+              }
+            })
         .replaceSuggestions(
             sender -> {
               String[] strings = getOnlinePlayerStrings();
@@ -124,82 +202,5 @@ public class ListenerClient extends ServerModule {
               list.remove(sender.sender().getName());
               return list.toArray(new String[0]);
             });
-  }
-
-  public Argument teamGroupArgument(String nodeName) {
-    return new CustomArgument<>(
-        nodeName,
-        (sender,input) -> {
-          Player player = Bukkit.getPlayer(sender.getName());
-          if (player != null) {
-            Gamer gamer = state().getGamer(player.getUniqueId());
-            Team team  = gamer.getTeamObject();
-            return team.getGroup(input);
-          } else {
-            throw new CustomArgument.CustomArgumentException(
-                new CustomArgument.MessageBuilder("Group not found."));
-          }
-        })
-        .replaceSuggestions(
-            sender -> {
-              Player player = Bukkit.getPlayer(sender.sender().getName());
-              if(player!=null){
-                Gamer gamer = state().getGamer(player.getUniqueId());
-                return gamer.getTeamObject().getGroups().keySet().toArray(new String[0]);
-              }
-              return null;
-            });
-  }
-  public Argument teamRegionArgument(String nodeName) {
-    return new CustomArgument<>(
-        nodeName,
-        (sender,input) -> {
-          Player player = Bukkit.getPlayer(sender.getName());
-          if (player != null) {
-            Gamer gamer = state().getGamer(player.getUniqueId());
-            Team team  = gamer.getTeamObject();
-            return team.getRegion(input);
-          } else {
-            throw new CustomArgument.CustomArgumentException(
-                new CustomArgument.MessageBuilder("Region not found."));
-          }
-        })
-        .replaceSuggestions(
-            sender -> {
-              Player player = Bukkit.getPlayer(sender.sender().getName());
-              if(player!=null){
-                Gamer gamer = state().getGamer(player.getUniqueId());
-                return gamer.getTeamObject().getRegions().keySet().toArray(new String[0]);
-              }
-              return null;
-            });
-  }
-  public Argument accessFlagArgument(String nodeName) {
-    return new CustomArgument<>(
-        nodeName,
-        input -> {
-          try{
-            return AccessFlags.valueOf(input.toUpperCase());
-          }catch(Exception e){
-            throw new CustomArgument.CustomArgumentException(
-                new CustomArgument.MessageBuilder("flag not recognized"));
-          }
-        })
-        .replaceSuggestions(
-            sender -> getAccessFlagStrings());
-  }
-  public Argument flagValueArgument(String nodeName) {
-    return new CustomArgument<>(
-        nodeName,
-        input -> {
-          try{
-            return FlagValue.valueOf(input.toUpperCase());
-          }catch(Exception e){
-            throw new CustomArgument.CustomArgumentException(
-                new CustomArgument.MessageBuilder("flag value not recognized"));
-          }
-        })
-        .replaceSuggestions(
-            sender -> getFlagValueStrings());
   }
 }

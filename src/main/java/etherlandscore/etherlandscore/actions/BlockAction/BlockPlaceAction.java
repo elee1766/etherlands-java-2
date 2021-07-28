@@ -2,9 +2,9 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.readonly.ReadContext;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.ReadContext;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockPlaceAction extends PermissionedAction {
@@ -23,12 +23,12 @@ public class BlockPlaceAction extends PermissionedAction {
         getContext()
             .getPlot(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
 
-    boolean canPerform = plot.canGamerPerform(this.flag,gamer);
-    //ops can always destroy
-    if(gamer.getPlayer().isOp()) {
+    boolean canPerform = plot.canGamerPerform(this.flag, gamer);
+    // ops can always destroy
+    if (gamer.getPlayer().isOp()) {
       return super.process();
     }
-    if(!canPerform){
+    if (!canPerform) {
       return super.rollback();
     }
     return super.process();

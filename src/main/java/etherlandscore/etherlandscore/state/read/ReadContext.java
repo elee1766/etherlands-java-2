@@ -1,12 +1,9 @@
-package etherlandscore.etherlandscore.readonly;
+package etherlandscore.etherlandscore.state.read;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.Context;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Plot;
-import etherlandscore.etherlandscore.state.Team;
 
 import java.util.Map;
 import java.util.UUID;
@@ -18,12 +15,16 @@ public class ReadContext {
     this.context = context;
   }
 
+  public void createTeam(Channels channels, Gamer gamer, String name) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_create_team, gamer, name));
+  }
+
   public Gamer getGamer(UUID uuid) {
     return context.getGamer(uuid);
   }
 
   public Map<UUID, Gamer> getGamers() {
-    return context.getGamers();
+    return (Map) context.getGamers();
   }
 
   public Plot getPlot(Integer id) {
@@ -35,7 +36,7 @@ public class ReadContext {
   }
 
   public Map<Integer, Plot> getPlots() {
-    return context.getPlots();
+    return (Map) context.getPlots();
   }
 
   public Team getTeam(String team) {
@@ -43,10 +44,7 @@ public class ReadContext {
   }
 
   public Map<String, Team> getTeams() {
-    return context.getTeams();
-  }
-  public void createTeam(Channels channels, Gamer gamer, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_create_team, gamer, name));
+    return (Map) context.getTeams();
   }
 
   public boolean hasGamer(UUID uniqueId) {

@@ -6,7 +6,7 @@ import etherlandscore.etherlandscore.Menus.GamerPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
-import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.read.Gamer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 

@@ -9,8 +9,9 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
-import etherlandscore.etherlandscore.readonly.ReadContext;
-import etherlandscore.etherlandscore.state.*;
+import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.state.read.ReadContext;
+import etherlandscore.etherlandscore.state.write.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
@@ -47,16 +48,8 @@ public class MasterService extends ServerModule {
         return new ReadContext(context);
     }
 
-    private void gamer_update(Gamer gamer) {
-        this.channels.gamer_update.publish(gamer);
-    }
-
     private void global_update(){
         this.channels.global_update.publish(context);
-    }
-
-    private void plot_update(Plot plot) {
-        this.channels.plot_update.publish(plot);
     }
 
     private void process_command(Message<MasterCommand> message) {
@@ -64,34 +57,34 @@ public class MasterService extends ServerModule {
         switch (message.getCommand()) {
             case context_create_gamer -> context.context_create_gamer((UUID) _args[0]);
             // gamer commands
-            case gamer_add_friend ->context. gamer_add_friend((Gamer) _args[0], (Gamer) _args[1]);
-            case gamer_remove_friend -> context.gamer_remove_friend((Gamer) _args[0],(Gamer) _args[1]);
-            case gamer_link_address -> context.gamer_link_address((Gamer) _args[0], (String) _args[1]);
+            case gamer_add_friend ->context. gamer_add_friend((WriteGamer) _args[0], (WriteGamer) _args[1]);
+            case gamer_remove_friend -> context.gamer_remove_friend((WriteGamer) _args[0],(WriteGamer) _args[1]);
+            case gamer_link_address -> context.gamer_link_address((WriteGamer) _args[0], (String) _args[1]);
             //plot commands
             case plot_update_plot -> context.plot_update_plot((Integer) _args[0], (Integer) _args[1], (Integer) _args[2],(String) _args[3]);
-            case plot_set_owner -> context.plot_set_owner((Plot) _args[0], (String) _args[1]);
-            case plot_reclaim_plot -> context.plot_reclaim_plot((Plot) _args[0]);
+            case plot_set_owner -> context.plot_set_owner((WritePlot) _args[0], (String) _args[1]);
+            case plot_reclaim_plot -> context.plot_reclaim_plot((WritePlot) _args[0]);
             //team commands
-            case team_add_gamer -> context.team_add_gamer((Team) _args[0], (Gamer) _args[1]);
-            case team_remove_gamer -> context.team_remove_gamer((Team) _args[0], (Gamer) _args[1]);
-            case team_create_team -> context.team_create_team((Gamer) _args[0], (String) _args[1]);
-            case team_delete_team -> context.team_delete_team((Team) _args[0]);
-            case team_create_group -> context.team_create_group((Team) _args[0], (String) _args[1]);
-            case team_delete_group -> context.team_delete_group((Team) _args[0], (Group) _args[1]);
-            case team_create_region -> context.team_create_region((Team) _args[0], (String) _args[1]);
-            case team_delete_region -> context.team_delete_region((Team) _args[0], (Region) _args[1]);
-            case team_delegate_plot -> context.team_delegate_plot((Team)_args[0], (Plot) _args[1]);
-            // region commands
-            case region_add_plot -> context.region_add_plot((Region) _args[0], (Plot) _args[1]);
-            case region_remove_plot -> context.region_remove_plot((Region) _args[0], (Plot) _args[1]);
-            case region_set_priority ->context.region_set_priority((Region) _args[0], (Integer) _args[1]);
+            case team_add_gamer -> context.team_add_gamer((WriteTeam) _args[0], (WriteGamer) _args[1]);
+            case team_remove_gamer -> context.team_remove_gamer((WriteTeam) _args[0], (WriteGamer) _args[1]);
+            case team_create_team -> context.team_create_team((WriteGamer) _args[0], (String) _args[1]);
+            case team_delete_team -> context.team_delete_team((WriteTeam) _args[0]);
+            case team_create_group -> context.team_create_group((WriteTeam) _args[0], (String) _args[1]);
+            case team_delete_group -> context.team_delete_group((WriteTeam) _args[0], (WriteGroup) _args[1]);
+            case team_create_district -> context.team_create_district((WriteTeam) _args[0], (String) _args[1]);
+            case team_delete_district -> context.team_delete_district((WriteTeam) _args[0], (WriteDistrict) _args[1]);
+            case team_delegate_plot -> context.team_delegate_plot((WriteTeam)_args[0], (WritePlot) _args[1]);
+            // district commands
+            case district_add_plot -> context.district_add_plot((WriteDistrict) _args[0], (WritePlot) _args[1]);
+            case district_remove_plot -> context.district_remove_plot((WriteDistrict) _args[0], (WritePlot) _args[1]);
+            case district_set_priority ->context.district_set_priority((WriteDistrict) _args[0], (Integer) _args[1]);
             //group commands
-            case group_add_gamer -> context.group_add_gamer((Group) _args[0], (Gamer) _args[1]);
-            case group_remove_gamer -> context.group_remove_gamer((Group) _args[0], (Gamer) _args[1]);
-            case group_set_priority -> context.group_set_priority((Group) _args[0], (Integer) _args[1]);
+            case group_add_gamer -> context.group_add_gamer((WriteGroup) _args[0], (WriteGamer) _args[1]);
+            case group_remove_gamer -> context.group_remove_gamer((WriteGroup) _args[0], (WriteGamer) _args[1]);
+            case group_set_priority -> context.group_set_priority((WriteGroup) _args[0], (Integer) _args[1]);
             //flag commands
-            case region_set_group_permission -> context.region_set_group_permission((Region) _args[0], (Group) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
-            case region_set_gamer_permission -> context.region_set_gamer_permission((Region) _args[0], (Gamer) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
+            case district_set_group_permission -> context.district_set_group_permission((WriteDistrict) _args[0], (WriteGroup) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
+            case district_set_gamer_permission -> context.district_set_gamer_permission((WriteDistrict) _args[0], (WriteGamer) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
         }
         global_update();
         save();
@@ -99,10 +92,6 @@ public class MasterService extends ServerModule {
 
     public void save() {
         globalStatePersister.overwrite(gson.toJson(context));
-    }
-
-    private void team_update(Team team) {
-        this.channels.team_update.publish(team);
     }
 
 }

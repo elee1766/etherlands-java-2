@@ -1,5 +1,9 @@
-package etherlandscore.etherlandscore.state;
+package etherlandscore.etherlandscore.state.write;
 
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Group;
+import etherlandscore.etherlandscore.state.read.StateHolder;
+import etherlandscore.etherlandscore.state.read.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -10,7 +14,7 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class Gamer extends StateHolder {
+public class WriteGamer extends StateHolder implements Gamer {
 
   private final UUID uuid;
   private final Set<String> groups = new HashSet<>();
@@ -18,7 +22,7 @@ public class Gamer extends StateHolder {
   private String address;
   private Set<UUID> friends;
 
-  public Gamer(UUID uuid) {
+  public WriteGamer(UUID uuid) {
     this.uuid = uuid;
   }
 
@@ -26,16 +30,23 @@ public class Gamer extends StateHolder {
     friends.add(gamer.getUuid());
   }
 
-  public void addGroup(Group group) {
-    groups.add(group.getName());
+  public void addGroup(Group writeGroup) {
+    groups.add(writeGroup.getName());
   }
 
   public void clearGroups() {
     groups.clear();
   }
 
-  public boolean hasFriend(Player player) { return this.getFriends().contains(player.getUniqueId());}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Gamer gamer = (Gamer) o;
+    return getUuid() != null ? getUuid().equals(gamer.getUuid()) : gamer.getUuid() == null;
+  }
 
+  @Override
   public void friendList() {
     Set<UUID> flist = this.getFriends();
     StringBuilder friends = new StringBuilder();
@@ -45,18 +56,16 @@ public class Gamer extends StateHolder {
     this.getPlayer().sendMessage(friends.toString());
   }
 
+  @Override
   public String getAddress() {
     return address;
-  }
-
-  public Set<String> getGroups() {
-    return groups;
   }
 
   public void setAddress(String address) {
     this.address = address;
   }
 
+  @Override
   public Field[] getDeclaredFields() {
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field f : fields) {
@@ -65,6 +74,7 @@ public class Gamer extends StateHolder {
     return fields;
   }
 
+  @Override
   public Set<UUID> getFriends() {
     if (friends == null) {
       friends = new HashSet<>();
@@ -72,31 +82,52 @@ public class Gamer extends StateHolder {
     return friends;
   }
 
+  @Override
   public Group getGroupObject(String name) {
     return state().getTeam(this.getTeamName()).getGroup(name);
   }
 
+  @Override
+  public Set<String> getGroups() {
+    return groups;
+  }
+
+  @Override
   public Player getPlayer() {
     return Bukkit.getPlayer(uuid);
   }
 
+  @Override
   public String getTeamName() {
     return team;
   }
 
+  @Override
   public Team getTeamObject() {
     return state().getTeam(team);
   }
 
+  @Override
   public UUID getUuid() {
     return uuid;
   }
 
+  @Override
+  public boolean hasFriend(Player player) {
+    return this.getFriends().contains(player.getUniqueId());
+  }
+
+  @Override
   public boolean hasTeam() {
     if (team == null) {
       return false;
     }
     return team.equals("");
+  }
+
+  @Override
+  public int hashCode() {
+    return getUuid() != null ? getUuid().hashCode() : 0;
   }
 
   public void removeFriend(Gamer gamer) {
@@ -111,21 +142,8 @@ public class Gamer extends StateHolder {
     this.team = team;
     if (hasTeam()) {
       groups.add("member");
-    }else{
+    } else {
       groups.remove("member");
     }
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Gamer gamer = (Gamer) o;
-    return getUuid() != null ? getUuid().equals(gamer.getUuid()) : gamer.getUuid() == null;
-  }
-
-  @Override
-  public int hashCode() {
-    return getUuid() != null ? getUuid().hashCode() : 0;
   }
 }

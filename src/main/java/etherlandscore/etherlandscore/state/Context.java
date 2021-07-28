@@ -2,6 +2,9 @@ package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
 
 import java.util.HashMap;
@@ -10,39 +13,62 @@ import java.util.UUID;
 
 public class Context {
 
-  private final Map<UUID, Gamer> gamers = new HashMap<>();
-  private final Map<String, Team> teams = new HashMap<>();
+  private final Map<UUID, WriteGamer> gamers = new HashMap<>();
+  private final Map<String, WriteTeam> teams = new HashMap<>();
   private final Map<String, UUID> linked = new HashMap<>();
-  private final Map<Integer, Plot> plots = new HashMap<>();
+  private final Map<Integer, WritePlot> plots = new HashMap<>();
   // public final Map<Integer, Map<Integer, Integer>> plotLocations = new HashMap<>();
   private final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
 
   public void context_create_gamer(UUID uuid) {
     if (!this.getGamers().containsKey(uuid)) {
-      Gamer gamer = new Gamer(uuid);
+      WriteGamer gamer = new WriteGamer(uuid);
       this.getGamers().put(uuid, gamer);
     }
   }
 
+  public void district_add_plot(WriteDistrict district, WritePlot plot) {
+    plot.addDistrict(district);
+    district.addPlot(plot);
+  }
 
-  public void gamer_add_friend(Gamer a, Gamer b) {
+  public void district_remove_plot(WriteDistrict district, WritePlot plot) {
+    plot.removeDistrict(district);
+    district.removePlot(plot);
+  }
+
+  public void district_set_gamer_permission(
+      WriteDistrict district, WriteGamer gamer, AccessFlags flag, FlagValue value) {
+    district.setGamerPermission(gamer, flag, value);
+  }
+
+  public void district_set_group_permission(
+      WriteDistrict district, WriteGroup writeGroup, AccessFlags flag, FlagValue value) {
+    district.setGroupPermission(writeGroup, flag, value);
+  }
+
+  public void district_set_priority(WriteDistrict district, Integer priority) {
+    district.setPriority(priority);
+  }
+
+  public void gamer_add_friend(WriteGamer a, Gamer b) {
     a.addFriend(b);
   }
 
-  public void gamer_link_address(Gamer gamer, String address) {
+  public void gamer_link_address(WriteGamer gamer, String address) {
     gamer.setAddress(address);
     getLinks().put(address, gamer.getUuid());
   }
 
-  public void gamer_remove_friend(Gamer a, Gamer b) {
+  public void gamer_remove_friend(WriteGamer a, Gamer b) {
     a.removeFriend(b);
   }
 
-  public Gamer getGamer(UUID uuid) {
+  public WriteGamer getGamer(UUID uuid) {
     return gamers.get(uuid);
   }
 
-  public Map<UUID, Gamer> getGamers() {
+  public Map<UUID, WriteGamer> getGamers() {
     return gamers;
   }
 
@@ -50,11 +76,11 @@ public class Context {
     return linked;
   }
 
-  public Plot getPlot(Integer x, Integer z) {
+  public WritePlot getPlot(Integer x, Integer z) {
     return getPlot(plotLocations.get(x, z));
   }
 
-  public Plot getPlot(Integer id) {
+  public WritePlot getPlot(Integer id) {
     return plots.get(id);
   }
 
@@ -62,7 +88,7 @@ public class Context {
     return plotLocations;
   }
 
-  public Map<Integer, Plot> getPlots() {
+  public Map<Integer, WritePlot> getPlots() {
     return plots;
   }
 
@@ -70,120 +96,99 @@ public class Context {
     return teams.get(team);
   }
 
-  public Map<String, Team> getTeams() {
+  public Map<String, WriteTeam> getTeams() {
     return teams;
   }
 
-  public void group_add_gamer(Group group, Gamer gamer) {
+  public void group_add_gamer(WriteGroup group, WriteGamer gamer) {
     gamer.addGroup(group);
     group.addMember(gamer);
   }
 
-  public void group_remove_gamer(Group group, Gamer gamer) {
+  public void group_remove_gamer(WriteGroup group, WriteGamer gamer) {
     group.removeMember(gamer);
     gamer.removeGroup(group.getName());
   }
 
-  public void group_set_priority(Group group, Integer b) {
+  public void group_set_priority(WriteGroup group, Integer b) {
     group.setPriority(b);
   }
 
-  public void plot_reclaim_plot(Plot plot) {
+  public void plot_reclaim_plot(WritePlot plot) {
     plot.removeTeam();
   }
 
-  public void plot_set_owner(Plot plot, String address) {
+  public void plot_set_owner(WritePlot plot, String address) {
     UUID ownerUUID = this.getLinks().getOrDefault(address, null);
     plot.setOwner(address, ownerUUID);
   }
 
   public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {
     if (!this.getPlots().containsKey(id)) {
-      this.getPlots().put(id, new Plot(id, x, z, owner));
+      this.getPlots().put(id, new WritePlot(id, x, z, owner));
     }
-    Plot plot = this.getPlot(id);
+    WritePlot plot = this.getPlot(id);
     this.getPlotLocations().put(plot.getX(), plot.getZ(), plot.getId());
     plot_set_owner(plot, owner);
   }
 
-  public void region_add_plot(Region region, Plot plot) {
-    plot.addRegion(region);
-    region.addPlot(plot);
-  }
-
-  public void region_remove_plot(Region region, Plot plot) {
-    plot.removeRegion(region);
-    region.removePlot(plot);
-  }
-
-  public void region_set_group_permission(Region region, Group group, AccessFlags flag, FlagValue value) {
-    region.setGroupPermission(group,flag,value);
-  }
-  public void region_set_gamer_permission(Region region, Gamer gamer, AccessFlags flag, FlagValue value) {
-    region.setGamerPermission(gamer,flag,value);
-  }
-
-  public void region_set_priority(Region region, Integer priority) {
-    region.setPriority(priority);
-  }
-
-  public void team_add_gamer(Team team, Gamer gamer) {
+  public void team_add_gamer(WriteTeam team, WriteGamer gamer) {
     team.addMember(gamer);
     gamer.setTeam(team.getName());
   }
 
-  public void team_create_group(Team team, String name) {
+  public void team_create_district(WriteTeam team, String name) {
+    team.createDistrict(name);
+  }
+
+  public void team_create_group(WriteTeam team, String name) {
     team.createGroup(name);
   }
 
-  public void team_create_region(Team team, String name) {
-    team.createRegion(name);
-  }
-
-  public void team_create_team(Gamer gamer, String name) {
-    Team team = new Team(gamer, name);
+  public void team_create_team(WriteGamer gamer, String name) {
+    WriteTeam team = new WriteTeam(gamer, name);
     if (!this.getTeams().containsKey(name)) {
       this.getTeams().put(name, team);
       gamer.setTeam(team.getName());
     }
   }
 
-  public void team_delegate_plot(Team team, Plot plot) {
+  public void team_delegate_plot(WriteTeam team, WritePlot plot) {
     plot_reclaim_plot(plot);
     team.addPlot(plot);
     plot.setTeam(team.getName());
   }
 
-  public void team_delete_group(Team team, Group group) {
+  public void team_delete_district(WriteTeam team, WriteDistrict writeDistrict) {
+    for (Integer plotId : team.getPlots()) {
+      getPlot(plotId).removeDistrict(writeDistrict);
+    }
+    team.deleteDistrict(writeDistrict.getName());
+  }
+
+  public void team_delete_group(WriteTeam team, WriteGroup writeGroup) {
     for (UUID member : team.getMembers()) {
       getGamer(member).setTeam("");
     }
     getGamer(team.getOwnerUUID()).setTeam("");
-    team.deleteGroup(group.getName());
+    team.deleteGroup(writeGroup.getName());
   }
 
-  public void team_delete_region(Team team, Region region) {
-    for (Integer plotId: team.getPlots()) {
-      getPlot(plotId).removeRegion(region);
-    }
-    team.deleteRegion(region.getName());
-  }
-
-  public void team_delete_team(Team team) {
-    for (UUID member : team.getMembers()) {
-      Gamer gamer = getGamer(member);
+  public void team_delete_team(WriteTeam writeTeam) {
+    for (UUID member : writeTeam.getMembers()) {
+      WriteGamer gamer = getGamer(member);
       gamer.setTeam("");
       gamer.clearGroups();
     }
-    getGamer(team.getOwnerUUID()).setTeam("");
-    for (Integer id : team.getPlots()) {
+    getGamer(writeTeam.getOwnerUUID()).setTeam("");
+    for (Integer id : writeTeam.getPlots()) {
       getPlot(id).removeTeam();
     }
 
-  teams.remove(team.getName());
+    teams.remove(writeTeam.getName());
   }
 
-  public void team_remove_gamer(Team team, Gamer gamer) {
+  public void team_remove_gamer(WriteTeam team, WriteGamer gamer) {
     team.removeMember(gamer);
     gamer.setTeam("");
     gamer.clearGroups();

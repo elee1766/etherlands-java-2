@@ -3,21 +3,19 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.PlotPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.EthersCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Plot;
-import etherlandscore.etherlandscore.state.Team;
-import etherlandscore.etherlandscore.stateWrites.PlotWrites;
-import etherlandscore.etherlandscore.stateWrites.TeamWrites;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.sender.PlotSender;
+import etherlandscore.etherlandscore.state.sender.TeamSender;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bouncycastle.util.Arrays;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -52,13 +50,13 @@ public class PlotCommand extends ListenerClient {
                   Chunk chunk = loc.getChunk();
                   int x = chunk.getX();
                   int z = chunk.getZ();
-                  Plot plot = context.getPlot(x, z);
-                  if (plot == null) {
+                  Plot writePlot = context.getPlot(x, z);
+                  if (writePlot == null) {
                     TextComponent unclaimed = new TextComponent("This Land is unclaimed");
                     unclaimed.setColor(ChatColor.YELLOW);
                     sender.sendMessage(unclaimed);
                   } else {
-                    PlotPrinter printer = new PlotPrinter(plot);
+                    PlotPrinter printer = new PlotPrinter(writePlot);
                     printer.printPlot(sender);
                   }
                 }));
@@ -67,17 +65,18 @@ public class PlotCommand extends ListenerClient {
             .withArguments(
                 new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
             .withPermission("etherlands.public")
-            .executes((sender, args) -> {
-              Plot plot = context.getPlot((int)args[0]);
-              if (plot == null) {
-                TextComponent unclaimed = new TextComponent("This Land is unclaimed");
-                unclaimed.setColor(ChatColor.YELLOW);
-                sender.sendMessage(unclaimed);
-              } else {
-                PlotPrinter printer = new PlotPrinter(plot);
-                printer.printPlot((Player) sender);
-              }
-            }));
+            .executes(
+                (sender, args) -> {
+                  Plot writePlot = context.getPlot((int) args[0]);
+                  if (writePlot == null) {
+                    TextComponent unclaimed = new TextComponent("This Land is unclaimed");
+                    unclaimed.setColor(ChatColor.YELLOW);
+                    sender.sendMessage(unclaimed);
+                  } else {
+                    PlotPrinter printer = new PlotPrinter(writePlot);
+                    printer.printPlot((Player) sender);
+                  }
+                }));
 
     ChunkCommand.withSubcommand(
         new CommandAPICommand("update")
@@ -106,7 +105,7 @@ public class PlotCommand extends ListenerClient {
                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
                       i++) {
                     if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-                      PlotWrites.reclaimPlot(this.channels, context.getPlot(i));
+                      PlotSender.reclaimPlot(this.channels, context.getPlot(i));
                     }
                   }
                 }));
@@ -119,9 +118,9 @@ public class PlotCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Chunk chunk = gamer.getPlayer().getChunk();
-                  Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
-                  if (plot.getOwner().equals(gamer.getUuid())) {
-                    PlotWrites.reclaimPlot(this.channels, plot);
+                  Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
+                  if (writePlot.getOwner().equals(gamer.getUuid())) {
+                    PlotSender.reclaimPlot(this.channels, writePlot);
                   }
                 }));
     ChunkCommand.withSubcommand(
@@ -131,13 +130,13 @@ public class PlotCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
+                  Team writeTeam = gamer.getTeamObject();
                   IntegerRange range = (IntegerRange) args[0];
                   for (int i = range.getLowerBound();
                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
                       i++) {
                     if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-                      TeamWrites.delegatePlot(this.channels, context.getPlot(i),team);
+                      TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
                     }
                   }
                 }));
@@ -147,11 +146,11 @@ public class PlotCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
+                  Team writeTeam = gamer.getTeamObject();
                   Chunk chunk = gamer.getPlayer().getChunk();
-                  Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
-                  if (plot.getOwner().equals(gamer.getUuid())) {
-                    TeamWrites.delegatePlot(this.channels, plot, team);
+                  Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
+                  if (writePlot.getOwner().equals(gamer.getUuid())) {
+                    TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
                   }
                 }));
     ChunkCommand.register();

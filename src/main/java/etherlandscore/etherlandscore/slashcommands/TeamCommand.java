@@ -5,14 +5,13 @@ import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
-import etherlandscore.etherlandscore.Menus.GamerPrinter;
 import etherlandscore.etherlandscore.Menus.TeamPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Plot;
-import etherlandscore.etherlandscore.state.Team;
-import etherlandscore.etherlandscore.stateWrites.TeamWrites;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.sender.TeamSender;
 import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -69,7 +68,7 @@ public class TeamCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(
                 (sender, args) -> {
-                  Player player = (Player)args[0];
+                  Player player = (Player) args[0];
                   TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]));
                   printer.printTeam(sender);
                 }));
@@ -85,7 +84,8 @@ public class TeamCommand extends ListenerClient {
                     return;
                   }
                   if (context.hasGamer(sender.getUniqueId())) {
-                    context.createTeam(this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
+                    context.createTeam(
+                        this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
                     sender.sendMessage("team created!");
                   }
                 }));
@@ -99,13 +99,14 @@ public class TeamCommand extends ListenerClient {
                   Gamer inviter = context.getGamer(sender.getUniqueId());
                   Gamer receiver = context.getGamer(((Player) args[0]).getUniqueId());
                   if (inviter != null) {
-                    Team team = inviter.getTeamObject();
-                    if (team != null) {
-                      if (team.canInvite(inviter)) {
-                        if (!this.invites.containsKey(team.getName())) {
-                          this.invites.put(team.getName(), new HashMap<>());
+                    Team writeTeam = inviter.getTeamObject();
+                    if (writeTeam != null) {
+                      if (writeTeam.canInvite(inviter)) {
+                        if (!this.invites.containsKey(writeTeam.getName())) {
+                          this.invites.put(writeTeam.getName(), new HashMap<>());
                         }
-                        team.inviteGamer(this.invites.get(team.getName()), receiver.getUuid());
+                        writeTeam.inviteGamer(
+                            this.invites.get(writeTeam.getName()), receiver.getUuid());
                         receiver
                             .getPlayer()
                             .sendMessage("you have been invited to " + inviter.getTeamName());
@@ -131,7 +132,7 @@ public class TeamCommand extends ListenerClient {
                     if (team != null) {
                       if (team.canJoin(
                           this.invites.getOrDefault(team.getName(), new HashMap<>()), joiner)) {
-                        TeamWrites.addMember(this.channels, joiner, team);
+                        TeamSender.addMember(this.channels, joiner, team);
                         sender.sendMessage("welcome to " + args[0]);
                       } else {
                         sender.sendMessage("you must be invited before joining " + args[0]);
@@ -146,11 +147,11 @@ public class TeamCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   if (!gamer.getTeamName().equals("")) {
-                    Team team = context.getTeam(gamer.getTeamName());
-                    if (team.getOwnerUUID().equals(gamer.getUuid())) {
+                    Team writeTeam = context.getTeam(gamer.getTeamName());
+                    if (writeTeam.getOwnerUUID().equals(gamer.getUuid())) {
                       sender.sendMessage("you cannot leave the team you own");
                     } else {
-                      TeamWrites.removeMember(channels, gamer, team);
+                      TeamSender.removeMember(channels, gamer, writeTeam);
                       sender.sendMessage("you have left " + gamer.getTeamName());
                     }
                   } else {
@@ -165,10 +166,10 @@ public class TeamCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer manager = context.getGamer(sender.getUniqueId());
                   Gamer kicked = (Gamer) args[0];
-                  Team team = manager.getTeamObject();
-                  if (team.isManager(manager)) {
-                    if (!team.isManager(kicked)) {
-                      TeamWrites.removeMember(channels, kicked, team);
+                  Team writeTeam = manager.getTeamObject();
+                  if (writeTeam.isManager(manager)) {
+                    if (!writeTeam.isManager(kicked)) {
+                      TeamSender.removeMember(channels, kicked, writeTeam);
                       sender.sendMessage("you kicked " + kicked.getPlayer().getName());
                     }
                     {
@@ -187,15 +188,15 @@ public class TeamCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer manager = context.getGamer(sender.getUniqueId());
                   Gamer kicked = (Gamer) args[0];
-                  Team team = manager.getTeamObject();
-                  if (team.isOwner(manager)) {
-                    TeamWrites.removeMember(channels, kicked, team);
+                  Team writeTeam = manager.getTeamObject();
+                  if (writeTeam.isOwner(manager)) {
+                    TeamSender.removeMember(channels, kicked, writeTeam);
                     sender.sendMessage("you kicked " + kicked.getPlayer().getName());
                     return;
                   }
-                  if (team.isManager(manager)) {
-                    if (!team.isManager(kicked)) {
-                      TeamWrites.removeMember(channels, kicked, team);
+                  if (writeTeam.isManager(manager)) {
+                    if (!writeTeam.isManager(kicked)) {
+                      TeamSender.removeMember(channels, kicked, writeTeam);
                       sender.sendMessage("you kicked " + kicked.getPlayer().getName());
                     }
                     {
@@ -213,13 +214,13 @@ public class TeamCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
+                  Team writeTeam = gamer.getTeamObject();
                   IntegerRange range = (IntegerRange) args[0];
                   for (int i = range.getLowerBound();
                       i <= Math.min(context.getPlots().size(), range.getUpperBound());
                       i++) {
                     if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-                      TeamWrites.delegatePlot(this.channels, context.getPlot(i), team);
+                      TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
                     }
                   }
                 }));
@@ -229,11 +230,11 @@ public class TeamCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
+                  Team writeTeam = gamer.getTeamObject();
                   Chunk chunk = gamer.getPlayer().getChunk();
-                  Plot plot = context.getPlot(chunk.getX(), chunk.getZ());
-                  if (plot.getOwner().equals(gamer.getUuid())) {
-                    TeamWrites.delegatePlot(this.channels, plot, team);
+                  Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
+                  if (writePlot.getOwner().equals(gamer.getUuid())) {
+                    TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
                   }
                 }));
 
@@ -245,10 +246,10 @@ public class TeamCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer manager = context.getGamer(sender.getUniqueId());
                   String name = (String) args[0];
-                  Team team = manager.getTeamObject();
-                  if (team.isOwner(manager)) {
+                  Team writeTeam = manager.getTeamObject();
+                  if (writeTeam.isOwner(manager)) {
                     if (manager.getTeamObject().getName().equals(name)) {
-                      TeamWrites.delete(channels, team);
+                      TeamSender.delete(channels, writeTeam);
                     }
                   }
                 }));
@@ -256,11 +257,11 @@ public class TeamCommand extends ListenerClient {
     TeamCommand.register();
   }
 
-  private void team_info(CommandSender sender, Team team) {
-    if(team==null){
+  private void team_info(CommandSender sender, Team writeTeam) {
+    if (writeTeam == null) {
       return;
     }
-    sender.sendMessage("team name:" + team.getName());
-    sender.sendMessage("team owner:" + team.getOwner());
+    sender.sendMessage("team name:" + writeTeam.getName());
+    sender.sendMessage("team owner:" + writeTeam.getOwner());
   }
 }

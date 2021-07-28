@@ -1,6 +1,6 @@
 package etherlandscore.etherlandscore.actions;
 
-import etherlandscore.etherlandscore.readonly.ReadContext;
+import etherlandscore.etherlandscore.state.read.ReadContext;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 

@@ -1,17 +1,15 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import etherlandscore.etherlandscore.Menus.GamerPrinter;
 import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.state.Group;
-import etherlandscore.etherlandscore.state.Team;
-import etherlandscore.etherlandscore.stateWrites.GroupWrites;
-import etherlandscore.etherlandscore.stateWrites.TeamWrites;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Group;
+import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.sender.GroupSender;
+import etherlandscore.etherlandscore.state.sender.TeamSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -42,24 +40,27 @@ public class GroupCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
-                  if (team.isManager(gamer)) {
-                    TeamWrites.createGroup(this.channels, (String) args[0], team);
+                  Team writeTeam = gamer.getTeamObject();
+                  if (writeTeam.isManager(gamer)) {
+                    TeamSender.createGroup(this.channels, (String) args[0], writeTeam);
                   } else {
                     sender.sendMessage("ur not manager");
                   }
                 }));
     GroupCommand.withSubcommand(
-            new CommandAPICommand("info")
-                    .withArguments(new StringArgument("group").replaceSuggestions(info->getTeamStrings()))//make this suggest groups
-                    .withPermission("etherlands.public")
-                    .executesPlayer(
-                            (sender, args) -> {
-                              Gamer gamer = context.getGamer(sender.getUniqueId());
-                              Group group = context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
-                              GroupPrinter printer = new GroupPrinter(group);
-                              printer.printGroup(sender);
-                            }));
+        new CommandAPICommand("info")
+            .withArguments(
+                new StringArgument("group")
+                    .replaceSuggestions(info -> getTeamStrings())) // make this suggest groups
+            .withPermission("etherlands.public")
+            .executesPlayer(
+                (sender, args) -> {
+                  Gamer gamer = context.getGamer(sender.getUniqueId());
+                  Group writeGroup =
+                      context.getTeam(gamer.getTeamName()).getGroup((String) args[0]);
+                  GroupPrinter printer = new GroupPrinter(writeGroup);
+                  printer.printGroup(sender);
+                }));
 
     GroupCommand.withSubcommand(
         new CommandAPICommand("delete")
@@ -68,9 +69,9 @@ public class GroupCommand extends ListenerClient {
             .executesPlayer(
                 (sender, args) -> {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
-                  Team team = gamer.getTeamObject();
-                  if (team.isManager(gamer)) {
-                    TeamWrites.deleteGroup(this.channels, (String) args[0], team);
+                  Team writeTeam = gamer.getTeamObject();
+                  if (writeTeam.isManager(gamer)) {
+                    TeamSender.deleteGroup(this.channels, (String) args[0], writeTeam);
                   } else {
                     sender.sendMessage("ur not manager");
                   }
@@ -85,12 +86,12 @@ public class GroupCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer manager = context.getGamer(sender.getUniqueId());
                   Gamer subject = (Gamer) args[0];
-                  Group group = (Group) args[1];
-                  Team team = manager.getTeamObject();
-                  if (team != null) {
-                    if (team.canAction(manager, subject)) {
-                      if (subject.getTeamName().equals(team.getName())) {
-                        GroupWrites.addMember(channels, group, subject);
+                  Group writeGroup = (Group) args[1];
+                  Team writeTeam = manager.getTeamObject();
+                  if (writeTeam != null) {
+                    if (writeTeam.canAction(manager, subject)) {
+                      if (subject.getTeamName().equals(writeTeam.getName())) {
+                        GroupSender.addMember(channels, writeGroup, subject);
                       }
                     }
                   } else {
@@ -107,20 +108,18 @@ public class GroupCommand extends ListenerClient {
                 (sender, args) -> {
                   Gamer manager = context.getGamer(sender.getUniqueId());
                   Gamer subject = (Gamer) args[0];
-                  Group group = (Group) args[1];
-                  Team team = manager.getTeamObject();
-                  if (team != null) {
-                    if (team.canAction(manager, subject)) {
-                      if (subject.getTeamName().equals(team.getName())) {
-                        GroupWrites.removeMember(channels, group, subject);
+                  Group writeGroup = (Group) args[1];
+                  Team writeTeam = manager.getTeamObject();
+                  if (writeTeam != null) {
+                    if (writeTeam.canAction(manager, subject)) {
+                      if (subject.getTeamName().equals(writeTeam.getName())) {
+                        GroupSender.removeMember(channels, writeGroup, subject);
                       }
                     }
                   } else {
                     runNoTeam(sender);
                   }
                 }));
-
-
 
     GroupCommand.register();
   }

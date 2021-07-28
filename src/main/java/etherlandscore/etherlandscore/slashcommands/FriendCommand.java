@@ -4,10 +4,9 @@ import dev.jorel.commandapi.CommandAPICommand;
 import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
-import etherlandscore.etherlandscore.state.Gamer;
-import etherlandscore.etherlandscore.stateWrites.GamerWrites;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.sender.GamerSender;
 import org.jetlang.fibers.Fiber;
 
 public class FriendCommand extends ListenerClient {
@@ -39,7 +38,7 @@ public class FriendCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Gamer newFriend = (Gamer) args[0];
                   if (!gamer.getFriends().contains(newFriend.getUuid())) {
-                    GamerWrites.addFriend(this.channels, gamer, newFriend);
+                    GamerSender.addFriend(this.channels, gamer, newFriend);
                     sender.sendMessage("Friend added successfully");
                   } else {
                     sender.sendMessage("Friend failed to be added");
@@ -63,7 +62,7 @@ public class FriendCommand extends ListenerClient {
                   Gamer gamer = context.getGamer(sender.getUniqueId());
                   Gamer oldFriend = (Gamer) args[0];
                   if (gamer.getFriends().contains(oldFriend.getUuid())) {
-                    GamerWrites.removeFriend(this.channels, gamer, oldFriend);
+                    GamerSender.removeFriend(this.channels, gamer, oldFriend);
                     sender.sendMessage("Friend successfully added");
                   } else {
                     sender.sendMessage("Friend failed to be added");

@@ -67,6 +67,7 @@ public class PlotCommand extends ListenerClient {
   }
 
   void update(CommandSender sender, Object[] args) {
+    sender.sendMessage(args[0] + " is being updated...");
     IntegerRange range = (IntegerRange) args[0];
     for (int i = range.getLowerBound();
          i <= Math.min(1000000, range.getUpperBound());
@@ -74,6 +75,7 @@ public class PlotCommand extends ListenerClient {
       this.channels.ethers_command.publish(
               new Message<>(EthersCommand.ethers_query_nft, i));
     }
+    sender.sendMessage(args[0] + " have been updated");
   }
 
   void reclaim(Player sender, Object[] args) {
@@ -84,6 +86,9 @@ public class PlotCommand extends ListenerClient {
          i++) {
       if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
         PlotSender.reclaimPlot(this.channels, context.getPlot(i));
+        sender.sendMessage("Plot: " + i + " has been reclaimed");
+      }else{
+        sender.sendMessage("You do not own plot:" + i);
       }
     }
   }
@@ -94,7 +99,9 @@ public class PlotCommand extends ListenerClient {
     Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
     if (writePlot.getOwner().equals(gamer.getUuid())) {
       PlotSender.reclaimPlot(this.channels, writePlot);
+      sender.sendMessage(writePlot.getId() + " has been reclaimed");
     }
+    sender.sendMessage("You do not own this plot");
   }
 
   void delegate(Player sender, Object[] args) {
@@ -106,6 +113,9 @@ public class PlotCommand extends ListenerClient {
          i++) {
       if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
         TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
+        sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
+      }else{
+        sender.sendMessage("You do not own this plot");
       }
     }
   }
@@ -117,6 +127,9 @@ public class PlotCommand extends ListenerClient {
     Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
     if (writePlot.getOwner().equals(gamer.getUuid())) {
       TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
+      sender.sendMessage(writePlot.getId() + " has been delegated to " + writeTeam.getName());
+    }else{
+      sender.sendMessage("You do not own this plot");
     }
   }
 

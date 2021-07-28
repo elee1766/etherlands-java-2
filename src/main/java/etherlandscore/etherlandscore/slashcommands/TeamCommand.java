@@ -171,6 +171,9 @@ public class TeamCommand extends ListenerClient {
          i++) {
       if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
         TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
+        sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
+      }else{
+        sender.sendMessage("You do not own this plot");
       }
     }
   }
@@ -182,16 +185,22 @@ public class TeamCommand extends ListenerClient {
     Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
     if (writePlot.getOwner().equals(gamer.getUuid())) {
       TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
+      sender.sendMessage("Plot: " + writePlot.getId() + " has been delegated to " + writeTeam.getName());
+    }else{
+      sender.sendMessage("You do not own this plot");
     }
   }
 
-  void delegateTeam(Player sender, Object[] args){
+  void deleteTeam(Player sender, Object[] args){
     Gamer manager = context.getGamer(sender.getUniqueId());
     String name = (String) args[0];
     Team writeTeam = manager.getTeamObject();
     if (writeTeam.isOwner(manager)) {
       if (manager.getTeamObject().getName().equals(name)) {
         TeamSender.delete(channels, writeTeam);
+        sender.sendMessage("Team has been deleted");
+      }else{
+        sender.sendMessage("You are not a manager");
       }
     }
   }
@@ -245,7 +254,7 @@ public class TeamCommand extends ListenerClient {
     TeamCommand.withSubcommand(
         new CommandAPICommand("delete")
             .withArguments(new StringArgument("teamname"))
-            .executesPlayer(this::delegateTeam));
+            .executesPlayer(this::deleteTeam));
 
     TeamCommand.register();
   }

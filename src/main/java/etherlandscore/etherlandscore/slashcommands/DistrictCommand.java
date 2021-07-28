@@ -41,6 +41,7 @@ public class DistrictCommand extends ListenerClient {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
+      sender.sendMessage(args[0] + " district has been created");
       TeamSender.createDistrict(this.channels, (String) args[0], writeTeam);
     } else {
       sender.sendMessage("ur not manager");
@@ -52,6 +53,7 @@ public class DistrictCommand extends ListenerClient {
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
       TeamSender.deleteDistrict(this.channels, (District) args[0], writeTeam);
+      sender.sendMessage(args[0] + " district has been deleted");
     } else {
       sender.sendMessage("ur not manager");
     }
@@ -70,6 +72,7 @@ public class DistrictCommand extends ListenerClient {
           DistrictSender.addPlot(this.channels, context.getPlot(i), writeDistrict);
         }
       }
+      sender.sendMessage("Plots " + args[1] + " have been added to district " + args[0]);
     }
   }
 
@@ -84,6 +87,9 @@ public class DistrictCommand extends ListenerClient {
            i++) {
         DistrictSender.removePlot(this.channels, context.getPlot(i), writeDistrict);
       }
+      sender.sendMessage(args[0] + " plot has been removed");
+    }else{
+      sender.sendMessage("ur not a manager");
     }
   }
 

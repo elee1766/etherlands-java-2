@@ -35,15 +35,14 @@ public class GroupCommand extends ListenerClient {
   }
 
   void create(Player sender, Object[] args){
-    Bukkit.getLogger().info("Running /group create");
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
       TeamSender.createGroup(this.channels, (String) args[0], writeTeam);
+      sender.sendMessage(args[0] + " has been created");
     } else {
       sender.sendMessage("ur not manager");
     }
-    Bukkit.getLogger().info("/group create complete");
   }
 
   void info(Player sender, Object[] args){
@@ -53,19 +52,17 @@ public class GroupCommand extends ListenerClient {
   }
 
   void delete(Player sender, Object[] args){
-    Bukkit.getLogger().info("running /group delete");
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
       TeamSender.deleteGroup(this.channels, (String) args[0], writeTeam);
+      sender.sendMessage(args[0] + " has been deleted");
     } else {
       sender.sendMessage("ur not manager");
     }
-    Bukkit.getLogger().info("/group delete complete");
   }
 
   void add(Player sender, Object[] args){
-    Bukkit.getLogger().info("running /group add");
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer subject = (Gamer) args[0];
     Group writeGroup = (Group) args[1];
@@ -74,16 +71,19 @@ public class GroupCommand extends ListenerClient {
       if (writeTeam.canAction(manager, subject)) {
         if (subject.getTeamName().equals(writeTeam.getName())) {
           GroupSender.addMember(channels, writeGroup, subject);
+          sender.sendMessage(subject.getPlayer().getName() + " has been added to " + writeGroup.getName());
+        }else{
+          sender.sendMessage(subject.getPlayer().getName() + " is not in your team");
         }
+      } else {
+        sender.sendMessage("Ur not a manager");
       }
     } else {
       runNoTeam(sender);
     }
-    Bukkit.getLogger().info("/group add complete");
   }
 
   void remove(Player sender, Object[] args){
-    Bukkit.getLogger().info("running /group remove");
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer subject = (Gamer) args[0];
     Group writeGroup = (Group) args[1];
@@ -92,12 +92,16 @@ public class GroupCommand extends ListenerClient {
       if (writeTeam.canAction(manager, subject)) {
         if (subject.getTeamName().equals(writeTeam.getName())) {
           GroupSender.removeMember(channels, writeGroup, subject);
+          sender.sendMessage(subject.getPlayer().getName() + " has been removed from " + writeGroup.getName());
+        }else{
+          sender.sendMessage(subject.getPlayer().getName() + " is not in your team");
         }
+      }else{
+        sender.sendMessage("Ur not a manager");
       }
     } else {
       runNoTeam(sender);
     }
-    Bukkit.getLogger().info("/group remove complete");
   }
 
   public void register() {

@@ -88,6 +88,7 @@ public class WriteDistrict implements District {
   }
 
   @Override
+  @JsonIgnore
   public Field[] getDeclaredFields() {
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field f : fields) {

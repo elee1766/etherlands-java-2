@@ -42,8 +42,7 @@ public class CouchPersister {
       teamRepo.save(context.getTeams().values());
   }
 
-  public Context readContext(){
-    Context empty = new Context();
+  public void populateContext(Context empty){
     for (WriteGamer writeGamer : this.gamerRepo.getAll()) {
       empty.gamers.put(writeGamer.getUuid(),writeGamer);
       if(!writeGamer.getAddress().equals("")){
@@ -59,6 +58,5 @@ public class CouchPersister {
       empty.plots.put(writePlot.getIdInt(),writePlot);
       empty.plotLocations.put(writePlot.getX(), writePlot.getZ(), writePlot.getIdInt());
     }
-    return empty;
   }
 }

@@ -1,9 +1,14 @@
 package etherlandscore.etherlandscore.Menus;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
+
+import java.util.Locale;
 
 public class MessageFormatter {
   private final TextComponent message;
@@ -26,11 +31,22 @@ public class MessageFormatter {
   }
 
   public void addField(String name, String value) {
+    TextComponent valuecomp;
     if (value.length() > 24) {
-      value = abbreviate(value);
+      valuecomp = new TextComponent(abbreviate(value));
+    }else{
+      valuecomp = new TextComponent(value);
     }
     TextComponent namecomp = new TextComponent(name);
-    TextComponent valuecomp = new TextComponent(value);
+
+    if(name.toLowerCase().contains("address")){
+      String url = ("https://etherscan.io/address/"+value);
+      System.out.println("doing address");
+      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,url));
+    }else{
+      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,value));
+    }
+    valuecomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text(value)));
     namecomp.setColor(ChatColor.AQUA);
     namecomp.addExtra(": ");
     valuecomp.setColor(ChatColor.DARK_AQUA);

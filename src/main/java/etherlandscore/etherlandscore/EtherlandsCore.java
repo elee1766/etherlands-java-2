@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
+import etherlandscore.etherlandscore.state.Context;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -21,7 +22,7 @@ public final class EtherlandsCore extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    // Plugin shutdown logic
+    System.out.println("Shutting down....");
   }
 
   @Override

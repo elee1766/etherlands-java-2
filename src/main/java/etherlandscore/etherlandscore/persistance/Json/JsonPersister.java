@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import etherlandscore.etherlandscore.persistance.Persister;
+import org.bukkit.Bukkit;
 
 import java.io.StringReader;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ public class JsonPersister<DtoType> extends Persister {
       reader.setLenient(true);
       return gson.fromJson(reader, clazz);
     } catch (Exception e) {
+      Bukkit.getLogger().info(e.toString());
       return null;
     }
   }

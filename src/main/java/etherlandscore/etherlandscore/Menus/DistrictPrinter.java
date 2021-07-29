@@ -19,12 +19,12 @@ public class DistrictPrinter {
     TextComponent print = new TextComponent("");
     MessageFormatter prettyPrint = new MessageFormatter(print);
     prettyPrint.addBar("=", "DistrictInfo");
-    for(Map.Entry<String, District> d : districts.entrySet()){
-      prettyPrint.addField("name",d.getKey());
+    for (Map.Entry<String, District> d : districts.entrySet()) {
+      prettyPrint.addField("name", d.getKey());
       Field[] fields = d.getValue().getDeclaredFields();
-      for(Field f : fields){
+      for (Field f : fields) {
         try {
-          prettyPrint.addField(f.getName(),String.valueOf(f.get(d.getValue())));
+          prettyPrint.addField(f.getName(), String.valueOf(f.get(d.getValue())));
         } catch (IllegalAccessException e) {
           e.printStackTrace();
         }

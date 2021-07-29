@@ -25,14 +25,14 @@ public class GamerCommand extends ListenerClient {
     register();
   }
 
-  void info(Player sender, Object[] args){
+  void info(Player sender, Object[] args) {
     Player player = (Player) args[0];
     Gamer gamer = context.getGamer(player.getUniqueId());
     GamerPrinter printer = new GamerPrinter(gamer);
     printer.printGamer(sender);
   }
 
-  void link(Player sender, Object[] args){
+  void link(Player sender, Object[] args) {
     Player p = (Player) args[0];
     WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
     GamerSender.setAddress(channels, gamer, (String) args[1]);
@@ -41,15 +41,16 @@ public class GamerCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand GamerCommand =
-        new CommandAPICommand("gamer")
-            .withPermission("etherlands.public");
+        new CommandAPICommand("gamer").withPermission("etherlands.public");
     GamerCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+            .withArguments(
+                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .executesPlayer(this::info));
     GamerCommand.withSubcommand(
         new CommandAPICommand("link")
-            .withArguments(new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+            .withArguments(
+                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .withArguments(new StringArgument("address"))
             .executesPlayer(this::link));
 

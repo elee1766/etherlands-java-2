@@ -17,8 +17,6 @@ public class GamerSender {
   }
 
   public static void setAddress(Channels channels, Gamer self, String address) {
-    channels.master_command.publish(
-        new Message<>(MasterCommand.gamer_link_address, self, address));
+    channels.master_command.publish(new Message<>(MasterCommand.gamer_link_address, self, address));
   }
-
 }

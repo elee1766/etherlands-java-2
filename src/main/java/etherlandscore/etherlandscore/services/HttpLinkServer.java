@@ -18,10 +18,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpClient extends ServerModule implements HttpHandler {
+public class HttpLinkServer extends ServerModule implements HttpHandler {
   private final Channels channels;
 
-  public HttpClient(Channels channels, Fiber fiber) {
+  public HttpLinkServer(Channels channels, Fiber fiber) {
     super(fiber);
     this.channels = channels;
   }

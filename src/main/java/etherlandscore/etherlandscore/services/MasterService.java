@@ -8,15 +8,13 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
+import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.write.*;
-import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
-import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -24,21 +22,19 @@ public class MasterService extends ServerModule {
     private static Context context;
     private final Channels channels;
     private final Gson gson;
-    private final JsonPersister<Context> globalStatePersister;
+
+    private CouchPersister couchPersister;
 
     public MasterService(Channels channels, Fiber fiber) {
         super(fiber);
         this.channels = channels;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        String root = Bukkit.getServer().getPluginManager().getPlugin("EtherlandsCore").getDataFolder().getAbsolutePath();
-        File json = new File(root + "/db.json");
         try {
-            json.createNewFile();
-        } catch (IOException e) {
+            this.couchPersister = new CouchPersister();
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        this.globalStatePersister = new JsonPersister<>(root + "/db.json");
-        Context writer = globalStatePersister.readJson(gson, Context.class);
+        Context writer = couchPersister.readContext();
         context = Objects.requireNonNullElseGet(writer, Context::new);
         this.channels.global_update.publish(context);
         this.channels.master_command.subscribe(fiber, this::process_command);
@@ -91,7 +87,7 @@ public class MasterService extends ServerModule {
     }
 
     public void save() {
-        globalStatePersister.overwrite(gson.toJson(context));
+      this.couchPersister.saveContext(context);
     }
 
 }

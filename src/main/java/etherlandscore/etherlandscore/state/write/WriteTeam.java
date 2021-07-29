@@ -1,5 +1,9 @@
 package etherlandscore.etherlandscore.state.write;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.read.*;
 import org.bukkit.Bukkit;
 
@@ -9,18 +13,30 @@ import java.util.*;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class WriteTeam extends StateHolder implements Team {
+public class WriteTeam extends CouchDocument implements Team {
   private final String name;
-  private final UUID owner;
-  private final Set<UUID> members = new HashSet<>();
-  private final Set<Integer> plots = new HashSet<>();
-  private final Map<String, District> districts = new HashMap<>();
-  private final Map<String, Group> groups = new HashMap<>();
+  private Set<UUID> members;
+  private Set<Integer> plots;
+  private Map<String, WriteDistrict> districts;
+  private Map<String, WriteGroup> groups;
+  private UUID owner;
 
-  public WriteTeam(Gamer gamer, String name) {
+  @JsonProperty("_id")
+  private String _id;
+
+  @JsonCreator
+  public WriteTeam(@JsonProperty("_id") String name){
+    this.name = name;
+  }
+
+  public WriteTeam(Gamer gamer,  String name) {
     this.name = name;
     this.owner = gamer.getUuid();
-    this.districts.put("global", new WriteDistrict(this, "global", new HashSet<>(), -1, true));
+    this.members = new HashSet<>();
+    this.plots = new HashSet<>();
+    this.districts = new HashMap<>();
+    this.groups = new HashMap<>();
+    this.districts.put("global", new WriteDistrict(this, "global", -1, true));
     this.groups.put("outsiders", new WriteGroup(this, "outsiders", -5, true));
     this.groups.put("member", new WriteGroup(this, "member", -1, true));
     this.groups.put("manager", new WriteGroup(this, "manager", 50, true));
@@ -31,7 +47,7 @@ public class WriteTeam extends StateHolder implements Team {
   }
 
   public void addPlot(Plot writePlot) {
-    this.plots.add(writePlot.getId());
+    this.plots.add(writePlot.getIdInt());
   }
 
   @Override
@@ -57,7 +73,7 @@ public class WriteTeam extends StateHolder implements Team {
 
   public void createDistrict(String name) {
     if (!this.districts.containsKey(name)) {
-      this.districts.put(name, new WriteDistrict(this, name, new HashSet<>(), 10, false));
+      this.districts.put(name, new WriteDistrict(this, name, 10, false));
     }
   }
 
@@ -95,6 +111,7 @@ public class WriteTeam extends StateHolder implements Team {
   }
 
   @Override
+  @JsonIgnore
   public Field[] getDeclaredFields() {
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field f : fields) {
@@ -110,7 +127,11 @@ public class WriteTeam extends StateHolder implements Team {
 
   @Override
   public Map<String, District> getDistricts() {
-    return districts;
+    return (Map) districts;
+  }
+
+  public void setDistricts(Map<String, WriteDistrict> districts) {
+    this.districts = districts;
   }
 
   @Override
@@ -120,7 +141,21 @@ public class WriteTeam extends StateHolder implements Team {
 
   @Override
   public Map<String, Group> getGroups() {
-    return groups;
+    return (Map) groups;
+  }
+
+  public void setGroups(Map<String, WriteGroup> groups) {
+    this.groups = groups;
+  }
+
+  @JsonProperty("_id")
+  public String getId() {
+    return this.name;
+  }
+
+  @JsonProperty("_id")
+  public void setId(String string) {
+    this._id = string;
   }
 
   @Override
@@ -128,17 +163,31 @@ public class WriteTeam extends StateHolder implements Team {
     return members;
   }
 
+  public void setMembers(Set<UUID> members) {
+    this.members = members;
+  }
+
   @Override
   public String getName() {
     return name;
   }
 
+  public UUID getOwner() {
+    return owner;
+  }
+
+  public void setOwner(UUID owner) {
+    this.owner = owner;
+  }
+
   @Override
-  public String getOwner() {
+  @JsonIgnore
+  public String getOwnerServerName() {
     return Bukkit.getPlayer(this.owner).getName();
   }
 
   @Override
+  @JsonIgnore
   public UUID getOwnerUUID() {
     return this.owner;
   }
@@ -146,6 +195,10 @@ public class WriteTeam extends StateHolder implements Team {
   @Override
   public Set<Integer> getPlots() {
     return plots;
+  }
+
+  public void setPlots(Set<Integer> plots) {
+    this.plots = plots;
   }
 
   @Override

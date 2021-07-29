@@ -1,8 +1,15 @@
 package etherlandscore.etherlandscore.state.write;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.state.read.*;
+import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
+import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
@@ -14,20 +21,41 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class WritePlot extends StateHolder implements Plot {
+public class WritePlot extends CouchDocument implements Plot {
   private final Set<String> districts = new HashSet<>();
   private final Integer id;
   private final Integer x;
   private final Integer z;
   private transient Chunk chunk = null;
-  private String ownerAddress = "";
+  private String ownerAddress;
   private UUID ownerUUID;
-  private String ownerServerName = "";
-  private String team = "";
+  private String ownerServerName;
+  private String team;
 
-  public WritePlot(Integer id, Integer x, Integer z, String ownerAddress) {
+  @JsonProperty("_id")
+  private String _id;
+
+  @JsonCreator
+  public WritePlot(
+      @JsonProperty("_id") String id,
+      @JsonProperty("x") Integer x,
+      @JsonProperty("z") Integer z,
+      @JsonProperty("ownerAddress") String ownerAddress) {
+    this.chunk = Bukkit.getWorld("world").getChunkAt(x, z);
+    this._id = id;
+    this.id = Integer.parseInt(id);
+    this.x = x;
+    this.z = z;
+    this.ownerAddress = ownerAddress;
+  }
+  public WritePlot(
+       Integer id,
+      Integer x,
+      Integer z,
+      String ownerAddress) {
     this.chunk = Bukkit.getWorld("world").getChunkAt(x, z);
     this.id = id;
+    this._id = id.toString();
     this.x = x;
     this.z = z;
     this.ownerAddress = ownerAddress;
@@ -93,10 +121,11 @@ public class WritePlot extends StateHolder implements Plot {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Plot plot = (Plot) o;
-    return getId().equals(plot.getId());
+    return getIdInt().equals(plot.getIdInt());
   }
 
   @Override
+  @JsonIgnore
   public Chunk getChunk() {
     if (chunk == null) {
       this.chunk = Bukkit.getWorld("world").getChunkAt(x, z);
@@ -105,6 +134,7 @@ public class WritePlot extends StateHolder implements Plot {
   }
 
   @Override
+  @JsonIgnore
   public Field[] getDeclaredFields() {
     Field[] fields = super.getClass().getDeclaredFields();
     for (Field f : fields) {
@@ -114,6 +144,7 @@ public class WritePlot extends StateHolder implements Plot {
   }
 
   @Override
+  @JsonIgnore
   public String getDeedHolder() {
     return this.ownerAddress;
   }
@@ -123,19 +154,51 @@ public class WritePlot extends StateHolder implements Plot {
     return districts;
   }
 
+  @JsonProperty("_id")
+  public String getId() {
+    return this._id;
+  }
+
+  @JsonProperty("_id")
+  public void setId(String string) {
+    this._id = string;
+  }
+
   @Override
-  public Integer getId() {
+  @JsonIgnore
+  public Integer getIdInt() {
     return this.id;
   }
 
   @Override
-  public UUID getOwner() {
+  public UUID getOwnerUUID() {
     return ownerUUID;
   }
 
+  public void setOwnerUUID(UUID ownerUUID) {
+    this.ownerUUID = ownerUUID;
+  }
+
+  public String getOwnerAddress() {
+    return ownerAddress;
+  }
+
+  public void setOwnerAddress(String ownerAddress) {
+    this.ownerAddress = ownerAddress;
+  }
+
   @Override
+  @JsonIgnore
   public Gamer getOwnerObject() {
     return state().getGamer(ownerUUID);
+  }
+
+  public String getOwnerServerName() {
+    return ownerServerName;
+  }
+
+  public void setOwnerServerName(String ownerServerName) {
+    this.ownerServerName = ownerServerName;
   }
 
   @Override
@@ -147,11 +210,13 @@ public class WritePlot extends StateHolder implements Plot {
     this.team = name;
   }
 
+  @JsonIgnore
   public void setTeam(Team writeTeam) {
     this.team = writeTeam.getName();
   }
 
   @Override
+  @JsonIgnore
   public Team getTeamObject() {
     return state().getTeam(team);
   }
@@ -173,12 +238,12 @@ public class WritePlot extends StateHolder implements Plot {
 
   @Override
   public int hashCode() {
-    return getId().hashCode();
+    return getIdInt().hashCode();
   }
 
   @Override
   public boolean isOwner(Gamer gamer) {
-    return gamer.getUuid().equals(getOwner());
+    return gamer.getUuid().equals(getOwnerUUID());
   }
 
   public void removeDistrict(District writeDistrict) {
@@ -189,6 +254,7 @@ public class WritePlot extends StateHolder implements Plot {
     this.team = "";
   }
 
+  @JsonIgnore
   public void setOwner(String ownerAddress, UUID ownerUUID) {
     this.ownerAddress = ownerAddress;
     this.ownerUUID = ownerUUID;

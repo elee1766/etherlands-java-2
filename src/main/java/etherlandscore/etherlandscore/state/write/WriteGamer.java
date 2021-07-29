@@ -1,11 +1,11 @@
 package etherlandscore.etherlandscore.state.write;
 
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
-import etherlandscore.etherlandscore.state.read.StateHolder;
 import etherlandscore.etherlandscore.state.read.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,16 +17,26 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class WriteGamer extends StateHolder implements Gamer {
-
+public class WriteGamer extends CouchDocument implements Gamer {
   private final UUID uuid;
-  private final Set<String> groups = new HashSet<>();
-  private String team = "";
+  private final Set<String> groups;
+  private String team;
   private String address;
   private Set<UUID> friends;
 
+  @JsonProperty("_id")
+  private String _id;
+
+  @JsonCreator
+  public WriteGamer(@JsonProperty("_id") UUID uuid, @JsonProperty("groups") Set<String> groups) {
+    this.uuid = uuid;
+    this.groups = groups;
+    this.address = "";
+  }
+
   public WriteGamer(UUID uuid) {
     this.uuid = uuid;
+    this.groups = new HashSet<>();
   }
 
   public void addFriend(Gamer gamer) {
@@ -69,6 +79,7 @@ public class WriteGamer extends StateHolder implements Gamer {
   }
 
   @Override
+  @JsonIgnore
   public Field[] getDeclaredFields() {
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field f : fields) {
@@ -86,8 +97,9 @@ public class WriteGamer extends StateHolder implements Gamer {
   }
 
   @Override
+  @JsonIgnore
   public Group getGroupObject(String name) {
-    return state().getTeam(this.getTeamName()).getGroup(name);
+    return state().getTeam(this.getTeam()).getGroup(name);
   }
 
   @Override
@@ -95,22 +107,44 @@ public class WriteGamer extends StateHolder implements Gamer {
     return groups;
   }
 
+  @JsonProperty("_id")
+  public String getId() {
+    return this.uuid.toString();
+  }
+
+  @JsonProperty("_id")
+  public void setId(String string) {
+    this._id = uuid.toString();
+  }
+
   @Override
+  @JsonIgnore
   public Player getPlayer() {
     return Bukkit.getPlayer(uuid);
   }
 
   @Override
-  public String getTeamName() {
+  public String getTeam() {
     return team;
   }
 
+  public void setTeam(String team) {
+    this.team = team;
+    if (hasTeam()) {
+      groups.add("member");
+    } else {
+      groups.remove("member");
+    }
+  }
+
   @Override
+  @JsonIgnore
   public Team getTeamObject() {
     return state().getTeam(team);
   }
 
   @Override
+  @JsonIgnore
   public UUID getUuid() {
     return uuid;
   }
@@ -139,14 +173,5 @@ public class WriteGamer extends StateHolder implements Gamer {
 
   public void removeGroup(String name) {
     groups.remove(name);
-  }
-
-  public void setTeam(String team) {
-    this.team = team;
-    if (hasTeam()) {
-      groups.add("member");
-    } else {
-      groups.remove("member");
-    }
   }
 }

@@ -18,11 +18,11 @@ public interface District extends Comparable<District> {
 
   String getName();
 
-  Set<Plot> getPlots();
+  Set<Plot> getPlotObjects();
 
   Integer getPriority();
 
-  Team getTeam();
+  Team getTeamObject();
 
   boolean isDefault();
 

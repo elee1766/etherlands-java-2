@@ -24,25 +24,28 @@ public class FlagCommand extends ListenerClient {
     register();
   }
 
-  void help(Player sender, Object[] args){
-    sender.sendMessage("/flag menu district_group or district_player, use the onscreen menu to set or unset flags");
-  }
-
-  void districtPlayer(Player sender, Object[] args){
-    Gamer runner = context.getGamer(sender.getUniqueId());
-    FlagMenu.clickMenu(runner, "player", "district set_player", (District) args[0], (Player) args[1]);
-  }
-
-  void districtGroup(Player sender, Object[] args){
+  void districtGroup(Player sender, Object[] args) {
     Gamer runner = context.getGamer(sender.getUniqueId());
     FlagMenu.clickMenu(runner, "group", "district set_group", (District) args[0], (Group) args[1]);
+  }
+
+  void districtPlayer(Player sender, Object[] args) {
+    Gamer runner = context.getGamer(sender.getUniqueId());
+    FlagMenu.clickMenu(
+        runner, "player", "district set_player", (District) args[0], (Player) args[1]);
+  }
+
+  void help(Player sender, Object[] args) {
+    sender.sendMessage(
+        "/flag menu district_group or district_player, use the onscreen menu to set or unset flags");
   }
 
   public void register() {
     CommandAPICommand flagMenuDistrictPlayer =
         new CommandAPICommand("district_player")
             .withArguments(teamDistrictArgument("district"))
-            .withArguments(new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+            .withArguments(
+                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .executesPlayer(this::districtPlayer);
     CommandAPICommand flagMenuDistrictGroup =
         new CommandAPICommand("district_group")

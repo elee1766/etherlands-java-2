@@ -19,22 +19,14 @@ public class EthCommand extends ListenerClient {
     register();
   }
 
-  void runHelpCommand(Player sender, Object[] args) {
-    sender.sendMessage("relink");
-  }
-
-  void reLink(Player sender, Object[] args){
-
-  }
+  void reLink(Player sender, Object[] args) {}
 
   public void register() {
     CommandAPICommand EthCommand =
         new CommandAPICommand("eth")
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand);
-    EthCommand.withSubcommand(
-        new CommandAPICommand("help")
-            .executesPlayer(this::runHelpCommand));
+    EthCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::runHelpCommand));
     EthCommand.withSubcommand(
         new CommandAPICommand("relink")
             .withArguments(
@@ -42,5 +34,9 @@ public class EthCommand extends ListenerClient {
                     .includeSuggestions(info -> Arrays.append(getPlayerStrings(), "__global__")))
             .executesPlayer(this::reLink));
     EthCommand.register();
+  }
+
+  void runHelpCommand(Player sender, Object[] args) {
+    sender.sendMessage("relink");
   }
 }

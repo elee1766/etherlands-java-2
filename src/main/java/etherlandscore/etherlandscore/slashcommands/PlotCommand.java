@@ -33,8 +33,45 @@ public class PlotCommand extends ListenerClient {
     register();
   }
 
-  void runHelpCommand(Player sender, Object[] args) {
-    sender.sendMessage("update info invite join delete");
+  void delegate(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    IntegerRange range = (IntegerRange) args[0];
+    for (int i = range.getLowerBound();
+        i <= Math.min(context.getPlots().size(), range.getUpperBound());
+        i++) {
+      if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
+        TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
+        sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
+      } else {
+        sender.sendMessage("You do not own this plot");
+      }
+    }
+  }
+
+  void delegateLocal(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    Chunk chunk = gamer.getPlayer().getChunk();
+    Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
+    if (writePlot.getOwnerUUID().equals(gamer.getUuid())) {
+      TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
+      sender.sendMessage(writePlot.getIdInt() + " has been delegated to " + writeTeam.getName());
+    } else {
+      sender.sendMessage("You do not own this plot");
+    }
+  }
+
+  void infoGiven(CommandSender sender, Object[] args) {
+    Plot writePlot = context.getPlot((int) args[0]);
+    if (writePlot == null) {
+      TextComponent unclaimed = new TextComponent("This Land is unclaimed");
+      unclaimed.setColor(ChatColor.YELLOW);
+      sender.sendMessage(unclaimed);
+    } else {
+      PlotPrinter printer = new PlotPrinter(writePlot);
+      printer.printPlot((Player) sender);
+    }
   }
 
   void infoLocal(Player sender, Object[] args) {
@@ -54,40 +91,16 @@ public class PlotCommand extends ListenerClient {
     }
   }
 
-  void infoGiven(CommandSender sender, Object[] args) {
-    Plot writePlot = context.getPlot((int) args[0]);
-    if (writePlot == null) {
-      TextComponent unclaimed = new TextComponent("This Land is unclaimed");
-      unclaimed.setColor(ChatColor.YELLOW);
-      sender.sendMessage(unclaimed);
-    } else {
-      PlotPrinter printer = new PlotPrinter(writePlot);
-      printer.printPlot((Player) sender);
-    }
-  }
-
-  void update(CommandSender sender, Object[] args) {
-    sender.sendMessage(args[0] + " is being updated...");
-    IntegerRange range = (IntegerRange) args[0];
-    for (int i = range.getLowerBound();
-         i <= Math.min(1000000, range.getUpperBound());
-         i++) {
-      this.channels.ethers_command.publish(
-              new Message<>(EthersCommand.ethers_query_nft, i));
-    }
-    sender.sendMessage(args[0] + " have been updated");
-  }
-
   void reclaim(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     IntegerRange range = (IntegerRange) args[0];
     for (int i = range.getLowerBound();
-         i <= Math.min(context.getPlots().size(), range.getUpperBound());
-         i++) {
-      if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
+        i <= Math.min(context.getPlots().size(), range.getUpperBound());
+        i++) {
+      if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
         PlotSender.reclaimPlot(this.channels, context.getPlot(i));
         sender.sendMessage("Plot: " + i + " has been reclaimed");
-      }else{
+      } else {
         sender.sendMessage("You do not own plot:" + i);
       }
     }
@@ -97,40 +110,11 @@ public class PlotCommand extends ListenerClient {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Chunk chunk = gamer.getPlayer().getChunk();
     Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
-    if (writePlot.getOwner().equals(gamer.getUuid())) {
+    if (writePlot.getOwnerUUID().equals(gamer.getUuid())) {
       PlotSender.reclaimPlot(this.channels, writePlot);
-      sender.sendMessage(writePlot.getId() + " has been reclaimed");
+      sender.sendMessage(writePlot.getIdInt() + " has been reclaimed");
     }
     sender.sendMessage("You do not own this plot");
-  }
-
-  void delegate(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    IntegerRange range = (IntegerRange) args[0];
-    for (int i = range.getLowerBound();
-         i <= Math.min(context.getPlots().size(), range.getUpperBound());
-         i++) {
-      if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-        TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
-        sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
-      }else{
-        sender.sendMessage("You do not own this plot");
-      }
-    }
-  }
-
-  void delegateLocal(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    Chunk chunk = gamer.getPlayer().getChunk();
-    Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
-    if (writePlot.getOwner().equals(gamer.getUuid())) {
-      TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
-      sender.sendMessage(writePlot.getId() + " has been delegated to " + writeTeam.getName());
-    }else{
-      sender.sendMessage("You do not own this plot");
-    }
   }
 
   public void register() {
@@ -138,15 +122,12 @@ public class PlotCommand extends ListenerClient {
         new CommandAPICommand("plot")
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand);
-    ChunkCommand.withSubcommand(
-        new CommandAPICommand("help")
-            .executesPlayer(this::runHelpCommand));
-    ChunkCommand.withSubcommand(
-        new CommandAPICommand("info")
-            .executesPlayer(this::infoLocal));
+    ChunkCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::runHelpCommand));
+    ChunkCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("info")
-            .withArguments(new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
+            .withArguments(
+                new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
             .executes(this::infoGiven));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("update")
@@ -165,8 +146,20 @@ public class PlotCommand extends ListenerClient {
             .withArguments(new IntegerRangeArgument("plot-ids"))
             .executesPlayer(this::delegate));
     ChunkCommand.withSubcommand(
-        new CommandAPICommand("delegate")
-            .executesPlayer(this::delegateLocal));
+        new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
     ChunkCommand.register();
+  }
+
+  void runHelpCommand(Player sender, Object[] args) {
+    sender.sendMessage("update info invite join delete");
+  }
+
+  void update(CommandSender sender, Object[] args) {
+    sender.sendMessage(args[0] + " is being updated...");
+    IntegerRange range = (IntegerRange) args[0];
+    for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
+      this.channels.ethers_command.publish(new Message<>(EthersCommand.ethers_query_nft, i));
+    }
+    sender.sendMessage(args[0] + " have been updated");
   }
 }

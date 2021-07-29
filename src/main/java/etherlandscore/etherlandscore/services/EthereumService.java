@@ -70,7 +70,7 @@ public class EthereumService extends ListenerClient {
         int port = 25510;
         HttpServer server = HttpServer.create(new InetSocketAddress(host, port), 0);
         Fiber httpFiber = new ThreadFiber();
-        server.createContext("/test", new HttpClient(channels, httpFiber));
+        server.createContext("/test", new HttpLinkServer(channels, httpFiber));
         server.setExecutor(httpFiber);
         server.start();
         httpFiber.start();

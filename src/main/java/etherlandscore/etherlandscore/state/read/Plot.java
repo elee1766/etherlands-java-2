@@ -21,9 +21,9 @@ public interface Plot {
 
   Set<String> getDistricts();
 
-  Integer getId();
+  Integer getIdInt();
 
-  UUID getOwner();
+  UUID getOwnerUUID();
 
   Gamer getOwnerObject();
 

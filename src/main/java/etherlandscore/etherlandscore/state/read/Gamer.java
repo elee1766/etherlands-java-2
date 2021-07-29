@@ -24,7 +24,7 @@ public interface Gamer {
 
   Player getPlayer();
 
-  String getTeamName();
+  String getTeam();
 
   Team getTeamObject();
 

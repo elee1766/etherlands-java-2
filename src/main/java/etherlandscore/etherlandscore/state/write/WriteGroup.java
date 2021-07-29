@@ -1,8 +1,10 @@
 package etherlandscore.etherlandscore.state.write;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
-import etherlandscore.etherlandscore.state.read.StateHolder;
 import etherlandscore.etherlandscore.state.read.Team;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -14,13 +16,28 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class WriteGroup extends StateHolder implements Group {
+public class WriteGroup implements Group {
   private final String name;
-  private final String team;
+  private Set<UUID> members;
 
-  private final Set<UUID> members = new HashSet<>();
+  public void setMembers(Set<UUID> members) {
+    this.members = members;
+  }
+
+  @JsonProperty("default")
   private final boolean isDefault;
+
+  private String team;
   private Integer priority;
+
+  @JsonCreator
+  public WriteGroup(@JsonProperty("team") String team, @JsonProperty("name") String name, @JsonProperty("priority") Integer priority, @JsonProperty("default") boolean isDefault) {
+    this.name = name;
+    this.team = team;
+    this.members = new HashSet<>();
+    this.priority = priority;
+    this.isDefault = isDefault;
+  }
 
   public WriteGroup(Team writeTeam, String name, Integer priority, boolean isDefault) {
     this.name = name;
@@ -39,6 +56,7 @@ public class WriteGroup extends StateHolder implements Group {
   }
 
   @Override
+  @JsonIgnore
   public Field[] getDeclaredFields() {
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field f : fields) {
@@ -48,6 +66,7 @@ public class WriteGroup extends StateHolder implements Group {
   }
 
   @Override
+  @JsonProperty("default")
   public boolean getDefault() {
     return isDefault;
   }
@@ -68,12 +87,19 @@ public class WriteGroup extends StateHolder implements Group {
   }
 
   public void setPriority(Integer newPriority) {
-    if (isDefault) return;
-    if (newPriority < 0) this.priority = 0;
-    if (newPriority > 100) this.priority = 0;
+    this.priority = newPriority;
+  }
+
+  public String getTeam() {
+    return team;
+  }
+
+  public void setTeam(String team) {
+    this.team = team;
   }
 
   @Override
+  @JsonIgnore
   public Team getTeamObject() {
     return state().getTeam(this.team);
   }
@@ -95,5 +121,12 @@ public class WriteGroup extends StateHolder implements Group {
 
   public void removeMember(Gamer gamer) {
     this.members.remove(gamer.getUuid());
+  }
+
+  @JsonIgnore
+  public void setPrioritySafe(Integer newPriority) {
+    if (isDefault) return;
+    if (newPriority < 0) this.priority = 0;
+    if (newPriority > 100) this.priority = 0;
   }
 }

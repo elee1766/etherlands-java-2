@@ -1,7 +1,6 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
@@ -10,7 +9,6 @@ import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.GroupSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -25,54 +23,18 @@ public class GroupCommand extends ListenerClient {
     register();
   }
 
-
-  void runHelpCommand(Player sender, Object[] args) {
-    sender.sendMessage("create");
-  }
-
-  void runNoTeam(Player sender) {
-    sender.sendMessage("you must be in a team to manage groups");
-  }
-
-  void create(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    if (writeTeam.isManager(gamer)) {
-      TeamSender.createGroup(this.channels, (String) args[0], writeTeam);
-      sender.sendMessage(args[0] + " has been created");
-    } else {
-      sender.sendMessage("ur not manager");
-    }
-  }
-
-  void info(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    GroupPrinter printer = new GroupPrinter((Group) args[0]);
-    printer.printGroup(sender);
-  }
-
-  void delete(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    if (writeTeam.isManager(gamer)) {
-      TeamSender.deleteGroup(this.channels, (String) args[0], writeTeam);
-      sender.sendMessage(args[0] + " has been deleted");
-    } else {
-      sender.sendMessage("ur not manager");
-    }
-  }
-
-  void add(Player sender, Object[] args){
+  void add(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer subject = (Gamer) args[0];
     Group writeGroup = (Group) args[1];
     Team writeTeam = manager.getTeamObject();
     if (writeTeam != null) {
       if (writeTeam.canAction(manager, subject)) {
-        if (subject.getTeamName().equals(writeTeam.getName())) {
+        if (subject.getTeam().equals(writeTeam.getName())) {
           GroupSender.addMember(channels, writeGroup, subject);
-          sender.sendMessage(subject.getPlayer().getName() + " has been added to " + writeGroup.getName());
-        }else{
+          sender.sendMessage(
+              subject.getPlayer().getName() + " has been added to " + writeGroup.getName());
+        } else {
           sender.sendMessage(subject.getPlayer().getName() + " is not in your team");
         }
       } else {
@@ -83,25 +45,32 @@ public class GroupCommand extends ListenerClient {
     }
   }
 
-  void remove(Player sender, Object[] args){
-    Gamer manager = context.getGamer(sender.getUniqueId());
-    Gamer subject = (Gamer) args[0];
-    Group writeGroup = (Group) args[1];
-    Team writeTeam = manager.getTeamObject();
-    if (writeTeam != null) {
-      if (writeTeam.canAction(manager, subject)) {
-        if (subject.getTeamName().equals(writeTeam.getName())) {
-          GroupSender.removeMember(channels, writeGroup, subject);
-          sender.sendMessage(subject.getPlayer().getName() + " has been removed from " + writeGroup.getName());
-        }else{
-          sender.sendMessage(subject.getPlayer().getName() + " is not in your team");
-        }
-      }else{
-        sender.sendMessage("Ur not a manager");
-      }
+  void create(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    if (writeTeam.isManager(gamer)) {
+      TeamSender.createGroup(this.channels, (String) args[0], writeTeam);
+      sender.sendMessage(args[0] + " has been created");
     } else {
-      runNoTeam(sender);
+      sender.sendMessage("ur not manager");
     }
+  }
+
+  void delete(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    if (writeTeam.isManager(gamer)) {
+      TeamSender.deleteGroup(this.channels, (String) args[0], writeTeam);
+      sender.sendMessage(args[0] + " has been deleted");
+    } else {
+      sender.sendMessage("ur not manager");
+    }
+  }
+
+  void info(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    GroupPrinter printer = new GroupPrinter((Group) args[0]);
+    printer.printGroup(sender);
   }
 
   public void register() {
@@ -109,9 +78,7 @@ public class GroupCommand extends ListenerClient {
         new CommandAPICommand("group")
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand);
-    GroupCommand.withSubcommand(
-        new CommandAPICommand("help")
-            .executesPlayer(this::runHelpCommand));
+    GroupCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::runHelpCommand));
     GroupCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("groupname"))
@@ -138,5 +105,35 @@ public class GroupCommand extends ListenerClient {
             .executesPlayer(this::remove));
 
     GroupCommand.register();
+  }
+
+  void remove(Player sender, Object[] args) {
+    Gamer manager = context.getGamer(sender.getUniqueId());
+    Gamer subject = (Gamer) args[0];
+    Group writeGroup = (Group) args[1];
+    Team writeTeam = manager.getTeamObject();
+    if (writeTeam != null) {
+      if (writeTeam.canAction(manager, subject)) {
+        if (subject.getTeam().equals(writeTeam.getName())) {
+          GroupSender.removeMember(channels, writeGroup, subject);
+          sender.sendMessage(
+              subject.getPlayer().getName() + " has been removed from " + writeGroup.getName());
+        } else {
+          sender.sendMessage(subject.getPlayer().getName() + " is not in your team");
+        }
+      } else {
+        sender.sendMessage("Ur not a manager");
+      }
+    } else {
+      runNoTeam(sender);
+    }
+  }
+
+  void runHelpCommand(Player sender, Object[] args) {
+    sender.sendMessage("create");
+  }
+
+  void runNoTeam(Player sender) {
+    sender.sendMessage("you must be in a team to manage groups");
   }
 }

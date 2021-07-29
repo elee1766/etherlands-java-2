@@ -7,8 +7,6 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
-import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -24,7 +22,7 @@ public class FriendCommand extends ListenerClient {
     register();
   }
 
-  void friendAdd(Player sender, Object[] args){
+  void friendAdd(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Gamer newFriend = (Gamer) args[0];
     if (!gamer.getFriends().contains(newFriend.getUuid())) {
@@ -35,7 +33,21 @@ public class FriendCommand extends ListenerClient {
     }
   }
 
-  void friendRemove(Player sender, Object[] args){
+  void friendAddSelector(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    SelectorMenu.menu(gamer, getPlayerStrings(), "friend add");
+  }
+
+  void friendList(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    if (gamer.getFriends() != null) {
+      gamer.friendList();
+    } else {
+      sender.sendMessage("There are no friends");
+    }
+  }
+
+  void friendRemove(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Gamer oldFriend = (Gamer) args[0];
     if (gamer.getFriends().contains(oldFriend.getUuid())) {
@@ -46,26 +58,12 @@ public class FriendCommand extends ListenerClient {
     }
   }
 
-  void friendAddSelector(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    SelectorMenu.menu(gamer, getPlayerStrings(), "friend add");
-  }
-
-  void friendRemoveSelector(Player sender, Object[] args){
+  void friendRemoveSelector(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     SelectorMenu.menu(gamer, getPlayerStrings(), "friend remove");
   }
 
-  void friendList(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    if (gamer.getFriends() != null) {
-      gamer.friendList();
-    } else {
-      sender.sendMessage("There are no friends");
-    }
-  }
-
-  void help(Player sender, Object[] args){
+  void help(Player sender, Object[] args) {
     sender.sendMessage("add, remove, list");
   }
 
@@ -79,18 +77,14 @@ public class FriendCommand extends ListenerClient {
             .withArguments(gamerArgument("friend"))
             .executesPlayer(this::friendAdd));
     FriendCommand.withSubcommand(
-        new CommandAPICommand("add")
-            .executesPlayer(this::friendAddSelector));
+        new CommandAPICommand("add").executesPlayer(this::friendAddSelector));
     FriendCommand.withSubcommand(
         new CommandAPICommand("remove")
             .withArguments(gamerArgument("friend"))
             .executesPlayer(this::friendRemove));
     FriendCommand.withSubcommand(
-        new CommandAPICommand("remove")
-            .executesPlayer(this::friendRemoveSelector));
-    FriendCommand.withSubcommand(
-        new CommandAPICommand("list")
-            .executesPlayer(this::friendList));
+        new CommandAPICommand("remove").executesPlayer(this::friendRemoveSelector));
+    FriendCommand.withSubcommand(new CommandAPICommand("list").executesPlayer(this::friendList));
     FriendCommand.register();
   }
 }

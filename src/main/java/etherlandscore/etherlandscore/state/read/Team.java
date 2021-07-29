@@ -29,7 +29,7 @@ public interface Team {
 
   String getName();
 
-  String getOwner();
+  String getOwnerServerName();
 
   UUID getOwnerUUID();
 

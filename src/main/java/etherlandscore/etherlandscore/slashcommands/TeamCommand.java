@@ -13,7 +13,6 @@ import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
 import org.bukkit.Chunk;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -35,11 +34,71 @@ public class TeamCommand extends ListenerClient {
     register();
   }
 
-  void help(Player sender, Object[] args){
+  void create(Player sender, Object[] args) {
+    if (context.hasTeam((String) args[0])) {
+      sender.sendMessage("a team already exists by that name");
+      return;
+    }
+    if (context.hasGamer(sender.getUniqueId())) {
+      context.createTeam(this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
+      sender.sendMessage("team created!");
+    }
+  }
+
+  void delegateLocal(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    Chunk chunk = gamer.getPlayer().getChunk();
+    Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
+    if (writePlot.getOwnerUUID().equals(gamer.getUuid())) {
+      TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
+      sender.sendMessage(
+          "Plot: " + writePlot.getIdInt() + " has been delegated to " + writeTeam.getName());
+    } else {
+      sender.sendMessage("You do not own this plot");
+    }
+  }
+
+  void delegatePlot(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    IntegerRange range = (IntegerRange) args[0];
+    for (int i = range.getLowerBound();
+        i <= Math.min(context.getPlots().size(), range.getUpperBound());
+        i++) {
+      if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
+        TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
+        sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
+      } else {
+        sender.sendMessage("You do not own this plot");
+      }
+    }
+  }
+
+  void deleteTeam(Player sender, Object[] args) {
+    Gamer manager = context.getGamer(sender.getUniqueId());
+    String name = (String) args[0];
+    Team writeTeam = manager.getTeamObject();
+    if (writeTeam.isOwner(manager)) {
+      if (manager.getTeamObject().getName().equals(name)) {
+        TeamSender.delete(channels, writeTeam);
+        sender.sendMessage("Team has been deleted");
+      } else {
+        sender.sendMessage("You are not a manager");
+      }
+    }
+  }
+
+  void help(Player sender, Object[] args) {
     sender.sendMessage("create info invite join delete leave kick delegate");
   }
 
-  void infoLocal(Player sender, Object[] args){
+  void info(Player sender, Object[] args) {
+    TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]));
+    printer.printTeam(sender);
+  }
+
+  void infoLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     if (!gamer.hasTeam()) {
       TeamPrinter printer = new TeamPrinter(gamer.getTeamObject());
@@ -49,24 +108,7 @@ public class TeamCommand extends ListenerClient {
     }
   }
 
-  void info(Player sender, Object[] args){
-    TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]));
-    printer.printTeam(sender);
-  }
-
-  void create(Player sender, Object[] args){
-    if (context.hasTeam((String) args[0])) {
-      sender.sendMessage("a team already exists by that name");
-      return;
-    }
-    if (context.hasGamer(sender.getUniqueId())) {
-      context.createTeam(
-              this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
-      sender.sendMessage("team created!");
-    }
-  }
-
-  void invite(Player sender, Object[] args){
+  void invite(Player sender, Object[] args) {
     Gamer inviter = context.getGamer(sender.getUniqueId());
     Gamer receiver = context.getGamer(((Player) args[0]).getUniqueId());
     if (inviter != null) {
@@ -76,29 +118,22 @@ public class TeamCommand extends ListenerClient {
           if (!this.invites.containsKey(writeTeam.getName())) {
             this.invites.put(writeTeam.getName(), new HashMap<>());
           }
-          writeTeam.inviteGamer(
-                  this.invites.get(writeTeam.getName()), receiver.getUuid());
+          writeTeam.inviteGamer(this.invites.get(writeTeam.getName()), receiver.getUuid());
+          receiver.getPlayer().sendMessage("you have been invited to " + inviter.getTeam());
           receiver
-                  .getPlayer()
-                  .sendMessage("you have been invited to " + inviter.getTeamName());
-          receiver
-                  .getPlayer()
-                  .sendMessage(
-                          "send command \"/team join "
-                                  + inviter.getTeamName()
-                                  + "\" to join");
+              .getPlayer()
+              .sendMessage("send command \"/team join " + inviter.getTeam() + "\" to join");
         }
       }
     }
   }
 
-  void join(Player sender, Object[] args){
+  void join(Player sender, Object[] args) {
     Gamer joiner = context.getGamer(sender.getUniqueId());
     if (joiner != null) {
       Team team = context.getTeam((String) args[0]);
       if (team != null) {
-        if (team.canJoin(
-                this.invites.getOrDefault(team.getName(), new HashMap<>()), joiner)) {
+        if (team.canJoin(this.invites.getOrDefault(team.getName(), new HashMap<>()), joiner)) {
           TeamSender.addMember(this.channels, joiner, team);
           sender.sendMessage("welcome to " + args[0]);
         } else {
@@ -108,22 +143,7 @@ public class TeamCommand extends ListenerClient {
     }
   }
 
-  void leave(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    if (!gamer.getTeamName().equals("")) {
-      Team writeTeam = context.getTeam(gamer.getTeamName());
-      if (writeTeam.getOwnerUUID().equals(gamer.getUuid())) {
-        sender.sendMessage("you cannot leave the team you own");
-      } else {
-        TeamSender.removeMember(channels, gamer, writeTeam);
-        sender.sendMessage("you have left " + gamer.getTeamName());
-      }
-    } else {
-      sender.sendMessage("you are not in a team");
-    }
-  }
-
-  void kick(Player sender, Object[] args){
+  void kick(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer kicked = (Gamer) args[0];
     Team writeTeam = manager.getTeamObject();
@@ -140,7 +160,7 @@ public class TeamCommand extends ListenerClient {
     }
   }
 
-  void kickOwner(Player sender, Object[] args){
+  void kickOwner(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer kicked = (Gamer) args[0];
     Team writeTeam = manager.getTeamObject();
@@ -162,46 +182,18 @@ public class TeamCommand extends ListenerClient {
     }
   }
 
-  void delegatePlot(Player sender, Object[] args){
+  void leave(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    IntegerRange range = (IntegerRange) args[0];
-    for (int i = range.getLowerBound();
-         i <= Math.min(context.getPlots().size(), range.getUpperBound());
-         i++) {
-      if (context.getPlot(i).getOwner().equals(gamer.getUuid())) {
-        TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
-        sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
-      }else{
-        sender.sendMessage("You do not own this plot");
+    if (!gamer.getTeam().equals("")) {
+      Team writeTeam = context.getTeam(gamer.getTeam());
+      if (writeTeam.getOwnerUUID().equals(gamer.getUuid())) {
+        sender.sendMessage("you cannot leave the team you own");
+      } else {
+        TeamSender.removeMember(channels, gamer, writeTeam);
+        sender.sendMessage("you have left " + gamer.getTeam());
       }
-    }
-  }
-
-  void delegateLocal(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    Chunk chunk = gamer.getPlayer().getChunk();
-    Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
-    if (writePlot.getOwner().equals(gamer.getUuid())) {
-      TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
-      sender.sendMessage("Plot: " + writePlot.getId() + " has been delegated to " + writeTeam.getName());
-    }else{
-      sender.sendMessage("You do not own this plot");
-    }
-  }
-
-  void deleteTeam(Player sender, Object[] args){
-    Gamer manager = context.getGamer(sender.getUniqueId());
-    String name = (String) args[0];
-    Team writeTeam = manager.getTeamObject();
-    if (writeTeam.isOwner(manager)) {
-      if (manager.getTeamObject().getName().equals(name)) {
-        TeamSender.delete(channels, writeTeam);
-        sender.sendMessage("Team has been deleted");
-      }else{
-        sender.sendMessage("You are not a manager");
-      }
+    } else {
+      sender.sendMessage("you are not in a team");
     }
   }
 
@@ -210,12 +202,8 @@ public class TeamCommand extends ListenerClient {
         new CommandAPICommand("team")
             .withPermission("etherlands.public")
             .executesPlayer(this::help);
-    TeamCommand.withSubcommand(
-        new CommandAPICommand("help")
-            .executesPlayer(this::help));
-    TeamCommand.withSubcommand(
-        new CommandAPICommand("info")
-            .executesPlayer(this::infoLocal));
+    TeamCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
+    TeamCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
     TeamCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
@@ -233,9 +221,7 @@ public class TeamCommand extends ListenerClient {
         new CommandAPICommand("join")
             .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
             .executesPlayer(this::join));
-    TeamCommand.withSubcommand(
-        new CommandAPICommand("leave")
-            .executesPlayer(this::leave));
+    TeamCommand.withSubcommand(new CommandAPICommand("leave").executesPlayer(this::leave));
     TeamCommand.withSubcommand(
         new CommandAPICommand("kick")
             .withArguments(teamMemberArgument("member"))
@@ -249,8 +235,7 @@ public class TeamCommand extends ListenerClient {
             .withArguments(new IntegerRangeArgument("plot-ids"))
             .executesPlayer(this::delegatePlot));
     TeamCommand.withSubcommand(
-        new CommandAPICommand("delegate")
-            .executesPlayer(this::delegateLocal));
+        new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
     TeamCommand.withSubcommand(
         new CommandAPICommand("delete")
             .withArguments(new StringArgument("teamname"))
@@ -258,5 +243,4 @@ public class TeamCommand extends ListenerClient {
 
     TeamCommand.register();
   }
-
 }

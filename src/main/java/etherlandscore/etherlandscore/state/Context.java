@@ -1,13 +1,11 @@
 package etherlandscore.etherlandscore.state;
 
-import etherlandscore.etherlandscore.Menus.MapMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
-import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,12 +13,11 @@ import java.util.UUID;
 
 public class Context {
 
-  private final Map<UUID, WriteGamer> gamers = new HashMap<>();
-  private final Map<String, WriteTeam> teams = new HashMap<>();
-  private final Map<String, UUID> linked = new HashMap<>();
-  private final Map<Integer, WritePlot> plots = new HashMap<>();
-  // public final Map<Integer, Map<Integer, Integer>> plotLocations = new HashMap<>();
-  private final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
+  public final Map<UUID, WriteGamer> gamers = new HashMap<>();
+  public final Map<String, WriteTeam> teams = new HashMap<>();
+  public final Map<String, UUID> linked = new HashMap<>();
+  public final Map<Integer, WritePlot> plots = new HashMap<>();
+  public final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
 
   public void context_create_gamer(UUID uuid) {
     if (!this.getGamers().containsKey(uuid)) {
@@ -113,7 +110,7 @@ public class Context {
   }
 
   public void group_set_priority(WriteGroup group, Integer b) {
-    group.setPriority(b);
+    group.setPrioritySafe(b);
   }
 
   public void plot_reclaim_plot(WritePlot plot) {
@@ -130,7 +127,7 @@ public class Context {
       this.getPlots().put(id, new WritePlot(id, x, z, owner));
     }
     WritePlot plot = this.getPlot(id);
-    this.getPlotLocations().put(plot.getX(), plot.getZ(), plot.getId());
+    this.getPlotLocations().put(plot.getX(), plot.getZ(), plot.getIdInt());
     plot_set_owner(plot, owner);
   }
 

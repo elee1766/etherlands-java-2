@@ -2,7 +2,6 @@ package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.DistrictPrinter;
 import etherlandscore.etherlandscore.enums.AccessFlags;
@@ -29,15 +28,24 @@ public class DistrictCommand extends ListenerClient {
     register();
   }
 
-  void help(Player sender, Object[] args) {
-    sender.sendMessage("create");
+  void add(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    if (writeTeam.isManager(gamer)) {
+      District writeDistrict = (District) args[0];
+      IntegerRange range = (IntegerRange) args[1];
+      for (int i = range.getLowerBound();
+          i <= Math.min(context.getPlots().size(), range.getUpperBound());
+          i++) {
+        if (writeTeam.getPlots().contains(i)) {
+          DistrictSender.addPlot(this.channels, context.getPlot(i), writeDistrict);
+        }
+      }
+      sender.sendMessage("Plots " + args[1] + " have been added to district " + args[0]);
+    }
   }
 
-  void noTeam(Player sender) {
-    sender.sendMessage("you must be in a team to manage districts");
-  }
-
-  void create(Player sender, Object[] args){
+  void create(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
@@ -48,7 +56,7 @@ public class DistrictCommand extends ListenerClient {
     }
   }
 
-  void delete(Player sender, Object[] args){
+  void delete(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
@@ -59,70 +67,20 @@ public class DistrictCommand extends ListenerClient {
     }
   }
 
-  void add(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    if (writeTeam.isManager(gamer)) {
-      District writeDistrict = (District) args[0];
-      IntegerRange range = (IntegerRange) args[1];
-      for (int i = range.getLowerBound();
-           i <= Math.min(context.getPlots().size(), range.getUpperBound());
-           i++) {
-        if (writeTeam.getPlots().contains(i)) {
-          DistrictSender.addPlot(this.channels, context.getPlot(i), writeDistrict);
-        }
-      }
-      sender.sendMessage("Plots " + args[1] + " have been added to district " + args[0]);
-    }
+  void help(Player sender, Object[] args) {
+    sender.sendMessage("create");
   }
 
-  void remove(Player sender, Object[] args){
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    if (writeTeam.isManager(gamer)) {
-      District writeDistrict = writeTeam.getDistrict((String) args[0]);
-      IntegerRange range = (IntegerRange) args[1];
-      for (int i = range.getLowerBound();
-           i <= Math.min(context.getPlots().size(), range.getUpperBound());
-           i++) {
-        DistrictSender.removePlot(this.channels, context.getPlot(i), writeDistrict);
-      }
-      sender.sendMessage(args[0] + " plot has been removed");
-    }else{
-      sender.sendMessage("ur not a manager");
-    }
-  }
-
-  void setPlayer(Player sender, Object[] args){
-    Gamer manager = context.getGamer(sender.getUniqueId());
-    Team writeTeam = manager.getTeamObject();
-    if (writeTeam.isManager(manager)) {
-      District writeDistrict = (District) args[0];
-      Gamer member = (Gamer) args[1];
-      AccessFlags flag = (AccessFlags) args[2];
-      FlagValue value = (FlagValue) args[3];
-      DistrictSender.setGamerPermission(channels, member, flag, value, writeDistrict);
-    }
-  }
-
-  void setGroup(Player sender, Object[] args){
-    Gamer manager = context.getGamer(sender.getUniqueId());
-    Team writeTeam = manager.getTeamObject();
-    if (writeTeam.isManager(manager)) {
-      District writeDistrict = (District) args[0];
-      Group member = (Group) args[1];
-      AccessFlags flag = (AccessFlags) args[2];
-      FlagValue value = (FlagValue) args[3];
-      DistrictSender.setGroupPermission(channels, member, flag, value, writeDistrict);
-    }
-  }
-
-  void info(Player sender, Object[] args){
+  void info(Player sender, Object[] args) {
     Player player = sender.getPlayer();
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = context.getTeam(gamer.getTeamName());
+    Team writeTeam = context.getTeam(gamer.getTeam());
     DistrictPrinter printer = new DistrictPrinter(writeTeam.getDistricts());
     printer.printDistrict(sender);
+  }
+
+  void noTeam(Player sender) {
+    sender.sendMessage("you must be in a team to manage districts");
   }
 
   public void register() {
@@ -130,9 +88,7 @@ public class DistrictCommand extends ListenerClient {
         new CommandAPICommand("district")
             .withPermission("etherlands.public")
             .executesPlayer(this::help);
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("help")
-            .executesPlayer(this::help));
+    DistrictCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("create")
             .withArguments(cleanNameArgument("districtname"))
@@ -167,13 +123,53 @@ public class DistrictCommand extends ListenerClient {
             .withArguments(teamDistrictArgument("district"))
             .withArguments(teamGroupArgument("group"))
             .withArguments(accessFlagArgument("flag"))
-            .withArguments(flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
+            .withArguments(
+                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(this::setGroup));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("info")
-            .executesPlayer(this::info));
+    DistrictCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::info));
 
     DistrictCommand.register();
+  }
+
+  void remove(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    if (writeTeam.isManager(gamer)) {
+      District writeDistrict = writeTeam.getDistrict((String) args[0]);
+      IntegerRange range = (IntegerRange) args[1];
+      for (int i = range.getLowerBound();
+          i <= Math.min(context.getPlots().size(), range.getUpperBound());
+          i++) {
+        DistrictSender.removePlot(this.channels, context.getPlot(i), writeDistrict);
+      }
+      sender.sendMessage(args[0] + " plot has been removed");
+    } else {
+      sender.sendMessage("ur not a manager");
+    }
+  }
+
+  void setGroup(Player sender, Object[] args) {
+    Gamer manager = context.getGamer(sender.getUniqueId());
+    Team writeTeam = manager.getTeamObject();
+    if (writeTeam.isManager(manager)) {
+      District writeDistrict = (District) args[0];
+      Group member = (Group) args[1];
+      AccessFlags flag = (AccessFlags) args[2];
+      FlagValue value = (FlagValue) args[3];
+      DistrictSender.setGroupPermission(channels, member, flag, value, writeDistrict);
+    }
+  }
+
+  void setPlayer(Player sender, Object[] args) {
+    Gamer manager = context.getGamer(sender.getUniqueId());
+    Team writeTeam = manager.getTeamObject();
+    if (writeTeam.isManager(manager)) {
+      District writeDistrict = (District) args[0];
+      Gamer member = (Gamer) args[1];
+      AccessFlags flag = (AccessFlags) args[2];
+      FlagValue value = (FlagValue) args[3];
+      DistrictSender.setGamerPermission(channels, member, flag, value, writeDistrict);
+    }
   }
 }

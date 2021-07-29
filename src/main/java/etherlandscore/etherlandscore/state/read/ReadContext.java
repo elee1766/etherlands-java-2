@@ -1,14 +1,10 @@
 package etherlandscore.etherlandscore.state.read;
 
-import etherlandscore.etherlandscore.Menus.MapMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.Context;
-import etherlandscore.etherlandscore.state.write.WriteGamer;
-import org.bukkit.entity.Player;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 

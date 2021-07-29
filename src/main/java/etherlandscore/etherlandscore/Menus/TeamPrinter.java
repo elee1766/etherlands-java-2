@@ -18,7 +18,9 @@ public class TeamPrinter {
     TextComponent print = new TextComponent("");
     MessageFormatter prettyPrint = new MessageFormatter(print);
     prettyPrint.addBar("=", "TeamInfo");
-
+    if(this.writeTeam == null){
+      return;
+    }
     Field[] fields = writeTeam.getDeclaredFields();
     for (Field field : fields) {
       try {

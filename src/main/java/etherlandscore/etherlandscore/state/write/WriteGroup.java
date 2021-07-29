@@ -44,6 +44,7 @@ public class WriteGroup implements Group {
     this.team = writeTeam.getName();
     this.priority = priority;
     this.isDefault = isDefault;
+    this.members = new HashSet<>();
   }
 
   public void addMember(Gamer gamer) {

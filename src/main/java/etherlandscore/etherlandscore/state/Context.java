@@ -2,22 +2,39 @@ package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class Context {
 
+  private CouchPersister couchPersister;
+
   public final Map<UUID, WriteGamer> gamers = new HashMap<>();
   public final Map<String, WriteTeam> teams = new HashMap<>();
   public final Map<String, UUID> linked = new HashMap<>();
   public final Map<Integer, WritePlot> plots = new HashMap<>();
   public final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
+
+  public Context(){
+    try {
+      this.couchPersister = new CouchPersister();
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+    }
+    couchPersister.populateContext(this);
+  }
+
+  public void saveAll(){
+    couchPersister.saveContext(this);
+  }
 
   public void context_create_gamer(UUID uuid) {
     if (!this.getGamers().containsKey(uuid)) {

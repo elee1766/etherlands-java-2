@@ -40,6 +40,10 @@ public class TeamCommand extends ListenerClient {
       return;
     }
     if (context.hasGamer(sender.getUniqueId())) {
+      if(context.getGamer(sender.getUniqueId()).hasTeam()){
+        sender.sendMessage("ur already in a team");
+        return;
+      }
       context.createTeam(this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
       sender.sendMessage("team created!");
     }

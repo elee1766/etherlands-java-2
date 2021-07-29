@@ -6,7 +6,6 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -32,7 +31,6 @@ public class ListenerClient extends ServerModule {
     super(fiber);
     this.channels = channels;
     this.fiber = fiber;
-    this.context = new ReadContext(new Context());
     register();
   }
 

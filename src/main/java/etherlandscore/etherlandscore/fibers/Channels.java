@@ -4,6 +4,9 @@ import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.write.WriteGamer;
+import etherlandscore.etherlandscore.state.write.WritePlot;
+import etherlandscore.etherlandscore.state.write.WriteTeam;
 import org.jetlang.channels.MemoryChannel;
 
 public class Channels {
@@ -16,4 +19,8 @@ public class Channels {
   public final MemoryChannel<Team> team_update = new MemoryChannel<>();
 
   public final MemoryChannel<Plot> plot_update = new MemoryChannel<>();
+
+  public final MemoryChannel<WriteGamer> db_gamer = new MemoryChannel<>();
+  public final MemoryChannel<WritePlot> db_plot = new MemoryChannel<>();
+  public final MemoryChannel<WriteTeam> db_team = new MemoryChannel<>();
 }

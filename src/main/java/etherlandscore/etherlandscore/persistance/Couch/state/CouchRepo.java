@@ -1,13 +1,19 @@
-package etherlandscore.etherlandscore.persistance.Couch;
+package etherlandscore.etherlandscore.persistance.Couch.state;
 
+import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.support.CouchDbRepositorySupport;
+import org.ektorp.support.View;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
+@View(name="all", map="function(doc){emit(null,doc._id)}")
 public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport<T> {
   public CouchRepo(CouchDbConnector db, Class<T> type) {
     super(type, db, true);
+    initStandardDesignDocument();
   }
 
   public void save(T entry) {

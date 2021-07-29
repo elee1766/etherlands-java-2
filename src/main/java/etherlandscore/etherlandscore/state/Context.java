@@ -2,11 +2,14 @@ package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
+import org.jetlang.fibers.Fiber;
+import org.jetlang.fibers.ThreadFiber;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
@@ -23,9 +26,11 @@ public class Context {
   public final Map<Integer, WritePlot> plots = new HashMap<>();
   public final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
 
-  public Context(){
+  public Context(Channels channels){
     try {
-      this.couchPersister = new CouchPersister();
+      Fiber couchFiber = new ThreadFiber();
+      this.couchPersister = new CouchPersister(channels, couchFiber);
+      this.couchPersister.start();
     } catch (MalformedURLException e) {
       e.printStackTrace();
     }
@@ -40,44 +45,56 @@ public class Context {
     if (!this.getGamers().containsKey(uuid)) {
       WriteGamer gamer = new WriteGamer(uuid);
       this.getGamers().put(uuid, gamer);
+      couchPersister.update(gamer);
     }
   }
 
   public void district_add_plot(WriteDistrict district, WritePlot plot) {
     plot.addDistrict(district);
     district.addPlot(plot);
+    couchPersister.update(plot);
+    couchPersister.update((WriteTeam) district.getTeamObject());
   }
 
   public void district_remove_plot(WriteDistrict district, WritePlot plot) {
     plot.removeDistrict(district);
     district.removePlot(plot);
+    couchPersister.update(plot);
+    couchPersister.update((WriteTeam) district.getTeamObject());
   }
 
   public void district_set_gamer_permission(
       WriteDistrict district, WriteGamer gamer, AccessFlags flag, FlagValue value) {
     district.setGamerPermission(gamer, flag, value);
+    couchPersister.update((WriteTeam) district.getTeamObject());
   }
 
   public void district_set_group_permission(
       WriteDistrict district, WriteGroup writeGroup, AccessFlags flag, FlagValue value) {
     district.setGroupPermission(writeGroup, flag, value);
+    couchPersister.update((WriteTeam) district.getTeamObject());
   }
 
   public void district_set_priority(WriteDistrict district, Integer priority) {
     district.setPriorityBound(priority);
+    couchPersister.update((WriteTeam) district.getTeamObject());
   }
 
   public void gamer_add_friend(WriteGamer a, Gamer b) {
     a.addFriend(b);
+    couchPersister.update(a);
   }
 
   public void gamer_link_address(WriteGamer gamer, String address) {
     gamer.setAddress(address);
     getLinks().put(address, gamer.getUuid());
+    couchPersister.update(gamer);
   }
 
   public void gamer_remove_friend(WriteGamer a, Gamer b) {
     a.removeFriend(b);
+    couchPersister.update(a);
+
   }
 
   public WriteGamer getGamer(UUID uuid) {
@@ -119,24 +136,31 @@ public class Context {
   public void group_add_gamer(WriteGroup group, WriteGamer gamer) {
     gamer.addGroup(group);
     group.addMember(gamer);
+    couchPersister.update((WriteTeam) group.getTeamObject());
+    couchPersister.update(gamer);
   }
 
   public void group_remove_gamer(WriteGroup group, WriteGamer gamer) {
     group.removeMember(gamer);
     gamer.removeGroup(group.getName());
+    couchPersister.update((WriteTeam) group.getTeamObject());
+    couchPersister.update(gamer);
   }
 
   public void group_set_priority(WriteGroup group, Integer b) {
     group.setPrioritySafe(b);
+    couchPersister.update((WriteTeam) group.getTeamObject());
   }
 
   public void plot_reclaim_plot(WritePlot plot) {
     plot.removeTeam();
+    couchPersister.update(plot);
   }
 
   public void plot_set_owner(WritePlot plot, String address) {
     UUID ownerUUID = this.getLinks().getOrDefault(address, null);
     plot.setOwner(address, ownerUUID);
+    couchPersister.update(plot);
   }
 
   public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {
@@ -146,19 +170,24 @@ public class Context {
     WritePlot plot = this.getPlot(id);
     this.getPlotLocations().put(plot.getX(), plot.getZ(), plot.getIdInt());
     plot_set_owner(plot, owner);
+    couchPersister.update(plot);
   }
 
   public void team_add_gamer(WriteTeam team, WriteGamer gamer) {
     team.addMember(gamer);
     gamer.setTeam(team.getName());
+    couchPersister.update(team);
+    couchPersister.update(gamer);
   }
 
   public void team_create_district(WriteTeam team, String name) {
     team.createDistrict(name);
+    couchPersister.update(team);
   }
 
   public void team_create_group(WriteTeam team, String name) {
     team.createGroup(name);
+    couchPersister.update(team);
   }
 
   public void team_create_team(WriteGamer gamer, String name) {
@@ -166,6 +195,8 @@ public class Context {
     if (!this.getTeams().containsKey(name)) {
       this.getTeams().put(name, team);
       gamer.setTeam(team.getName());
+      couchPersister.update(gamer);
+      couchPersister.update(team);
     }
   }
 
@@ -173,6 +204,8 @@ public class Context {
     plot_reclaim_plot(plot);
     team.addPlot(plot);
     plot.setTeam(team.getName());
+    couchPersister.update(team);
+    couchPersister.update(plot);
   }
 
   public void team_delete_district(WriteTeam team, WriteDistrict writeDistrict) {
@@ -180,14 +213,20 @@ public class Context {
       getPlot(plotId).removeDistrict(writeDistrict);
     }
     team.deleteDistrict(writeDistrict.getName());
+    couchPersister.update(team);
   }
 
   public void team_delete_group(WriteTeam team, WriteGroup writeGroup) {
     for (UUID member : team.getMembers()) {
-      getGamer(member).setTeam("");
+      WriteGamer gamer = getGamer(member);
+      gamer.setTeam("");
+      couchPersister.update(gamer);
     }
-    getGamer(team.getOwnerUUID()).setTeam("");
+    WriteGamer gamer = getGamer(team.getOwnerUUID());
+    gamer.setTeam("");
     team.deleteGroup(writeGroup.getName());
+    couchPersister.update(team);
+    couchPersister.update(gamer);
   }
 
   public void team_delete_team(WriteTeam writeTeam) {
@@ -195,18 +234,23 @@ public class Context {
       WriteGamer gamer = getGamer(member);
       gamer.setTeam("");
       gamer.clearGroups();
+      couchPersister.update(gamer);
     }
     getGamer(writeTeam.getOwnerUUID()).setTeam("");
     for (Integer id : writeTeam.getPlots()) {
-      getPlot(id).removeTeam();
+      WritePlot plot = getPlot(id);
+      plot.removeTeam();
+      couchPersister.update(plot);
     }
-
     teams.remove(writeTeam.getName());
+    couchPersister.update(writeTeam);
   }
 
   public void team_remove_gamer(WriteTeam team, WriteGamer gamer) {
     team.removeMember(gamer);
     gamer.setTeam("");
     gamer.clearGroups();
+    couchPersister.update(team);
+    couchPersister.update(gamer);
   }
 }

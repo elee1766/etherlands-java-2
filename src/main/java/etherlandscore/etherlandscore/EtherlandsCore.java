@@ -29,20 +29,26 @@ public final class EtherlandsCore extends JavaPlugin {
     getLogger().info("onEnable is called!");
     List<ServerModule> modules = new ArrayList<>();
     Channels channels = new Channels();
+
     getLogger().info("Creating Locale Singleton");
     LocaleSingleton.getLocale();
-    getLogger().info("Hooking Event Listeners");
+
+
+    var manager = getServer().getPluginManager();
+    getLogger().info("Hooking Player Event Listener");
     Fiber playerEventListenerFiber = new ThreadFiber();
     PlayerEventListener playerEventListener =
         new PlayerEventListener(channels, playerEventListenerFiber);
     modules.add(playerEventListener);
-    getServer().getPluginManager().registerEvents(playerEventListener, this);
+    manager.registerEvents(playerEventListener, this);
+    getLogger().info("Hooking Block Event Listener");
     Fiber blockEventListenerFiber = new ThreadFiber();
     BlockEventListener blockEventListener =
         new BlockEventListener(channels, blockEventListenerFiber);
     modules.add(blockEventListener);
-    getServer().getPluginManager().registerEvents(blockEventListener, this);
+    manager.registerEvents(blockEventListener, this);
 
+    getLogger().info("Hooking Commands");
     new CommandDisabler().disable();
     Fiber districtCommandFiber = new ThreadFiber();
     modules.add(new DistrictCommand(channels, districtCommandFiber));
@@ -62,12 +68,15 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new GamerCommand(channels, gamerCommandFiber));
     Fiber mapCommandFiber = new ThreadFiber();
     modules.add(new MapCommand(channels, mapCommandFiber));
+    getLogger().info("Hooking Ethers");
     Fiber ethersFiber = new ThreadFiber();
     try {
       modules.add(new EthereumService(channels, ethersFiber));
     } catch (IOException e) {
       e.printStackTrace();
     }
+
+    getLogger().info("initializing master service");
     Fiber databaseFiber = new ThreadFiber();
     modules.add(new MasterService(channels, databaseFiber));
     for (var m : modules) {

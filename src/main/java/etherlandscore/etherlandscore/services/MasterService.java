@@ -24,7 +24,7 @@ public class MasterService extends ServerModule {
         super(fiber);
         this.channels = channels;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        context = new Context();
+        context = new Context(this.channels);
         this.channels.global_update.publish(context);
         this.channels.master_command.subscribe(fiber, this::process_command);
     }
@@ -72,7 +72,6 @@ public class MasterService extends ServerModule {
             case district_set_gamer_permission -> context.district_set_gamer_permission((WriteDistrict) _args[0], (WriteGamer) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
         }
         global_update();
-        save();
     }
 
     public void save() {

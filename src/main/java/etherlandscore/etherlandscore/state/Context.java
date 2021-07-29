@@ -47,7 +47,7 @@ public class Context {
   }
 
   public void district_set_priority(WriteDistrict district, Integer priority) {
-    district.setPriority(priority);
+    district.setPriorityBound(priority);
   }
 
   public void gamer_add_friend(WriteGamer a, Gamer b) {

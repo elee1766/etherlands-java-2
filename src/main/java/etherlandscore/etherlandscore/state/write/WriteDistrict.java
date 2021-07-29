@@ -18,6 +18,7 @@ import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class WriteDistrict implements District {
   private final String name;
+  @JsonProperty("default")
   private final boolean isDefault;
   private Set<Integer> plotIds;
   private Map2<String, AccessFlags, FlagValue> groupPermissionMap;
@@ -42,7 +43,7 @@ public class WriteDistrict implements District {
       @JsonProperty("team") String team,
       @JsonProperty("name") String name,
       @JsonProperty("priority") Integer priority,
-      @JsonProperty("isDefault") boolean isDefault) {
+      @JsonProperty("default") boolean isDefault) {
     this.team = team;
     this.name = name;
     this.isDefault = isDefault;
@@ -129,7 +130,10 @@ public class WriteDistrict implements District {
     return this.priority;
   }
 
-  public void setPriority(Integer newPriority) {
+  public void setPriority(Integer priority1) {this.priority = priority1;}
+
+
+  public void setPriorityBound(Integer newPriority) {
     if (isDefault) return;
     if (newPriority < 0) this.priority = 0;
     if (newPriority > 100) this.priority = 0;
@@ -148,6 +152,9 @@ public class WriteDistrict implements District {
   public Team getTeamObject() {
     return state().getTeam(getName());
   }
+
+  @JsonProperty("default")
+  public boolean getDefault(){return isDefault;}
 
   @Override
   public boolean isDefault() {

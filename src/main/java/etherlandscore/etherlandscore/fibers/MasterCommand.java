@@ -2,6 +2,7 @@ package etherlandscore.etherlandscore.fibers;
 
 public enum MasterCommand {
   context_create_gamer,
+  context_save_all,
   team_remove_gamer,
   team_create_team,
   gamer_add_friend,

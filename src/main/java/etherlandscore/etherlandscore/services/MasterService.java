@@ -41,6 +41,7 @@ public class MasterService extends ServerModule {
         Object[] _args = message.getArgs();
         switch (message.getCommand()) {
             case context_create_gamer -> context.context_create_gamer((UUID) _args[0]);
+            case context_save_all -> context.saveAll();
             // gamer commands
             case gamer_add_friend ->context. gamer_add_friend((WriteGamer) _args[0], (WriteGamer) _args[1]);
             case gamer_remove_friend -> context.gamer_remove_friend((WriteGamer) _args[0],(WriteGamer) _args[1]);

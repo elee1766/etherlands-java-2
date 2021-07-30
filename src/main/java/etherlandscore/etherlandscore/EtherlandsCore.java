@@ -2,6 +2,8 @@ package etherlandscore.etherlandscore;
 
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.listener.BlockEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
@@ -10,6 +12,7 @@ import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
 import etherlandscore.etherlandscore.state.Context;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -22,7 +25,10 @@ public final class EtherlandsCore extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    System.out.println("Shutting down....");
+    Channels channels = new Channels();
+    Bukkit.getServer().getConsoleSender().sendMessage("Saving context and shutting down...");
+    channels.master_command.publish(
+        new Message<>(MasterCommand.context_save_all));
   }
 
   @Override

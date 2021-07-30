@@ -30,6 +30,41 @@ public class MessageFormatter {
     message.addExtra(titleBar);
   }
 
+  public void addLine() {
+    message.addExtra("\n");
+  }
+  public void addFriendName(String name, String value) {
+    TextComponent valuecomp;
+    if (value.length() > 24) {
+      valuecomp = new TextComponent(abbreviate(value));
+    }else{
+      valuecomp = new TextComponent(value);
+    }
+    TextComponent namecomp = new TextComponent(name);
+    TextComponent invite = new TextComponent("invite");
+    TextComponent remove = new TextComponent("remove");
+
+    invite.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to invite them to your team!")));
+    invite.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/invite "+value));
+    remove.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to remove them from your friends list.")));
+    remove.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/friend remove "+value));
+
+    invite.setColor(ChatColor.GRAY);
+    remove.setColor(ChatColor.GRAY);
+
+    valuecomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text(value)));
+    namecomp.setColor(ChatColor.AQUA);
+    namecomp.addExtra(": ");
+    valuecomp.setColor(ChatColor.DARK_AQUA);
+
+    message.addExtra(namecomp);
+    message.addExtra(valuecomp);
+    message.addExtra(" ");
+    message.addExtra(invite);
+    message.addExtra(" ");
+    message.addExtra(remove);
+    message.addExtra("\n");
+  }
   public void addField(String name, String value) {
     TextComponent valuecomp;
     if (value.length() > 24) {

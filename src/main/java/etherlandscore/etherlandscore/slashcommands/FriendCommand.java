@@ -1,12 +1,14 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import etherlandscore.etherlandscore.Menus.FriendPrinter;
 import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
+import org.bouncycastle.math.ec.rfc7748.X448;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -41,7 +43,8 @@ public class FriendCommand extends ListenerClient {
   void friendList(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     if (gamer.getFriends() != null) {
-      gamer.friendList();
+      FriendPrinter fp = new FriendPrinter(gamer);
+      fp.printFrinds();
     } else {
       sender.sendMessage("There are no friends");
     }
@@ -74,13 +77,13 @@ public class FriendCommand extends ListenerClient {
             .executesPlayer(this::help);
     FriendCommand.withSubcommand(
         new CommandAPICommand("add")
-            .withArguments(gamerArgument("friend"))
+            .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
             .executesPlayer(this::friendAdd));
     FriendCommand.withSubcommand(
         new CommandAPICommand("add").executesPlayer(this::friendAddSelector));
     FriendCommand.withSubcommand(
         new CommandAPICommand("remove")
-            .withArguments(gamerArgument("friend"))
+            .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
             .executesPlayer(this::friendRemove));
     FriendCommand.withSubcommand(
         new CommandAPICommand("remove").executesPlayer(this::friendRemoveSelector));

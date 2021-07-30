@@ -106,7 +106,7 @@ public class TeamCommand extends ListenerClient {
 
   void infoLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    if (!gamer.hasTeam()) {
+    if (gamer.hasTeam()) {
       TeamPrinter printer = new TeamPrinter(gamer.getTeamObject());
       printer.printTeam(sender);
     } else {
@@ -207,7 +207,7 @@ public class TeamCommand extends ListenerClient {
     CommandAPICommand TeamCommand =
         new CommandAPICommand("team")
             .withPermission("etherlands.public")
-            .executesPlayer(this::help);
+            .executesPlayer(this::infoLocal);
     TeamCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
     TeamCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
     TeamCommand.withSubcommand(

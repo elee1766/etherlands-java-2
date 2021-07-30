@@ -70,12 +70,21 @@ public class MessageFormatter {
     message.addExtra(remove);
     message.addExtra("\n");
   }
+
   public void addField(String name, String value) {
     TextComponent valuecomp;
-    if (value.length() > 24) {
-      valuecomp = new TextComponent(abbreviate(value,12));
+    if(value=="null"){
+      valuecomp = new TextComponent("none");
+      valuecomp.setColor(ChatColor.GRAY);
+    }else if (name.toLowerCase().contains("address") || (name.toLowerCase().contains("uuid"))){
+      valuecomp = new TextComponent("hover to show");
+      valuecomp.setColor(ChatColor.GRAY);
+    }else if (name.toLowerCase().contains("group") || (name.toLowerCase().contains("members"))){
+      valuecomp = new TextComponent(value);
+      valuecomp.setColor(ChatColor.GRAY);
     }else{
       valuecomp = new TextComponent(value);
+      valuecomp.setColor(ChatColor.DARK_AQUA);
     }
     TextComponent namecomp = new TextComponent(name);
 
@@ -83,13 +92,14 @@ public class MessageFormatter {
       String url = ("https://etherscan.io/address/"+value);
       System.out.println("doing address");
       valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,url));
+    }else if(name.toLowerCase().contains("friend")){
+      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/friend list"));
     }else{
       valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,value));
     }
     valuecomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text(value)));
     namecomp.setColor(ChatColor.AQUA);
     namecomp.addExtra(": ");
-    valuecomp.setColor(ChatColor.DARK_AQUA);
     valuecomp.addExtra("\n");
 
     message.addExtra(namecomp);

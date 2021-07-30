@@ -121,7 +121,7 @@ public class PlotCommand extends ListenerClient {
     CommandAPICommand ChunkCommand =
         new CommandAPICommand("plot")
             .withPermission("etherlands.public")
-            .executesPlayer(this::runHelpCommand);
+            .executesPlayer(this::infoLocal);
     ChunkCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::runHelpCommand));
     ChunkCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
     ChunkCommand.withSubcommand(

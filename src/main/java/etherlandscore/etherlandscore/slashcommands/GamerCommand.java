@@ -32,6 +32,12 @@ public class GamerCommand extends ListenerClient {
     printer.printGamer(sender);
   }
 
+  void infoLocal(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    GamerPrinter printer = new GamerPrinter(gamer);
+    printer.printGamer(sender);
+  }
+
   void link(Player sender, Object[] args) {
     Player p = (Player) args[0];
     WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
@@ -41,12 +47,18 @@ public class GamerCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand GamerCommand =
-        new CommandAPICommand("gamer").withPermission("etherlands.public");
+        new CommandAPICommand("gamer").withPermission("etherlands.public").executesPlayer(this::infoLocal);
+
     GamerCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(
                 new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .executesPlayer(this::info));
+
+    GamerCommand.withSubcommand(
+        new CommandAPICommand("info")
+            .executesPlayer(this::infoLocal));
+
     GamerCommand.withSubcommand(
         new CommandAPICommand("link")
             .withArguments(

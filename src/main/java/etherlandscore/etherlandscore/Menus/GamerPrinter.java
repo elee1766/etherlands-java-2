@@ -2,9 +2,12 @@ package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.state.read.Gamer;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
+import java.util.Set;
+import java.util.UUID;
 
 public class GamerPrinter {
   private final Gamer gamer;
@@ -22,7 +25,17 @@ public class GamerPrinter {
     Field[] fields = gamer.getDeclaredFields();
     for (Field field : fields) {
       try {
-        prettyPrint.addField(field.getName(), String.valueOf(field.get(this.gamer)));
+        if(field.getName()=="friends") {
+          String ds = "";
+          Set<UUID> friends = (Set<UUID>) field.get(this.gamer);
+          for (UUID friend : friends) {
+            String memName = Bukkit.getPlayer(friend).getName();
+            ds = memName + " ";
+          }
+          prettyPrint.addField(field.getName(), ds);
+        }else if (field.getName() != "_id") {
+          prettyPrint.addField(field.getName(), String.valueOf(field.get(this.gamer)));
+        }
       } catch (IllegalAccessException ex) {
         System.out.println(ex);
       }

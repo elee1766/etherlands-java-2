@@ -159,7 +159,7 @@ public class WriteGamer extends CouchDocument implements Gamer {
     if (team == null) {
       return false;
     }
-    return team.equals("");
+    return !team.equals("");
   }
 
   @Override

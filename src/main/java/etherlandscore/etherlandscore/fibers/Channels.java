@@ -23,4 +23,8 @@ public class Channels {
   public final MemoryChannel<WriteGamer> db_gamer = new MemoryChannel<>();
   public final MemoryChannel<WritePlot> db_plot = new MemoryChannel<>();
   public final MemoryChannel<WriteTeam> db_team = new MemoryChannel<>();
+
+  public final MemoryChannel<WriteGamer> db_gamer_delete = new MemoryChannel<>();
+  public final MemoryChannel<WritePlot> db_plot_delete = new MemoryChannel<>();
+  public final MemoryChannel<WriteTeam> db_team_delete = new MemoryChannel<>();
 }

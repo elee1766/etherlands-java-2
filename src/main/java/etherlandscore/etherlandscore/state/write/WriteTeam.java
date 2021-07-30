@@ -30,6 +30,7 @@ public class WriteTeam extends CouchDocument implements Team {
   }
 
   public WriteTeam(Gamer gamer,  String name) {
+    this._id = name;
     this.name = name;
     this.owner = gamer.getUuid();
     this.members = new HashSet<>();

@@ -5,9 +5,7 @@ import org.ektorp.CouchDbConnector;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @View(name="all", map="function(doc){emit(null,doc._id)}")
 public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport<T> {
@@ -28,7 +26,6 @@ public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport
   }
 
   public void save(Collection<T> entries) {
-    List<Object> bulkSave = new ArrayList<>();
     for (T entry : entries) {
       if (this.contains(entry.getId())) {
         if (entry.getRevision() == null) {
@@ -37,6 +34,10 @@ public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport
       }
     }
     super.db.executeBulk(entries);
+  }
+
+  public void delete(T entry){
+    super.db.delete(entry);
   }
 
 }

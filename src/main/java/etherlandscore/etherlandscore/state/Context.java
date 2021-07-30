@@ -237,14 +237,17 @@ public class Context {
       gamer.clearGroups();
       couchPersister.update(gamer);
     }
-    getGamer(writeTeam.getOwnerUUID()).setTeam("");
+    WriteGamer gamer = getGamer(writeTeam.getOwnerUUID());
+    gamer.setTeam("");
+    gamer.clearGroups();
+    couchPersister.update(gamer);
     for (Integer id : writeTeam.getPlots()) {
       WritePlot plot = getPlot(id);
       plot.removeTeam();
       couchPersister.update(plot);
     }
+    couchPersister.delete(writeTeam);
     teams.remove(writeTeam.getName());
-    couchPersister.update(writeTeam);
   }
 
   public void team_remove_gamer(WriteTeam team, WriteGamer gamer) {

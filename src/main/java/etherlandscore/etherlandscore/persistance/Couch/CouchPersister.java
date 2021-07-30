@@ -45,6 +45,12 @@ public class CouchPersister extends ServerModule {
     this.linkConnector = this.instance.createConnector("linked",true);
 
     channels.db_gamer.subscribe(fiber, this::write);
+    channels.db_team.subscribe(fiber, this::write);
+    channels.db_plot.subscribe(fiber, this::write);
+
+    channels.db_gamer_delete.subscribe(fiber, this::remove);
+    channels.db_team_delete.subscribe(fiber, this::remove);
+    channels.db_plot_delete.subscribe(fiber, this::remove);
   }
 
   public void saveContext(Context context) {
@@ -54,7 +60,6 @@ public class CouchPersister extends ServerModule {
   }
 
   public void populateContext(Context empty){
-
     Bukkit.getLogger().info("doing gamers");
     for (WriteGamer writeGamer : this.gamerRepo.getAll()) {
       empty.gamers.put(writeGamer.getUuid(),writeGamer);
@@ -94,5 +99,25 @@ public class CouchPersister extends ServerModule {
   }
   public void update(WriteTeam team){
     this.channels.db_team.publish(team);
+  }
+  public void remove(WriteGamer gamer){
+    this.gamerRepo.delete(gamer);
+  }
+  public void remove(WritePlot plot){
+    this.plotRepo.delete(plot);
+  }
+  public void remove(WriteTeam team){
+    this.teamRepo.delete(team);
+  }
+
+
+  public void delete(WriteGamer gamer){
+    this.channels.db_gamer_delete.publish(gamer);
+  }
+  public void delete(WritePlot plot){
+    this.channels.db_plot_delete.publish(plot);
+  }
+  public void delete(WriteTeam team){
+    this.channels.db_team_delete.publish(team);
   }
 }

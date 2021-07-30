@@ -6,7 +6,7 @@
 *.iws
 
 #biomeFinder
-biomeFinder/
+c/
 
 # IntelliJ
 out/

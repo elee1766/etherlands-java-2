@@ -5,6 +5,9 @@
 *.ipr
 *.iws
 
+#biomeFinder
+biomeFinder/
+
 # IntelliJ
 out/
 

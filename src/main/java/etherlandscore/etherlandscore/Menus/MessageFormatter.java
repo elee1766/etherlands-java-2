@@ -37,7 +37,11 @@ public class MessageFormatter {
   public void addFriend(String value, String addr) {
     TextComponent addrcomp;
     TextComponent namecomp = new TextComponent("~ " + value);
-    addrcomp = new TextComponent(abbreviate(addr,10));
+    if(addr == null){
+      addrcomp = new TextComponent("null");
+    }else {
+      addrcomp = new TextComponent(abbreviate(addr, 10));
+    }
 
     TextComponent invite = new TextComponent("invite");
     TextComponent remove = new TextComponent("remove");

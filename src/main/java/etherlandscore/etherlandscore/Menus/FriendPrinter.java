@@ -19,7 +19,7 @@ public class FriendPrinter {
     this.gamer = gamer;
   }
 
-  public void printFrinds() {
+  public void printFriends() {
     TextComponent print = new TextComponent("");
     MessageFormatter prettyPrint = new MessageFormatter(print);
     prettyPrint.addBar("=", "FriendList");

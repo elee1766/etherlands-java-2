@@ -28,10 +28,7 @@ public class FriendPrinter {
       Gamer f = state().getGamer(friend);
       String name = f.getPlayer().getName();
       String address = f.getAddress();
-      String UUID = String.valueOf(friend);
-      prettyPrint.addFriendName("Name", name);
-      prettyPrint.addField("UUID", UUID);
-      prettyPrint.addField("Address", address);
+      prettyPrint.addFriend(name, address);
       prettyPrint.addLine();
     }
     prettyPrint.printOut(gamer.getPlayer());

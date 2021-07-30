@@ -16,7 +16,6 @@ public class ReadContext {
   }
 
   public void createTeam(Channels channels, Gamer gamer, String name) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_create_team, gamer, name));
   }
 
   public Gamer getGamer(UUID uuid) {

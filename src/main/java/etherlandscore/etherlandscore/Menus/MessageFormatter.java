@@ -17,8 +17,8 @@ public class MessageFormatter {
     this.message = message;
   }
 
-  private String abbreviate(String value) {
-    return value.substring(0, 6) + "..." + value.substring(value.length() - 3);
+  private String abbreviate(String value, int totlen) {
+    return value.substring(0, totlen/2-2) + ".." + value.substring(value.length() - totlen/4);
   }
 
   public void addBar(String bar, String title) {
@@ -33,33 +33,34 @@ public class MessageFormatter {
   public void addLine() {
     message.addExtra("\n");
   }
-  public void addFriendName(String name, String value) {
-    TextComponent valuecomp;
-    if (value.length() > 24) {
-      valuecomp = new TextComponent(abbreviate(value));
-    }else{
-      valuecomp = new TextComponent(value);
-    }
-    TextComponent namecomp = new TextComponent(name);
+
+  public void addFriend(String value, String addr) {
+    TextComponent addrcomp;
+    TextComponent namecomp = new TextComponent("~ " + value);
+    addrcomp = new TextComponent(abbreviate(addr,10));
+
     TextComponent invite = new TextComponent("invite");
     TextComponent remove = new TextComponent("remove");
 
     invite.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to invite them to your team!")));
-    invite.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/invite "+value));
+    invite.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team invite "+value));
     remove.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to remove them from your friends list.")));
     remove.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/friend remove "+value));
 
     invite.setColor(ChatColor.GRAY);
     remove.setColor(ChatColor.GRAY);
 
-    valuecomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text(value)));
+    String url = ("https://etherscan.io/address/"+addr);
+    addrcomp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,url));
+
+    addrcomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text(addr)));
     namecomp.setColor(ChatColor.AQUA);
-    namecomp.addExtra(": ");
-    valuecomp.setColor(ChatColor.DARK_AQUA);
+    addrcomp.setColor(ChatColor.DARK_AQUA);
 
     message.addExtra(namecomp);
-    message.addExtra(valuecomp);
-    message.addExtra(" ");
+    message.addExtra(" [");
+    message.addExtra(addrcomp);
+    message.addExtra("] ");
     message.addExtra(invite);
     message.addExtra(" ");
     message.addExtra(remove);
@@ -68,7 +69,7 @@ public class MessageFormatter {
   public void addField(String name, String value) {
     TextComponent valuecomp;
     if (value.length() > 24) {
-      valuecomp = new TextComponent(abbreviate(value));
+      valuecomp = new TextComponent(abbreviate(value,12));
     }else{
       valuecomp = new TextComponent(value);
     }

@@ -197,6 +197,7 @@ public class Context {
       gamer.setTeam(team.getName());
       couchPersister.update(gamer);
       couchPersister.update(team);
+      System.out.println("Team created");
     }
   }
 

@@ -7,6 +7,8 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.TeamPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
@@ -44,7 +46,7 @@ public class TeamCommand extends ListenerClient {
         sender.sendMessage("ur already in a team");
         return;
       }
-      context.createTeam(this.channels, state().getGamer(sender.getUniqueId()), (String) args[0]);
+      channels.master_command.publish(new Message<>(MasterCommand.team_create_team, state().getGamer(sender.getUniqueId()), args[0]));
       sender.sendMessage("team created!");
     }
   }

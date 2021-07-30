@@ -41,7 +41,7 @@ public class DistrictCommand extends ListenerClient {
           DistrictSender.addPlot(this.channels, context.getPlot(i), writeDistrict);
         }
       }
-      sender.sendMessage("Plots " + args[1] + " have been added to district " + args[0]);
+      sender.sendMessage("Plots " + args[1] + " have been added to district");
     }
   }
 

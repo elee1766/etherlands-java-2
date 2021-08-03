@@ -28,6 +28,7 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockBreakAction action = new BlockBreakAction(context, breakEvent);
       boolean code = action.process();
       if (!code) {
+        Bukkit.getLogger().warning("Tried to break block they can't break");
         breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY here");
       }
     } catch (Exception e) {

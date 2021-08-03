@@ -25,6 +25,8 @@ public interface Plot {
 
   UUID getOwnerUUID();
 
+  String getOwnerAddress();
+
   Gamer getOwnerObject();
 
   String getTeam();

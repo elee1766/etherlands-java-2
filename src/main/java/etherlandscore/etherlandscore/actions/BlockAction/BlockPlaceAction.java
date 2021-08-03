@@ -22,12 +22,14 @@ public class BlockPlaceAction extends PermissionedAction {
     Plot plot =
         getContext()
             .getPlot(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
-
-    boolean canPerform = plot.canGamerPerform(this.flag, gamer);
     // ops can always destroy
     if (gamer.getPlayer().isOp()) {
       return super.process();
     }
+    if (plot == null) {
+      return super.rollback();
+    }
+    boolean canPerform = plot.canGamerPerform(this.flag, gamer);
     if (!canPerform) {
       return super.rollback();
     }

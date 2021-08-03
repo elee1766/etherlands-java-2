@@ -92,17 +92,14 @@ public class PlotCommand extends ListenerClient {
   }
 
   void reclaim(Player sender, Object[] args) {
+    Plot writePlot = context.getPlot((int) args[0]);
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    IntegerRange range = (IntegerRange) args[0];
-    for (int i = range.getLowerBound();
-        i <= Math.min(context.getPlots().size(), range.getUpperBound());
-        i++) {
-      if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
-        PlotSender.reclaimPlot(this.channels, context.getPlot(i));
-        sender.sendMessage("Plot: " + i + " has been reclaimed");
+      if (writePlot.getOwnerAddress().equals(gamer.getAddress())) {
+        PlotSender.reclaimPlot(this.channels, writePlot);
+        sender.sendMessage("Plot: " + args[0] + " has been reclaimed");
       } else {
-        sender.sendMessage("You do not own plot:" + i);
-      }
+        sender.sendMessage("You do not own plot:" + args[0]);
+
     }
   }
 
@@ -135,7 +132,8 @@ public class PlotCommand extends ListenerClient {
             .executes(this::update));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("reclaim")
-            .withArguments(new IntegerRangeArgument("plot-ids"))
+            .withArguments(
+                new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
             .executesPlayer(this::reclaim));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("reclaim")

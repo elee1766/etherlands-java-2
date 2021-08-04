@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Couch.state.GamerRepo;
 import etherlandscore.etherlandscore.persistance.Couch.state.PlotRepo;
 import etherlandscore.etherlandscore.persistance.Couch.state.TeamRepo;
+import etherlandscore.etherlandscore.singleton.CouchSingleton;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WritePlot;
@@ -18,6 +19,7 @@ import org.ektorp.impl.StdCouchDbInstance;
 import org.jetlang.fibers.Fiber;
 
 import java.net.MalformedURLException;
+import java.util.Map;
 
 public class CouchPersister extends ServerModule {
 
@@ -26,6 +28,7 @@ public class CouchPersister extends ServerModule {
   private final TeamRepo teamRepo;
   private final PlotRepo plotRepo;
   private final CouchDbConnector linkConnector;
+  private final Map<String, String> couchSettings = CouchSingleton.getCouchSettings().getSettings();
   Channels channels;
 
   public CouchPersister(Channels channels, Fiber fiber) throws MalformedURLException {
@@ -33,9 +36,9 @@ public class CouchPersister extends ServerModule {
     this.channels = channels;
     HttpClient httpClient =
         new StdHttpClient.Builder()
-            .url("http://owl.elee.bike:5984")
-            .username("admin")
-            .password("crypto")
+            .url(couchSettings.get("url"))
+            .username(couchSettings.get("username"))
+            .password(couchSettings.get("password"))
             .build();
     this.instance = new StdCouchDbInstance(httpClient);
     this.gamerRepo =

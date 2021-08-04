@@ -54,15 +54,18 @@ public class Context {
     district.addPlot(plot);
     couchPersister.update(plot);
     System.out.println("Plot updates");
-    couchPersister.update((WriteTeam) district.getTeamObject());
+    couchPersister.update((WriteTeam) plot.getTeamObject());
     System.out.println("Team Updated");
   }
 
   public void district_remove_plot(WriteDistrict district, WritePlot plot) {
+    WriteTeam t = (WriteTeam) plot.getTeamObject();
     plot.removeDistrict(district);
     district.removePlot(plot);
     couchPersister.update(plot);
-    couchPersister.update((WriteTeam) district.getTeamObject());
+    if(t!=null){
+      couchPersister.update(t);
+    }
   }
 
   public void district_set_gamer_permission(
@@ -156,10 +159,13 @@ public class Context {
 
   public void plot_reclaim_plot(WritePlot plot) {
     WriteTeam t = (WriteTeam) getTeam(plot.getTeam());
-    t.deletePlot(plot.getIdInt());
+    if(t!=null) {
+      System.out.println("updating team");
+      t.deletePlot(plot.getIdInt());
+      couchPersister.update(t);
+    }
     plot.removeTeam();
     couchPersister.update(plot);
-    couchPersister.update(t);
   }
 
   public void plot_set_owner(WritePlot plot, String address) {

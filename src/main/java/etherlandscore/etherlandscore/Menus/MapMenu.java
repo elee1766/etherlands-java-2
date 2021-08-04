@@ -205,7 +205,7 @@ public class MapMenu extends ListenerClient {
     TextComponent[] compass = compass(facing, x, z);
     TextComponent title =
         new TextComponent(
-            "===========,[Etherlands Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing) + " ],===========\n");
+            "=====,[Etherlands Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing) + " ],=======\n");
     map.addExtra(title);
     if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
       x = x - HEIGHT / 2 - 1;
@@ -283,7 +283,7 @@ public class MapMenu extends ListenerClient {
       map.addExtra(compass[i]);
       map.addExtra("|");
       for (int j = 0; j < WIDTH; j++) {
-        if (facing.toLowerCase().contains("s") || facing.toLowerCase().contains("e")) {
+        if (facing.toLowerCase().contains("s") || facing.toLowerCase().contains("w")) {
           map.addExtra(mapArray[WIDTH - j - 1][HEIGHT - i - 1]);
         } else {
           map.addExtra(mapArray[j][i]);
@@ -323,10 +323,10 @@ public class MapMenu extends ListenerClient {
 
   private TextComponent[] compass(String facing, int xin, int zin) {
     TextComponent[] compassComps = new TextComponent[HEIGHT];
-    ClickEvent gosouth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "S" + " " + xin + " " + (xin+2));
+    ClickEvent gosouth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "S" + " " + xin + " " + (zin+2));
     ClickEvent gonorth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "N" + " " + xin + " " + (zin-2));
-    ClickEvent gowest = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "W" + " " + (xin-2) + " " + zin);
-    ClickEvent goeast = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "E" + " " + (xin+2) + " " + zin);
+    ClickEvent goeast = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "E" + " " + (xin-2) + " " + zin);
+    ClickEvent gowest = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "W" + " " + (xin+2) + " " + zin);
     ClickEvent goleft;
     ClickEvent goright;
     ClickEvent goup;

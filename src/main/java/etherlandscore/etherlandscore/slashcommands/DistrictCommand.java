@@ -14,6 +14,7 @@ import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.DistrictSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
+import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -31,17 +32,19 @@ public class DistrictCommand extends ListenerClient {
   void add(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
+    System.out.println(gamer.getUuid());
+    System.out.println(writeTeam.getOwnerUUID());
     if (writeTeam.isManager(gamer)) {
       District writeDistrict = (District) args[0];
       IntegerRange range = (IntegerRange) args[1];
-      for (int i = range.getLowerBound();
-          i <= Math.min(context.getPlots().size(), range.getUpperBound());
-          i++) {
+      for (int i = range.getLowerBound(); i <= (range.getUpperBound()); i++) {
         if (writeTeam.getPlots().contains(i)) {
           DistrictSender.addPlot(this.channels, context.getPlot(i), writeDistrict);
         }
       }
       sender.sendMessage("Plots " + args[1] + " have been added to district");
+    }else {
+      sender.sendMessage("You are not a manager");
     }
   }
 
@@ -136,10 +139,10 @@ public class DistrictCommand extends ListenerClient {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     if (writeTeam.isManager(gamer)) {
-      District writeDistrict = writeTeam.getDistrict((String) args[0]);
+      District writeDistrict = (WriteDistrict) args[0];
       IntegerRange range = (IntegerRange) args[1];
       for (int i = range.getLowerBound();
-          i <= Math.min(context.getPlots().size(), range.getUpperBound());
+          i <= range.getUpperBound();
           i++) {
         DistrictSender.removePlot(this.channels, context.getPlot(i), writeDistrict);
       }

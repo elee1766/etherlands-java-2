@@ -95,6 +95,10 @@ public class WriteTeam extends CouchDocument implements Team {
     }
   }
 
+  public void deletePlot(int ID) {
+    this.plots.remove(ID);
+  }
+
   public void deleteGroup(String name) {
     if (groups.containsKey(name)) {
       if (!groups.get(name).isDefault()) {

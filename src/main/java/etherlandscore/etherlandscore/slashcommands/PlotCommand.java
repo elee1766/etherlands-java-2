@@ -16,6 +16,7 @@ import etherlandscore.etherlandscore.state.sender.PlotSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -38,7 +39,7 @@ public class PlotCommand extends ListenerClient {
     Team writeTeam = gamer.getTeamObject();
     IntegerRange range = (IntegerRange) args[0];
     for (int i = range.getLowerBound();
-        i <= Math.min(context.getPlots().size(), range.getUpperBound());
+        i <= range.getUpperBound();
         i++) {
       if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
         TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
@@ -92,14 +93,23 @@ public class PlotCommand extends ListenerClient {
   }
 
   void reclaim(Player sender, Object[] args) {
-    Plot writePlot = context.getPlot((int) args[0]);
     Gamer gamer = context.getGamer(sender.getUniqueId());
-      if (writePlot.getOwnerAddress().equals(gamer.getAddress())) {
-        PlotSender.reclaimPlot(this.channels, writePlot);
-        sender.sendMessage("Plot: " + args[0] + " has been reclaimed");
-      } else {
-        sender.sendMessage("You do not own plot:" + args[0]);
-
+    IntegerRange range = (IntegerRange) args[0];
+    for (int i = range.getLowerBound();
+         i <= range.getUpperBound();
+         i++) {
+      Plot writePlot = context.getPlot(i);
+      Bukkit.getLogger().warning(gamer.getAddress() + " is trying to claim " + writePlot.getOwnerAddress() + "'s plot");
+      if(writePlot != null) {
+        if (writePlot.getOwnerAddress().equals(gamer.getAddress())) {
+          PlotSender.reclaimPlot(this.channels, writePlot);
+          sender.sendMessage("Plot: " + i + " has been reclaimed");
+        } else {
+          sender.sendMessage("You do not own plot:" + i);
+        }
+      }else{
+        sender.sendMessage("That plot is currently unclaimed");
+      }
     }
   }
 
@@ -110,8 +120,9 @@ public class PlotCommand extends ListenerClient {
     if (writePlot.getOwnerUUID().equals(gamer.getUuid())) {
       PlotSender.reclaimPlot(this.channels, writePlot);
       sender.sendMessage(writePlot.getIdInt() + " has been reclaimed");
+    }else {
+      sender.sendMessage("You do not own this plot");
     }
-    sender.sendMessage("You do not own this plot");
   }
 
   public void register() {
@@ -132,12 +143,10 @@ public class PlotCommand extends ListenerClient {
             .executes(this::update));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("reclaim")
-            .withArguments(
-                new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
+            .withArguments(new IntegerRangeArgument("chunkId"))
             .executesPlayer(this::reclaim));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("reclaim")
-            .withArguments(new IntegerRangeArgument("plot-ids"))
             .executesPlayer(this::reclaimLocal));
     ChunkCommand.withSubcommand(
         new CommandAPICommand("delegate")

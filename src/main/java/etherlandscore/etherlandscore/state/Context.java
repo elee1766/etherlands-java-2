@@ -53,7 +53,9 @@ public class Context {
     plot.addDistrict(district);
     district.addPlot(plot);
     couchPersister.update(plot);
+    System.out.println("Plot updates");
     couchPersister.update((WriteTeam) district.getTeamObject());
+    System.out.println("Team Updated");
   }
 
   public void district_remove_plot(WriteDistrict district, WritePlot plot) {
@@ -153,8 +155,11 @@ public class Context {
   }
 
   public void plot_reclaim_plot(WritePlot plot) {
+    WriteTeam t = (WriteTeam) getTeam(plot.getTeam());
+    t.deletePlot(plot.getIdInt());
     plot.removeTeam();
     couchPersister.update(plot);
+    couchPersister.update(t);
   }
 
   public void plot_set_owner(WritePlot plot, String address) {
@@ -199,6 +204,7 @@ public class Context {
       couchPersister.update(team);
       System.out.println("Team created");
     }
+    System.out.println("Team failed to create");
   }
 
   public void team_delegate_plot(WriteTeam team, WritePlot plot) {

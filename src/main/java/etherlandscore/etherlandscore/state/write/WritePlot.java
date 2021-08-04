@@ -28,7 +28,7 @@ public class WritePlot extends CouchDocument implements Plot {
   private final Integer z;
   private transient Chunk chunk = null;
   private String ownerAddress;
-  private UUID ownerUUID;
+  private String ownerUUID;
   private String ownerServerName;
   private String team;
 
@@ -172,11 +172,11 @@ public class WritePlot extends CouchDocument implements Plot {
 
   @Override
   public UUID getOwnerUUID() {
-    return ownerUUID;
+    return UUID.fromString(ownerUUID);
   }
 
   public void setOwnerUUID(UUID ownerUUID) {
-    this.ownerUUID = ownerUUID;
+    this.ownerUUID = ownerUUID.toString();
   }
 
   @Override
@@ -191,7 +191,7 @@ public class WritePlot extends CouchDocument implements Plot {
   @Override
   @JsonIgnore
   public Gamer getOwnerObject() {
-    return state().getGamer(ownerUUID);
+    return state().getGamer(UUID.fromString(ownerUUID));
   }
 
   public String getOwnerServerName() {
@@ -234,7 +234,7 @@ public class WritePlot extends CouchDocument implements Plot {
 
   @Override
   public boolean hasTeam() {
-    return !team.equals("");
+    return team!=null;
   }
 
   @Override
@@ -252,13 +252,13 @@ public class WritePlot extends CouchDocument implements Plot {
   }
 
   public void removeTeam() {
-    this.team = "";
+    this.team = null;
   }
 
   @JsonIgnore
   public void setOwner(String ownerAddress, UUID ownerUUID) {
     this.ownerAddress = ownerAddress;
-    this.ownerUUID = ownerUUID;
+    this.ownerUUID = ownerUUID.toString();
     if (this.ownerUUID != null) {
       OfflinePlayer player = Bukkit.getOfflinePlayer(this.ownerUUID);
       if (player.hasPlayedBefore()) {

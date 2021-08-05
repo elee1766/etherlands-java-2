@@ -283,8 +283,12 @@ public class MapMenu extends ListenerClient {
       map.addExtra(compass[i]);
       map.addExtra("|");
       for (int j = 0; j < WIDTH; j++) {
-        if (facing.toLowerCase().contains("s") || facing.toLowerCase().contains("w")) {
+        if (facing.toLowerCase().contains("s")) {
           map.addExtra(mapArray[WIDTH - j - 1][HEIGHT - i - 1]);
+        }else if(facing.toLowerCase().contains("e")){
+          map.addExtra(mapArray[j][HEIGHT - i - 1]);
+        }else if(facing.toLowerCase().contains("w")){
+          map.addExtra(mapArray[WIDTH - j - 1][i]);
         } else {
           map.addExtra(mapArray[j][i]);
         }
@@ -325,8 +329,8 @@ public class MapMenu extends ListenerClient {
     TextComponent[] compassComps = new TextComponent[HEIGHT];
     ClickEvent gosouth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "S" + " " + xin + " " + (zin+2));
     ClickEvent gonorth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "N" + " " + xin + " " + (zin-2));
-    ClickEvent goeast = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "E" + " " + (xin-2) + " " + zin);
-    ClickEvent gowest = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "W" + " " + (xin+2) + " " + zin);
+    ClickEvent gowest = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "W" + " " + (xin-2) + " " + zin);
+    ClickEvent goeast = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "E" + " " + (xin+2) + " " + zin);
     ClickEvent goleft;
     ClickEvent goright;
     ClickEvent goup;

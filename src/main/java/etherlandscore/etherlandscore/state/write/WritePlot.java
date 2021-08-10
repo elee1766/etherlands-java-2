@@ -172,6 +172,9 @@ public class WritePlot extends CouchDocument implements Plot {
 
   @Override
   public UUID getOwnerUUID() {
+    if(ownerUUID == ""||ownerUUID==null){
+      return null;
+    }
     return UUID.fromString(ownerUUID);
   }
 

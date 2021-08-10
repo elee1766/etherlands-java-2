@@ -65,7 +65,7 @@ public class MapMenu extends ListenerClient {
     TextComponent[] compass = compass(facing, x, z);
     TextComponent title =
         new TextComponent(
-            "===========,[Etherlands Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing) + " ],===========\n");
+            "=======,[Etherlands Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing) + " ],=======\n");
     map.addExtra(title);
     if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
       x = x - HEIGHT / 2 - 1;
@@ -143,8 +143,12 @@ public class MapMenu extends ListenerClient {
       map.addExtra(compass[i]);
       map.addExtra("|");
       for (int j = 0; j < WIDTH; j++) {
-        if (facing.toLowerCase().contains("s") || facing.toLowerCase().contains("e")) {
+        if (facing.toLowerCase().contains("s")) {
           map.addExtra(mapArray[WIDTH - j - 1][HEIGHT - i - 1]);
+        }else if(facing.toLowerCase().contains("e")){
+          map.addExtra(mapArray[j][HEIGHT - i - 1]);
+        }else if(facing.toLowerCase().contains("w")){
+          map.addExtra(mapArray[WIDTH - j - 1][i]);
         } else {
           map.addExtra(mapArray[j][i]);
         }

@@ -37,7 +37,7 @@ public class MessageFormatter {
   public void addFriend(String value, String addr) {
     TextComponent addrcomp;
     TextComponent namecomp = new TextComponent("~ " + value);
-    if(addr == null){
+    if(addr == null||addr==""){
       addrcomp = new TextComponent("null");
     }else {
       addrcomp = new TextComponent(abbreviate(addr, 10));

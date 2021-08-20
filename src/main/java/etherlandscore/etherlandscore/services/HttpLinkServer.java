@@ -1,119 +1,79 @@
 package etherlandscore.etherlandscore.services;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import etherlandscore.etherlandscore.eth.LinkInformation;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsParameters;
+import com.sun.net.httpserver.HttpsServer;
+import etherlandscore.etherlandscore.eth.LinkHandler;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import javax.net.ssl.*;
+import java.io.FileInputStream;
+import java.net.InetSocketAddress;
+import java.security.KeyStore;
+import java.util.concurrent.Executors;
 
-public class HttpLinkServer extends ServerModule implements HttpHandler {
+public class HttpLinkServer extends ServerModule  {
   private final Channels channels;
 
-  public HttpLinkServer(Channels channels, Fiber fiber) {
+  public HttpLinkServer(Channels channels, Fiber fiber) throws Exception {
     super(fiber);
     this.channels = channels;
   }
 
-  @Override
-  public void handle(HttpExchange httpExchange) throws IOException {
-    Map<String, String> requestParamValue = null;
-    if ("GET".equals(httpExchange.getRequestMethod())) {
-      requestParamValue = handleGetRequest(httpExchange);
-      handleResponse(httpExchange, requestParamValue);
-    }
-  }
-
-  private Map<String, String> handleGetRequest(HttpExchange httpExchange)
-      throws UnsupportedEncodingException {
-    Map<String, String> queryMap = new HashMap<>();
-    String[] pairs = httpExchange.getRequestURI().getQuery().split("&");
-    for (String pair : pairs) {
-      int idx = pair.indexOf("=");
-      queryMap.put(
-          URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8),
-          URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8));
-    }
-    return queryMap;
-  }
-
-  private void handleResponse(HttpExchange httpExchange, Map<String, String> queryArgs)
-      throws IOException {
-    OutputStream outputStream = httpExchange.getResponseBody();
-    StringBuilder htmlBuilder = new StringBuilder();
-    htmlBuilder.append("<html>").append("<body>");
+  public void launch(int port) throws Exception {
     try {
-      if (!queryArgs.containsKey("signature")) {
-        htmlBuilder.append("you did not include a signature with your message.");
-      } else if (!queryArgs.containsKey("message")) {
-        htmlBuilder.append("you did not include a signature with your message.");
-      } else if (!queryArgs.containsKey("timestamp")) {
-        htmlBuilder.append("you did not include a timestamp with your message.");
-      } else if (!queryArgs.containsKey("address")) {
-        htmlBuilder.append("you did not include an address with your message.");
-      } else {
-        htmlBuilder.append("attempting to register: ");
-        String signature = queryArgs.get("signature");
-        String address = queryArgs.get("address");
-        String message = queryArgs.get("message");
-        LinkInformation info = new LinkInformation(message, signature, address);
-        long timestamp = 0;
-        try {
-          timestamp = Integer.parseInt(queryArgs.get("timestamp"));
-        } catch (Exception e) {
-          htmlBuilder.append("distorted timestamp");
-        }
-        long currenttime = System.currentTimeMillis() / 1000;
-        if (timestamp <= currenttime) {
-          htmlBuilder.append("signature expired");
-        } else {
+      // setup the socket address
+      InetSocketAddress address = new InetSocketAddress(port);
+
+      // initialise the HTTPS server
+      HttpsServer httpsServer = HttpsServer.create(address, 0);
+      SSLContext sslContext = SSLContext.getInstance("TLS");
+
+      // initialise the keystore
+      char[] password = "password".toCharArray();
+      KeyStore ks = KeyStore.getInstance("JKS");
+      FileInputStream fis = new FileInputStream("testkey.jks");
+      ks.load(fis, password);
+
+      // setup the key manager factory
+      KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+      kmf.init(ks, password);
+
+      // setup the trust manager factory
+      TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+      tmf.init(ks);
+
+      // setup the HTTPS context and parameters
+      sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+      httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+        public void configure(HttpsParameters params) {
           try {
-            info.pubkey();
-          } catch (Exception e) {
-            htmlBuilder.append("failed to verify your message-signature combination");
-            Bukkit.getLogger().info(e.toString());
-            Bukkit.getLogger().info(e.getMessage());
-            e.printStackTrace();
-          }
-          if (info.didPass()) {
-            Bukkit.getLogger().info(info.getPubkey());
-            htmlBuilder
-                .append("attempting to link address")
-                .append(info.getPubkey())
-                .append("<br>")
-                .append("with minecraft player UUID")
-                .append(info.uuid())
-                .append("<br>");
-            channels.master_command.publish(new Message(MasterCommand.gamer_link_address, info));
-          } else {
-            htmlBuilder.append("fields did not match");
+            // initialise the SSL context
+            SSLContext context = getSSLContext();
+            SSLEngine engine = context.createSSLEngine();
+            params.setNeedClientAuth(false);
+            params.setCipherSuites(engine.getEnabledCipherSuites());
+            params.setProtocols(engine.getEnabledProtocols());
+
+            // Set the SSL parameters
+            SSLParameters sslParameters = context.getSupportedSSLParameters();
+            params.setSSLParameters(sslParameters);
+
+          } catch (Exception ex) {
+            System.out.println("Failed to create HTTPS port");
           }
         }
-      }
-    } catch (Exception e) {
-      Bukkit.getLogger().info(e.toString());
-      Bukkit.getLogger().info(e.getMessage());
-      e.printStackTrace();
+      });
+      httpsServer.createContext("/link", new LinkHandler(channels));
+      httpsServer.setExecutor(Executors.newCachedThreadPool());
+      httpsServer.start();
+
+    } catch (Exception exception) {
+      System.out.println("Failed to create HTTPS server on port " + 8000 + " of localhost");
+      exception.printStackTrace();
+
     }
-    htmlBuilder.append("</body>").append("</html>");
-    // encode HTML content
-    String htmlResponse =
-        htmlBuilder.toString(); // StringEscapeUtils.escapeHtml(htmlBuilder.toString());
-    // this line is a must
-    httpExchange.sendResponseHeaders(200, htmlResponse.length());
-    outputStream.write(htmlResponse.getBytes());
-    outputStream.flush();
-    outputStream.close();
   }
 }

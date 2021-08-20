@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.services;
 
-import com.sun.net.httpserver.HttpServer;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -19,7 +18,6 @@ import org.web3j.tx.gas.ContractGasProvider;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.InetSocketAddress;
 import java.util.Map;
 
 public class EthereumService extends ListenerClient {
@@ -37,7 +35,7 @@ public class EthereumService extends ListenerClient {
     private BigInteger currentBlock;
     private final BigInteger lookback = new BigInteger(settings.get("lookback"));
 
-    public EthereumService(Channels channels, Fiber fiber) throws IOException {
+    public EthereumService(Channels channels, Fiber fiber) throws Exception {
         super(channels, fiber);
         this.channels = channels;
         this.fiber = fiber;
@@ -78,8 +76,8 @@ public class EthereumService extends ListenerClient {
                 case ethers_query_nft -> queryChunkId((Integer) x.getArgs()[0]);
             }
         });
-        listenHttp();
         queryLastBlock();
+        listenHttp();
     }
 
     public void queryLastBlock() throws IOException {
@@ -100,15 +98,11 @@ public class EthereumService extends ListenerClient {
         currentBlock = newBlock;
     }
 
-    private void listenHttp() throws IOException {
-        String host = "localhost";
-        int port = 25510;
-        HttpServer server = HttpServer.create(new InetSocketAddress(host, port), 0);
+    private void listenHttp() throws Exception {
         Fiber httpFiber = new ThreadFiber();
-        server.createContext("/test", new HttpLinkServer(channels, httpFiber));
-        server.setExecutor(httpFiber);
-        server.start();
-        httpFiber.start();
+        HttpLinkServer server = new HttpLinkServer(channels,httpFiber);
+        int port = 25520;
+        server.launch(port);
         Bukkit.getLogger().info("Etherlands web Server started on port " + port);
     }
 

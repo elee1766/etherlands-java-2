@@ -12,7 +12,6 @@ import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.services.Scheduler;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
-import etherlandscore.etherlandscore.state.Context;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
@@ -21,7 +20,6 @@ import org.jetlang.fibers.ThreadFiber;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.WeakHashMap;
 
 public final class EtherlandsCore extends JavaPlugin {
 
@@ -86,10 +84,9 @@ public final class EtherlandsCore extends JavaPlugin {
       EthereumService es = new EthereumService(channels, ethersFiber);
       scheduler.newEthSchedule(es,300);
       modules.add(es);
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
     }
-
     getLogger().info("initializing master service");
     Fiber databaseFiber = new ThreadFiber();
     modules.add(new MasterService(channels, databaseFiber));

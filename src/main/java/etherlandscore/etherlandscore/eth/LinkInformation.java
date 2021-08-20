@@ -40,19 +40,24 @@ public class LinkInformation {
     return publickey;
   }
 
-  public String pubkey() throws SignatureException {
+  public String pubkey() {
     String r = signature.substring(0, 66);
     String s = signature.substring(66, 130);
     String v = "0x" + signature.substring(130, 132);
     byte[] msgBytes = getEthereumMessageHash(message.getBytes());
     String pubkey =
-        Sign.signedMessageToKey(
-                msgBytes,
-                new Sign.SignatureData(
-                    Numeric.hexStringToByteArray(v)[0],
-                    Numeric.hexStringToByteArray(r),
-                    Numeric.hexStringToByteArray(s)))
-            .toString(16);
+        null;
+    try {
+      pubkey = Sign.signedMessageToKey(
+              msgBytes,
+              new Sign.SignatureData(
+                  Numeric.hexStringToByteArray(v)[0],
+                  Numeric.hexStringToByteArray(r),
+                  Numeric.hexStringToByteArray(s)))
+          .toString(16);
+    } catch (SignatureException e) {
+      return "";
+    }
     String recoveredAddress = "0x" + Keys.getAddress(pubkey);
     Bukkit.getLogger().info("public key: " + recoveredAddress + " : " + this.message);
     if (recoveredAddress.equalsIgnoreCase(this.publickey)) {
@@ -60,10 +65,6 @@ public class LinkInformation {
       this.didpass = true;
     }
     return pubkey;
-  }
-
-  public String timestamp() {
-    return message.split("_")[1];
   }
 
   public String uuid() {

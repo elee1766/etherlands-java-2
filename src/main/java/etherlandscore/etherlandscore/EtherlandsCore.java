@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.singleton.CouchSingleton;
+import etherlandscore.etherlandscore.singleton.EthSingleton;
 import etherlandscore.etherlandscore.singleton.LocaleSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
 import etherlandscore.etherlandscore.state.Context;
@@ -43,6 +44,9 @@ public final class EtherlandsCore extends JavaPlugin {
 
     getLogger().info("Creating Couch Singleton");
     CouchSingleton.getCouchSettings();
+
+    getLogger().info("Creating Eth Singleton");
+    EthSingleton.getEthSettings();
 
     var manager = getServer().getPluginManager();
     getLogger().info("Hooking Player Event Listener");

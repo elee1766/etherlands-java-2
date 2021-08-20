@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpServer;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.singleton.CouchSingleton;
+import etherlandscore.etherlandscore.singleton.EthSingleton;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -16,6 +18,7 @@ import org.web3j.tx.gas.ContractGasProvider;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 public class EthereumService extends ListenerClient {
     private final Channels channels;
@@ -24,6 +27,9 @@ public class EthereumService extends ListenerClient {
     private final Web3j web3;
     private final LandPlot landPlot;
 
+    private final Map<String, String> couchSettings = CouchSingleton.getCouchSettings().getSettings();
+    private final Map<String, String> ethSettings = EthSingleton.getEthSettings().getSettings();
+
     private final Web3ClientVersion web3ClientVersion;
     private final String clientVersion;
 
@@ -31,10 +37,10 @@ public class EthereumService extends ListenerClient {
         super(channels, fiber);
         this.channels = channels;
         this.fiber = fiber;
-        web3 = Web3j.build(new HttpService("http://owl.elee.bike:8546"));
+        web3 = Web3j.build(new HttpService(ethSettings.get("url")));
         web3ClientVersion = web3.web3ClientVersion().send();
         clientVersion = web3ClientVersion.getWeb3ClientVersion();
-        ClientTransactionManager txnManager = new ClientTransactionManager(web3, "0x5227a7404631Eb7De411232535E36dE8dad318f0");
+        ClientTransactionManager txnManager = new ClientTransactionManager(web3, ethSettings.get("txnManager"));
         ContractGasProvider gasProvider = new ContractGasProvider() {
             @Override
             public BigInteger getGasLimit(String contractFunc) {
@@ -56,7 +62,7 @@ public class EthereumService extends ListenerClient {
                 return BigInteger.TEN;
             }
         };
-        landPlot = LandPlot.load("0xb06ae2EF76AD3196D2AC07FaD3B8D7c867568166", web3, txnManager, gasProvider);
+        landPlot = LandPlot.load(ethSettings.get("contractAddress"), web3, txnManager, gasProvider);
         this.channels.ethers_command.subscribe(fiber, x -> {
             switch (x.getCommand()) {
                 case ethers_query_nft -> queryChunkId((Integer) x.getArgs()[0]);

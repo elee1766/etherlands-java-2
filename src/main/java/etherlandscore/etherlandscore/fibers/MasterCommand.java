@@ -25,5 +25,5 @@ public enum MasterCommand {
   district_set_group_permission,
   district_set_gamer_permission,
   team_delete_team,
-  team_add_gamer
+  team_add_gamer,
 }

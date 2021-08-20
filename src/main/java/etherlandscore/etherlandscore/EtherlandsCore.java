@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.listener.BlockEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
+import etherlandscore.etherlandscore.services.Scheduler;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
 import etherlandscore.etherlandscore.state.Context;
@@ -20,6 +21,7 @@ import org.jetlang.fibers.ThreadFiber;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 public final class EtherlandsCore extends JavaPlugin {
 
@@ -58,6 +60,9 @@ public final class EtherlandsCore extends JavaPlugin {
     new CommandDisabler().disable();
     Fiber districtCommandFiber = new ThreadFiber();
     modules.add(new DistrictCommand(channels, districtCommandFiber));
+    Fiber scheduleFiber = new ThreadFiber();
+    Scheduler scheduler = new Scheduler(channels, scheduleFiber);
+    modules.add(scheduler);
     Fiber groupCommandFiber = new ThreadFiber();
     modules.add(new GroupCommand(channels, groupCommandFiber));
     Fiber teamCommandFiber = new ThreadFiber();
@@ -74,10 +79,13 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new GamerCommand(channels, gamerCommandFiber));
     Fiber mapCommandFiber = new ThreadFiber();
     modules.add(new MapCommand(channels, mapCommandFiber));
+
     getLogger().info("Hooking Ethers");
     Fiber ethersFiber = new ThreadFiber();
     try {
-      modules.add(new EthereumService(channels, ethersFiber));
+      EthereumService es = new EthereumService(channels, ethersFiber);
+      scheduler.newEthSchedule(es,300);
+      modules.add(es);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -89,7 +97,7 @@ public final class EtherlandsCore extends JavaPlugin {
       getLogger().info(String.format("Starting MODULE %s", m.getClass().getName()));
       m.start();
     }
+
     getLogger().info("onEnable is done!");
-    // Plugin startup logic
   }
 }

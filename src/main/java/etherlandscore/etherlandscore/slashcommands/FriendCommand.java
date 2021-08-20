@@ -5,7 +5,6 @@ import etherlandscore.etherlandscore.Menus.FriendPrinter;
 import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import org.bouncycastle.math.ec.rfc7748.X448;
@@ -15,7 +14,6 @@ import org.jetlang.fibers.Fiber;
 public class FriendCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
-  private final LocaleStrings locales = new LocaleStrings();
 
   public FriendCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);

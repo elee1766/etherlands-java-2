@@ -4,8 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.singleton.CouchSingleton;
-import etherlandscore.etherlandscore.singleton.EthSingleton;
+import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -27,8 +26,7 @@ public class EthereumService extends ListenerClient {
     private final Web3j web3;
     private final LandPlot landPlot;
 
-    private final Map<String, String> couchSettings = CouchSingleton.getCouchSettings().getSettings();
-    private final Map<String, String> ethSettings = EthSingleton.getEthSettings().getSettings();
+    private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
 
     private final Web3ClientVersion web3ClientVersion;
     private final String clientVersion;
@@ -37,10 +35,10 @@ public class EthereumService extends ListenerClient {
         super(channels, fiber);
         this.channels = channels;
         this.fiber = fiber;
-        web3 = Web3j.build(new HttpService(ethSettings.get("url")));
+        web3 = Web3j.build(new HttpService(settings.get("NodeUrl")));
         web3ClientVersion = web3.web3ClientVersion().send();
         clientVersion = web3ClientVersion.getWeb3ClientVersion();
-        ClientTransactionManager txnManager = new ClientTransactionManager(web3, ethSettings.get("txnManager"));
+        ClientTransactionManager txnManager = new ClientTransactionManager(web3, settings.get("txnManager"));
         ContractGasProvider gasProvider = new ContractGasProvider() {
             @Override
             public BigInteger getGasLimit(String contractFunc) {
@@ -62,7 +60,7 @@ public class EthereumService extends ListenerClient {
                 return BigInteger.TEN;
             }
         };
-        landPlot = LandPlot.load(ethSettings.get("contractAddress"), web3, txnManager, gasProvider);
+        landPlot = LandPlot.load(settings.get("contractAddress"), web3, txnManager, gasProvider);
         this.channels.ethers_command.subscribe(fiber, x -> {
             switch (x.getCommand()) {
                 case ethers_query_nft -> queryChunkId((Integer) x.getArgs()[0]);

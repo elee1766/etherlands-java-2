@@ -9,9 +9,7 @@ import etherlandscore.etherlandscore.listener.BlockEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
-import etherlandscore.etherlandscore.singleton.CouchSingleton;
-import etherlandscore.etherlandscore.singleton.EthSingleton;
-import etherlandscore.etherlandscore.singleton.LocaleSingleton;
+import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
 import etherlandscore.etherlandscore.state.Context;
 import org.bukkit.Bukkit;
@@ -39,14 +37,8 @@ public final class EtherlandsCore extends JavaPlugin {
     List<ServerModule> modules = new ArrayList<>();
     Channels channels = new Channels();
 
-    getLogger().info("Creating Locale Singleton");
-    LocaleSingleton.getLocale();
-
-    getLogger().info("Creating Couch Singleton");
-    CouchSingleton.getCouchSettings();
-
-    getLogger().info("Creating Eth Singleton");
-    EthSingleton.getEthSettings();
+    getLogger().info("Creating Settings Singleton");
+    SettingsSingleton.getSettings();
 
     var manager = getServer().getPluginManager();
     getLogger().info("Hooking Player Event Listener");

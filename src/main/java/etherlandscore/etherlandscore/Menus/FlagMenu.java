@@ -4,7 +4,6 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
@@ -22,7 +21,6 @@ import static etherlandscore.etherlandscore.services.MasterService.state;
 public class FlagMenu extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
-  private final LocaleStrings locales = new LocaleStrings();
 
   public FlagMenu(Channels channels, Fiber fiber) {
     super(channels, fiber);

@@ -5,7 +5,7 @@ import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.persistance.Couch.state.GamerRepo;
 import etherlandscore.etherlandscore.persistance.Couch.state.PlotRepo;
 import etherlandscore.etherlandscore.persistance.Couch.state.TeamRepo;
-import etherlandscore.etherlandscore.singleton.CouchSingleton;
+import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WritePlot;
@@ -28,7 +28,7 @@ public class CouchPersister extends ServerModule {
   private final TeamRepo teamRepo;
   private final PlotRepo plotRepo;
   private final CouchDbConnector linkConnector;
-  private final Map<String, String> couchSettings = CouchSingleton.getCouchSettings().getSettings();
+  private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
   Channels channels;
 
   public CouchPersister(Channels channels, Fiber fiber) throws MalformedURLException {
@@ -36,9 +36,9 @@ public class CouchPersister extends ServerModule {
     this.channels = channels;
     HttpClient httpClient =
         new StdHttpClient.Builder()
-            .url(couchSettings.get("url"))
-            .username(couchSettings.get("username"))
-            .password(couchSettings.get("password"))
+            .url(settings.get("CouchUrl"))
+            .username(settings.get("CouchUsername"))
+            .password(settings.get("CouchPassword"))
             .build();
     this.instance = new StdCouchDbInstance(httpClient);
     this.gamerRepo =

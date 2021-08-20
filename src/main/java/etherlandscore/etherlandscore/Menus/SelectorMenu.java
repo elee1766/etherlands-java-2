@@ -2,7 +2,6 @@ package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -13,7 +12,6 @@ import org.jetlang.fibers.Fiber;
 public class SelectorMenu extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
-  private final LocaleStrings locales = new LocaleStrings();
 
   public SelectorMenu(Channels channels, Fiber fiber) {
     super(channels, fiber);

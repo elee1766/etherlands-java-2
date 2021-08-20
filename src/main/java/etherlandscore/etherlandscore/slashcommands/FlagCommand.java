@@ -5,7 +5,6 @@ import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
@@ -15,7 +14,6 @@ import org.jetlang.fibers.Fiber;
 public class FlagCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
-  private final LocaleStrings locales = new LocaleStrings();
 
   public FlagCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);

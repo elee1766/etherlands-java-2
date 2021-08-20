@@ -6,7 +6,6 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.Menus.GamerPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.LocaleStrings;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
@@ -16,7 +15,6 @@ import org.jetlang.fibers.Fiber;
 public class GamerCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
-  private final LocaleStrings locales = new LocaleStrings();
 
   public GamerCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);

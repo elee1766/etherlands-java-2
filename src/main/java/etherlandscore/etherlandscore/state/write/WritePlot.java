@@ -261,7 +261,9 @@ public class WritePlot extends CouchDocument implements Plot {
   @JsonIgnore
   public void setOwner(String ownerAddress, UUID ownerUUID) {
     this.ownerAddress = ownerAddress;
-    this.ownerUUID = ownerUUID.toString();
+    if (!(ownerUUID ==null)) {
+      this.ownerUUID = ownerUUID.toString();
+    }
     if (this.ownerUUID != null) {
       OfflinePlayer player = Bukkit.getOfflinePlayer(this.ownerUUID);
       if (player.hasPlayedBefore()) {

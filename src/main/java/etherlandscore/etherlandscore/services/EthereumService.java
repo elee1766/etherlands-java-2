@@ -56,7 +56,7 @@ public class EthereumService extends ListenerClient {
                 return BigInteger.TEN;
             }
         };
-        landPlot = LandPlot.load("0x45072d88faea89dd42791808f8b491ab70b279fa", web3, txnManager, gasProvider);
+        landPlot = LandPlot.load("0xb06ae2EF76AD3196D2AC07FaD3B8D7c867568166", web3, txnManager, gasProvider);
         this.channels.ethers_command.subscribe(fiber, x -> {
             switch (x.getCommand()) {
                 case ethers_query_nft -> queryChunkId((Integer) x.getArgs()[0]);
@@ -79,7 +79,7 @@ public class EthereumService extends ListenerClient {
 
     private void queryChunkId(Integer chunkId) {
         Integer x = landPlot.chunk_x(BigInteger.valueOf(chunkId)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
-        Integer z = landPlot.chunk_y(BigInteger.valueOf(chunkId)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
+        Integer z = landPlot.chunk_z(BigInteger.valueOf(chunkId)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
         String owneraddr = landPlot.ownerOf(BigInteger.valueOf(chunkId)).sendAsync().handle((res, throwable) -> res).join();
         Bukkit.getLogger().info(owneraddr + " " + x.toString() + " " + z.toString());
         if (x != 0 || z != 0) {

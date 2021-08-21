@@ -32,9 +32,9 @@ public class HttpLinkServer extends ServerModule  {
       SSLContext sslContext = SSLContext.getInstance("TLS");
 
       // initialise the keystore
-      char[] password = "password".toCharArray();
-      KeyStore ks = KeyStore.getInstance("JKS");
-      FileInputStream fis = new FileInputStream("testkey.jks");
+      char[] password = "urmom".toCharArray();
+      KeyStore ks = KeyStore.getInstance("PKCS12");
+      FileInputStream fis = new FileInputStream("/home/minecraft/certs/pkcs.12");
       ks.load(fis, password);
 
       // setup the key manager factory
@@ -71,9 +71,8 @@ public class HttpLinkServer extends ServerModule  {
       httpsServer.start();
 
     } catch (Exception exception) {
-      System.out.println("Failed to create HTTPS server on port " + 8000 + " of localhost");
+      System.out.println("ERROR");
       exception.printStackTrace();
-
     }
   }
 }

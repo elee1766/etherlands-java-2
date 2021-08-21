@@ -101,7 +101,7 @@ public class EthereumService extends ListenerClient {
     private void listenHttp() throws Exception {
         Fiber httpFiber = new ThreadFiber();
         HttpLinkServer server = new HttpLinkServer(channels,httpFiber);
-        int port = 25520;
+        int port = Integer.valueOf(settings.get("webPort"));
         server.launch(port);
         Bukkit.getLogger().info("Etherlands web Server started on port " + port);
     }

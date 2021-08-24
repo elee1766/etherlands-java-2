@@ -279,15 +279,7 @@ public class Context {
     couchPersister.update(gamer);
   }
 
-  public void nft_create_nft(Response response, String contractaddr){
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    WriteNFT entity = null;
-    try {
-      entity = objectMapper.readValue(response.body().string(), WriteNFT.class);
-    }catch(Exception ex){
-      ex.printStackTrace();
-    }
+  public void nft_create_nft(WriteNFT entity, String contractaddr){
     entity.setContract(contractaddr);
     if(entity!=null) {
       couchPersister.update(entity);

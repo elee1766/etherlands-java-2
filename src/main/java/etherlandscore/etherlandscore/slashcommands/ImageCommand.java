@@ -61,9 +61,16 @@ public class ImageCommand extends ListenerClient {
           .get()
           .build();
       Response response = client.newCall(request).execute();
-      channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, response, contractaddr));
-      WriteNFT nftGrabbed = state().getNFTs().get(contractaddr, token_id);
-      return new URL(nftGrabbed.getURL());
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      WriteNFT entity = null;
+      try {
+        entity = objectMapper.readValue(response.body().string(), WriteNFT.class);
+      }catch(Exception ex){
+        ex.printStackTrace();
+      }
+      channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, entity, contractaddr));
+      return new URL(entity.getURL());
     }
   }
 
@@ -72,6 +79,22 @@ public class ImageCommand extends ListenerClient {
     ItemStack item = new ItemStack(Material.FILLED_MAP,1);
     MapView map = Bukkit.getServer().createMap(Bukkit.getServer().getWorlds().get(0));
     int width = (int) args[2];
+    Image image = null;
+    try {
+      URL url = getImage((String) args[0],(String) args[1]);
+      if(url==null){
+        return;
+      }
+      image = ImageIO.read(url);
+    }catch(Exception ex) {
+      ex.printStackTrace();
+      return;
+    }
+    Image tmp = image.getScaledInstance(width*128,width*128,Image.SCALE_SMOOTH);
+    BufferedImage photo = new BufferedImage(width*128,width*128, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g2d = photo.createGraphics();
+    g2d.drawImage(tmp, 0, 0 , null);
+
     for(MapRenderer render : map.getRenderers()) {
       map.removeRenderer(render);
     }
@@ -79,28 +102,10 @@ public class ImageCommand extends ListenerClient {
     MapRenderer mr = new MapRenderer() {
       @Override
       public void render(MapView map, MapCanvas canvas, Player player) {
-        Image image = null;
-        try {
-          URL url = getImage((String) args[0],(String) args[1]);
-          if(url==null){
-            map.removeRenderer(this);
-            return;
-          }
-          image = ImageIO.read(url);
-        }catch(Exception ex) {
-          ex.printStackTrace();
-          return;
-        }
-        Image tmp = image.getScaledInstance(width*128,width*128,Image.SCALE_SMOOTH);
-        BufferedImage photo = new BufferedImage(width*128,width*128, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = photo.createGraphics();
-        g2d.drawImage(tmp, 0, 0 , null);
-        if (image == null) {
-          return;
-        }
         canvas.drawImage(0, 0, photo);
       }
     };
+
 
     map.addRenderer(mr);
 

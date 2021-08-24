@@ -4,6 +4,8 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.state.write.WriteNFT;
+import etherlandscore.etherlandscore.util.Map2;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +26,10 @@ public class ReadContext {
 
   public Map<UUID, Gamer> getGamers() {
     return (Map) context.getGamers();
+  }
+
+  public Map2<String, String, WriteNFT> getNFTs() {
+    return (Map2) context.getNfts();
   }
 
   public Plot getPlot(Integer id) {

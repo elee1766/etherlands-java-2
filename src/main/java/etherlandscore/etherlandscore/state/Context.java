@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore.state;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
@@ -9,6 +11,8 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
+import okhttp3.Response;
+import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 
@@ -27,6 +31,7 @@ public class Context {
   public final Map<String, UUID> linked = new HashMap<>();
   public final Map<Integer, WritePlot> plots = new HashMap<>();
   public final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
+  public final Map2<String,String,WriteNFT> nfts = new Map2<>();
 
   public Context(Channels channels){
     try {
@@ -111,6 +116,8 @@ public class Context {
   public Map<UUID, WriteGamer> getGamers() {
     return gamers;
   }
+
+  public Map2<String, String, WriteNFT> getNfts() {return nfts; }
 
   public Map<String, UUID> getLinks() {
     return linked;
@@ -270,5 +277,21 @@ public class Context {
     gamer.clearGroups();
     couchPersister.update(team);
     couchPersister.update(gamer);
+  }
+
+  public void nft_create_nft(Response response, String contractaddr){
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    WriteNFT entity = null;
+    try {
+      entity = objectMapper.readValue(response.body().string(), WriteNFT.class);
+    }catch(Exception ex){
+      ex.printStackTrace();
+    }
+    entity.setContract(contractaddr);
+    if(entity!=null) {
+      couchPersister.update(entity);
+    }
+    this.getNfts().put(entity.getContractAddr(), entity.getItemID(), entity);
   }
 }

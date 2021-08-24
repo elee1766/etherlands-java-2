@@ -26,4 +26,5 @@ public enum MasterCommand {
   district_set_gamer_permission,
   team_delete_team,
   team_add_gamer,
+  nft_create_nft
 }

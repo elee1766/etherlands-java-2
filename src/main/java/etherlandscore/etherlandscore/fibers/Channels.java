@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.state.write.WritePlot;
 import etherlandscore.etherlandscore.state.write.WriteTeam;
 import org.jetlang.channels.MemoryChannel;
@@ -23,8 +24,10 @@ public class Channels {
   public final MemoryChannel<WriteGamer> db_gamer = new MemoryChannel<>();
   public final MemoryChannel<WritePlot> db_plot = new MemoryChannel<>();
   public final MemoryChannel<WriteTeam> db_team = new MemoryChannel<>();
+  public final MemoryChannel<WriteNFT> db_nft = new MemoryChannel<>();
 
   public final MemoryChannel<WriteGamer> db_gamer_delete = new MemoryChannel<>();
   public final MemoryChannel<WritePlot> db_plot_delete = new MemoryChannel<>();
   public final MemoryChannel<WriteTeam> db_team_delete = new MemoryChannel<>();
+  public final MemoryChannel<WriteNFT> db_nft_delete = new MemoryChannel<>();
 }

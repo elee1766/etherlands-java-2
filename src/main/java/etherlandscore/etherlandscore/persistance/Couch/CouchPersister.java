@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.persistance.Couch.state.TeamRepo;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.state.write.WritePlot;
 import etherlandscore.etherlandscore.state.write.WriteTeam;
 import org.bukkit.Bukkit;
@@ -103,6 +104,7 @@ public class CouchPersister extends ServerModule {
   public void update(WriteTeam team){
     this.channels.db_team.publish(team);
   }
+  public void update(WriteNFT nft) {this.channels.db_nft.publish(nft); }
   public void remove(WriteGamer gamer){
     this.gamerRepo.delete(gamer);
   }

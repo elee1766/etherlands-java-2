@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.listener.BlockEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
+import etherlandscore.etherlandscore.listener.SignEventListener;
 import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.services.Scheduler;
@@ -41,6 +42,12 @@ public final class EtherlandsCore extends JavaPlugin {
     SettingsSingleton.getSettings();
 
     var manager = getServer().getPluginManager();
+    getLogger().info("Hooking Sign Event Listener");
+    Fiber signEventListenerFiber = new ThreadFiber();
+    SignEventListener signEventListener =
+        new SignEventListener(channels, signEventListenerFiber);
+    modules.add(signEventListener);
+    manager.registerEvents(signEventListener, this);
     getLogger().info("Hooking Player Event Listener");
     Fiber playerEventListenerFiber = new ThreadFiber();
     PlayerEventListener playerEventListener =

@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
@@ -76,9 +77,8 @@ public class ImageCommand extends ListenerClient {
 
   public void imageMap(CommandSender sender, Object[] args) {
     Player player = (Player) sender;
-    ItemStack item = new ItemStack(Material.FILLED_MAP,1);
-    MapView map = Bukkit.getServer().createMap(Bukkit.getServer().getWorlds().get(0));
     int width = (int) args[2];
+    int mapCount = width*width;
     Image image = null;
     try {
       URL url = getImage((String) args[0],(String) args[1]);
@@ -92,28 +92,36 @@ public class ImageCommand extends ListenerClient {
     }
     Image tmp = image.getScaledInstance(width*128,width*128,Image.SCALE_SMOOTH);
     BufferedImage photo = new BufferedImage(width*128,width*128, BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g2d = photo.createGraphics();
-    g2d.drawImage(tmp, 0, 0 , null);
-
-    for(MapRenderer render : map.getRenderers()) {
-      map.removeRenderer(render);
-    }
-
-    MapRenderer mr = new MapRenderer() {
-      @Override
-      public void render(MapView map, MapCanvas canvas, Player player) {
-        canvas.drawImage(0, 0, photo);
+    ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+    ArrayList<MapView> maps = new ArrayList<MapView>();
+    ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+    for(int i = 0; i < width; i++) {
+      for (int j = 0; j < width; j++) {
+        stacks.add(new ItemStack(Material.FILLED_MAP, 1));
+        maps.add(Bukkit.getServer().createMap(Bukkit.getServer().getWorlds().get(0)));
+        Graphics2D g2d = photo.createGraphics();
+        g2d.drawImage(tmp, 0, 0 , null);
+        images.add(photo.getSubimage(j * 128, i * 128, 128, 128));
       }
-    };
+    }
+    for(int i = 0; i < mapCount; i++){
+      for(MapRenderer render : maps.get(i).getRenderers()) {
+        maps.get(i).removeRenderer(render);
+        }
+      int finalI = i;
+      MapRenderer mr = new MapRenderer() {
+          @Override
+          public void render(MapView map, MapCanvas canvas, Player player) {
+            canvas.drawImage(0, 0, images.get(finalI));
+          }
+        };
+      maps.get(i).addRenderer(mr);
 
-
-    map.addRenderer(mr);
-
-    MapMeta meta = ((MapMeta) item.getItemMeta());
-    meta.setMapView(map);
-    item.setItemMeta(meta);
-
-    player.getInventory().addItem(item);
+      MapMeta meta = ((MapMeta) stacks.get(i).getItemMeta());
+      meta.setMapView(maps.get(i));
+      stacks.get(i).setItemMeta(meta);
+      player.getInventory().addItem(stacks.get(i));
+    }
   }
 
   void help(Player sender, Object[] args) {

@@ -29,6 +29,7 @@ public class Context<WriteMaps> {
   public final Map<String, UUID> linked = new HashMap<>();
   public final Map<Integer, WritePlot> plots = new HashMap<>();
   public final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
+  public final Map<String, WriteNFT> nftUrls = new HashMap<>();
   public final Map2<String,String,WriteNFT> nfts = new Map2<>();
   public final Set<WriteMap> maps = new HashSet<>();
 
@@ -117,6 +118,8 @@ public class Context<WriteMaps> {
   }
 
   public Map2<String, String, WriteNFT> getNfts() {return nfts; }
+
+  public Map<String, WriteNFT> getNftUrls() {return nftUrls; }
 
   public Set<WriteMap> getMaps() {return maps; }
 
@@ -285,6 +288,7 @@ public class Context<WriteMaps> {
     if(entity!=null) {
       couchPersister.update(entity);
     }
+    this.getNftUrls().put(entity.getURL(), entity);
     this.getNfts().put(entity.getContractAddr(), entity.getItemID(), entity);
   }
 

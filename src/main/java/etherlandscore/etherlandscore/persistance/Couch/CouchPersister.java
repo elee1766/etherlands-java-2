@@ -2,15 +2,10 @@ package etherlandscore.etherlandscore.persistance.Couch;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.persistance.Couch.state.GamerRepo;
-import etherlandscore.etherlandscore.persistance.Couch.state.PlotRepo;
-import etherlandscore.etherlandscore.persistance.Couch.state.TeamRepo;
+import etherlandscore.etherlandscore.persistance.Couch.state.*;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.Context;
-import etherlandscore.etherlandscore.state.write.WriteGamer;
-import etherlandscore.etherlandscore.state.write.WriteNFT;
-import etherlandscore.etherlandscore.state.write.WritePlot;
-import etherlandscore.etherlandscore.state.write.WriteTeam;
+import etherlandscore.etherlandscore.state.write.*;
 import org.bukkit.Bukkit;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
@@ -28,6 +23,8 @@ public class CouchPersister extends ServerModule {
   private final GamerRepo gamerRepo;
   private final TeamRepo teamRepo;
   private final PlotRepo plotRepo;
+  private final NFTRepo nftRepo;
+  private final MapRepo mapRepo;
   private final CouchDbConnector linkConnector;
   private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
   Channels channels;
@@ -46,21 +43,30 @@ public class CouchPersister extends ServerModule {
         new GamerRepo(this.instance.createConnector("gamers", true), WriteGamer.class);
     this.plotRepo = new PlotRepo(this.instance.createConnector("plots", true), WritePlot.class);
     this.teamRepo = new TeamRepo(this.instance.createConnector("teams", true), WriteTeam.class);
+    this.mapRepo = new MapRepo(this.instance.createConnector("maps", true), WriteMap.class);
+    this.nftRepo = new NFTRepo(this.instance.createConnector("nfts", true), WriteNFT.class);
     this.linkConnector = this.instance.createConnector("linked",true);
 
     channels.db_gamer.subscribe(fiber, this::write);
     channels.db_team.subscribe(fiber, this::write);
     channels.db_plot.subscribe(fiber, this::write);
+    channels.db_nft.subscribe(fiber, this::write);
+    channels.db_map.subscribe(fiber, this::write);
+
 
     channels.db_gamer_delete.subscribe(fiber, this::remove);
     channels.db_team_delete.subscribe(fiber, this::remove);
     channels.db_plot_delete.subscribe(fiber, this::remove);
+    channels.db_nft_delete.subscribe(fiber, this::remove);
+    channels.db_map_delete.subscribe(fiber, this::remove);
   }
 
   public void saveContext(Context context) {
       gamerRepo.save(context.getGamers().values());
       plotRepo.save(context.getPlots().values());
       teamRepo.save(context.getTeams().values());
+      //nftRepo.save(context.getNfts());
+      mapRepo.save(context.getMaps());
   }
 
   public void populateContext(Context empty){
@@ -82,6 +88,10 @@ public class CouchPersister extends ServerModule {
       empty.plots.put(writePlot.getIdInt(),writePlot);
       empty.plotLocations.put(writePlot.getX(), writePlot.getZ(), writePlot.getIdInt());
     }
+    Bukkit.getLogger().info("doing maps");
+    for (WriteMap writeMap: this.mapRepo.getAll()) {
+      empty.maps.add(writeMap);
+    }
     Bukkit.getLogger().info("done reading from db");
   }
 
@@ -94,6 +104,12 @@ public class CouchPersister extends ServerModule {
   public void write(WriteTeam team){
     this.teamRepo.save(team);
   }
+  public void write(WriteMap map){
+    this.mapRepo.save(map);
+  }
+  public void write(WriteNFT nft){
+    this.nftRepo.save(nft);
+  }
 
   public void update(WriteGamer gamer){
     this.channels.db_gamer.publish(gamer);
@@ -105,6 +121,8 @@ public class CouchPersister extends ServerModule {
     this.channels.db_team.publish(team);
   }
   public void update(WriteNFT nft) {this.channels.db_nft.publish(nft); }
+  public void update(WriteMap map) {this.channels.db_map.publish(map); }
+
   public void remove(WriteGamer gamer){
     this.gamerRepo.delete(gamer);
   }
@@ -113,6 +131,12 @@ public class CouchPersister extends ServerModule {
   }
   public void remove(WriteTeam team){
     this.teamRepo.delete(team);
+  }
+  public void remove(WriteMap map){
+    this.mapRepo.delete(map);
+  }
+  public void remove(WriteNFT nft){
+    this.nftRepo.delete(nft);
   }
 
 

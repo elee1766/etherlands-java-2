@@ -109,13 +109,19 @@ public class ImageCommand extends ListenerClient {
         maps.get(i).removeRenderer(render);
         }
       int finalI = i;
+
       MapRenderer mr = new MapRenderer() {
+
           @Override
           public void render(MapView map, MapCanvas canvas, Player player) {
-            canvas.drawImage(0, 0, images.get(finalI));
+            if(map.getRenderers().isEmpty()) {
+              canvas.drawImage(0, 0, images.get(finalI));
+            }
           }
         };
+
       maps.get(i).addRenderer(mr);
+      channels.master_command.publish(new Message<>(MasterCommand.map_create_map, maps.get(i).getId(), images.get(i)));
 
       MapMeta meta = ((MapMeta) stacks.get(i).getItemMeta());
       meta.setMapView(maps.get(i));

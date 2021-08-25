@@ -4,10 +4,8 @@ import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
-import etherlandscore.etherlandscore.state.write.WriteGamer;
-import etherlandscore.etherlandscore.state.write.WriteNFT;
-import etherlandscore.etherlandscore.state.write.WritePlot;
-import etherlandscore.etherlandscore.state.write.WriteTeam;
+import etherlandscore.etherlandscore.state.write.*;
+import io.reactivex.Flowable;
 import org.jetlang.channels.MemoryChannel;
 
 public class Channels {
@@ -25,9 +23,11 @@ public class Channels {
   public final MemoryChannel<WritePlot> db_plot = new MemoryChannel<>();
   public final MemoryChannel<WriteTeam> db_team = new MemoryChannel<>();
   public final MemoryChannel<WriteNFT> db_nft = new MemoryChannel<>();
+  public final MemoryChannel<WriteMap> db_map = new MemoryChannel<>();
 
   public final MemoryChannel<WriteGamer> db_gamer_delete = new MemoryChannel<>();
   public final MemoryChannel<WritePlot> db_plot_delete = new MemoryChannel<>();
   public final MemoryChannel<WriteTeam> db_team_delete = new MemoryChannel<>();
   public final MemoryChannel<WriteNFT> db_nft_delete = new MemoryChannel<>();
+  public final MemoryChannel<WriteMap> db_map_delete = new MemoryChannel<>();
 }

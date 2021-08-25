@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.state.write.WritePlot;
 import okhttp3.OkHttpClient;
@@ -46,7 +47,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
@@ -183,8 +186,9 @@ public class SignEventListener extends ListenerClient implements Listener {
   public void imageMap(Player player, int width, String contractAddr, String item_id, Block block, BlockFace blockFace) {
     int mapCount = width * width;
     Image image = null;
+    URL url = null;
     try {
-      URL url = getImage(contractAddr, item_id);
+      url = getImage(contractAddr, item_id);
       if (url == null) {
         return;
       }
@@ -207,7 +211,10 @@ public class SignEventListener extends ListenerClient implements Listener {
         images.add(photo.getSubimage(j * 128, i * 128, 128, 128));
       }
     }
+    Set<Integer> mapIDs = new HashSet<>();
     for (int i = 0; i < mapCount; i++) {
+      mapIDs.add(maps.get(i).getId());
+      Bukkit.getLogger().info(String.valueOf(maps.get(i).getId()));
       for (MapRenderer render : maps.get(i).getRenderers()) {
         maps.get(i).removeRenderer(render);
       }
@@ -219,11 +226,12 @@ public class SignEventListener extends ListenerClient implements Listener {
         }
       };
       maps.get(i).addRenderer(mr);
-
       MapMeta meta = ((MapMeta) stacks.get(i).getItemMeta());
       meta.setMapView(maps.get(i));
       stacks.get(i).setItemMeta(meta);
     }
+    WriteMap wm = new WriteMap(String.valueOf(maps.get(0).getId()), mapIDs, url);
+    channels.master_command.publish(new Message<>(MasterCommand.map_create_map, wm));
     int i = 0;
     switch (blockFace) {
       case NORTH:

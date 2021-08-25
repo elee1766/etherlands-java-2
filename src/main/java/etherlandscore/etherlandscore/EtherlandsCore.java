@@ -105,5 +105,7 @@ public final class EtherlandsCore extends JavaPlugin {
     }
 
     getLogger().info("onEnable is done!");
+
+    //initialize maps;
   }
 }

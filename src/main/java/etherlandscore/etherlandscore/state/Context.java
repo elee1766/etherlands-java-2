@@ -18,11 +18,9 @@ import org.jetlang.fibers.ThreadFiber;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class Context {
+public class Context<WriteMaps> {
 
   private CouchPersister couchPersister;
 
@@ -32,6 +30,7 @@ public class Context {
   public final Map<Integer, WritePlot> plots = new HashMap<>();
   public final Map2<Integer, Integer, Integer> plotLocations = new Map2<>();
   public final Map2<String,String,WriteNFT> nfts = new Map2<>();
+  public final Set<WriteMap> maps = new HashSet<>();
 
   public Context(Channels channels){
     try {
@@ -118,6 +117,8 @@ public class Context {
   }
 
   public Map2<String, String, WriteNFT> getNfts() {return nfts; }
+
+  public Set<WriteMap> getMaps() {return maps; }
 
   public Map<String, UUID> getLinks() {
     return linked;
@@ -285,5 +286,12 @@ public class Context {
       couchPersister.update(entity);
     }
     this.getNfts().put(entity.getContractAddr(), entity.getItemID(), entity);
+  }
+
+  public void map_create_map(WriteMap entity){
+    if(entity!=null) {
+      couchPersister.update(entity);
+    }
+    this.getMaps().add(entity);
   }
 }

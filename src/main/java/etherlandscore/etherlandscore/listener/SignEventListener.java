@@ -75,26 +75,36 @@ public class SignEventListener extends ListenerClient implements Listener {
       Block placed = signChangeEvent.getBlock();
       Player player = signChangeEvent.getPlayer();
       player.sendMessage(contractAddr + " " + item_id + " " + width);
-      if(true) {
+      BlockFace facing = facing(placed);
+      if(canBuildHere(width, placed, player, facing)) {
         signChangeEvent.getBlock().setType(Material.AIR);
         player.sendMessage("YOU CAN BUILD HERE");
-        imageMap(player, Integer.parseInt(width), contractAddr, item_id, placed);
+        imageMap(player, Integer.parseInt(width), contractAddr, item_id, placed, facing);
       }
     }
   }
 
+  private BlockFace facing(Block placed){
+    return ((Directional) placed.getBlockData()).getFacing();
+  }
+
   //x+ is east
   //z+ is south
-  private boolean canBuildHere(String width, Block placed, Player player) {
+  private boolean canBuildHere(String width, Block placed, Player player, BlockFace blockFace) {
     int size = Integer.valueOf(width);
     int x = placed.getX();
     int z = placed.getZ();
-    BlockFace blockFace = ((Directional) placed.getBlockData()).getFacing();
     switch (blockFace) {
       case WEST:
         //check north
         for(int i = 0; i<size; i++){
-          if(!context.getPlot(x,z-i).canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
+          Plot p = context.getPlot(x,z-i);
+          if(p==null){
+            if(player.isOp()){
+              break;
+            }
+          }
+          if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
           }
         }
@@ -102,7 +112,13 @@ public class SignEventListener extends ListenerClient implements Listener {
       case EAST:
         //check south
         for(int i = 0; i<size; i++){
-          if(!context.getPlot(x,z+i).canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
+          Plot p = context.getPlot(x,z+i);
+          if(p==null){
+            if(player.isOp()){
+              break;
+            }
+          }
+          if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
           }
         }
@@ -110,7 +126,13 @@ public class SignEventListener extends ListenerClient implements Listener {
       case NORTH:
         //check east
         for(int i = 0; i<size; i++){
-          if(!context.getPlot(x+i,z).canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
+          Plot p = context.getPlot(x+i,z);
+          if(p==null){
+            if(player.isOp()){
+              break;
+            }
+          }
+          if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
           }
         }
@@ -118,7 +140,13 @@ public class SignEventListener extends ListenerClient implements Listener {
       case SOUTH:
         //check west
         for(int i = 0; i<size; i++){
-          if(!context.getPlot(x-1,z).canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
+          Plot p = context.getPlot(x+i,z);
+          if(p==null){
+            if(player.isOp()){
+              break;
+            }
+          }
+          if(p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
           }
         }
@@ -152,34 +180,34 @@ public class SignEventListener extends ListenerClient implements Listener {
     }
   }
 
-  public void imageMap(Player player, int width, String contractAddr, String item_id, Block block) {
-    int mapCount = width*width;
+  public void imageMap(Player player, int width, String contractAddr, String item_id, Block block, BlockFace blockFace) {
+    int mapCount = width * width;
     Image image = null;
     try {
-      URL url = getImage(contractAddr,item_id);
-      if(url==null){
+      URL url = getImage(contractAddr, item_id);
+      if (url == null) {
         return;
       }
       image = ImageIO.read(url);
-    }catch(Exception ex) {
+    } catch (Exception ex) {
       ex.printStackTrace();
       return;
     }
-    Image tmp = image.getScaledInstance(width*128,width*128,Image.SCALE_SMOOTH);
-    BufferedImage photo = new BufferedImage(width*128,width*128, BufferedImage.TYPE_INT_ARGB);
+    Image tmp = image.getScaledInstance(width * 128, width * 128, Image.SCALE_SMOOTH);
+    BufferedImage photo = new BufferedImage(width * 128, width * 128, BufferedImage.TYPE_INT_ARGB);
     ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
     ArrayList<MapView> maps = new ArrayList<MapView>();
     ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
-    for(int i = 0; i < width; i++) {
+    for (int i = 0; i < width; i++) {
       for (int j = 0; j < width; j++) {
         stacks.add(new ItemStack(Material.FILLED_MAP, 1));
         maps.add(Bukkit.getServer().createMap(Bukkit.getServer().getWorlds().get(0)));
         Graphics2D g2d = photo.createGraphics();
-        g2d.drawImage(tmp, 0, 0 , null);
+        g2d.drawImage(tmp, 0, 0, null);
         images.add(photo.getSubimage(j * 128, i * 128, 128, 128));
       }
     }
-    for(int i = 0; i < mapCount; i++) {
+    for (int i = 0; i < mapCount; i++) {
       for (MapRenderer render : maps.get(i).getRenderers()) {
         maps.get(i).removeRenderer(render);
       }
@@ -196,14 +224,44 @@ public class SignEventListener extends ListenerClient implements Listener {
       meta.setMapView(maps.get(i));
       stacks.get(i).setItemMeta(meta);
     }
-
     int i = 0;
-      for (int x = 0; x < width; x++)
-        for (int y = 0; y < width; y++) {
-          Location loc = new Location(block.getWorld(),block.getX()+y,block.getY()+x, block.getZ());
-          ItemFrame frame = block.getWorld().spawn(loc,ItemFrame.class);
-          frame.setItem(stacks.get(stacks.size()-i-1));
-          i++;
+    switch (blockFace) {
+      case NORTH:
+        for (int x = 0; x < width; x++) {
+          for (int y = 0; y < width; y++) {
+            Location loc = new Location(block.getWorld(), block.getX() + y, block.getY() + x, block.getZ());
+            ItemFrame frame = block.getWorld().spawn(loc, ItemFrame.class);
+            frame.setItem(stacks.get(stacks.size() - i - 1));
+            i++;
+          }
+        }
+      case SOUTH:
+        for (int x = 0; x < width; x++) {
+          for (int y = 0; y < width; y++) {
+            Location loc = new Location(block.getWorld(), block.getX() + y, block.getY() + width-x-1, block.getZ());
+            ItemFrame frame = block.getWorld().spawn(loc, ItemFrame.class);
+            frame.setItem(stacks.get(i));
+            i++;
+          }
+        }
+      case EAST:
+        for (int x = 0; x < width; x++) {
+          for (int y = 0; y < width; y++) {
+            Location loc = new Location(block.getWorld(), block.getX(), block.getY() + x, block.getZ()+y);
+            ItemFrame frame = block.getWorld().spawn(loc, ItemFrame.class);
+            frame.setItem(stacks.get(stacks.size() - i - 1));
+            i++;
+          }
+        }
+      case WEST:
+        for (int x = 0; x < width; x++) {
+          for (int y = 0; y < width; y++) {
+            Location loc = new Location(block.getWorld(), block.getX(), block.getY() + x, block.getZ()-y);
+            ItemFrame frame = block.getWorld().spawn(loc, ItemFrame.class);
+            frame.setItem(stacks.get(stacks.size() - i - 1));
+            i++;
+          }
         }
     }
+  }
 }

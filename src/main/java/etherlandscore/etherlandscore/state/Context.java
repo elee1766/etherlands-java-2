@@ -283,13 +283,9 @@ public class Context<WriteMaps> {
     couchPersister.update(gamer);
   }
 
-  public void nft_create_nft(WriteNFT entity, String contractaddr, String item_id){
-    entity.setContract(contractaddr);
-    if(entity!=null) {
-      couchPersister.update(entity);
-    }
-    this.getNftUrls().put(entity.getURL(), entity);
-    this.getNfts().put(entity.getContractAddr(), entity.getItemID(), entity);
+  public void nft_create_nft(WriteNFT entity){
+    this.getNftUrls().put(entity.getUrl(), entity);
+    this.getNfts().put(entity.getContract(), entity.getItem(), entity);
   }
 
   public void map_create_map(WriteMap entity){

@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.Set;
 
 public interface MapRead {
-    URL getImage_url();
+    URL getUrl();
 
-    Set<Integer> getMapIDs();
+    Set<Integer> getMaps();
 }

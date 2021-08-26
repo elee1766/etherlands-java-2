@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.write.ResponseHelper;
 import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.state.write.WritePlot;
@@ -162,7 +163,7 @@ public class SignEventListener extends ListenerClient implements Listener {
   public URL getImage(String contractaddr, String token_id) throws IOException {
     WriteNFT nft = state().getNFTs().get(contractaddr, token_id);
     if(nft!=null){
-      return new URL(nft.getURL());
+      return new URL(nft.getUrl());
     }else{
       OkHttpClient client = new OkHttpClient();
       Request request = new Request.Builder()
@@ -172,13 +173,14 @@ public class SignEventListener extends ListenerClient implements Listener {
       Response response = client.newCall(request).execute();
       ObjectMapper objectMapper = new ObjectMapper();
       objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      WriteNFT entity = null;
+      ResponseHelper entity = null;
       try {
-        entity = objectMapper.readValue(response.body().string(), WriteNFT.class);
+        entity = objectMapper.readValue(response.body().string(), ResponseHelper.class);
       }catch(Exception ex){
         ex.printStackTrace();
       }
-      channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, entity, contractaddr, token_id));
+      WriteNFT writeNft = new WriteNFT(entity.getURL(), contractaddr, token_id);
+      channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, writeNft));
       return new URL(entity.getURL());
     }
   }

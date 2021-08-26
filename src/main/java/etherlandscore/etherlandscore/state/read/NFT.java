@@ -9,17 +9,12 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface NFT {
+  String getContract();
 
-  Field[] getDeclaredFields();
+  String getItem();
 
-  String getOwnerAddr();
+  String getPath();
 
-  String getContractAddr();
-
-  String getItemID();
-
-  String getFilePath();
-
-  String getURL();
+  String getUrl();
 
 }

@@ -54,7 +54,7 @@ public class ImageCommand extends ListenerClient {
   public URL getImage(String contractaddr, String token_id) throws IOException {
     WriteNFT nft = state().getNFTs().get(contractaddr, token_id);
     if(nft!=null){
-      return new URL(nft.getURL());
+      return new URL(nft.getUrl());
     }else{
       OkHttpClient client = new OkHttpClient();
       Request request = new Request.Builder()
@@ -71,7 +71,7 @@ public class ImageCommand extends ListenerClient {
         ex.printStackTrace();
       }
       channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, entity, contractaddr));
-      return new URL(entity.getURL());
+      return new URL(entity.getUrl());
     }
   }
 

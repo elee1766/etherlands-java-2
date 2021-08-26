@@ -94,8 +94,8 @@ public class CouchPersister extends ServerModule {
     }
     Bukkit.getLogger().info("doing nfts");
     for (WriteNFT writeNFT: this.nftRepo.getAll()) {
-      empty.nfts.put(writeNFT.getContractAddr(), writeNFT.getItemID(), writeNFT);
-      empty.nftUrls.put(writeNFT.getURL(), writeNFT);
+      empty.nfts.put(writeNFT.getContract(), writeNFT.getItem(), writeNFT);
+      empty.nftUrls.put(writeNFT.getUrl(), writeNFT);
     }
     Bukkit.getLogger().info("done reading from db");
   }

@@ -23,74 +23,50 @@ import java.util.UUID;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class WriteNFT extends CouchDocument implements NFT {
-    private String url;
-    private String contractAddr;
-    private String itemID;
-    private String ownerAddr;
+    private final String url;
+    private final String contract;
+    private final String item;
+    private String path;
     private String _id;
-    private String filepath;
 
     @JsonCreator
-    public WriteNFT(@JsonProperty("url") String image_url, @JsonProperty("contractAddr") String address, @JsonProperty("itemID") String token_id){
-        this.url = image_url;
-        this.contractAddr = address;
-        this.itemID = token_id;
-        this.ownerAddr = this.getOwnerAddr();
-        this.filepath = Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+address+"/"+token_id;
+    public WriteNFT(@JsonProperty("url") String url, @JsonProperty("contract") String contract, @JsonProperty("item") String item){
+        this.url = url;
+        this.contract = contract;
+        this.item = item;
+        this.path = Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+contract+"/"+item;
     }
 
     @JsonProperty("_id")
     public String getId() {
-        return (this.contractAddr+"_"+this.itemID);
+        return (this.contract+"_"+this.item);
     }
     @JsonProperty("_id")
     public void setId(String string) {
-        this._id = (this.contractAddr+"_"+this.itemID);
+        this._id = (this.contract+"_"+this.item);
     }
 
     @Override
-    @JsonIgnore
-    public Field[] getDeclaredFields() {
-        return new Field[0];
+    public String getContract() {
+        return contract;
     }
 
     @Override
-    @JsonIgnore
-    public String getOwnerAddr() {
-        return null;
+    public String getItem() {
+        return item;
     }
 
     @Override
-    public String getContractAddr() {
-        return contractAddr;
+    public String getPath() {
+        return this.path;
     }
 
-    public void setContract(String contractAddr) {
-        this.contractAddr = contractAddr;
-    }
-
-    public void setItemID(String itemID) {
-        this.itemID = itemID;
+    public void setPath() {
+        this.path = Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+this.contract+"/"+this.item;
     }
 
     @Override
-    public String getItemID() {
-        return itemID;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getFilePath() {
-        return Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+this.contractAddr+"/"+this.itemID;
-    }
-
-    public void setFilePath() {
-        this.filepath = Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+this.contractAddr+"/"+this.itemID;
-    }
-
-    @Override
-    public String getURL() {
-
+    public String getUrl() {
         return this.url;
     }
 }

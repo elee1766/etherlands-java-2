@@ -7,19 +7,21 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.read.NFT;
 import org.bukkit.Bukkit;
+import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ResponseHelper {
-    private final String url;
-    private final String itemId;
+    private final JSONObject[] assets;
 
     @JsonCreator
-    public ResponseHelper(@JsonProperty("image_url")String image_url,@JsonProperty("token_id") String token_id){
-        this.url = image_url;
-        this.itemId = token_id;
+    public ResponseHelper(@JsonProperty("assets") JSONObject[] assets){
+        this.assets = assets;
     }
-    public String getURL() {
-        return this.url;
+    @JsonProperty("assets")
+    public String getImageurl() {
+        return this.assets[0].get("image_url").toString();
     }
 }

@@ -4,10 +4,12 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.util.Map2;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class ReadContext {
@@ -59,4 +61,10 @@ public class ReadContext {
   public boolean hasTeam(String name) {
     return getTeams().containsKey(name);
   }
+
+  public Map2<String, String, WriteNFT> getNfts() {return context.getNfts(); }
+
+  public Map<String, WriteNFT> getNftUrls() {return context.getNftUrls(); }
+
+  public Set<WriteMap> getMaps() {return context.getMaps(); }
 }

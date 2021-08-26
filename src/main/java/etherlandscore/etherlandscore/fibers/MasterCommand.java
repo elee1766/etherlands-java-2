@@ -27,5 +27,6 @@ public enum MasterCommand {
   team_delete_team,
   team_add_gamer,
   map_create_map,
+  map_rerender_maps,
   nft_create_nft
 }

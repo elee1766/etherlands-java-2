@@ -13,9 +13,19 @@ import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
 import okhttp3.Response;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.map.MapCanvas;
+import org.bukkit.map.MapRenderer;
+import org.bukkit.map.MapView;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
@@ -286,6 +296,7 @@ public class Context<WriteMaps> {
   public void nft_create_nft(WriteNFT entity){
     this.getNftUrls().put(entity.getUrl(), entity);
     this.getNfts().put(entity.getContract(), entity.getItem(), entity);
+    couchPersister.update(entity);
   }
 
   public void map_create_map(WriteMap entity){
@@ -293,5 +304,52 @@ public class Context<WriteMaps> {
       couchPersister.update(entity);
     }
     this.getMaps().add(entity);
+  }
+
+  public void map_rerender_maps() {
+    for(WriteMap map : this.maps) {
+      Image image = null;
+      try {
+        image = ImageIO.read(map.getUrl());
+      }catch(Exception ex){
+        ex.printStackTrace();
+      }
+      Set<Integer> mapIds = map.getMaps();
+      renderHelper(image, mapIds);
+    }
+  }
+
+  public void renderHelper(Image image, Set<Integer> mapIds) {
+    int width = (int) Math.sqrt(mapIds.size());
+    Image tmp = image.getScaledInstance(width * 128, width * 128, Image.SCALE_SMOOTH);
+    BufferedImage photo = new BufferedImage(width * 128, width * 128, BufferedImage.TYPE_INT_ARGB);
+    ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+    ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+    for (int i = 0; i < width; i++) {
+      for (int j = 0; j < width; j++) {
+        stacks.add(new ItemStack(Material.FILLED_MAP, 1));
+        Graphics2D g2d = photo.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        images.add(photo.getSubimage(j * 128, i * 128, 128, 128));
+      }
+    }
+    int i = 0;
+    for (int map : mapIds) {
+      for (MapRenderer render : Bukkit.getMap(map).getRenderers()) {
+        Bukkit.getMap(map).removeRenderer(render);
+      }
+      int finalI = i;
+      MapRenderer mr = new MapRenderer() {
+        @Override
+        public void render(MapView map, MapCanvas canvas, Player player) {
+          canvas.drawImage(0, 0, images.get(finalI));
+        }
+      };
+      Bukkit.getMap(map).addRenderer(mr);
+      MapMeta meta = ((MapMeta) stacks.get(i).getItemMeta());
+      meta.setMapView(Bukkit.getMap(map));
+      stacks.get(i).setItemMeta(meta);
+      i++;
+    }
   }
 }

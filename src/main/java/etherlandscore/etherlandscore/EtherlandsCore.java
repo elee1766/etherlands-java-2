@@ -14,6 +14,7 @@ import etherlandscore.etherlandscore.services.Scheduler;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
 import org.bukkit.Bukkit;
+import org.bukkit.event.server.MapInitializeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -21,6 +22,7 @@ import org.jetlang.fibers.ThreadFiber;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class EtherlandsCore extends JavaPlugin {
 
@@ -105,7 +107,7 @@ public final class EtherlandsCore extends JavaPlugin {
     }
 
     getLogger().info("onEnable is done!");
-
-    //initialize maps;
+    channels.master_command.publish(
+        new Message<>(MasterCommand.map_rerender_maps));
   }
 }

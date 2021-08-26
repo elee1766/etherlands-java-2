@@ -178,7 +178,7 @@ public class SignEventListener extends ListenerClient implements Listener {
       }catch(Exception ex){
         ex.printStackTrace();
       }
-      channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, entity, contractaddr));
+      channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, entity, contractaddr, token_id));
       return new URL(entity.getURL());
     }
   }

@@ -27,31 +27,35 @@ public class WriteNFT extends CouchDocument implements NFT {
     private String contractAddr;
     private String itemID;
     private String ownerAddr;
+    private String _id;
+    private String filepath;
 
     @JsonCreator
-    public WriteNFT(@JsonProperty("image_url") String image_url, @JsonProperty("asset.address") String address, @JsonProperty("token_id") String id){
+    public WriteNFT(@JsonProperty("url") String image_url, @JsonProperty("contractAddr") String address, @JsonProperty("itemID") String token_id){
         this.url = image_url;
         this.contractAddr = address;
-        this.itemID = id;
+        this.itemID = token_id;
         this.ownerAddr = this.getOwnerAddr();
+        this.filepath = Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+address+"/"+token_id;
     }
 
-    @Override
+    @JsonProperty("_id")
     public String getId() {
-        return null;
+        return (this.contractAddr+"_"+this.itemID);
     }
-
-    @Override
+    @JsonProperty("_id")
     public void setId(String string) {
-
+        this._id = (this.contractAddr+"_"+this.itemID);
     }
 
     @Override
+    @JsonIgnore
     public Field[] getDeclaredFields() {
         return new Field[0];
     }
 
     @Override
+    @JsonIgnore
     public String getOwnerAddr() {
         return null;
     }
@@ -65,14 +69,23 @@ public class WriteNFT extends CouchDocument implements NFT {
         this.contractAddr = contractAddr;
     }
 
+    public void setItemID(String itemID) {
+        this.itemID = itemID;
+    }
+
     @Override
     public String getItemID() {
         return itemID;
     }
 
     @Override
+    @JsonIgnore
     public String getFilePath() {
-        return Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+contractAddr+"/"+itemID;
+        return Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+this.contractAddr+"/"+this.itemID;
+    }
+
+    public void setFilePath() {
+        this.filepath = Bukkit.getPluginManager().getPlugin("EtherlandsCore").getDataFolder()+"/"+this.contractAddr+"/"+this.itemID;
     }
 
     @Override

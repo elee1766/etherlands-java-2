@@ -7,5 +7,5 @@ import java.util.Set;
 public interface MapRead {
     URL getImage_url();
 
-    Set<Integer> getMapID();
+    Set<Integer> getMapIDs();
 }

@@ -73,7 +73,7 @@ public class MasterService extends ServerModule {
             //flag commands
             case district_set_group_permission -> context.district_set_group_permission((WriteDistrict) _args[0], (WriteGroup) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
             case district_set_gamer_permission -> context.district_set_gamer_permission((WriteDistrict) _args[0], (WriteGamer) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
-            case nft_create_nft -> context.nft_create_nft((WriteNFT) _args[0], (String) _args[1]);
+            case nft_create_nft -> context.nft_create_nft((WriteNFT) _args[0], (String) _args[1], (String) _args[2]);
             case map_create_map -> context.map_create_map((WriteMap) _args[0]);
         }
         global_update();

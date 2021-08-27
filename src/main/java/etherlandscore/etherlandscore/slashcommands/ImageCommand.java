@@ -12,6 +12,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.write.ResponseHelper;
 import etherlandscore.etherlandscore.state.write.WriteMap;
@@ -36,6 +37,9 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.jetlang.fibers.Fiber;
 import org.json.simple.JSONObject;
+import org.web3j.ens.EnsResolver;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
 import org.yaml.snakeyaml.scanner.ScannerImpl;
 
 import javax.imageio.ImageIO;
@@ -55,6 +59,7 @@ import static etherlandscore.etherlandscore.services.MasterService.state;
 public class ImageCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
+  private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
 
   public ImageCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
@@ -67,6 +72,12 @@ public class ImageCommand extends ListenerClient {
     boolean contract = false;
     String slug = String.valueOf(args[0]);
     String item_id = String.valueOf(args[1]);
+    if(slug.contains(".")) {
+      contract = true;
+      Web3j web3 = Web3j.build(new HttpService(settings.get("NodeUrl")));
+      EnsResolver ens = new EnsResolver(web3, 300);
+      slug = ens.resolve(slug);
+    }
     if(slug.startsWith("0x")) { contract = true; }
     int width = (int) args[2];
     Block placed = sender.getTargetBlock(null, 10);
@@ -85,7 +96,6 @@ public class ImageCommand extends ListenerClient {
       imageMap(sender, width, slug, item_id, placed, facing, contract);
     }
   }
-
   //x+ is east
   //z+ is south
   private boolean canBuildHere(int width, Block placed, Player player, BlockFace blockFace) {

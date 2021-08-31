@@ -110,6 +110,16 @@ public class Context<WriteMaps> {
   public void gamer_link_address(WriteGamer gamer, String address) {
     gamer.setAddress(address);
     getLinks().put(address, gamer.getUuid());
+    Map<Integer, WritePlot> plots = this.getPlots();
+    for(Map.Entry mapElement : plots.entrySet()){
+      WritePlot wp = (WritePlot) mapElement.getValue();
+      if(wp.getOwnerUUID()==null){
+        if(wp.getOwnerAddress() == gamer.getAddress()){
+          wp.setOwnerUUID(gamer.getUuid());
+          couchPersister.update(wp);
+        }
+      }
+    }
     couchPersister.update(gamer);
   }
 

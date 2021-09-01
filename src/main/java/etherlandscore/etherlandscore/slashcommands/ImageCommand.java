@@ -289,7 +289,7 @@ public class ImageCommand extends ListenerClient {
   }
 
   void help(Player sender, Object[] args) {
-    sender.sendMessage("IMAGE TESTING SHIT AHHHHH");
+    sender.sendMessage("/image display [contract address|collection name] [tokenID] [size]");
   }
 
   public void register(){

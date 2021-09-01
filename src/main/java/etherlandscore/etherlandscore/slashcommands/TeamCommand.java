@@ -14,10 +14,13 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -38,16 +41,16 @@ public class TeamCommand extends ListenerClient {
 
   void create(Player sender, Object[] args) {
     if (context.hasTeam((String) args[0])) {
-      sender.sendMessage("a team already exists by that name");
+      sender.sendMessage("A team already exists by that name");
       return;
     }
     if (context.hasGamer(sender.getUniqueId())) {
       if(context.getGamer(sender.getUniqueId()).hasTeam()){
-        sender.sendMessage("ur already in a team");
+        sender.sendMessage("You are already in a team");
         return;
       }
       channels.master_command.publish(new Message<>(MasterCommand.team_create_team, state().getGamer(sender.getUniqueId()), args[0]));
-      sender.sendMessage("team created!");
+      sender.sendMessage("Team created!");
     }
   }
 
@@ -125,10 +128,13 @@ public class TeamCommand extends ListenerClient {
             this.invites.put(writeTeam.getName(), new HashMap<>());
           }
           writeTeam.inviteGamer(this.invites.get(writeTeam.getName()), receiver.getUuid());
-          receiver.getPlayer().sendMessage("you have been invited to " + inviter.getTeam());
+          receiver.getPlayer().sendMessage("You have been invited to " + inviter.getTeam());
+          TextComponent join = new TextComponent("click here to join");
+          join.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team join " + inviter.getTeam()));
+          receiver.getPlayer().sendMessage(join);
           receiver
               .getPlayer()
-              .sendMessage("send command \"/team join " + inviter.getTeam() + "\" to join");
+              .sendMessage("Or send command \"/team join " + inviter.getTeam() + "\" to join");
         }
       }
     }
@@ -141,9 +147,9 @@ public class TeamCommand extends ListenerClient {
       if (team != null) {
         if (team.canJoin(this.invites.getOrDefault(team.getName(), new HashMap<>()), joiner)) {
           TeamSender.addMember(this.channels, joiner, team);
-          sender.sendMessage("welcome to " + args[0]);
+          sender.sendMessage("Welcome to " + args[0]);
         } else {
-          sender.sendMessage("you must be invited before joining " + args[0]);
+          sender.sendMessage("You must be invited before joining " + args[0]);
         }
       }
     }
@@ -156,13 +162,13 @@ public class TeamCommand extends ListenerClient {
     if (writeTeam.isManager(manager)) {
       if (!writeTeam.isManager(kicked)) {
         TeamSender.removeMember(channels, kicked, writeTeam);
-        sender.sendMessage("you kicked " + kicked.getPlayer().getName());
+        sender.sendMessage("You kicked " + kicked.getPlayer().getName());
       }
       {
-        sender.sendMessage("cant kick manager");
+        sender.sendMessage("Can't kick manager");
       }
     } else {
-      sender.sendMessage("you must be manager of a team to kick players");
+      sender.sendMessage("You must be manager of a team to kick players");
     }
   }
 
@@ -172,19 +178,19 @@ public class TeamCommand extends ListenerClient {
     Team writeTeam = manager.getTeamObject();
     if (writeTeam.isOwner(manager)) {
       TeamSender.removeMember(channels, kicked, writeTeam);
-      sender.sendMessage("you kicked " + kicked.getPlayer().getName());
+      sender.sendMessage("You kicked " + kicked.getPlayer().getName());
       return;
     }
     if (writeTeam.isManager(manager)) {
       if (!writeTeam.isManager(kicked)) {
         TeamSender.removeMember(channels, kicked, writeTeam);
-        sender.sendMessage("you kicked " + kicked.getPlayer().getName());
+        sender.sendMessage("You kicked " + kicked.getPlayer().getName());
       }
       {
-        sender.sendMessage("cant kick manager");
+        sender.sendMessage("Can't kick manager");
       }
     } else {
-      sender.sendMessage("you must be manager of a team to kick players");
+      sender.sendMessage("You must be manager of a team to kick players");
     }
   }
 
@@ -193,13 +199,13 @@ public class TeamCommand extends ListenerClient {
     if (!gamer.getTeam().equals("")) {
       Team writeTeam = context.getTeam(gamer.getTeam());
       if (writeTeam.getOwnerUUID().equals(gamer.getUuid())) {
-        sender.sendMessage("you cannot leave the team you own");
+        sender.sendMessage("You cannot leave the team you own");
       } else {
         TeamSender.removeMember(channels, gamer, writeTeam);
-        sender.sendMessage("you have left " + gamer.getTeam());
+        sender.sendMessage("You have left " + gamer.getTeam());
       }
     } else {
-      sender.sendMessage("you are not in a team");
+      sender.sendMessage("You are not in a team");
     }
   }
 

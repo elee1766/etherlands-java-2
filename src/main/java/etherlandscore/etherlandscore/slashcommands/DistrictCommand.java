@@ -55,7 +55,7 @@ public class DistrictCommand extends ListenerClient {
       sender.sendMessage(args[0] + " district has been created");
       TeamSender.createDistrict(this.channels, (String) args[0], writeTeam);
     } else {
-      sender.sendMessage("ur not manager");
+      sender.sendMessage("You are not manager");
     }
   }
 
@@ -66,7 +66,7 @@ public class DistrictCommand extends ListenerClient {
       TeamSender.deleteDistrict(this.channels, (District) args[0], writeTeam);
       sender.sendMessage(args[0] + " district has been deleted");
     } else {
-      sender.sendMessage("ur not manager");
+      sender.sendMessage("You are not manager");
     }
   }
 
@@ -83,7 +83,7 @@ public class DistrictCommand extends ListenerClient {
   }
 
   void noTeam(Player sender) {
-    sender.sendMessage("you must be in a team to manage districts");
+    sender.sendMessage("You must be in a team to manage districts");
   }
 
   public void register() {
@@ -148,7 +148,7 @@ public class DistrictCommand extends ListenerClient {
       }
       sender.sendMessage(args[0] + " plot has been removed");
     } else {
-      sender.sendMessage("ur not a manager");
+      sender.sendMessage("You not a manager");
     }
   }
 

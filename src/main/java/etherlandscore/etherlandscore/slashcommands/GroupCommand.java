@@ -38,7 +38,7 @@ public class GroupCommand extends ListenerClient {
           sender.sendMessage(subject.getPlayer().getName() + " is not in your team");
         }
       } else {
-        sender.sendMessage("Ur not a manager");
+        sender.sendMessage("You are not a manager");
       }
     } else {
       runNoTeam(sender);
@@ -52,7 +52,7 @@ public class GroupCommand extends ListenerClient {
       TeamSender.createGroup(this.channels, (String) args[0], writeTeam);
       sender.sendMessage(args[0] + " has been created");
     } else {
-      sender.sendMessage("ur not manager");
+      sender.sendMessage("You are not manager");
     }
   }
 
@@ -63,7 +63,7 @@ public class GroupCommand extends ListenerClient {
       TeamSender.deleteGroup(this.channels, (String) args[0], writeTeam);
       sender.sendMessage(args[0] + " has been deleted");
     } else {
-      sender.sendMessage("ur not manager");
+      sender.sendMessage("You are not manager");
     }
   }
 
@@ -122,7 +122,7 @@ public class GroupCommand extends ListenerClient {
           sender.sendMessage(subject.getPlayer().getName() + " is not in your team");
         }
       } else {
-        sender.sendMessage("Ur not a manager");
+        sender.sendMessage("You are not a manager");
       }
     } else {
       runNoTeam(sender);
@@ -134,6 +134,6 @@ public class GroupCommand extends ListenerClient {
   }
 
   void runNoTeam(Player sender) {
-    sender.sendMessage("you must be in a team to manage groups");
+    sender.sendMessage("You must be in a team to manage groups");
   }
 }

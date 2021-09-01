@@ -158,7 +158,7 @@ public class PlotCommand extends ListenerClient {
   }
 
   void runHelpCommand(Player sender, Object[] args) {
-    sender.sendMessage("update info invite join delete");
+    sender.sendMessage("Update info invite join delete");
   }
 
   void update(CommandSender sender, Object[] args) {

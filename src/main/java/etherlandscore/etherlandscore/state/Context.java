@@ -113,9 +113,13 @@ public class Context<WriteMaps> {
     Map<Integer, WritePlot> plots = this.getPlots();
     for(Map.Entry mapElement : plots.entrySet()){
       WritePlot wp = (WritePlot) mapElement.getValue();
+      Bukkit.getLogger().info(String.valueOf(wp.getOwnerUUID()));
       if(wp.getOwnerUUID()==null){
-        if(wp.getOwnerAddress() == gamer.getAddress()){
-          wp.setOwnerUUID(gamer.getUuid());
+        Bukkit.getLogger().info("Checking plot: " + wp.getId());
+        Bukkit.getLogger().info(wp.getOwnerAddress() + " should equal " + address);
+        if(wp.getOwnerAddress().equals(address)){
+          Bukkit.getLogger().info("they are equal");
+          wp.setOwner(address, gamer.getUuid());
           couchPersister.update(wp);
         }
       }

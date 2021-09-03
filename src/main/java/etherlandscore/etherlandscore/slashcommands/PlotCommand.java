@@ -162,11 +162,15 @@ public class PlotCommand extends ListenerClient {
   }
 
   void update(CommandSender sender, Object[] args) {
-    sender.sendMessage(args[0] + " is being updated...");
-    IntegerRange range = (IntegerRange) args[0];
-    for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
-      this.channels.ethers_command.publish(new Message<>(EthersCommand.ethers_query_nft, i));
+    if(sender.isOp() || (!(sender instanceof Player))){
+      sender.sendMessage(args[0] + " is being updated...");
+      IntegerRange range = (IntegerRange) args[0];
+      for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
+        this.channels.ethers_command.publish(new Message<>(EthersCommand.ethers_query_nft, i));
+      }
+      sender.sendMessage(args[0] + " have been updated");
+    } else {
+      sender.sendMessage("You do not have permission to run this command");
     }
-    sender.sendMessage(args[0] + " have been updated");
   }
 }

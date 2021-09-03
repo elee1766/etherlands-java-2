@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -37,10 +38,15 @@ public class GamerCommand extends ListenerClient {
   }
 
   void link(Player sender, Object[] args) {
-    Player p = (Player) args[0];
-    WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
-    GamerSender.setAddress(channels, gamer, (String) args[1]);
-    sender.sendMessage(gamer.getPlayer().getName() + " has been linked successfully");
+    if(sender.isOp() || (!(sender instanceof Player))){
+      Player p = (Player) args[0];
+      WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
+      GamerSender.setAddress(channels, gamer, (String) args[1]);
+      sender.sendMessage(gamer.getPlayer().getName() + " has been linked successfully");
+    } else {
+      sender.sendMessage("You don't have permission to run this command");
+
+    }
   }
 
   public void register() {

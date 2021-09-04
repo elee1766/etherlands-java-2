@@ -94,6 +94,8 @@ public class ImageCommand extends ListenerClient {
     sender.sendMessage(slug + " " + item_id + " " + width);
     if(canBuildHere(width, placed, sender, facing)) {
       imageMap(sender, width, slug, item_id, placed, facing, contract);
+    }else{
+      sender.sendMessage("You cannot build that here");
     }
   }
   //x+ is east

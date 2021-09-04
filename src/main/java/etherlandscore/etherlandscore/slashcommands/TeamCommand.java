@@ -99,7 +99,7 @@ public class TeamCommand extends ListenerClient {
   }
 
   void help(Player sender, Object[] args) {
-    sender.sendMessage("create info invite join delete leave kick delegate");
+    sender.sendMessage("Create Info Invite Join Delete Leave Lick Delegate");
   }
 
   void info(Player sender, Object[] args) {

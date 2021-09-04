@@ -1,20 +1,25 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.DistrictPrinter;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.EthersCommand;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Group;
-import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.state.sender.DistrictSender;
+import etherlandscore.etherlandscore.state.sender.PlotSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -29,44 +34,93 @@ public class DistrictCommand extends ListenerClient {
     register();
   }
 
-  void add(Player sender, Object[] args) {
+  void delegate(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
-    System.out.println(gamer.getUuid());
-    System.out.println(writeTeam.getOwnerUUID());
-    if (writeTeam.isManager(gamer)) {
-      District writeDistrict = (District) args[0];
-      IntegerRange range = (IntegerRange) args[1];
-      for (int i = range.getLowerBound(); i <= (range.getUpperBound()); i++) {
-        if (writeTeam.getPlots().contains(i)) {
-          DistrictSender.addPlot(this.channels, context.getPlot(i), writeDistrict);
-        }
+    IntegerRange range = (IntegerRange) args[0];
+    for (int i = range.getLowerBound();
+         i <= range.getUpperBound();
+         i++) {
+      if (context.getDistrict(i).getOwnerUUID().equals(gamer.getUuid())) {
+        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam);
+        sender.sendMessage("District: " + i + " has been delegated to " + writeTeam.getName());
+      } else {
+        sender.sendMessage("You do not own this district");
       }
-      sender.sendMessage("Plots " + args[1] + " have been added to district");
+    }
+  }
+
+  void delegateLocal(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Team writeTeam = gamer.getTeamObject();
+    Chunk chunk = gamer.getPlayer().getChunk();
+    District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
+    if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
+      TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam);
+      sender.sendMessage(writeDistrict.getIdInt() + " has been delegated to " + writeTeam.getName());
+    } else {
+      sender.sendMessage("You do not own this district");
+    }
+  }
+
+  void infoGiven(CommandSender sender, Object[] args) {
+    District writeDistrict = context.getDistrict((int) args[0]);
+    if (writeDistrict == null) {
+      TextComponent unclaimed = new TextComponent("This Land is unclaimed");
+      unclaimed.setColor(ChatColor.YELLOW);
+      sender.sendMessage(unclaimed);
+    } else {
+      DistrictPrinter printer = new DistrictPrinter(writeDistrict);
+      printer.printDistrict((Player) sender);
+    }
+  }
+
+  void infoLocal(Player sender, Object[] args) {
+    District writeDistrict;
+    Location loc = sender.getLocation();
+    Chunk chunk = loc.getChunk();
+    int x = chunk.getX();
+    int z = chunk.getZ();
+    writeDistrict = context.getDistrict(x, z);
+    if (writeDistrict == null) {
+      TextComponent unclaimed = new TextComponent("This Land is unclaimed");
+      unclaimed.setColor(ChatColor.YELLOW);
+      sender.sendMessage(unclaimed);
+    } else {
+      DistrictPrinter printer = new DistrictPrinter(writeDistrict);
+      printer.printDistrict(sender);
+    }
+  }
+
+  void reclaim(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    IntegerRange range = (IntegerRange) args[0];
+    for (int i = range.getLowerBound();
+         i <= range.getUpperBound();
+         i++) {
+      Plot writePlot = context.getPlot(i);
+      if(writePlot != null) {
+        if (writePlot.getOwnerAddress().equals(gamer.getAddress())) {
+          PlotSender.reclaimPlot(this.channels, writePlot);
+          sender.sendMessage("District: " + i + " has been reclaimed");
+        } else {
+          sender.sendMessage("You do not own district:" + i);
+        }
+      }else{
+        sender.sendMessage("That district is currently unclaimed");
+      }
+    }
+  }
+
+  void reclaimLocal(Player sender, Object[] args) {
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Chunk chunk = gamer.getPlayer().getChunk();
+    Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
+    if (writePlot.getOwnerUUID().equals(gamer.getUuid())) {
+      PlotSender.reclaimPlot(this.channels, writePlot);
+      sender.sendMessage(writePlot.getIdInt() + " has been reclaimed");
     }else {
-      sender.sendMessage("You are not a manager");
-    }
-  }
-
-  void create(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    if (writeTeam.isManager(gamer)) {
-      sender.sendMessage(args[0] + " district has been created");
-      TeamSender.createDistrict(this.channels, (String) args[0], writeTeam);
-    } else {
-      sender.sendMessage("You are not manager");
-    }
-  }
-
-  void delete(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    if (writeTeam.isManager(gamer)) {
-      TeamSender.deleteDistrict(this.channels, (District) args[0], writeTeam);
-      sender.sendMessage(args[0] + " district has been deleted");
-    } else {
-      sender.sendMessage("You are not manager");
+      sender.sendMessage("You do not own this district");
     }
   }
 
@@ -74,16 +128,17 @@ public class DistrictCommand extends ListenerClient {
     sender.sendMessage("create");
   }
 
-  void info(Player sender, Object[] args) {
-    Player player = sender.getPlayer();
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = context.getTeam(gamer.getTeam());
-    DistrictPrinter printer = new DistrictPrinter(writeTeam.getDistricts());
-    printer.printDistrict(sender);
-  }
-
-  void noTeam(Player sender) {
-    sender.sendMessage("You must be in a team to manage districts");
+  void update(CommandSender sender, Object[] args) {
+    if(sender.isOp() || (!(sender instanceof Player))){
+      sender.sendMessage(args[0] + " is being updated...");
+      IntegerRange range = (IntegerRange) args[0];
+      for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
+        this.channels.ethers_command.publish(new Message<>(EthersCommand.ethers_query_nft, i));
+      }
+      sender.sendMessage(args[0] + " have been updated");
+    } else {
+      sender.sendMessage("You do not have permission to run this command");
+    }
   }
 
   public void register() {
@@ -92,26 +147,6 @@ public class DistrictCommand extends ListenerClient {
             .withPermission("etherlands.public")
             .executesPlayer(this::help);
     DistrictCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("create")
-            .withArguments(cleanNameArgument("districtname"))
-            .executesPlayer(this::create));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("delete")
-            .withArguments(teamDistrictArgument("districtname"))
-            .executesPlayer(this::delete));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("add")
-            .withAliases("addPlot")
-            .withArguments(teamDistrictArgument("districtname"))
-            .withArguments(new IntegerRangeArgument("plot-ids"))
-            .executesPlayer(this::add));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("remove")
-            .withAliases("removePlot")
-            .withArguments(teamDistrictArgument("district-name"))
-            .withArguments(new IntegerRangeArgument("plot-ids"))
-            .executesPlayer(this::remove));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("set_player")
             .withAliases("setp", "setplayer", "setPlayer")
@@ -130,26 +165,32 @@ public class DistrictCommand extends ListenerClient {
                 flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(this::setGroup));
-    DistrictCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::info));
+    DistrictCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
+
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("info")
+            .withArguments(
+                new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
+            .executes(this::infoGiven));
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("update")
+            .withArguments(new IntegerRangeArgument("chunkId"))
+            .executes(this::update));
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("reclaim")
+            .withArguments(new IntegerRangeArgument("chunkId"))
+            .executesPlayer(this::reclaim));
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("reclaim")
+            .executesPlayer(this::reclaimLocal));
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("delegate")
+            .withArguments(new IntegerRangeArgument("plot-ids"))
+            .executesPlayer(this::delegate));
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
 
     DistrictCommand.register();
-  }
-
-  void remove(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
-    if (writeTeam.isManager(gamer)) {
-      District writeDistrict = (WriteDistrict) args[0];
-      IntegerRange range = (IntegerRange) args[1];
-      for (int i = range.getLowerBound();
-          i <= range.getUpperBound();
-          i++) {
-        DistrictSender.removePlot(this.channels, context.getPlot(i), writeDistrict);
-      }
-      sender.sendMessage(args[0] + " plot has been removed");
-    } else {
-      sender.sendMessage("You not a manager");
-    }
   }
 
   void setGroup(Player sender, Object[] args) {

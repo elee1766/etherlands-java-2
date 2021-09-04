@@ -23,6 +23,7 @@ public class CouchPersister extends ServerModule {
   private final GamerRepo gamerRepo;
   private final TeamRepo teamRepo;
   private final PlotRepo plotRepo;
+  private final DistrictRepo districtRepo;
   private final NFTRepo nftRepo;
   private final MapRepo mapRepo;
   private final CouchDbConnector linkConnector;
@@ -42,6 +43,7 @@ public class CouchPersister extends ServerModule {
     this.gamerRepo =
         new GamerRepo(this.instance.createConnector("gamers", true), WriteGamer.class);
     this.plotRepo = new PlotRepo(this.instance.createConnector("plots", true), WritePlot.class);
+    this.districtRepo = new DistrictRepo(this.instance.createConnector("districts", true), WriteDistrict.class);
     this.teamRepo = new TeamRepo(this.instance.createConnector("teams", true), WriteTeam.class);
     this.mapRepo = new MapRepo(this.instance.createConnector("maps", true), WriteMap.class);
     this.nftRepo = new NFTRepo(this.instance.createConnector("nfts", true), WriteNFT.class);
@@ -50,6 +52,7 @@ public class CouchPersister extends ServerModule {
     channels.db_gamer.subscribe(fiber, this::write);
     channels.db_team.subscribe(fiber, this::write);
     channels.db_plot.subscribe(fiber, this::write);
+    channels.db_district.subscribe(fiber, this::write);
     channels.db_nft.subscribe(fiber, this::write);
     channels.db_map.subscribe(fiber, this::write);
 
@@ -57,6 +60,7 @@ public class CouchPersister extends ServerModule {
     channels.db_gamer_delete.subscribe(fiber, this::remove);
     channels.db_team_delete.subscribe(fiber, this::remove);
     channels.db_plot_delete.subscribe(fiber, this::remove);
+    channels.db_district_delete.subscribe(fiber, this::remove);
     channels.db_nft_delete.subscribe(fiber, this::remove);
     channels.db_map_delete.subscribe(fiber, this::remove);
   }
@@ -64,6 +68,7 @@ public class CouchPersister extends ServerModule {
   public void saveContext(Context context) {
       gamerRepo.save(context.getGamers().values());
       plotRepo.save(context.getPlots().values());
+      districtRepo.save(context.getDistricts().values());
       teamRepo.save(context.getTeams().values());
       nftRepo.save(context.getNftUrls().values());
       mapRepo.save(context.getMaps());
@@ -88,6 +93,14 @@ public class CouchPersister extends ServerModule {
       empty.plots.put(writePlot.getIdInt(),writePlot);
       empty.plotLocations.put(writePlot.getX(), writePlot.getZ(), writePlot.getIdInt());
     }
+    Bukkit.getLogger().info("doing districts");
+    for (WriteDistrict writeDistrict : this.districtRepo.getAll()) {
+      empty.districts.put(writeDistrict.getIdInt(),writeDistrict);
+        for(int id : writeDistrict.getPlotIds()) {
+          WritePlot plot = empty.getPlot(id);
+          empty.districtLocations.put(plot, writeDistrict);
+        }
+    }
     Bukkit.getLogger().info("doing maps");
     for (WriteMap writeMap: this.mapRepo.getAll()) {
       empty.maps.add(writeMap);
@@ -106,6 +119,9 @@ public class CouchPersister extends ServerModule {
   public void write(WritePlot plot){
     this.plotRepo.save(plot);
   }
+  public void write(WriteDistrict district){
+    this.districtRepo.save(district);
+  }
   public void write(WriteTeam team){
     this.teamRepo.save(team);
   }
@@ -122,6 +138,9 @@ public class CouchPersister extends ServerModule {
   public void update(WritePlot plot){
     this.channels.db_plot.publish(plot);
   }
+  public void update(WriteDistrict district){
+    this.channels.db_district.publish(district);
+  }
   public void update(WriteTeam team){
     this.channels.db_team.publish(team);
   }
@@ -134,6 +153,9 @@ public class CouchPersister extends ServerModule {
   public void remove(WritePlot plot){
     this.plotRepo.delete(plot);
   }
+  public void remove(WriteDistrict district){
+    this.districtRepo.delete(district);
+  }
   public void remove(WriteTeam team){
     this.teamRepo.delete(team);
   }
@@ -144,14 +166,17 @@ public class CouchPersister extends ServerModule {
     this.nftRepo.delete(nft);
   }
 
-
   public void delete(WriteGamer gamer){
     this.channels.db_gamer_delete.publish(gamer);
   }
   public void delete(WritePlot plot){
     this.channels.db_plot_delete.publish(plot);
   }
+  public void delete(WriteDistrict district){
+    this.channels.db_district_delete.publish(district);
+  }
   public void delete(WriteTeam team){
     this.channels.db_team_delete.publish(team);
   }
+
 }

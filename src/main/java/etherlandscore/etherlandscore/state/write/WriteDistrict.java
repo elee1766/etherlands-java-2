@@ -5,8 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.util.Map2;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -16,15 +19,20 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class WriteDistrict implements District {
+public class WriteDistrict extends CouchDocument implements District {
   private final String name;
   @JsonProperty("default")
   private final boolean isDefault;
+  @JsonProperty("_id")
+  private String _id;
+  private String ownerAddress;
   private Set<Integer> plotIds;
   private Map2<String, AccessFlags, FlagValue> groupPermissionMap;
   private Map2<UUID, AccessFlags, FlagValue> gamerPermissionMap;
   private Integer priority;
   private String team;
+  private String ownerUUID;
+  private String ownerServerName;
 
   public void setPlotIds(Set<Integer> plotIds) {
     this.plotIds = plotIds;
@@ -40,20 +48,24 @@ public class WriteDistrict implements District {
 
   @JsonCreator
   public WriteDistrict(
-      @JsonProperty("team") String team,
       @JsonProperty("name") String name,
       @JsonProperty("priority") Integer priority,
+      @JsonProperty("ownerAddress") String ownerAddress,
+      @JsonProperty("_id") Integer id,
       @JsonProperty("default") boolean isDefault) {
-    this.team = team;
     this.name = name;
     this.isDefault = isDefault;
     this.priority = priority;
+    this._id = id.toString();
+    this.ownerAddress = ownerAddress;
   }
   public WriteDistrict(
       Team teamObj,
        String name,
       Integer priority,
-      boolean isDefault) {
+      boolean isDefault,
+      int id,
+      String ownerAddress) {
     this.team = teamObj.getName();
     this.plotIds = new HashSet<>();
     this.name = name;
@@ -61,12 +73,92 @@ public class WriteDistrict implements District {
     this.priority = priority;
     this.groupPermissionMap = new Map2<>();
     this.gamerPermissionMap = new Map2<>();
+    this._id = String.valueOf(id);
+    this.ownerAddress = ownerAddress;
+  }
+
+  @Override
+  public boolean canGamerPerform(AccessFlags flag, Gamer gamer) {
+    try {
+      if (gamer.getPlayer().isOp()) {
+        return true;
+      }
+      if (hasTeam()) {
+        Team team = getTeamObject();
+        if (gamer.getTeamObject().equals(team)) {
+          Integer bestPriority = -100;
+          FlagValue res = FlagValue.NONE;
+            if (this.getPriority() > bestPriority) {
+              Set<String> groupNames = gamer.getGroups();
+              for (String groupName : groupNames) {
+                if (!this
+                    .readGroupPermission(team.getGroup(groupName), flag)
+                    .equals(FlagValue.NONE)) {
+                  res = this.readGroupPermission(team.getGroup(groupName), flag);
+                  bestPriority = this.getPriority();
+                }
+              }
+              if (!this.readGamerPermission(gamer, flag).equals(FlagValue.NONE)) {
+                res = this.readGamerPermission(gamer, flag);
+                bestPriority = this.getPriority();
+              }
+            }
+          return res == FlagValue.ALLOW;
+        } else {
+          FlagValue res =
+              team.getDistrict("global").readGroupPermission(team.getGroup("outsiders"), flag);
+          return res == FlagValue.ALLOW;
+        }
+      } else {
+        Gamer owner = this.getOwnerObject();
+        if (owner == null) {
+          return false;
+        }
+        if (owner.equals(gamer)) {
+          return true;
+        }
+        return owner.getFriends().contains(gamer.getUuid());
+      }
+    } catch (Exception e) {
+      Bukkit.getLogger().info(e + "\n" + e.getMessage());
+      return false;
+    }
+  }
+
+  @Override
+  @JsonIgnore
+  public Gamer getOwnerObject() {
+    return state().getGamer(UUID.fromString(ownerUUID));
+  }
+
+  @Override
+  public boolean hasTeam() {
+    return team!=null;
   }
 
   public void addPlot(Plot writePlot) {
     if (!isDefault) {
       this.plotIds.add(writePlot.getIdInt());
     }
+  }
+
+  public void removeTeam() {
+    this.team = null;
+  }
+
+  @JsonProperty("_id")
+  public String getId() {
+    return this._id;
+  }
+
+  @JsonProperty("_id")
+  public void setId(String string) {
+    this._id = string;
+  }
+
+  @Override
+  public String getOwnerAddress() {
+    return ownerAddress;
   }
 
   @Override
@@ -171,6 +263,12 @@ public class WriteDistrict implements District {
     return groupPermissionMap.get(writeGroup.getName(), flag);
   }
 
+  @JsonIgnore
+  @Override
+  public Integer getIdInt() {
+    return Integer.parseInt(this._id);
+  }
+
   public void removePlot(Plot writePlot) {
     this.plotIds.remove(writePlot.getIdInt());
   }
@@ -184,4 +282,41 @@ public class WriteDistrict implements District {
   public void setGroupPermission(Group writeGroup, AccessFlags flag, FlagValue value) {
     this.groupPermissionMap.put(writeGroup.getName(), flag, value);
   }
+
+  @Override
+  public UUID getOwnerUUID() {
+    if(ownerUUID == ""||ownerUUID==null){
+      return null;
+    }
+    return UUID.fromString(ownerUUID);
+  }
+
+  public void setOwnerUUID(UUID ownerUUID) {
+    this.ownerUUID = ownerUUID.toString();
+  }
+
+  public String getOwnerServerName() {
+    return ownerServerName;
+  }
+
+  public void setOwnerServerName(String ownerServerName) {
+    this.ownerServerName = ownerServerName;
+  }
+
+  @JsonIgnore
+  public void setOwner(String ownerAddress, UUID ownerUUID) {
+    this.ownerAddress = ownerAddress;
+    if (!(ownerUUID ==null)) {
+      this.ownerUUID = ownerUUID.toString();
+    }
+    if (this.ownerUUID != null) {
+      OfflinePlayer player = Bukkit.getOfflinePlayer(this.ownerUUID);
+      if (player.hasPlayedBefore()) {
+        this.ownerServerName = player.getName();
+      } else {
+        this.ownerServerName = "player-uuid: [" + ownerUUID + "]";
+      }
+    }
+  }
+
 }

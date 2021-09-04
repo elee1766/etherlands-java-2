@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -20,7 +21,6 @@ import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -58,11 +58,11 @@ public class TeamCommand extends ListenerClient {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     Chunk chunk = gamer.getPlayer().getChunk();
-    Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
-    if (writePlot.getOwnerUUID().equals(gamer.getUuid())) {
-      TeamSender.delegatePlot(this.channels, writePlot, writeTeam);
+    District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
+    if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
+      TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam);
       sender.sendMessage(
-          "Plot: " + writePlot.getIdInt() + " has been delegated to " + writeTeam.getName());
+          "District: " + writeDistrict.getIdInt() + " has been delegated to " + writeTeam.getName());
     } else {
       sender.sendMessage("You do not own this plot");
     }
@@ -76,7 +76,7 @@ public class TeamCommand extends ListenerClient {
         i <= Math.min(context.getPlots().size(), range.getUpperBound());
         i++) {
       if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
-        TeamSender.delegatePlot(this.channels, context.getPlot(i), writeTeam);
+        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam);
         sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
       } else {
         sender.sendMessage("You do not own this plot");

@@ -5,8 +5,12 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 
 import java.lang.reflect.Field;
 import java.util.Set;
+import java.util.UUID;
 
 public interface District extends Comparable<District> {
+
+  boolean canGamerPerform(AccessFlags flag, Gamer gamer);
+
   FlagValue checkFlags(AccessFlags flag, Gamer gamer);
 
   FlagValue checkFlags(AccessFlags flag, Group writeGroup);
@@ -20,13 +24,24 @@ public interface District extends Comparable<District> {
 
   Set<Plot> getPlotObjects();
 
+  Gamer getOwnerObject();
+
+  String getOwnerAddress();
+
   Integer getPriority();
 
   Team getTeamObject();
 
+  UUID getOwnerUUID();
+
   boolean isDefault();
+
+  boolean hasTeam();
 
   FlagValue readGamerPermission(Gamer gamer, AccessFlags flag);
 
   FlagValue readGroupPermission(Group writeGroup, AccessFlags flag);
+
+  Integer getIdInt();
+
 }

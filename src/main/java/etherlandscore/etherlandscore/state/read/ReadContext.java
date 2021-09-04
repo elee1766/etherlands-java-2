@@ -67,4 +67,9 @@ public class ReadContext {
   public Map<String, WriteNFT> getNftUrls() {return context.getNftUrls(); }
 
   public Set<WriteMap> getMaps() {return context.getMaps(); }
+
+  public District getDistrict(int i) { return context.getDistrict(i); }
+
+  public District getDistrict(int x, int z) { return context.getDistrict(x, z); }
+
 }

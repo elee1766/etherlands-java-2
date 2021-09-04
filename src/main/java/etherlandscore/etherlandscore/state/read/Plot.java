@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface Plot {
-  boolean canGamerPerform(AccessFlags flag, Gamer gamer);
 
   @Override
   boolean equals(Object o);

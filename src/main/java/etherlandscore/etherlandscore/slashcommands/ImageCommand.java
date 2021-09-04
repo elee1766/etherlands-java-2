@@ -13,7 +13,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
-import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.write.ResponseHelper;
 import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
@@ -107,13 +107,13 @@ public class ImageCommand extends ListenerClient {
       case WEST:
         //check north
         for(int i = 0; i<width; i++){
-          Plot p = context.getPlot(x,z-i);
-          if(p==null){
+          District d = context.getDistrict(x,z-i);
+          if(d==null){
             if(player.isOp()){
               break;
             }
           }
-          if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
+          if(!d.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
           }
         }
@@ -121,7 +121,7 @@ public class ImageCommand extends ListenerClient {
       case EAST:
         //check south
         for(int i = 0; i<width; i++){
-          Plot p = context.getPlot(x,z+i);
+          District p = context.getDistrict(x,z+i);
           if(p==null){
             if(player.isOp()){
               break;
@@ -135,7 +135,7 @@ public class ImageCommand extends ListenerClient {
       case NORTH:
         //check east
         for(int i = 0; i<width; i++){
-          Plot p = context.getPlot(x+i,z);
+          District p = context.getDistrict(x+i,z);
           if(p==null){
             if(player.isOp()){
               break;
@@ -149,7 +149,7 @@ public class ImageCommand extends ListenerClient {
       case SOUTH:
         //check west
         for(int i = 0; i<width; i++){
-          Plot p = context.getPlot(x+i,z);
+          District p = context.getDistrict(x+i,z);
           if(p==null){
             if(player.isOp()){
               break;

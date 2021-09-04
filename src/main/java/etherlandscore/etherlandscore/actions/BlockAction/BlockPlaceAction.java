@@ -2,6 +2,7 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
+import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.ReadContext;
@@ -19,17 +20,17 @@ public class BlockPlaceAction extends PermissionedAction {
   @Override
   public boolean process() {
     Gamer gamer = getContext().getGamer(event.getPlayer().getUniqueId());
-    Plot plot =
+    District district =
         getContext()
-            .getPlot(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+            .getDistrict(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
     // ops can always destroy
     if (gamer.getPlayer().isOp()) {
       return super.process();
     }
-    if (plot == null) {
+    if (district == null) {
       return super.rollback();
     }
-    boolean canPerform = plot.canGamerPerform(this.flag, gamer);
+    boolean canPerform = district.canGamerPerform(this.flag, gamer);
     if (!canPerform) {
       return super.rollback();
     }

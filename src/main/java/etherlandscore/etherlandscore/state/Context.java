@@ -1,17 +1,15 @@
 package etherlandscore.etherlandscore.state;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
-import etherlandscore.etherlandscore.services.EthereumService;
+import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
-import okhttp3.Response;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -26,7 +24,6 @@ import org.jetlang.fibers.ThreadFiber;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
@@ -35,6 +32,8 @@ public class Context<WriteMaps> {
   private CouchPersister couchPersister;
 
   public final Map<UUID, WriteGamer> gamers = new HashMap<>();
+  public final Map<Integer, WriteDistrict> districts = new HashMap<>();
+  public final Map<WritePlot, WriteDistrict> districtLocations = new HashMap<>();
   public final Map<String, WriteTeam> teams = new HashMap<>();
   public final Map<String, UUID> linked = new HashMap<>();
   public final Map<Integer, WritePlot> plots = new HashMap<>();
@@ -110,17 +109,17 @@ public class Context<WriteMaps> {
   public void gamer_link_address(WriteGamer gamer, String address) {
     gamer.setAddress(address);
     getLinks().put(address, gamer.getUuid());
-    Map<Integer, WritePlot> plots = this.getPlots();
-    for(Map.Entry mapElement : plots.entrySet()){
-      WritePlot wp = (WritePlot) mapElement.getValue();
-      Bukkit.getLogger().info(String.valueOf(wp.getOwnerUUID()));
-      if(wp.getOwnerUUID()==null){
-        Bukkit.getLogger().info("Checking plot: " + wp.getId());
-        Bukkit.getLogger().info(wp.getOwnerAddress() + " should equal " + address);
-        if(wp.getOwnerAddress().equals(address)){
+    Map<Integer, WriteDistrict> district = this.getDistricts();
+    for(Map.Entry mapElement : district.entrySet()){
+      WriteDistrict wd = (WriteDistrict) mapElement.getValue();
+      Bukkit.getLogger().info(String.valueOf(wd.getOwnerUUID()));
+      if(wd.getOwnerUUID()==null){
+        Bukkit.getLogger().info("Checking plot: " + wd.getId());
+        Bukkit.getLogger().info(wd.getOwnerAddress() + " should equal " + address);
+        if(wd.getOwnerAddress().equals(address)){
           Bukkit.getLogger().info("they are equal");
-          wp.setOwner(address, gamer.getUuid());
-          couchPersister.update(wp);
+          wd.setOwner(address, gamer.getUuid());
+          couchPersister.update(wd);
         }
       }
     }
@@ -130,7 +129,6 @@ public class Context<WriteMaps> {
   public void gamer_remove_friend(WriteGamer a, Gamer b) {
     a.removeFriend(b);
     couchPersister.update(a);
-
   }
 
   public WriteGamer getGamer(UUID uuid) {
@@ -167,6 +165,10 @@ public class Context<WriteMaps> {
     return plots;
   }
 
+  public Map<Integer, WriteDistrict> getDistricts() {
+    return districts;
+  }
+
   public Team getTeam(String team) {
     return teams.get(team);
   }
@@ -194,30 +196,32 @@ public class Context<WriteMaps> {
     couchPersister.update((WriteTeam) group.getTeamObject());
   }
 
-  public void plot_reclaim_plot(WritePlot plot) {
-    WriteTeam t = (WriteTeam) getTeam(plot.getTeam());
+  public void district_reclaim_district(WriteDistrict district) {
+    WriteTeam t = (WriteTeam) getTeam(district.getTeam());
     if(t!=null) {
       System.out.println("updating team");
-      t.deletePlot(plot.getIdInt());
-      couchPersister.update(t);
+      t.deleteDistrict(district.getId());
     }
-    plot.removeTeam();
-    couchPersister.update(plot);
+    district.removeTeam();
+    couchPersister.update(district);
+    couchPersister.update(t);
   }
 
-  public void plot_set_owner(WritePlot plot, String address) {
+  public void district_set_owner(WriteDistrict district, String address) {
     UUID ownerUUID = this.getLinks().getOrDefault(address, null);
-    plot.setOwner(address, ownerUUID);
-    couchPersister.update(plot);
+    district.setOwner(address, ownerUUID);
+    couchPersister.update(district);
   }
 
-  public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {
-    if (!this.getPlots().containsKey(id)) {
-      this.getPlots().put(id, new WritePlot(id, x, z, owner));
+  public void district_update_district(Integer id, Integer x, Integer z, String owner) {
+    if (!this.getDistricts().containsKey(id)) {
+      //this.getDistricts().put(id, new WriteDistrict());
     }
-    WritePlot plot = this.getPlot(id);
-    this.getPlotLocations().put(plot.getX(), plot.getZ(), plot.getIdInt());
-    plot_set_owner(plot, owner);
+    WriteDistrict district = (WriteDistrict) this.getDistrict(id);
+    WritePlot plot = this.getPlot(x,z);
+    this.districtLocations.put(plot, district);
+    district_set_owner(district, owner);
+    couchPersister.update(district);
     couchPersister.update(plot);
   }
 
@@ -226,11 +230,6 @@ public class Context<WriteMaps> {
     gamer.setTeam(team.getName());
     couchPersister.update(team);
     couchPersister.update(gamer);
-  }
-
-  public void team_create_district(WriteTeam team, String name) {
-    team.createDistrict(name);
-    couchPersister.update(team);
   }
 
   public void team_create_group(WriteTeam team, String name) {
@@ -250,12 +249,12 @@ public class Context<WriteMaps> {
     System.out.println("Team failed to create");
   }
 
-  public void team_delegate_plot(WriteTeam team, WritePlot plot) {
-    plot_reclaim_plot(plot);
-    team.addPlot(plot);
-    plot.setTeam(team.getName());
+  public void team_delegate_district(WriteTeam team, WriteDistrict district) {
+    district_reclaim_district(district);
+    team.addDistrict(district);
+    district.setTeam(team.getName());
     couchPersister.update(team);
-    couchPersister.update(plot);
+    couchPersister.update(district);
   }
 
   public void team_delete_district(WriteTeam team, WriteDistrict writeDistrict) {
@@ -294,6 +293,11 @@ public class Context<WriteMaps> {
       WritePlot plot = getPlot(id);
       plot.removeTeam();
       couchPersister.update(plot);
+    }
+    for (District d: writeTeam.getDistricts().values()) {
+      WriteDistrict wd = (WriteDistrict) getDistrict(d.getIdInt());
+      wd.removeTeam();
+      couchPersister.update(wd);
     }
     couchPersister.delete(writeTeam);
     teams.remove(writeTeam.getName());
@@ -365,5 +369,13 @@ public class Context<WriteMaps> {
       stacks.get(i).setItemMeta(meta);
       i++;
     }
+  }
+
+  public District getDistrict(int i) {
+    return this.districts.get(i);
+  }
+
+  public District getDistrict(int x, int z) {
+    return this.districtLocations.get(this.plotLocations.get(x,z));
   }
 }

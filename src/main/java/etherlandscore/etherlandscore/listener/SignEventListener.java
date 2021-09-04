@@ -10,11 +10,11 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
-import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.write.ResponseHelper;
 import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
-import etherlandscore.etherlandscore.state.write.WritePlot;
+import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -115,7 +115,7 @@ public class SignEventListener extends ListenerClient implements Listener {
       case WEST:
         //check north
         for(int i = 0; i<size; i++){
-          Plot p = context.getPlot(x,z-i);
+          District p = context.getDistrict(x,z-i);
           if(p==null){
             if(player.isOp()){
               break;
@@ -129,7 +129,7 @@ public class SignEventListener extends ListenerClient implements Listener {
       case EAST:
         //check south
         for(int i = 0; i<size; i++){
-          Plot p = context.getPlot(x,z+i);
+          District p = context.getDistrict(x,z+i);
           if(p==null){
             if(player.isOp()){
               break;
@@ -143,7 +143,7 @@ public class SignEventListener extends ListenerClient implements Listener {
       case NORTH:
         //check east
         for(int i = 0; i<size; i++){
-          Plot p = context.getPlot(x+i,z);
+          District p = context.getDistrict(x+i,z);
           if(p==null){
             if(player.isOp()){
               break;
@@ -157,7 +157,7 @@ public class SignEventListener extends ListenerClient implements Listener {
       case SOUTH:
         //check west
         for(int i = 0; i<size; i++){
-          Plot p = context.getPlot(x+i,z);
+          District p = context.getDistrict(x+i,z);
           if(p==null){
             if(player.isOp()){
               break;

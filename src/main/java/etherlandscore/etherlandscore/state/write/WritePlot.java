@@ -49,7 +49,7 @@ public class WritePlot extends CouchDocument implements Plot {
     this.ownerAddress = ownerAddress;
   }
   public WritePlot(
-       Integer id,
+      Integer id,
       Integer x,
       Integer z,
       String ownerAddress) {
@@ -63,57 +63,6 @@ public class WritePlot extends CouchDocument implements Plot {
 
   public void addDistrict(District writeDistrict) {
     this.districts.add(writeDistrict.getName());
-  }
-
-  @Override
-  public boolean canGamerPerform(AccessFlags flag, Gamer gamer) {
-    try {
-      if (gamer.getPlayer().isOp()) {
-        return true;
-      }
-      if (hasTeam()) {
-        Team team = getTeamObject();
-        if (gamer.getTeamObject().equals(team)) {
-          Integer bestPriority = -100;
-          FlagValue res = FlagValue.NONE;
-          for (String districtName : districts) {
-            District writeDistrict = team.getDistrict(districtName);
-            if (writeDistrict.getPriority() > bestPriority) {
-              Set<String> groupNames = gamer.getGroups();
-              for (String groupName : groupNames) {
-                if (!writeDistrict
-                    .readGroupPermission(team.getGroup(groupName), flag)
-                    .equals(FlagValue.NONE)) {
-                  res = writeDistrict.readGroupPermission(team.getGroup(groupName), flag);
-                  bestPriority = writeDistrict.getPriority();
-                }
-              }
-              if (!writeDistrict.readGamerPermission(gamer, flag).equals(FlagValue.NONE)) {
-                res = writeDistrict.readGamerPermission(gamer, flag);
-                bestPriority = writeDistrict.getPriority();
-              }
-            }
-          }
-          return res == FlagValue.ALLOW;
-        } else {
-          FlagValue res =
-              team.getDistrict("global").readGroupPermission(team.getGroup("outsiders"), flag);
-          return res == FlagValue.ALLOW;
-        }
-      } else {
-        Gamer owner = getOwnerObject();
-        if (owner == null) {
-          return false;
-        }
-        if (owner.equals(gamer)) {
-          return true;
-        }
-        return owner.getFriends().contains(gamer.getUuid());
-      }
-    } catch (Exception e) {
-      Bukkit.getLogger().info(e + "\n" + e.getMessage());
-      return false;
-    }
   }
 
   @Override

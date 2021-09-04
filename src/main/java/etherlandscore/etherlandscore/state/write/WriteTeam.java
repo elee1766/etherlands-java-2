@@ -37,7 +37,6 @@ public class WriteTeam extends CouchDocument implements Team {
     this.plots = new HashSet<>();
     this.districts = new HashMap<>();
     this.groups = new HashMap<>();
-    this.districts.put("global", new WriteDistrict(this, "global", -1, true));
     this.groups.put("outsiders", new WriteGroup(this, "outsiders", -5, true));
     this.groups.put("member", new WriteGroup(this, "member", -1, true));
     this.groups.put("manager", new WriteGroup(this, "manager", 50, true));
@@ -47,8 +46,8 @@ public class WriteTeam extends CouchDocument implements Team {
     members.add(gamer.getUuid());
   }
 
-  public void addPlot(Plot writePlot) {
-    this.plots.add(writePlot.getIdInt());
+  public void addDistrict(WriteDistrict district) {
+    this.districts.put(district.getName(), district);
   }
 
   @Override
@@ -70,12 +69,6 @@ public class WriteTeam extends CouchDocument implements Team {
       return invite > Instant.now().getEpochSecond();
     }
     return false;
-  }
-
-  public void createDistrict(String name) {
-    if (!this.districts.containsKey(name)) {
-      this.districts.put(name, new WriteDistrict(this, name, 10, false));
-    }
   }
 
   public void createGroup(String name) {

@@ -32,7 +32,7 @@ public class Scheduler extends ServerModule {
             @Override
             public void run() {
                 try {
-                    e.queryLastBlock();
+                    e.queryHistory();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

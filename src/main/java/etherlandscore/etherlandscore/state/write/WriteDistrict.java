@@ -267,6 +267,10 @@ public class WriteDistrict extends CouchDocument implements District {
     this.ownerUUID = ownerUUID.toString();
   }
 
+  public void setOwnerAddress(String ownerAddress) {
+    this.ownerAddress = ownerAddress;
+  }
+
   public String getOwnerServerName() {
     return ownerServerName;
   }

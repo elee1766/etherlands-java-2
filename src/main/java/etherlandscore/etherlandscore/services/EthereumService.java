@@ -19,6 +19,7 @@ import org.web3j.tx.gas.ContractGasProvider;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Map;
+import java.util.Set;
 
 public class EthereumService extends ListenerClient {
     private final Channels channels;
@@ -104,6 +105,29 @@ public class EthereumService extends ListenerClient {
         int port = Integer.valueOf(settings.get("webPort"));
         server.launch(port);
         Bukkit.getLogger().info("Etherlands web Server started on port " + port);
+    }
+
+    private void queryDistrictId(Integer districtId) {
+        Set<Integer> chunkIds = null; //landplot function
+        String owneraddr = landPlot.ownerOf(BigInteger.valueOf(districtId)).sendAsync().handle((res, throwable) -> res).join();
+        Bukkit.getLogger().info(owneraddr + " " + chunkIds);
+        for(Integer chunkId : chunkIds){
+            Integer x = landPlot.chunk_x(BigInteger.valueOf(chunkId)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
+            Integer z = landPlot.chunk_z(BigInteger.valueOf(chunkId)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
+            if (x != 0 || z != 0) {
+                if (owneraddr != null) {
+                    this.channels.master_command.publish(new Message<>(MasterCommand.plot_update_plot, chunkId, x, z, owneraddr));
+                }
+            }
+        }
+        this.channels.master_command.publish(new Message<>(MasterCommand.district_update_district, districtId, chunkIds, owneraddr));
+    }
+
+    private Set<Integer> queryDistrictPlots(Integer districtId) {
+
+
+
+        return null;
     }
 
     private void queryChunkId(Integer chunkId) {

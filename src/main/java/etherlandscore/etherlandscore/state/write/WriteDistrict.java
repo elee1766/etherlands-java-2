@@ -20,9 +20,6 @@ import java.util.UUID;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class WriteDistrict extends CouchDocument implements District {
-  private final String name;
-  @JsonProperty("default")
-  private final boolean isDefault;
   @JsonProperty("_id")
   private String _id;
   private String ownerAddress;
@@ -48,29 +45,20 @@ public class WriteDistrict extends CouchDocument implements District {
 
   @JsonCreator
   public WriteDistrict(
-      @JsonProperty("name") String name,
       @JsonProperty("priority") Integer priority,
       @JsonProperty("ownerAddress") String ownerAddress,
       @JsonProperty("_id") Integer id,
       @JsonProperty("default") boolean isDefault) {
-    this.name = name;
-    this.isDefault = isDefault;
     this.priority = priority;
     this._id = id.toString();
     this.ownerAddress = ownerAddress;
   }
+
   public WriteDistrict(
-      Team teamObj,
-       String name,
-      Integer priority,
-      boolean isDefault,
       int id,
+      Set<Integer> chunkIds,
       String ownerAddress) {
-    this.team = teamObj.getName();
-    this.plotIds = new HashSet<>();
-    this.name = name;
-    this.isDefault = isDefault;
-    this.priority = priority;
+    this.plotIds = chunkIds;
     this.groupPermissionMap = new Map2<>();
     this.gamerPermissionMap = new Map2<>();
     this._id = String.valueOf(id);
@@ -137,9 +125,7 @@ public class WriteDistrict extends CouchDocument implements District {
   }
 
   public void addPlot(Plot writePlot) {
-    if (!isDefault) {
-      this.plotIds.add(writePlot.getIdInt());
-    }
+    this.plotIds.add(writePlot.getIdInt());
   }
 
   public void removeTeam() {
@@ -198,11 +184,6 @@ public class WriteDistrict extends CouchDocument implements District {
     return groupPermissionMap;
   }
 
-  @Override
-  public String getName() {
-    return name;
-  }
-
   public Set<Integer> getPlotIds() {
     return plotIds;
   }
@@ -226,7 +207,6 @@ public class WriteDistrict extends CouchDocument implements District {
 
 
   public void setPriorityBound(Integer newPriority) {
-    if (isDefault) return;
     if (newPriority < 0) this.priority = 0;
     if (newPriority > 100) this.priority = 0;
   }
@@ -242,15 +222,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public Team getTeamObject() {
-    return state().getTeam(getName());
-  }
-
-  @JsonProperty("default")
-  public boolean getDefault(){return isDefault;}
-
-  @Override
-  public boolean isDefault() {
-    return isDefault;
+    return state().getTeam(getId());
   }
 
   @Override

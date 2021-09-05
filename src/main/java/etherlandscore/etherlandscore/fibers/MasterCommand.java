@@ -28,5 +28,6 @@ public enum MasterCommand {
   team_add_gamer,
   map_create_map,
   map_rerender_maps,
-  nft_create_nft
+  nft_create_nft,
+  district_update_district
 }

@@ -213,16 +213,32 @@ public class Context<WriteMaps> {
     couchPersister.update(district);
   }
 
-  public void district_update_district(Integer id, Integer x, Integer z, String owner) {
-    if (!this.getDistricts().containsKey(id)) {
-      //this.getDistricts().put(id, new WriteDistrict());
-    }
-    WriteDistrict district = (WriteDistrict) this.getDistrict(id);
-    WritePlot plot = this.getPlot(x,z);
-    this.districtLocations.put(plot, district);
-    district_set_owner(district, owner);
-    couchPersister.update(district);
+  public void plot_set_owner(WritePlot plot, String address) {
+    UUID ownerUUID = this.getLinks().getOrDefault(address, null);
+    plot.setOwner(address, ownerUUID);
     couchPersister.update(plot);
+  }
+
+  public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {
+    if (!this.getPlots().containsKey(id)) {
+      this.getPlots().put(id, new WritePlot(id, x, z, owner));
+    }
+    WritePlot plot = this.getPlot(id);
+    this.getPlotLocations().put(plot.getX(), plot.getZ(), plot.getIdInt());
+    plot_set_owner(plot, owner);
+    couchPersister.update(plot);
+  }
+
+  public void district_update_district(int districtID, Set<Integer> chunkIds, String owner) {
+    if (!this.getDistricts().containsKey(districtID)) {
+      this.getDistricts().put(districtID, new WriteDistrict(districtID, chunkIds, owner));
+    }
+    District district = this.getDistrict(districtID);
+    for(int i : chunkIds){
+      this.districtLocations.put(getPlot(i), (WriteDistrict) district);
+    }
+    district_set_owner((WriteDistrict) district, owner);
+    couchPersister.update((WriteDistrict) district);
   }
 
   public void team_add_gamer(WriteTeam team, WriteGamer gamer) {
@@ -261,7 +277,7 @@ public class Context<WriteMaps> {
     for (Integer plotId : team.getPlots()) {
       getPlot(plotId).removeDistrict(writeDistrict);
     }
-    team.deleteDistrict(writeDistrict.getName());
+    team.deleteDistrict(writeDistrict.getId());
     couchPersister.update(team);
   }
 

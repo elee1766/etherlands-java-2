@@ -90,7 +90,7 @@ public class FlagMenu extends ListenerClient {
                 "/"
                     + command
                     + " "
-                    + writeDistrict.getName()
+                    + writeDistrict.getIdInt().toString()
                     + " "
                     + item
                     + " "

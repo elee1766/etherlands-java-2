@@ -62,7 +62,7 @@ public class WritePlot extends CouchDocument implements Plot {
   }
 
   public void addDistrict(District writeDistrict) {
-    this.districts.add(writeDistrict.getName());
+    this.districts.add(writeDistrict.getIdInt().toString());
   }
 
   @Override
@@ -200,7 +200,7 @@ public class WritePlot extends CouchDocument implements Plot {
   }
 
   public void removeDistrict(District writeDistrict) {
-    this.districts.remove(writeDistrict.getName());
+    this.districts.remove(writeDistrict.getIdInt().toString());
   }
 
   public void removeTeam() {

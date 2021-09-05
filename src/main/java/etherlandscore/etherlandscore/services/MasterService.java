@@ -13,6 +13,7 @@ import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.write.*;
 import org.jetlang.fibers.Fiber;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class MasterService extends ServerModule {
@@ -47,7 +48,7 @@ public class MasterService extends ServerModule {
             case gamer_remove_friend -> context.gamer_remove_friend((WriteGamer) _args[0],(WriteGamer) _args[1]);
             case gamer_link_address -> context.gamer_link_address((WriteGamer) _args[0], (String) _args[1]);
             //plot commands
-            case plot_update_plot -> context.district_update_district((Integer) _args[0], (Integer) _args[1], (Integer) _args[2],(String) _args[3]);
+            case plot_update_plot -> context.plot_update_plot((Integer) _args[0], (Integer) _args[1], (Integer) _args[2],(String) _args[3]);
             case plot_set_owner -> context.district_set_owner((WriteDistrict) _args[0], (String) _args[1]);
             case plot_reclaim_plot -> context.district_reclaim_district((WriteDistrict) _args[0]);
             //team commands
@@ -73,6 +74,7 @@ public class MasterService extends ServerModule {
             case nft_create_nft -> context.nft_create_nft((WriteNFT) _args[0]);
             case map_create_map -> context.map_create_map((WriteMap) _args[0]);
             case map_rerender_maps -> context.map_rerender_maps();
+            case district_update_district -> context.district_update_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
         }
         global_update();
     }

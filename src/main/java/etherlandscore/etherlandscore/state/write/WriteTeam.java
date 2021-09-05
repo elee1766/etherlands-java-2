@@ -47,7 +47,7 @@ public class WriteTeam extends CouchDocument implements Team {
   }
 
   public void addDistrict(WriteDistrict district) {
-    this.districts.put(district.getName(), district);
+    this.districts.put(district.getId(), district);
   }
 
   @Override
@@ -79,12 +79,10 @@ public class WriteTeam extends CouchDocument implements Team {
 
   public void deleteDistrict(String name) {
     if (districts.containsKey(name)) {
-      if (!districts.get(name).isDefault()) {
         for (Integer plot : plots) {
           ((WritePlot) state().getPlot(plot)).removeTeam();
         }
         this.districts.remove(name);
-      }
     }
   }
 

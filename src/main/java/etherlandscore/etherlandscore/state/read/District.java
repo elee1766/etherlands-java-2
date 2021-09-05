@@ -20,8 +20,6 @@ public interface District extends Comparable<District> {
 
   Field[] getDeclaredFields();
 
-  String getName();
-
   Set<Plot> getPlotObjects();
 
   Gamer getOwnerObject();
@@ -33,8 +31,6 @@ public interface District extends Comparable<District> {
   Team getTeamObject();
 
   UUID getOwnerUUID();
-
-  boolean isDefault();
 
   boolean hasTeam();
 

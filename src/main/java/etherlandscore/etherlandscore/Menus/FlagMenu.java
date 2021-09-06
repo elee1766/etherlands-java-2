@@ -70,14 +70,14 @@ public class FlagMenu extends ListenerClient {
           continue;
         } else if (flagType == "player") {
           Gamer g1 = state().getGamer(Bukkit.getPlayer(item).getUniqueId());
-          if (writeDistrict.checkFlags(f, g1) == fv) {
+          if (writeDistrict.checkFlags(f, g1,FlagValue.NONE) == fv) {
             value.setColor(ChatColor.YELLOW);
           } else {
             value.setColor(ChatColor.DARK_GRAY);
           }
         } else if (flagType == "group") {
           Group g1 = gamer.getTeamObject().getGroup(item);
-          if (writeDistrict.checkFlags(f, g1) == fv) {
+          if (writeDistrict.checkFlags(f, g1, FlagValue.NONE) == fv) {
             value.setColor(ChatColor.YELLOW);
           } else {
             value.setColor(ChatColor.DARK_GRAY);

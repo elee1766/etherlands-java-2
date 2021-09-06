@@ -47,10 +47,6 @@ public class MasterService extends ServerModule {
             case gamer_add_friend ->context. gamer_add_friend((WriteGamer) _args[0], (WriteGamer) _args[1]);
             case gamer_remove_friend -> context.gamer_remove_friend((WriteGamer) _args[0],(WriteGamer) _args[1]);
             case gamer_link_address -> context.gamer_link_address((WriteGamer) _args[0], (String) _args[1]);
-            //plot commands
-            case plot_update_plot -> context.plot_update_plot((Integer) _args[0], (Integer) _args[1], (Integer) _args[2],(String) _args[3]);
-            case plot_set_owner -> context.district_set_owner((WriteDistrict) _args[0], (String) _args[1]);
-            case plot_reclaim_plot -> context.district_reclaim_district((WriteDistrict) _args[0]);
             //team commands
             case team_add_gamer -> context.team_add_gamer((WriteTeam) _args[0], (WriteGamer) _args[1]);
             case team_remove_gamer -> context.team_remove_gamer((WriteTeam) _args[0], (WriteGamer) _args[1]);
@@ -59,11 +55,8 @@ public class MasterService extends ServerModule {
             case team_create_group -> context.team_create_group((WriteTeam) _args[0], (String) _args[1]);
             case team_delete_group -> context.team_delete_group((WriteTeam) _args[0], (WriteGroup) _args[1]);
             case team_delete_district -> context.team_delete_district((WriteTeam) _args[0], (WriteDistrict) _args[1]);
-            case team_delegate_plot -> context.team_delegate_district((WriteTeam)_args[0], (WriteDistrict) _args[1]);
+            case team_delegate_district -> context.team_delegate_district((WriteTeam)_args[0], (WriteDistrict) _args[1]);
             // district commands
-            case district_add_plot -> context.district_add_plot((WriteDistrict) _args[0], (WritePlot) _args[1]);
-            case district_remove_plot -> context.district_remove_plot((WriteDistrict) _args[0], (WritePlot) _args[1]);
-            case district_set_priority ->context.district_set_priority((WriteDistrict) _args[0], (Integer) _args[1]);
             //group commands
             case group_add_gamer -> context.group_add_gamer((WriteGroup) _args[0], (WriteGamer) _args[1]);
             case group_remove_gamer -> context.group_remove_gamer((WriteGroup) _args[0], (WriteGamer) _args[1]);

@@ -12,7 +12,6 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -72,6 +71,10 @@ public class TeamCommand extends ListenerClient {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
     IntegerRange range = (IntegerRange) args[0];
+    if(writeTeam == null){
+      sender.sendMessage("ur not in a team");
+      return;
+    }
     for (int i = range.getLowerBound();
         i <= Math.min(context.getPlots().size(), range.getUpperBound());
         i++) {

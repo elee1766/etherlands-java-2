@@ -4,12 +4,14 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
+import etherlandscore.etherlandscore.services.EthProxyClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
+import kotlin.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -65,40 +67,16 @@ public class Context<WriteMaps> {
     }
   }
 
-  public void district_add_plot(WriteDistrict district, WritePlot plot) {
-    plot.addDistrict(district);
-    district.addPlot(plot);
-    couchPersister.update(plot);
-    System.out.println("Plot updates");
-    couchPersister.update((WriteTeam) plot.getTeamObject());
-    System.out.println("Team Updated");
-  }
-
-  public void district_remove_plot(WriteDistrict district, WritePlot plot) {
-    WriteTeam t = (WriteTeam) plot.getTeamObject();
-    plot.removeDistrict(district);
-    district.removePlot(plot);
-    couchPersister.update(plot);
-    if(t!=null){
-      couchPersister.update(t);
-    }
-  }
-
   public void district_set_gamer_permission(
       WriteDistrict district, WriteGamer gamer, AccessFlags flag, FlagValue value) {
     district.setGamerPermission(gamer, flag, value);
-    couchPersister.update((WriteTeam) district.getTeamObject());
+    couchPersister.update(district);
   }
 
   public void district_set_group_permission(
       WriteDistrict district, WriteGroup writeGroup, AccessFlags flag, FlagValue value) {
     district.setGroupPermission(writeGroup, flag, value);
-    couchPersister.update((WriteTeam) district.getTeamObject());
-  }
-
-  public void district_set_priority(WriteDistrict district, Integer priority) {
-    district.setPriorityBound(priority);
-    couchPersister.update((WriteTeam) district.getTeamObject());
+    couchPersister.update(district);
   }
 
   public void gamer_add_friend(WriteGamer a, Gamer b) {
@@ -154,7 +132,20 @@ public class Context<WriteMaps> {
   }
 
   public WritePlot getPlot(Integer id) {
-    return plots.get(id);
+    if(plots.containsKey(id)){
+      if (plots.get(id) != null) {
+        return plots.get(id);
+      }
+    }
+    try {
+      Pair<Integer, Integer> coords = EthProxyClient.locate_plot(id);
+      plots.put(id,new WritePlot(id,coords.getFirst(),coords.getSecond()));
+      plotLocations.put(coords.getFirst(),coords.getSecond(),id);
+      return plots.get(id);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 
   public Map2<Integer, Integer, Integer> getPlotLocations() {
@@ -177,6 +168,24 @@ public class Context<WriteMaps> {
     return teams;
   }
 
+
+  public WriteDistrict getDistrict(int i) {
+    return this.districts.get(i);
+  }
+
+  public WriteDistrict getDistrict(int x, int z) {
+    Integer location = this.plotLocations.get(x,z);
+    if(location == null){
+      return null;
+    }
+    WritePlot plot = this.getPlot(location);
+    if(plot == null){
+      return null;
+    }
+    WriteDistrict out = getDistrict(this.getPlot(this.plotLocations.get(x, z)).getDistrict());
+    return out;
+  }
+
   public void group_add_gamer(WriteGroup group, WriteGamer gamer) {
     gamer.addGroup(group);
     group.addMember(gamer);
@@ -197,14 +206,14 @@ public class Context<WriteMaps> {
   }
 
   public void district_reclaim_district(WriteDistrict district) {
-    WriteTeam t = (WriteTeam) getTeam(district.getTeam());
-    if(t!=null) {
+    WriteTeam team = (WriteTeam) getTeam(district.getTeam());
+    if(team!=null) {
       System.out.println("updating team");
-      t.deleteDistrict(district.getId());
+      team.deleteDistrict(district.getId());
     }
     district.removeTeam();
     couchPersister.update(district);
-    couchPersister.update(t);
+    couchPersister.update(team);
   }
 
   public void district_set_owner(WriteDistrict district, String address) {
@@ -213,32 +222,21 @@ public class Context<WriteMaps> {
     couchPersister.update(district);
   }
 
-  public void plot_set_owner(WritePlot plot, String address) {
-    UUID ownerUUID = this.getLinks().getOrDefault(address, null);
-    plot.setOwner(address, ownerUUID);
-    couchPersister.update(plot);
-  }
-
-  public void plot_update_plot(Integer id, Integer x, Integer z, String owner) {
-    if (!this.getPlots().containsKey(id)) {
-      this.getPlots().put(id, new WritePlot(id, x, z, owner));
-    }
-    WritePlot plot = this.getPlot(id);
-    this.getPlotLocations().put(plot.getX(), plot.getZ(), plot.getIdInt());
-    plot_set_owner(plot, owner);
-    couchPersister.update(plot);
-  }
-
   public void district_update_district(int districtID, Set<Integer> chunkIds, String owner) {
+    UUID ownerUUID = this.getLinks().getOrDefault(owner, null);
     if (!this.getDistricts().containsKey(districtID)) {
       this.getDistricts().put(districtID, new WriteDistrict(districtID, chunkIds, owner));
     }
-    District district = this.getDistrict(districtID);
+    WriteDistrict district = this.getDistrict(districtID);
     for(int i : chunkIds){
-      this.districtLocations.put(getPlot(i), (WriteDistrict) district);
+      WritePlot plot = this.getPlot(i);
+      plot.setDistrict(districtID);
+      plot.setOwner(owner,ownerUUID);
+      couchPersister.update(this.getPlot(i));
     }
-    district_set_owner((WriteDistrict) district, owner);
-    couchPersister.update((WriteDistrict) district);
+    district.setPlotIds(chunkIds);
+    district_set_owner(district, owner);
+    couchPersister.update(district);
   }
 
   public void team_add_gamer(WriteTeam team, WriteGamer gamer) {
@@ -261,6 +259,7 @@ public class Context<WriteMaps> {
       couchPersister.update(gamer);
       couchPersister.update(team);
       System.out.println("Team created");
+      return;
     }
     System.out.println("Team failed to create");
   }
@@ -274,9 +273,6 @@ public class Context<WriteMaps> {
   }
 
   public void team_delete_district(WriteTeam team, WriteDistrict writeDistrict) {
-    for (Integer plotId : team.getPlots()) {
-      getPlot(plotId).removeDistrict(writeDistrict);
-    }
     team.deleteDistrict(writeDistrict.getId());
     couchPersister.update(team);
   }
@@ -387,11 +383,5 @@ public class Context<WriteMaps> {
     }
   }
 
-  public District getDistrict(int i) {
-    return this.districts.get(i);
-  }
 
-  public District getDistrict(int x, int z) {
-    return this.districtLocations.get(this.plotLocations.get(x,z));
-  }
 }

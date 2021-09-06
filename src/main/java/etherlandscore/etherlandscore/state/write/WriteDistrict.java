@@ -13,7 +13,6 @@ import org.bukkit.OfflinePlayer;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -73,28 +72,28 @@ public class WriteDistrict extends CouchDocument implements District {
       }
       if (hasTeam()) {
         Team team = getTeamObject();
+        if(team.isManager(gamer)){
+          return true;
+        }
+        Bukkit.getLogger().info(gamer.getUuid() + " " + gamer.getTeam());
         if (gamer.getTeamObject().equals(team)) {
-          Integer bestPriority = -100;
           FlagValue res = FlagValue.NONE;
-            if (this.getPriority() > bestPriority) {
-              Set<String> groupNames = gamer.getGroups();
-              for (String groupName : groupNames) {
-                if (!this
-                    .readGroupPermission(team.getGroup(groupName), flag)
-                    .equals(FlagValue.NONE)) {
-                  res = this.readGroupPermission(team.getGroup(groupName), flag);
-                  bestPriority = this.getPriority();
-                }
-              }
-              if (!this.readGamerPermission(gamer, flag).equals(FlagValue.NONE)) {
-                res = this.readGamerPermission(gamer, flag);
-                bestPriority = this.getPriority();
-              }
+          Set<String> groupNames = gamer.getGroups();
+          Integer bestPriority = -100;
+          for (String groupName : groupNames) {
+            Group group = team.getGroup(groupName);
+            Bukkit.getLogger().info(group.getName() + " " + res);
+            if (group.getPriority() > bestPriority) {
+              res = checkFlags(flag, team.getGroup(groupName), res);
+              Bukkit.getLogger().info(group.getName() + "  " +flag+ " " + res);
+              bestPriority = group.getPriority();
             }
+          }
+          res = checkFlags(flag, gamer, res);
           return res == FlagValue.ALLOW;
         } else {
           FlagValue res =
-              team.getDistrict("global").readGroupPermission(team.getGroup("outsiders"), flag);
+              checkFlags(flag,team.getGroup("outsiders"),FlagValue.NONE);
           return res == FlagValue.ALLOW;
         }
       } else {
@@ -121,11 +120,7 @@ public class WriteDistrict extends CouchDocument implements District {
 
   @Override
   public boolean hasTeam() {
-    return team!=null;
-  }
-
-  public void addPlot(Plot writePlot) {
-    this.plotIds.add(writePlot.getIdInt());
+    return team != null;
   }
 
   public void removeTeam() {
@@ -148,13 +143,21 @@ public class WriteDistrict extends CouchDocument implements District {
   }
 
   @Override
-  public FlagValue checkFlags(AccessFlags flag, Gamer gamer) {
-    return gamerPermissionMap.getOrDefault(gamer.getUuid(), flag, FlagValue.NONE);
+  public FlagValue checkFlags(AccessFlags flag, Gamer gamer, FlagValue def) {
+    FlagValue out = gamerPermissionMap.getOrDefault(gamer.getUuid(), flag, FlagValue.NONE);
+    if(out.equals(FlagValue.NONE)){
+      return def;
+    }
+    return out;
   }
 
   @Override
-  public FlagValue checkFlags(AccessFlags flag, Group writeGroup) {
-    return groupPermissionMap.getOrDefault(writeGroup.getName(), flag, FlagValue.NONE);
+  public FlagValue checkFlags(AccessFlags flag, Group writeGroup, FlagValue def) {
+    FlagValue out = groupPermissionMap.getOrDefault(writeGroup.getName(), flag, FlagValue.NONE);
+    if(out.equals(FlagValue.NONE)){
+      return def;
+    }
+    return out;
   }
 
   public void clearGroupPermission(String name) {
@@ -203,14 +206,6 @@ public class WriteDistrict extends CouchDocument implements District {
     return this.priority;
   }
 
-  public void setPriority(Integer priority1) {this.priority = priority1;}
-
-
-  public void setPriorityBound(Integer newPriority) {
-    if (newPriority < 0) this.priority = 0;
-    if (newPriority > 100) this.priority = 0;
-  }
-
   public String getTeam() {
     return team;
   }
@@ -222,7 +217,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public Team getTeamObject() {
-    return state().getTeam(getId());
+    return state().getTeam(getTeam());
   }
 
   @Override
@@ -241,10 +236,6 @@ public class WriteDistrict extends CouchDocument implements District {
     return Integer.parseInt(this._id);
   }
 
-  public void removePlot(Plot writePlot) {
-    this.plotIds.remove(writePlot.getIdInt());
-  }
-
   @JsonIgnore
   public void setGamerPermission(Gamer gamer, AccessFlags flag, FlagValue value) {
     this.gamerPermissionMap.put(gamer.getUuid(), flag, value);
@@ -252,6 +243,7 @@ public class WriteDistrict extends CouchDocument implements District {
 
   @JsonIgnore
   public void setGroupPermission(Group writeGroup, AccessFlags flag, FlagValue value) {
+    Bukkit.getLogger().info(flag + " "  + value + " " + writeGroup.getName());
     this.groupPermissionMap.put(writeGroup.getName(), flag, value);
   }
 

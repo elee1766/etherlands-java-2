@@ -16,9 +16,7 @@ public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport
 
   public void save(T entry) {
     if (this.contains(entry.getId())) {
-      if (entry.getRevision() == null) {
         entry.setRevision(this.get(entry.getId()).getRevision());
-        }
         this.update(entry);
       return;
     }
@@ -28,9 +26,7 @@ public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport
   public void save(Collection<T> entries) {
     for (T entry : entries) {
       if (this.contains(entry.getId())) {
-        if (entry.getRevision() == null) {
           entry.setRevision(this.get(entry.getId()).getRevision());
-        }
       }
     }
     super.db.executeBulk(entries);

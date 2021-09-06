@@ -1,10 +1,8 @@
 package etherlandscore.etherlandscore.state.read;
 
-import etherlandscore.etherlandscore.enums.AccessFlags;
 import org.bukkit.Chunk;
 
 import java.lang.reflect.Field;
-import java.util.Set;
 import java.util.UUID;
 
 public interface Plot {
@@ -18,7 +16,7 @@ public interface Plot {
 
   String getDeedHolder();
 
-  Set<String> getDistricts();
+  Integer getDistrict();
 
   Integer getIdInt();
 
@@ -31,6 +29,8 @@ public interface Plot {
   String getTeam();
 
   Team getTeamObject();
+
+  District getDistrictObject();
 
   Integer getX();
 

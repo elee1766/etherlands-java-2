@@ -1,24 +1,8 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.IntegerArgument;
-import dev.jorel.commandapi.arguments.IntegerRangeArgument;
-import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.EthersCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Plot;
-import etherlandscore.etherlandscore.state.read.Team;
-import etherlandscore.etherlandscore.state.sender.PlotSender;
-import etherlandscore.etherlandscore.state.sender.TeamSender;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 

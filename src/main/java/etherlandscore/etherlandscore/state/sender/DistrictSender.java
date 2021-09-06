@@ -8,18 +8,12 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
-import etherlandscore.etherlandscore.state.read.Plot;
 
 public class DistrictSender {
 
-  public static void addPlot(Channels channels, Plot writePlot, District writeDistrict) {
+  public static void reclaimDistrict(Channels channels, District writeDistrict) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.district_add_plot, writeDistrict, writePlot));
-  }
-
-  public static void removePlot(Channels channels, Plot writePlot, District writeDistrict) {
-    channels.master_command.publish(
-        new Message<>(MasterCommand.district_remove_plot, writeDistrict, writePlot));
+        new Message<>(MasterCommand.district_reclaim_district, writeDistrict));
   }
 
   public static void setGamerPermission(
@@ -40,8 +34,4 @@ public class DistrictSender {
             MasterCommand.district_set_group_permission, writeDistrict, writeGroup, flag, value));
   }
 
-  public static void setPriority(Channels channels, Integer priority, District writeDistrict) {
-    channels.master_command.publish(
-        new Message<>(MasterCommand.district_set_priority, writeDistrict, priority));
-  }
 }

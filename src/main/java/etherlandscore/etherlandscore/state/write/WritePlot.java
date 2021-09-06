@@ -3,8 +3,6 @@ package etherlandscore.etherlandscore.state.write;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
@@ -15,18 +13,16 @@ import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class WritePlot extends CouchDocument implements Plot {
-  private final Set<String> districts = new HashSet<>();
   private final Integer id;
   private final Integer x;
   private final Integer z;
-  private transient Chunk chunk = null;
+  private Integer district;
+  private transient Chunk chunk;
   private String ownerAddress;
   private String ownerUUID;
   private String ownerServerName;
@@ -51,18 +47,12 @@ public class WritePlot extends CouchDocument implements Plot {
   public WritePlot(
       Integer id,
       Integer x,
-      Integer z,
-      String ownerAddress) {
+      Integer z) {
     this.chunk = Bukkit.getWorld("world").getChunkAt(x, z);
     this.id = id;
     this._id = id.toString();
     this.x = x;
     this.z = z;
-    this.ownerAddress = ownerAddress;
-  }
-
-  public void addDistrict(District writeDistrict) {
-    this.districts.add(writeDistrict.getIdInt().toString());
   }
 
   @Override
@@ -99,8 +89,12 @@ public class WritePlot extends CouchDocument implements Plot {
   }
 
   @Override
-  public Set<String> getDistricts() {
-    return districts;
+  public Integer getDistrict() {
+    return this.district;
+  }
+
+  public void setDistrict(Integer id) {
+    this.district = id;
   }
 
   @JsonProperty("_id")
@@ -144,6 +138,12 @@ public class WritePlot extends CouchDocument implements Plot {
   @JsonIgnore
   public Gamer getOwnerObject() {
     return state().getGamer(UUID.fromString(ownerUUID));
+  }
+
+  @Override
+  @JsonIgnore
+  public District getDistrictObject(){
+   return state().getDistrict(this.district);
   }
 
   public String getOwnerServerName() {
@@ -199,9 +199,6 @@ public class WritePlot extends CouchDocument implements Plot {
     return gamer.getUuid().equals(getOwnerUUID());
   }
 
-  public void removeDistrict(District writeDistrict) {
-    this.districts.remove(writeDistrict.getIdInt().toString());
-  }
 
   public void removeTeam() {
     this.team = null;
@@ -209,16 +206,16 @@ public class WritePlot extends CouchDocument implements Plot {
 
   @JsonIgnore
   public void setOwner(String ownerAddress, UUID ownerUUID) {
-    this.ownerAddress = ownerAddress;
+    setOwnerAddress(ownerAddress);
     if (!(ownerUUID ==null)) {
       this.ownerUUID = ownerUUID.toString();
     }
     if (this.ownerUUID != null) {
       OfflinePlayer player = Bukkit.getOfflinePlayer(this.ownerUUID);
       if (player.hasPlayedBefore()) {
-        this.ownerServerName = player.getName();
+        setOwnerServerName(player.getName());
       } else {
-        this.ownerServerName = "player-uuid: [" + ownerUUID + "]";
+        setOwnerServerName("player-uuid: [" + ownerUUID + "]");
       }
     }
   }

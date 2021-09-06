@@ -4,24 +4,20 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
+import kotlin.Pair;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameter;
-import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.ClientTransactionManager;
 import org.web3j.tx.gas.ContractGasProvider;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class EthereumService extends ListenerClient {
     private final Channels channels;
@@ -50,7 +46,6 @@ public class EthereumService extends ListenerClient {
         Bukkit.getLogger().info("Lookback: " + lookback);
         fromBlock = blockNumberRequest.getBlockNumber().subtract(lookback);
 
-
         ClientTransactionManager txnManager = new ClientTransactionManager(web3, settings.get("txnManager"));
         ContractGasProvider gasProvider = new ContractGasProvider() {
             @Override
@@ -76,72 +71,32 @@ public class EthereumService extends ListenerClient {
         district = District.load(settings.get("contractAddress"), web3, txnManager, gasProvider);
         this.channels.ethers_command.subscribe(fiber, x -> {
             switch (x.getCommand()) {
-                case ethers_query_nft -> plotTransfer((Integer) x.getArgs()[0], (Integer) x.getArgs()[1], (Integer) x.getArgs()[2]);
+                case ethers_query_nft -> {
+                    try {
+                        update_district((Integer) x.getArgs()[0]);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
-        queryHistory();
         listenHttp();
     }
 
-    public void queryHistory() throws IOException {
-        Bukkit.getLogger().info("Querying");
-        EthBlockNumber blockNumberRequest = web3.ethBlockNumber().send();
-        BigInteger toBlock = blockNumberRequest.getBlockNumber();
-
-        EthFilter filter = new EthFilter(
-                DefaultBlockParameter.valueOf(fromBlock),
-                DefaultBlockParameter.valueOf(toBlock),
-                district.getContractAddress()
-        ).addSingleTopic("0x5112ef0e7d99d6ff5fcfc318db540adef82456873e39b67493ce8cf18f2af76c");
-
-        district.plotTransferEventFlowable(filter).doOnError(Throwable::printStackTrace).subscribe(txnEvent->{
-            if(txnEvent==null) {
-                return;
-            }
-            plotTransfer(txnEvent.origin_id.intValueExact(), txnEvent.target_id.intValue(), txnEvent.plotId.intValueExact());
-        });
-
-        district.transferEventFlowable(filter).doOnError(Throwable::printStackTrace).subscribe(txnEvent->{
-            if(txnEvent==null) {
-                return;
-            }
-            districtTransfer(txnEvent.from, txnEvent.to, txnEvent.tokenId.intValueExact());
-        });
-
-        fromBlock = toBlock;
+    private void update_district(Integer district_id) throws Exception {
+        Pair<String, Set<Integer>> district_info = EthProxyClient.view_district(district_id);
+        String owneraddr = district_info.getFirst();
+        Bukkit.getLogger().info(owneraddr + " " + district_id);
+        this.channels.master_command.publish(
+            new Message<>(MasterCommand.district_update_district, district_id, district_info.getSecond(), owneraddr));
     }
 
-    private void plotTransfer(Integer origin_id, Integer target_id, Integer plot_id) {
-        String owneraddr = district.ownerOf(BigInteger.valueOf(target_id)).sendAsync().handle((res, throwable) -> res).join();
-        Bukkit.getLogger().info(owneraddr + " " + plot_id);
-
-        Integer x = district.plot_x(BigInteger.valueOf(plot_id)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
-        Integer z = district.plot_z(BigInteger.valueOf(plot_id)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
-        if (x != 0 || z != 0) {
-            if (owneraddr != null) {
-                this.channels.master_command.publish(new Message<>(MasterCommand.plot_update_plot, plot_id, x, z, owneraddr));
-            }
+    public void update_districts() throws Exception {
+        Pair<Set<Integer>,Integer> to_check = EthProxyClient.find_districts(this.fromBlock.intValueExact());
+        for (Integer district_id : to_check.getFirst()) {
+            this.update_district(district_id);
         }
-
-        this.channels.master_command.publish(new Message<>(MasterCommand.district_update_district, target_id, plot_id, owneraddr));
-        this.channels.master_command.publish(new Message<>(MasterCommand.district_remove_plot, context.getDistrict(origin_id), context.getPlot(plot_id)));
-    }
-
-    private void districtTransfer(String origin_address, String target_address, Integer district_id) {
-        Bukkit.getLogger().info(origin_address + " -> " + target_address + ": " + district_id);
-
-        WriteDistrict d = (WriteDistrict) context.getDistrict(district_id);
-        if(d!=null){
-            Set<Integer> pIds = d.getPlotIds();
-            for(Integer id : pIds){
-                Integer x = district.plot_x(BigInteger.valueOf(id)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
-                Integer z = district.plot_z(BigInteger.valueOf(id)).sendAsync().handle((res, throwable) -> res != null ? res.intValue() : Integer.MAX_VALUE).join();
-                if (x != 0 || z != 0) {
-                    this.channels.master_command.publish(new Message<>(MasterCommand.plot_update_plot, id, x, z, target_address));
-                }
-            }
-        }
-        d.setOwnerAddress(target_address);
+        this.fromBlock = BigInteger.valueOf(to_check.getSecond());
     }
 
     private void listenHttp() throws Exception {

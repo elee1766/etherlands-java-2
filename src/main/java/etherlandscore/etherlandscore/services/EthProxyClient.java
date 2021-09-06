@@ -1,84 +1,64 @@
 package etherlandscore.etherlandscore.services;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
+import kotlin.Pair;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.Dsl;
+import org.asynchttpclient.Request;
+import org.asynchttpclient.Response;
 import org.bukkit.Bukkit;
-import org.jetlang.fibers.Fiber;
-import org.jetlang.fibers.ThreadFiber;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameter;
-import org.web3j.protocol.core.methods.request.EthFilter;
-import org.web3j.protocol.core.methods.response.EthBlockNumber;
-import org.web3j.protocol.core.methods.response.Web3ClientVersion;
-import org.web3j.protocol.http.HttpService;
-import org.web3j.tx.ClientTransactionManager;
-import org.web3j.tx.gas.ContractGasProvider;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class EthProxyClient {
-    private final Web3j web3;
     private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
-    private final Web3ClientVersion web3ClientVersion;
-    private BigInteger fromBlock;
-    private BigInteger currentBlock;
-    private final BigInteger lookback = new BigInteger(settings.get("lookback"));
-    private String blockCommand;
-    private String districtCommand;
+    static private final AsyncHttpClient client = Dsl.asyncHttpClient();
+    static private final String root = "http://localhost:10100/";
 
-    public EthProxyClient() throws Exception {
-        web3 = Web3j.build(new HttpService(settings.get("NodeUrl")));
-        web3ClientVersion = web3.web3ClientVersion().send();
-
-        EthBlockNumber blockNumberRequest = web3.ethBlockNumber().send();
-        Bukkit.getLogger().info("Lookback: " + lookback);
-        currentBlock = blockNumberRequest.getBlockNumber();
-        fromBlock = currentBlock.subtract(lookback);
-        blockCommand =
-            "curl -X GET https://localhost:10100/block/"+fromBlock;
-        districtCommand =
-            "curl -X GET https://localhost:10100/district/"+fromBlock;
-        getDistrict();
-        getBlock();
+    public static Pair<String, Set<Integer>> view_district(Integer id) throws Exception{
+        Set<Integer> res = new HashSet<>();
+        String endpoint = root + "district/" + id.toString();
+        Request req = Dsl.get(endpoint).build();
+        Response resp = client.executeRequest(req).get();
+        Bukkit.getLogger().info(endpoint+ " " + resp.getResponseBody());
+        JsonElement jsonElement = new JsonParser().parse(resp.getResponseBody());
+        String addr = jsonElement.getAsJsonObject().get("owner").getAsString();
+        JsonArray array = jsonElement.getAsJsonObject().get("contains").getAsJsonArray();
+        for(int i = 0; i < array.size(); i ++){
+            res.add(Integer.valueOf(array.get(i).getAsString()));
+        }
+        return new Pair<>(addr,res);
     }
 
-    void getDistrict() throws IOException {
-        Reader reader = new InputStreamReader(
-            Runtime.getRuntime().exec(districtCommand).getInputStream()
-        );
-        parseBlock(new JsonParser().parse(reader));
-        fromBlock = currentBlock;
-        districtCommand =
-            "curl -X GET https://localhost:10100/district/"+fromBlock;
+    public static Pair<Set<Integer>,Integer> find_districts(Integer block) throws Exception{
+        Set<Integer> res = new HashSet<>();
+        String endpoint = root + "since/" + block.toString();
+        Request req = Dsl.get(endpoint).build();
+        Response resp = client.executeRequest(req).get();
+        Bukkit.getLogger().info(endpoint+ " " + resp.getResponseBody());
+        JsonElement jsonElement = new JsonParser().parse(resp.getResponseBody());
+        JsonArray array = jsonElement.getAsJsonObject().get("update").getAsJsonArray();
+        for(int i = 0; i < array.size(); i ++){
+            res.add(Integer.valueOf(array.get(i).getAsString()));
+        }
+        Integer blockNum = Integer.valueOf(jsonElement.getAsJsonObject().get("block").getAsString());
+        return new Pair(res,blockNum);
     }
 
-    void getBlock() throws IOException {
-        Reader reader = new InputStreamReader(
-            Runtime.getRuntime().exec(blockCommand).getInputStream()
-        );
-        parseDistrict(new JsonParser().parse(reader));
-        fromBlock = currentBlock;
-        blockCommand =
-            "curl -X GET https://localhost:10100/block/"+fromBlock;
+    public static Pair<Integer, Integer> locate_plot(Integer plot_id) throws Exception{
+        String endpoint = root + "plot/" + plot_id.toString();
+        Request req = Dsl.get(endpoint).build();
+        Response resp = client.executeRequest(req).get();
+        Bukkit.getLogger().info(endpoint+ " " + resp.getResponseBody());
+        JsonElement jsonElement = new JsonParser().parse(resp.getResponseBody());
+        JsonArray array = jsonElement.getAsJsonObject().get("coord").getAsJsonArray();
+        return new Pair<>(array.get(0).getAsInt(),array.get(1).getAsInt());
     }
 
-    void parseDistrict(JsonElement element){
-        //do parsing stuff
-    }
-
-    void parseBlock(JsonElement element){
-        //do parsing stuff
-    }
 
 }

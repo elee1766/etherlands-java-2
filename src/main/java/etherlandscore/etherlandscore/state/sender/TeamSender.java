@@ -5,7 +5,6 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
 
 public class TeamSender {
@@ -26,7 +25,7 @@ public class TeamSender {
 
   public static void delegateDistrict(Channels channels, District writeDistrict, Team writeTeam) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_delegate_plot, writeTeam, writeDistrict));
+        new Message<>(MasterCommand.team_delegate_district, writeTeam, writeDistrict));
   }
 
   public static void delete(Channels channels, Team writeTeam) {

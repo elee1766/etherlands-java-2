@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
@@ -26,7 +27,8 @@ public class FlagCommand extends ListenerClient {
   void districtGroup(Player sender, Object[] args) {
     Bukkit.getLogger().info(args[0] + ", " + args[1]);
     Gamer runner = context.getGamer(sender.getUniqueId());
-    FlagMenu.clickMenu(runner, "group", "district set_group", (District) args[0], (Group) args[1]);
+    District d = context.getDistrict((int) args[0]);
+    FlagMenu.clickMenu(runner, "group", "district set_group", d, (Group) args[1]);
   }
 
   void districtPlayer(Player sender, Object[] args) {
@@ -50,7 +52,7 @@ public class FlagCommand extends ListenerClient {
             .executesPlayer(this::districtPlayer);
     CommandAPICommand flagMenuDistrictGroup =
         new CommandAPICommand("district_group")
-            .withArguments(teamDistrictArgument("district"))
+            .withArguments(new IntegerArgument("districtID"))
             .withArguments(teamGroupArgument("group"))
             .executesPlayer(this::districtGroup);
     CommandAPICommand flagMenu =

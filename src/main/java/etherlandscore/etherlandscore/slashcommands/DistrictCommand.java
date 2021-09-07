@@ -153,7 +153,7 @@ public class DistrictCommand extends ListenerClient {
     DistrictCommand.withSubcommand(
         new CommandAPICommand("set_player")
             .withAliases("setp", "setplayer", "setPlayer")
-            .withArguments(teamDistrictArgument("district"))
+            .withArguments(new IntegerArgument("districtID"))
             .withArguments(teamMemberArgument("member"))
             .withArguments(accessFlagArgument("flag"))
             .withArguments(flagValueArgument("value"))
@@ -161,7 +161,7 @@ public class DistrictCommand extends ListenerClient {
     DistrictCommand.withSubcommand(
         new CommandAPICommand("set_group")
             .withAliases("setg", "setgroup", "setGroup")
-            .withArguments(teamDistrictArgument("district"))
+            .withArguments(new IntegerArgument("districtID"))
             .withArguments(teamGroupArgument("group"))
             .withArguments(accessFlagArgument("flag"))
             .withArguments(
@@ -203,7 +203,7 @@ public class DistrictCommand extends ListenerClient {
       sender.sendMessage("ur not in a team");
     }
     if (team.isManager(manager)) {
-      District writeDistrict = (District) args[0];
+      District writeDistrict = context.getDistrict((int) args[0]);
       Group member = (Group) args[1];
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
@@ -221,7 +221,7 @@ public class DistrictCommand extends ListenerClient {
       sender.sendMessage("ur not in a team");
     }
     if (team.isManager(manager)) {
-      District writeDistrict = (District) args[0];
+      District writeDistrict = context.getDistrict((int) args[0]);
       Gamer member = (Gamer) args[1];
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];

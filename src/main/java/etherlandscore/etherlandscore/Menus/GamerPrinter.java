@@ -29,7 +29,7 @@ public class GamerPrinter {
           String ds = "";
           Set<UUID> friends = (Set<UUID>) field.get(this.gamer);
           for (UUID friend : friends) {
-            String memName = Bukkit.getPlayer(friend).getName();
+            String memName = Bukkit.getOfflinePlayer(friend).getName();
             ds = memName + " ";
           }
           prettyPrint.addField(field.getName(), ds);

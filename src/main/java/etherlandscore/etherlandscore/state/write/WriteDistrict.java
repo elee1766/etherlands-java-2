@@ -175,11 +175,11 @@ public class WriteDistrict extends CouchDocument implements District {
     }
     return fields;
   }
-
+  @Override
   public Map2<UUID, AccessFlags, FlagValue> getGamerPermissionMap() {
     return gamerPermissionMap;
   }
-
+  @Override
   public Map2<String, AccessFlags, FlagValue> getGroupPermissionMap() {
     return groupPermissionMap;
   }

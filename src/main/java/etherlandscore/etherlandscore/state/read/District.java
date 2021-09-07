@@ -2,6 +2,7 @@ package etherlandscore.etherlandscore.state.read;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.util.Map2;
 
 import java.lang.reflect.Field;
 import java.util.Set;
@@ -31,6 +32,10 @@ public interface District extends Comparable<District> {
   Team getTeamObject();
 
   UUID getOwnerUUID();
+
+  Map2<UUID, AccessFlags, FlagValue> getGamerPermissionMap();
+
+  Map2<String, AccessFlags, FlagValue> getGroupPermissionMap();
 
   boolean hasTeam();
 

@@ -12,9 +12,9 @@ public interface District extends Comparable<District> {
 
   boolean canGamerPerform(AccessFlags flag, Gamer gamer);
 
-  FlagValue checkFlags(AccessFlags flag, Gamer gamer);
+  FlagValue checkFlags(AccessFlags flag, Gamer gamer, FlagValue def);
 
-  FlagValue checkFlags(AccessFlags flag, Group writeGroup);
+  FlagValue checkFlags(AccessFlags flag, Group writeGroup,FlagValue def);
 
   @Override
   int compareTo(District r);

@@ -9,7 +9,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
-import org.bukkit.command.CommandSender;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -37,16 +37,11 @@ public class GamerCommand extends ListenerClient {
     printer.printGamer(sender);
   }
 
-  void link(Player sender, Object[] args) {
-    if(sender.isOp() || (!(sender instanceof Player))){
-      Player p = (Player) args[0];
-      WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
-      GamerSender.setAddress(channels, gamer, (String) args[1]);
-      sender.sendMessage(gamer.getPlayer().getName() + " has been linked successfully");
-    } else {
-      sender.sendMessage("You don't have permission to run this command");
-
-    }
+  void link(Object o,Object[] args) {
+    Player p = (Player) args[0];
+    WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
+    GamerSender.setAddress(channels, gamer, (String) args[1]);
+    Bukkit.getLogger().info(gamer.getPlayer().getName() + " has been linked successfully");
   }
 
   public void register() {
@@ -68,7 +63,7 @@ public class GamerCommand extends ListenerClient {
             .withArguments(
                 new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .withArguments(new StringArgument("address"))
-            .executesPlayer(this::link));
+            .executesConsole(this::link));
 
     GamerCommand.register();
   }

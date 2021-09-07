@@ -14,15 +14,12 @@ import etherlandscore.etherlandscore.services.Scheduler;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
 import org.bukkit.Bukkit;
-import org.bukkit.event.server.MapInitializeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public final class EtherlandsCore extends JavaPlugin {
 
@@ -93,7 +90,7 @@ public final class EtherlandsCore extends JavaPlugin {
     Fiber ethersFiber = new ThreadFiber();
     try {
       EthereumService es = new EthereumService(channels, ethersFiber);
-      scheduler.newEthSchedule(es,300);
+      scheduler.newEthSchedule(es,30);
       modules.add(es);
     } catch (Exception e) {
       e.printStackTrace();

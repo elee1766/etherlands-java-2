@@ -11,9 +11,11 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.EthersCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.read.*;
+import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Group;
+import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.DistrictSender;
-import etherlandscore.etherlandscore.state.sender.PlotSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -36,14 +38,14 @@ public class DistrictCommand extends ListenerClient {
 
   void delegate(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
+    Team team = gamer.getTeamObject();
     IntegerRange range = (IntegerRange) args[0];
     for (int i = range.getLowerBound();
          i <= range.getUpperBound();
          i++) {
       if (context.getDistrict(i).getOwnerUUID().equals(gamer.getUuid())) {
-        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam);
-        sender.sendMessage("District: " + i + " has been delegated to " + writeTeam.getName());
+        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team);
+        sender.sendMessage("District: " + i + " has been delegated to " + team.getName());
       } else {
         sender.sendMessage("You do not own this district");
       }
@@ -52,12 +54,12 @@ public class DistrictCommand extends ListenerClient {
 
   void delegateLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    Team writeTeam = gamer.getTeamObject();
+    Team team = gamer.getTeamObject();
     Chunk chunk = gamer.getPlayer().getChunk();
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
-      TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam);
-      sender.sendMessage(writeDistrict.getIdInt() + " has been delegated to " + writeTeam.getName());
+      TeamSender.delegateDistrict(this.channels, writeDistrict, team);
+      sender.sendMessage(writeDistrict.getIdInt() + " has been delegated to " + team.getName());
     } else {
       sender.sendMessage("You do not own this district");
     }
@@ -98,10 +100,11 @@ public class DistrictCommand extends ListenerClient {
     for (int i = range.getLowerBound();
          i <= range.getUpperBound();
          i++) {
-      Plot writePlot = context.getPlot(i);
-      if(writePlot != null) {
-        if (writePlot.getOwnerAddress().equals(gamer.getAddress())) {
-          PlotSender.reclaimPlot(this.channels, writePlot);
+
+      District writeDistrict = context.getDistrict(i);
+      if(writeDistrict != null) {
+        if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
+          DistrictSender.reclaimDistrict(this.channels, writeDistrict);
           sender.sendMessage("District: " + i + " has been reclaimed");
         } else {
           sender.sendMessage("You do not own district:" + i);
@@ -115,10 +118,10 @@ public class DistrictCommand extends ListenerClient {
   void reclaimLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Chunk chunk = gamer.getPlayer().getChunk();
-    Plot writePlot = context.getPlot(chunk.getX(), chunk.getZ());
-    if (writePlot.getOwnerUUID().equals(gamer.getUuid())) {
-      PlotSender.reclaimPlot(this.channels, writePlot);
-      sender.sendMessage(writePlot.getIdInt() + " has been reclaimed");
+    District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
+    if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
+      DistrictSender.reclaimDistrict(this.channels, writeDistrict);
+      sender.sendMessage(writeDistrict.getIdInt() + " has been reclaimed");
     }else {
       sender.sendMessage("You do not own this district");
     }
@@ -145,7 +148,7 @@ public class DistrictCommand extends ListenerClient {
     CommandAPICommand DistrictCommand =
         new CommandAPICommand("district")
             .withPermission("etherlands.public")
-            .executesPlayer(this::help);
+            .executesPlayer(this::infoLocal);
     DistrictCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("set_player")
@@ -170,7 +173,7 @@ public class DistrictCommand extends ListenerClient {
     DistrictCommand.withSubcommand(
         new CommandAPICommand("info")
             .withArguments(
-                new IntegerArgument("chunkId").replaceSuggestions(info -> getChunkStrings()))
+                new IntegerArgument("District Id").replaceSuggestions(info -> getChunkStrings()))
             .executes(this::infoGiven));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("update")
@@ -185,7 +188,7 @@ public class DistrictCommand extends ListenerClient {
             .executesPlayer(this::reclaimLocal));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("delegate")
-            .withArguments(new IntegerRangeArgument("plot-ids"))
+            .withArguments(new IntegerRangeArgument("DEED id"))
             .executesPlayer(this::delegate));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
@@ -195,25 +198,37 @@ public class DistrictCommand extends ListenerClient {
 
   void setGroup(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
-    Team writeTeam = manager.getTeamObject();
-    if (writeTeam.isManager(manager)) {
+    Team team = manager.getTeamObject();
+    if(team == null){
+      sender.sendMessage("ur not in a team");
+    }
+    if (team.isManager(manager)) {
       District writeDistrict = (District) args[0];
       Group member = (Group) args[1];
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
       DistrictSender.setGroupPermission(channels, member, flag, value, writeDistrict);
+      sender.sendMessage("group permission set");
+    }else{
+      sender.sendMessage("only managers may set district permissions");
     }
   }
 
   void setPlayer(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
-    Team writeTeam = manager.getTeamObject();
-    if (writeTeam.isManager(manager)) {
+    Team team = manager.getTeamObject();
+    if(team == null){
+      sender.sendMessage("ur not in a team");
+    }
+    if (team.isManager(manager)) {
       District writeDistrict = (District) args[0];
       Gamer member = (Gamer) args[1];
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
       DistrictSender.setGamerPermission(channels, member, flag, value, writeDistrict);
+      sender.sendMessage("group permission set");
+    }else{
+      sender.sendMessage("only managers may set district permissions");
     }
   }
 }

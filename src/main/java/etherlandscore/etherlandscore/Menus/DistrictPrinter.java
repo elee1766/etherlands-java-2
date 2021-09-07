@@ -29,7 +29,7 @@ public class DistrictPrinter {
   public void printDistrict(Player sender) {
     TextComponent print = new TextComponent("");
     MessageFormatter prettyPrint = new MessageFormatter(print);
-    prettyPrint.addBar("=", "PlotInfo");
+    prettyPrint.addBar("=", "District: " + this.writeDistrict.getIdInt());
 
     Field[] fields = writeDistrict.getDeclaredFields();
     for (Field field : fields) {
@@ -49,7 +49,7 @@ public class DistrictPrinter {
 
   private String mapHelper(String fieldName){
     String result = "";
-    if(fieldName=="groupPermissionMap"){
+    if(fieldName.equals("groupPermissionMap")){
       Map2<String, AccessFlags, FlagValue> gpMap = this.writeDistrict.getGroupPermissionMap();
       for (Map.Entry<String, Map<AccessFlags, FlagValue>> entry : gpMap.getMap().entrySet())
       {

@@ -111,6 +111,8 @@ public class ImageCommand extends ListenerClient {
           if(d==null){
             if(player.isOp()){
               break;
+            }else{
+              return false;
             }
           }
           if(!d.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
@@ -125,6 +127,8 @@ public class ImageCommand extends ListenerClient {
           if(p==null){
             if(player.isOp()){
               break;
+            }else{
+              return false;
             }
           }
           if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
@@ -139,6 +143,8 @@ public class ImageCommand extends ListenerClient {
           if(p==null){
             if(player.isOp()){
               break;
+            }else{
+              return false;
             }
           }
           if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
@@ -153,6 +159,8 @@ public class ImageCommand extends ListenerClient {
           if(p==null){
             if(player.isOp()){
               break;
+            }else{
+              return false;
             }
           }
           if(p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){

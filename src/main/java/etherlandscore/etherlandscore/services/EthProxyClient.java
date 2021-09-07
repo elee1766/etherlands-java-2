@@ -59,6 +59,4 @@ public class EthProxyClient {
         JsonArray array = jsonElement.getAsJsonObject().get("coord").getAsJsonArray();
         return new Pair<>(array.get(0).getAsInt(),array.get(1).getAsInt());
     }
-
-
 }

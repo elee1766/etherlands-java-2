@@ -60,11 +60,15 @@ public class Context<WriteMaps> {
   }
 
   public void context_create_gamer(UUID uuid) {
+    Bukkit.getLogger().info("Creating Gamer for: " + uuid);
     if (!this.getGamers().containsKey(uuid)) {
+      Bukkit.getLogger().info("Gamer does not already exist, creating now");
       WriteGamer gamer = new WriteGamer(uuid);
       this.getGamers().put(uuid, gamer);
       couchPersister.update(gamer);
+      Bukkit.getLogger().info("Published new gamer");
     }
+    Bukkit.getLogger().info("Gamer already exists");
   }
 
   public void district_set_gamer_permission(
@@ -92,7 +96,7 @@ public class Context<WriteMaps> {
       WriteDistrict wd = (WriteDistrict) mapElement.getValue();
       Bukkit.getLogger().info(String.valueOf(wd.getOwnerUUID()));
       if(wd.getOwnerUUID()==null){
-        Bukkit.getLogger().info("Checking plot: " + wd.getId());
+        Bukkit.getLogger().info("Checking district: " + wd.getId());
         Bukkit.getLogger().info(wd.getOwnerAddress() + " should equal " + address);
         if(wd.getOwnerAddress().equals(address)){
           Bukkit.getLogger().info("they are equal");
@@ -128,7 +132,11 @@ public class Context<WriteMaps> {
   }
 
   public WritePlot getPlot(Integer x, Integer z) {
-    return getPlot(plotLocations.get(x, z));
+    if(plotLocations.get(x, z)==null){
+      return null;
+    }else {
+      return getPlot(plotLocations.get(x, z));
+    }
   }
 
   public WritePlot getPlot(Integer id) {

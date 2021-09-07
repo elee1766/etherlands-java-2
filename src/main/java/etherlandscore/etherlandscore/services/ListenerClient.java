@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -131,20 +132,21 @@ public class ListenerClient extends ServerModule {
         });
   }
 
-  public Argument teamDistrictArgument(String nodeName) {
+  public Argument teamDistrictArgument(String districtID) {
     return new CustomArgument<>(
-            nodeName,
+            districtID,
             (sender, input) -> {
               Player player = Bukkit.getPlayer(sender.getName());
               if (player != null) {
                 Gamer gamer = state().getGamer(player.getUniqueId());
                 Team writeTeam = gamer.getTeamObject();
-                return writeTeam.getDistrict(input);
+                return (District) writeTeam.getDistrict(Integer.parseInt(districtID));
               } else {
                 throw new CustomArgument.CustomArgumentException(
                     new CustomArgument.MessageBuilder("District not found."));
               }
-            })
+            });
+    /*
         .replaceSuggestions(
             sender -> {
               Player player = Bukkit.getPlayer(sender.sender().getName());
@@ -154,6 +156,8 @@ public class ListenerClient extends ServerModule {
               }
               return null;
             });
+
+     */
   }
 
   public Argument teamGroupArgument(String nodeName) {

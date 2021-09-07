@@ -35,7 +35,11 @@ public class DistrictPrinter {
     for (Field field : fields) {
       try {
         if (field.getName() == "groupPermissionMap" || field.getName() == "gamerPermissionMap") {
-          prettyPrint.addField(field.getName(), mapHelper(field.getName()));
+          if(field.getName() == "groupPermissionMap" && !this.writeDistrict.hasTeam()){
+            continue;
+          }else {
+            prettyPrint.addField(field.getName(), mapHelper(field.getName()));
+          }
         }else if (field.getName() != "chunk" && field.getName() != "_id") {
           prettyPrint.addField(field.getName(), String.valueOf(field.get(this.writeDistrict)));
         }

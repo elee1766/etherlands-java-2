@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -23,11 +24,13 @@ public class FlagCommand extends ListenerClient {
   }
 
   void districtGroup(Player sender, Object[] args) {
+    Bukkit.getLogger().info(args[0] + ", " + args[1]);
     Gamer runner = context.getGamer(sender.getUniqueId());
     FlagMenu.clickMenu(runner, "group", "district set_group", (District) args[0], (Group) args[1]);
   }
 
   void districtPlayer(Player sender, Object[] args) {
+    Bukkit.getLogger().info(args[0] + ", " + args[1]);
     Gamer runner = context.getGamer(sender.getUniqueId());
     FlagMenu.clickMenu(
         runner, "player", "district set_player", (District) args[0], (Player) args[1]);

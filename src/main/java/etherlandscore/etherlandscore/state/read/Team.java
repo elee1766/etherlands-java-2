@@ -17,7 +17,7 @@ public interface Team {
 
   Field[] getDeclaredFields();
 
-  District getDistrict(String x);
+  District getDistrict(Integer x);
 
   Map<String, District> getDistricts();
 

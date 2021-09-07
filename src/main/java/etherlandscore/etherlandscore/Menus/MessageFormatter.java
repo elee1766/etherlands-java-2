@@ -77,7 +77,7 @@ public class MessageFormatter {
       valuecomp = new TextComponent("none");
       valuecomp.setColor(ChatColor.GRAY);
     }else if (name.toLowerCase().contains("address") || (name.toLowerCase().contains("uuid"))){
-      valuecomp = new TextComponent("hover to show");
+      valuecomp = new TextComponent(abbreviate(value, 10));
       valuecomp.setColor(ChatColor.GRAY);
     }else if (name.toLowerCase().contains("group") || (name.toLowerCase().contains("members"))){
       valuecomp = new TextComponent(value);
@@ -89,7 +89,7 @@ public class MessageFormatter {
     TextComponent namecomp = new TextComponent(name);
 
     if(name.toLowerCase().contains("address")){
-      String url = ("https://etherscan.io/address/"+value);
+      String url = ("https://polygonscan.com/address/"+value);
       System.out.println("doing address");
       valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,url));
     }else if(name.toLowerCase().contains("friend")){

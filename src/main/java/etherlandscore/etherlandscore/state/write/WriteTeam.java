@@ -117,7 +117,7 @@ public class WriteTeam extends CouchDocument implements Team {
   }
 
   @Override
-  public District getDistrict(String x) {
+  public District getDistrict(Integer x) {
     return this.districts.getOrDefault(x, null);
   }
 

@@ -1,6 +1,8 @@
 package etherlandscore.etherlandscore.listener;
 
+import com.destroystokyo.paper.event.block.BlockDestroyEvent;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockBreakAction;
+import etherlandscore.etherlandscore.actions.BlockAction.BlockDestoryAction;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
@@ -38,6 +40,20 @@ public class BlockEventListener extends ListenerClient implements Listener {
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
       breakEvent.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onBlockDestory(BlockDestroyEvent destoryEvent) {
+    try {
+      BlockDestoryAction action = new BlockDestoryAction(context, destoryEvent);
+      boolean code = action.process();
+      if(!code){
+        Bukkit.getLogger().warning("TNT GO BOOM BOOM");
+      }
+    } catch(Exception e){
+      Bukkit.getLogger().warning(e.toString());
+      destoryEvent.setCancelled(true);
     }
   }
 

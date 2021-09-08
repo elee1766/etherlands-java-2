@@ -38,7 +38,7 @@ public class MessageFormatter {
     TextComponent titlecomp = new TextComponent(title);
     titlecomp.addExtra(": ");
     titlecomp.setColor(ChatColor.AQUA);
-    ids.setColor(ChatColor.AQUA);
+    ids.setColor(ChatColor.DARK_AQUA);
     message.addExtra(titlecomp);
     message.addExtra(ids);
     addLine();

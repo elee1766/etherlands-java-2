@@ -28,11 +28,12 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockBreakAction action = new BlockBreakAction(context, breakEvent);
       boolean code = action.process();
       if (!code) {
-        if(context.getPlot(breakEvent.getBlock().getX(), breakEvent.getBlock().getZ())!=null) {
-          int dID = context.getPlot(breakEvent.getBlock().getX(), breakEvent.getBlock().getZ()).getDistrict();
+        if(context.getPlot(breakEvent.getBlock().getChunk().getX(), breakEvent.getBlock().getChunk().getZ())!=null) {
+          int dID = context.getPlot(breakEvent.getBlock().getChunk().getX(), breakEvent.getBlock().getChunk().getZ()).getDistrict();
           breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + dID);
         }else{
-          breakEvent.getPlayer().sendMessage("This area is unclaimed, you have no permissions here");
+          breakEvent.getPlayer().sendMessage("This area is unclaimed, you have no permissions in chunk: ("
+              + breakEvent.getBlock().getChunk().getX() + ", " + breakEvent.getBlock().getChunk().getZ() + ")");
         }
       }
     } catch (Exception e) {
@@ -47,7 +48,13 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockPlaceAction action = new BlockPlaceAction(context, placeEvent);
       boolean code = action.process();
       if (!code) {
-        placeEvent.getPlayer().sendMessage("you do not have permission to BUILD here");
+        if(context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ())!=null) {
+          int dID = context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
+          placeEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + dID);
+        }else{
+          placeEvent.getPlayer().sendMessage("This area is unclaimed, you have no permissions in chunk: ("
+              + placeEvent.getBlock().getChunk().getX() + ", " + placeEvent.getBlock().getChunk().getZ() + ")");
+        }
       }
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());

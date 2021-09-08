@@ -28,7 +28,12 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockBreakAction action = new BlockBreakAction(context, breakEvent);
       boolean code = action.process();
       if (!code) {
-        breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY here");
+        if(context.getDistrict(breakEvent.getBlock().getX(), breakEvent.getBlock().getZ())!=null) {
+          int dID = context.getDistrict(breakEvent.getBlock().getX(), breakEvent.getBlock().getZ()).getIdInt();
+          breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + dID);
+        }else{
+          breakEvent.getPlayer().sendMessage("This area is unclaimed, you have no permissions here");
+        }
       }
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());

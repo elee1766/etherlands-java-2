@@ -35,7 +35,9 @@ public class MessageFormatter {
   }
 
   public void plotIds(String title, TextComponent ids) {
-    message.addExtra(title + ": " + ids);
+    message.addExtra(title);
+    message.addExtra(": ");
+    message.addExtra(ids);
   }
 
   public void addFriend(String value, String addr) {

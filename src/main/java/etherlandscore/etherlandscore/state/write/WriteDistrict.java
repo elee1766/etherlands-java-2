@@ -278,9 +278,8 @@ public class WriteDistrict extends CouchDocument implements District {
       this.ownerUUID = ownerUUID.toString();
     }
     if (this.ownerUUID != null) {
-      OfflinePlayer player = Bukkit.getOfflinePlayer(this.ownerUUID);
-      if (player.hasPlayedBefore()) {
-        this.ownerServerName = player.getName();
+      if(state().getGamer(ownerUUID)!=null) {
+        this.ownerServerName = Bukkit.getOfflinePlayer(ownerUUID).getName();
       } else {
         this.ownerServerName = "player-uuid: [" + ownerUUID + "]";
       }

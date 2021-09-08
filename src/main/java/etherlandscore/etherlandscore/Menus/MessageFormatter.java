@@ -34,6 +34,10 @@ public class MessageFormatter {
     message.addExtra("\n");
   }
 
+  public void plotIds(String title, TextComponent ids) {
+    message.addExtra(title + ": " + ids);
+  }
+
   public void addFriend(String value, String addr) {
     TextComponent addrcomp;
     TextComponent namecomp = new TextComponent("~ " + value);

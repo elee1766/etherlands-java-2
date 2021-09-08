@@ -215,8 +215,8 @@ public class MapMenu extends ListenerClient {
       x = x - HEIGHT / 2 - 1;
       z = z - WIDTH / 2 - 1;
     } else {
-      z = z - HEIGHT / 2 - 1;
-      x = x - WIDTH / 2 - 1;
+      z = x - HEIGHT / 2 - 1;
+      x = z - WIDTH / 2 - 1;
     }
     
     TextComponent[][] mapArray = new TextComponent[WIDTH][HEIGHT];

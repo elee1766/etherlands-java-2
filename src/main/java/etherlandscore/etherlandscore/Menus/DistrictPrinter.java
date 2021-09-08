@@ -8,7 +8,10 @@ import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.util.Map2;
 import jnr.constants.platform.Access;
 import net.kyori.adventure.bossbar.BossBar;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
@@ -35,7 +38,9 @@ public class DistrictPrinter {
     for (Field field : fields) {
       try {
         if (field.getName() == "groupPermissionMap" || field.getName() == "gamerPermissionMap") {
-            prettyPrint.addField(field.getName(), mapHelper(field.getName()));
+          prettyPrint.addField(field.getName(), mapHelper(field.getName()));
+        }else if (field.getName() == "plotIds") {
+          prettyPrint.plotIds(field.getName(), plotHelper());
         }else if (field.getName() != "chunk" && field.getName() != "_id") {
           prettyPrint.addField(field.getName(), String.valueOf(field.get(this.writeDistrict)));
         }
@@ -45,6 +50,18 @@ public class DistrictPrinter {
       }
     }
     prettyPrint.printOut(sender);
+  }
+
+  private TextComponent plotHelper(){
+    TextComponent combined = new TextComponent();
+    Set<Plot> plots = this.writeDistrict.getPlotObjects();
+    for(Plot plot : plots){
+      TextComponent pcomp = new TextComponent(plot.getIdInt().toString());
+      pcomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")")));
+      combined.addExtra(pcomp);
+      combined.addExtra(" ");
+    }
+    return combined;
   }
 
   private String mapHelper(String fieldName){

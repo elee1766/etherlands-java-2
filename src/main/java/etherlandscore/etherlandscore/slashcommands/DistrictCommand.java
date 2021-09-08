@@ -3,8 +3,10 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.DistrictPrinter;
+import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
@@ -144,11 +146,29 @@ public class DistrictCommand extends ListenerClient {
     }
   }
 
+  void forceUpdate(CommandSender sender, Object[] args) {
+    if(sender.isOp() || (!(sender instanceof Player))){
+      sender.sendMessage(args[0] + " is being updated...");
+      IntegerRange range = (IntegerRange) args[0];
+      for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
+        this.channels.ethers_command.publish(new Message<>(EthersCommand.force_update, i));
+      }
+      sender.sendMessage(args[0] + " have been updated");
+    } else {
+      sender.sendMessage("You do not have permission to run this command");
+    }
+  }
+
   public void register() {
     CommandAPICommand DistrictCommand =
         new CommandAPICommand("district")
             .withPermission("etherlands.public")
             .executesPlayer(this::infoLocal);
+    CommandAPICommand DistrictInfoCommand =
+        new CommandAPICommand("district")
+            .withPermission("etherlands.public")
+            .withArguments(new IntegerArgument("DistrictID"))
+            .executesPlayer(this::infoGiven);
     DistrictCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("set_player")
@@ -168,6 +188,15 @@ public class DistrictCommand extends ListenerClient {
                 flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
             .withPermission("etherlands.public")
             .executesPlayer(this::setGroup));
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("set_all_group")
+            .withAliases("setag", "setallgroup", "setAllGroup")
+            .withArguments(new IntegerArgument("districtID"))
+            .withArguments(teamGroupArgument("group"))
+            .withArguments(
+                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
+            .withPermission("etherlands.public")
+            .executesPlayer(this::setAllGroup));
     DistrictCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
 
     DistrictCommand.withSubcommand(
@@ -179,6 +208,10 @@ public class DistrictCommand extends ListenerClient {
         new CommandAPICommand("update")
             .withArguments(new IntegerRangeArgument("chunkId"))
             .executes(this::update));
+    DistrictCommand.withSubcommand(
+        new CommandAPICommand("forceupdate")
+            .withArguments(new IntegerRangeArgument("chunkId"))
+            .executes(this::forceUpdate));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("reclaim")
             .withArguments(new IntegerRangeArgument("chunkId"))
@@ -194,6 +227,7 @@ public class DistrictCommand extends ListenerClient {
         new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
 
     DistrictCommand.register();
+    DistrictInfoCommand.register();
   }
 
   void setGroup(Player sender, Object[] args) {
@@ -209,6 +243,26 @@ public class DistrictCommand extends ListenerClient {
       FlagValue value = (FlagValue) args[3];
       DistrictSender.setGroupPermission(channels, member, flag, value, writeDistrict);
       sender.sendMessage("group permission set");
+      FlagMenu.clickMenu(manager, "group", "district set_group", writeDistrict, member);
+    }else{
+      sender.sendMessage("only managers may set district permissions");
+    }
+  }
+
+  void setAllGroup(Player sender, Object[] args) {
+    Gamer manager = context.getGamer(sender.getUniqueId());
+    Team team = manager.getTeamObject();
+    if(team == null){
+      sender.sendMessage("ur not in a team");
+    }
+    if (team.isManager(manager)) {
+      District writeDistrict = context.getDistrict((int) args[0]);
+      Group member = (Group) args[1];
+      for(AccessFlags af : AccessFlags.values()){
+        DistrictSender.setGroupPermission(channels, member, af, (FlagValue) args[2], writeDistrict);
+      }
+      sender.sendMessage("All permitions set to allow for group " + member.getName());
+      FlagMenu.clickMenu(manager, "group", "district set_group", writeDistrict, member);
     }else{
       sender.sendMessage("only managers may set district permissions");
     }
@@ -227,6 +281,7 @@ public class DistrictCommand extends ListenerClient {
       FlagValue value = (FlagValue) args[3];
       DistrictSender.setGamerPermission(channels, member, flag, value, writeDistrict);
       sender.sendMessage("group permission set");
+      FlagMenu.clickMenu(manager, "group", "district set_group", writeDistrict, member.getPlayer());
     }else{
       sender.sendMessage("only managers may set district permissions");
     }

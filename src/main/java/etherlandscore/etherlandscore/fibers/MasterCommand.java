@@ -24,5 +24,6 @@ public enum MasterCommand {
   map_create_map,
   map_rerender_maps,
   nft_create_nft,
-  district_update_district
+  district_update_district,
+  district_forceupdate_district
 }

@@ -13,6 +13,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -47,6 +48,13 @@ public class FlagMenu extends ListenerClient {
     TextComponent component = new TextComponent("");
     TextComponent space = new TextComponent(" ");
     TextComponent topBorder = new TextComponent("============== FLAGS ==============\n");
+    TextComponent all = new TextComponent("ALL");
+    TextComponent allAllow = new TextComponent("ALLOW");
+    allAllow.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/district set_all_group " + writeDistrict.getIdInt().toString() + " " + gamer.getTeamObject().getGroup(item).getName() + " " + FlagValue.ALLOW));
+    TextComponent allDeny = new TextComponent("DENY");
+    allDeny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/district set_all_group " + writeDistrict.getIdInt().toString() + " " + gamer.getTeamObject().getGroup(item).getName() + " " + FlagValue.DENY));
+    TextComponent allNone = new TextComponent("NONE");
+    allNone.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/district set_all_group " + writeDistrict.getIdInt().toString() + " " + gamer.getTeamObject().getGroup(item).getName() + " " + FlagValue.NONE));
     TextComponent next = new TextComponent("next");
     topBorder.setColor(ChatColor.YELLOW);
 
@@ -103,6 +111,21 @@ public class FlagMenu extends ListenerClient {
       TextComponent newLine = new TextComponent("\n");
       tc.add(newLine);
     }
+
+    all.addExtra("------------------------");
+    all.setColor(ChatColor.YELLOW);
+    TextComponent newLine = new TextComponent("\n");
+    tc.add(newLine);
+    tc.add(all);
+    allAllow.setColor(ChatColor.DARK_GRAY);
+    tc.add(allAllow);
+    tc.add(space);
+    allDeny.setColor(ChatColor.DARK_GRAY);
+    tc.add(allDeny);
+    tc.add(space);
+    allNone.setColor(ChatColor.DARK_GRAY);
+    tc.add(allNone);
+    tc.add(newLine);
 
     for (TextComponent comps : tc) {
       component.addExtra(comps);

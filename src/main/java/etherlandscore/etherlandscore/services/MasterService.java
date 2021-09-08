@@ -68,6 +68,7 @@ public class MasterService extends ServerModule {
             case map_create_map -> context.map_create_map((WriteMap) _args[0]);
             case map_rerender_maps -> context.map_rerender_maps();
             case district_update_district -> context.district_update_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
+            case district_forceupdate_district -> context.district_forceupdate_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
         }
         global_update();
     }

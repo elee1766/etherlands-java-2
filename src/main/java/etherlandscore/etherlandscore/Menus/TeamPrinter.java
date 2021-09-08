@@ -36,9 +36,13 @@ public class TeamPrinter {
       try {
         if (field.getName() == "districts") {
           String ds = "";
-          Map<String, WriteDistrict> districts = (Map<String, WriteDistrict>) field.get(this.writeTeam);
+          Map<String, District> districts = this.writeTeam.getDistricts();
+          Bukkit.getLogger().info("Doing districts");
+          Bukkit.getLogger().info(districts.toString());
           for (Map.Entry d : districts.entrySet()) {
-            ds = ds + d.getKey() + " ";
+            Bukkit.getLogger().info(d.getValue().toString());
+            District dist = (District) d.getValue();
+            ds = ds + dist.getIdInt() + " ";
           }
           prettyPrint.addField(field.getName(), ds);
         }else if(field.getName()=="groups") {
@@ -52,26 +56,18 @@ public class TeamPrinter {
           String ds = "";
           Set<UUID> members = (Set<UUID>) field.get(this.writeTeam);
           for (UUID member : members) {
-            String memName = Bukkit.getPlayer(member).getName();
-            ds = memName + " ";
-          }
-          prettyPrint.addField(field.getName(), ds);
-        }else if(field.getName()=="plots") {
-          String ds = "";
-          Set<Integer> plots = (Set<Integer>) field.get(this.writeTeam);
-          for (int plot : plots) {
-            Plot p = state().getPlot(plot);
-            ds = "[" + p.getX() + ", " + p.getZ() + "] ";
+            String memName = Bukkit.getOfflinePlayer(member).getName();
+            ds = ds + memName + " ";
           }
           prettyPrint.addField(field.getName(), ds);
         }else if(field.getName()=="owner") {
           String ds = "";
           UUID ownerUUID = (UUID) field.get(this.writeTeam);
-          String ownName = Bukkit.getPlayer(ownerUUID).getName();
+          String ownName = Bukkit.getOfflinePlayer(ownerUUID).getName();
           prettyPrint.addField(field.getName(), ownName);
         }
 
-        else if (field.getName() != "_id") {
+        else if (field.getName() != "_id" && field.getName() != "plots") {
           prettyPrint.addField(field.getName(), String.valueOf(field.get(this.writeTeam)));
         }
       } catch (IllegalAccessException ex) {

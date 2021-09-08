@@ -236,6 +236,12 @@ public class Context<WriteMaps> {
       this.getDistricts().put(districtID, new WriteDistrict(districtID, chunkIds, owner));
     }
     WriteDistrict district = this.getDistrict(districtID);
+    Map2<UUID, AccessFlags, FlagValue> gamerPerms = district.getGamerPermissionMap();
+    Map2<String, AccessFlags, FlagValue> groupPerms = district.getGroupPermissionMap();
+    if(district.hasTeam()) {
+      Team t = district.getTeamObject();
+      district.setTeam(t.getName());
+    }
     for(int i : chunkIds){
       WritePlot plot = this.getPlot(i);
       plot.setDistrict(districtID);
@@ -244,6 +250,29 @@ public class Context<WriteMaps> {
     }
     district.setPlotIds(chunkIds);
     district_set_owner(district, owner);
+    district.setGroupPermissionMap(groupPerms);
+    district.setGamerPermissionMap(gamerPerms);
+    couchPersister.update(district);
+  }
+
+  public void district_forceupdate_district(int districtID, Set<Integer> chunkIds, String owner) {
+    UUID ownerUUID = this.getLinks().getOrDefault(owner, null);
+    if (!this.getDistricts().containsKey(districtID)) {
+      this.getDistricts().put(districtID, new WriteDistrict(districtID, chunkIds, owner));
+    }
+    WriteDistrict district = this.getDistrict(districtID);
+    Map2<UUID, AccessFlags, FlagValue> gamerPerms = district.getGamerPermissionMap();
+    Map2<String, AccessFlags, FlagValue> groupPerms = district.getGroupPermissionMap();
+    for(int i : chunkIds){
+      WritePlot plot = this.getPlot(i);
+      plot.setDistrict(districtID);
+      plot.setOwner(owner,ownerUUID);
+      couchPersister.update(this.getPlot(i));
+    }
+    district.setPlotIds(chunkIds);
+    district_set_owner(district, owner);
+    district.setGroupPermissionMap(groupPerms);
+    district.setGamerPermissionMap(gamerPerms);
     couchPersister.update(district);
   }
 
@@ -276,6 +305,7 @@ public class Context<WriteMaps> {
     district_reclaim_district(district);
     team.addDistrict(district);
     district.setTeam(team.getName());
+    district.setDefaults();
     couchPersister.update(team);
     couchPersister.update(district);
   }

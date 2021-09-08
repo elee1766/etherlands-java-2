@@ -44,9 +44,16 @@ public class GamerCommand extends ListenerClient {
     Bukkit.getLogger().info(gamer.getPlayer().getName() + " has been linked successfully");
   }
 
+  void suicide(Player sender, Object[] args) {
+    sender.setHealth(0.0D);
+  }
+
   public void register() {
     CommandAPICommand GamerCommand =
         new CommandAPICommand("gamer").withPermission("etherlands.public").executesPlayer(this::infoLocal);
+
+    CommandAPICommand SuicideCommand =
+        new CommandAPICommand("suicide").withAliases("neckrope").withPermission("etherlands.public").executesPlayer(this::suicide);
 
     GamerCommand.withSubcommand(
         new CommandAPICommand("info")
@@ -66,5 +73,6 @@ public class GamerCommand extends ListenerClient {
             .executesConsole(this::link));
 
     GamerCommand.register();
+    SuicideCommand.register();
   }
 }

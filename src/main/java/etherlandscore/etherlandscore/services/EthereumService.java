@@ -78,6 +78,13 @@ public class EthereumService extends ListenerClient {
                         e.printStackTrace();
                     }
                 }
+                case force_update -> {
+                    try {
+                        force_update_district((Integer) x.getArgs()[0]);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
         listenHttp();
@@ -89,6 +96,14 @@ public class EthereumService extends ListenerClient {
         Bukkit.getLogger().info(owneraddr + " " + district_id);
         this.channels.master_command.publish(
             new Message<>(MasterCommand.district_update_district, district_id, district_info.getSecond(), owneraddr));
+    }
+
+    private void force_update_district(Integer district_id) throws Exception {
+        Pair<String, Set<Integer>> district_info = EthProxyClient.view_district(district_id);
+        String owneraddr = district_info.getFirst();
+        Bukkit.getLogger().info(owneraddr + " " + district_id);
+        this.channels.master_command.publish(
+            new Message<>(MasterCommand.district_forceupdate_district, district_id, district_info.getSecond(), owneraddr));
     }
 
     public void update_districts() throws Exception {

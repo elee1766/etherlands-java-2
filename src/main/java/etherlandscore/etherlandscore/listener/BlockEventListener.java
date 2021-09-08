@@ -32,8 +32,7 @@ public class BlockEventListener extends ListenerClient implements Listener {
           int dID = context.getPlot(breakEvent.getBlock().getChunk().getX(), breakEvent.getBlock().getChunk().getZ()).getDistrict();
           breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + dID);
         }else{
-          breakEvent.getPlayer().sendMessage("This area is unclaimed, you have no permissions in chunk: ("
-              + breakEvent.getBlock().getChunk().getX() + ", " + breakEvent.getBlock().getChunk().getZ() + ")");
+          breakEvent.getPlayer().sendMessage("The Plot at [" + breakEvent.getBlock().getChunk().getX() + ", " + breakEvent.getBlock().getChunk().getZ() + "] is unclaimed");
         }
       }
     } catch (Exception e) {
@@ -52,8 +51,7 @@ public class BlockEventListener extends ListenerClient implements Listener {
           int dID = context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
           placeEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + dID);
         }else{
-          placeEvent.getPlayer().sendMessage("This area is unclaimed, you have no permissions in chunk: ("
-              + placeEvent.getBlock().getChunk().getX() + ", " + placeEvent.getBlock().getChunk().getZ() + ")");
+          placeEvent.getPlayer().sendMessage("The Plot at [" + placeEvent.getBlock().getChunk().getX() + ", " + placeEvent.getBlock().getChunk().getZ() + "] is unclaimed");
         }
       }
     } catch (Exception e) {

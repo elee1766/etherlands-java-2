@@ -112,6 +112,12 @@ public class WriteDistrict extends CouchDocument implements District {
     }
   }
 
+  public void setDefaults(){
+    for(AccessFlags af : AccessFlags.values()){
+      setGroupPermission(this.getTeamObject().getGroup("member"), af, FlagValue.ALLOW);
+    }
+  }
+
   @Override
   @JsonIgnore
   public Gamer getOwnerObject() {

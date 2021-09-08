@@ -35,6 +35,21 @@ public class EthProxyClient {
         return new Pair<>(addr,res);
     }
 
+    public static Pair<String, Set<Integer>> force_district(Integer id) throws Exception{
+        Set<Integer> res = new HashSet<>();
+        String endpoint = root + "distict_force/" + id.toString();
+        Request req = Dsl.get(endpoint).build();
+        Response resp = client.executeRequest(req).get();
+        Bukkit.getLogger().info(endpoint+ " " + resp.getResponseBody());
+        JsonElement jsonElement = new JsonParser().parse(resp.getResponseBody());
+        String addr = jsonElement.getAsJsonObject().get("owner").getAsString();
+        JsonArray array = jsonElement.getAsJsonObject().get("contains").getAsJsonArray();
+        for(int i = 0; i < array.size(); i ++){
+            res.add(Integer.valueOf(array.get(i).getAsString()));
+        }
+        return new Pair<>(addr,res);
+    }
+
     public static Pair<Set<Integer>,Integer> find_districts(Integer block) throws Exception{
         Set<Integer> res = new HashSet<>();
         String endpoint = root + "since/" + block.toString();

@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.GroupSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
+import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -70,7 +71,8 @@ public class GroupCommand extends ListenerClient {
   void info(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     GroupPrinter printer = new GroupPrinter((Group) args[0]);
-    printer.printGroup(sender);
+    WriteDistrict wd = (WriteDistrict) context.getDistrict(sender.getChunk().getX(), sender.getChunk().getZ());
+    printer.printGroup(sender, wd);
   }
 
   public void register() {

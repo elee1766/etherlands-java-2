@@ -13,9 +13,12 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.sender.GroupSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
+import etherlandscore.etherlandscore.state.write.WriteGroup;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
@@ -130,6 +133,7 @@ public class TeamCommand extends ListenerClient {
           if (!this.invites.containsKey(writeTeam.getName())) {
             this.invites.put(writeTeam.getName(), new HashMap<>());
           }
+          sender.sendMessage("You have invited " + receiver.getPlayer().getName() + " to your team!");
           writeTeam.inviteGamer(this.invites.get(writeTeam.getName()), receiver.getUuid());
           receiver.getPlayer().sendMessage("You have been invited to " + inviter.getTeam());
           TextComponent join = new TextComponent("click here to join");
@@ -149,8 +153,13 @@ public class TeamCommand extends ListenerClient {
       Team team = context.getTeam((String) args[0]);
       if (team != null) {
         if (team.canJoin(this.invites.getOrDefault(team.getName(), new HashMap<>()), joiner)) {
+          WriteGroup writeGroup = (WriteGroup) team.getGroup("member");
           TeamSender.addMember(this.channels, joiner, team);
+          GroupSender.addMember(this.channels, writeGroup, joiner);
           sender.sendMessage("Welcome to " + args[0]);
+          if(Bukkit.getPlayer(team.getOwnerUUID()) != null){
+            Bukkit.getPlayer(team.getOwnerUUID()).sendMessage(sender.getName() + " has joined your team!");
+          }
         } else {
           sender.sendMessage("You must be invited before joining " + args[0]);
         }
@@ -166,6 +175,7 @@ public class TeamCommand extends ListenerClient {
       if (!writeTeam.isManager(kicked)) {
         TeamSender.removeMember(channels, kicked, writeTeam);
         sender.sendMessage("You kicked " + kicked.getPlayer().getName());
+        kicked.getPlayer().sendMessage("You have been kicked from " + writeTeam.getName());
       }
       {
         sender.sendMessage("Can't kick manager");
@@ -206,6 +216,7 @@ public class TeamCommand extends ListenerClient {
       } else {
         TeamSender.removeMember(channels, gamer, writeTeam);
         sender.sendMessage("You have left " + gamer.getTeam());
+        Bukkit.getPlayer(writeTeam.getOwnerUUID()).sendMessage(sender.getName() + " has left your team :(");
       }
     } else {
       sender.sendMessage("You are not in a team");

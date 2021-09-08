@@ -35,9 +35,13 @@ public class MessageFormatter {
   }
 
   public void plotIds(String title, TextComponent ids) {
-    message.addExtra(title);
-    message.addExtra(": ");
+    TextComponent titlecomp = new TextComponent(title);
+    titlecomp.addExtra(": ");
+    titlecomp.setColor(ChatColor.AQUA);
+    ids.setColor(ChatColor.AQUA);
+    message.addExtra(titlecomp);
     message.addExtra(ids);
+    addLine();
   }
 
   public void addFriend(String value, String addr) {

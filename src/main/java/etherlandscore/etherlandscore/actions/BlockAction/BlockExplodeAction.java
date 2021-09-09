@@ -8,12 +8,12 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import org.bukkit.Bukkit;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 
-public class BlockDestoryAction extends PermissionedAction {
-  private final BlockDestroyEvent event;
-  private final AccessFlags flag = AccessFlags.DESTROY;
+public class BlockExplodeAction extends PermissionedAction {
+  private final BlockExplodeEvent event;
 
-  public BlockDestoryAction(ReadContext context, BlockDestroyEvent event) {
+  public BlockExplodeAction(ReadContext context, BlockExplodeEvent event) {
     super(context, event);
     this.event = event;
   }
@@ -23,11 +23,12 @@ public class BlockDestoryAction extends PermissionedAction {
     District writeDistrict=
         getContext()
             .getDistrict(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
-    // ops can always destroy
     if (writeDistrict == null) {
-      Bukkit.getLogger().info("there is no district here");
+      Bukkit.getLogger().info("there is no district here rolling back");
       return super.rollback();
+    }else {
+      Bukkit.getLogger().info("tnt smash");
+      return super.process();
     }
-    return super.process();
   }
 }

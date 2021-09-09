@@ -75,14 +75,14 @@ public class EthereumService extends ListenerClient {
                     try {
                         update_district((Integer) x.getArgs()[0]);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Bukkit.getLogger().warning("EthProxy is currently unavailable");
                     }
                 }
                 case force_update -> {
                     try {
                         force_update_district((Integer) x.getArgs()[0]);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Bukkit.getLogger().warning("EthProxy is currently unavailable");
                     }
                 }
             }

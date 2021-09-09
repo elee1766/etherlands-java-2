@@ -2,16 +2,24 @@ package etherlandscore.etherlandscore.listener;
 
 import com.destroystokyo.paper.event.block.BlockDestroyEvent;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockBreakAction;
-import etherlandscore.etherlandscore.actions.BlockAction.BlockDestoryAction;
+import etherlandscore.etherlandscore.actions.BlockAction.BlockExplodeAction;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.state.read.District;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetlang.fibers.Fiber;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class BlockEventListener extends ListenerClient implements Listener {
 
@@ -44,16 +52,41 @@ public class BlockEventListener extends ListenerClient implements Listener {
   }
 
   @EventHandler
-  public void onBlockDestory(BlockDestroyEvent destoryEvent) {
+  public void onBlockExplode(EntityExplodeEvent explodeEvent) {
+    Bukkit.getLogger().warning("TNT GO BOOM BOOM");
     try {
-      BlockDestoryAction action = new BlockDestoryAction(context, destoryEvent);
-      boolean code = action.process();
-      if(!code){
-        Bukkit.getLogger().warning("TNT GO BOOM BOOM");
+      District d = context.getDistrict(explodeEvent.getLocation().getChunk().getX(), explodeEvent.getLocation().getChunk().getX());
+      List<Block> blockList = explodeEvent.blockList();
+      Iterator<Block> it = blockList.iterator();
+      while (it.hasNext()) {
+        Block block = it.next();
+        if (context.getDistrict(block.getChunk().getX(), block.getChunk().getZ())==null) {
+          it.remove();
+        }else{
+          District db = context.getDistrict(block.getChunk().getX(), block.getChunk().getZ());
+          if(db!=d){
+            it.remove();
+          }
+        }
       }
     } catch(Exception e){
       Bukkit.getLogger().warning(e.toString());
-      destoryEvent.setCancelled(true);
+      explodeEvent.setCancelled(true);
+    }
+  }
+
+
+  @EventHandler
+  public void onLiquidFlow(BlockFromToEvent flowEvent) {
+    try {
+      District dFrom = context.getDistrict(flowEvent.getBlock().getChunk().getX(), flowEvent.getBlock().getChunk().getZ());
+      District dTo = context.getDistrict(flowEvent.getToBlock().getChunk().getX(), flowEvent.getToBlock().getChunk().getZ());
+      if(dFrom!=dTo){
+        flowEvent.setCancelled(true);
+      }
+    } catch(Exception e){
+      Bukkit.getLogger().warning(e.toString());
+      flowEvent.setCancelled(true);
     }
   }
 

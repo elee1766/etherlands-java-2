@@ -23,10 +23,9 @@ public class Scheduler extends ServerModule {
                 try {
                     e.update_districts();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Bukkit.getLogger().warning("ethProxy is currently unavailable");
                 }
             }
         }, 1L , (long) tickDelay * 20);
     }
-
 }

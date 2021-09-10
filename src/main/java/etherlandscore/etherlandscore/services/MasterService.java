@@ -12,6 +12,7 @@ import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.write.*;
+import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Set;
@@ -40,6 +41,7 @@ public class MasterService extends ServerModule {
     }
 
     private void process_command(Message<MasterCommand> message) {
+        Bukkit.getLogger().info(message.toString());
         Object[] _args = message.getArgs();
         switch (message.getCommand()) {
             case context_create_gamer -> context.context_create_gamer((UUID) _args[0]);

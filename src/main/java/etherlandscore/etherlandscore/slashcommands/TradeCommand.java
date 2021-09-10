@@ -67,6 +67,7 @@ public class TradeCommand extends ListenerClient {
     GamerTransaction gt = this.transactions.get(from, to);
     if(gt!=null){
       Bukkit.getLogger().info("sending process message");
+      Bukkit.getLogger().info(gt.toString());
       channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
     }else{
       sender.sendMessage("The transaction as expired");

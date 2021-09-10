@@ -93,7 +93,8 @@ public class Context<WriteMaps> {
     return balance;
   }
 
-  private void context_process_gamer_transaction(GamerTransaction transaction) {
+  public void context_process_gamer_transaction(GamerTransaction transaction) {
+    Bukkit.getLogger().info("Doing Transaction");
     Set<ItemStack> leftItems= transaction.getItemStacks().getFirst();
     Set<ItemStack> rightItems= transaction.getItemStacks().getSecond();
 
@@ -133,7 +134,7 @@ public class Context<WriteMaps> {
         }
       }
     }
-
+    Bukkit.getLogger().info("Transaction Complete");
   }
 
   public void district_set_gamer_permission(

@@ -3,11 +3,14 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.*;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.BankRecord;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteBankRecord;
+import etherlandscore.etherlandscore.util.Map2;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bouncycastle.util.Arrays;
@@ -17,17 +20,23 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetlang.fibers.Fiber;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class TradeCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
+  private final Map2<Gamer, Gamer, GamerTransaction> transactions;
 
   public TradeCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
     this.fiber = fiber;
     this.channels = channels;
+    this.transactions = new Map2<>();
     register();
   }
 
@@ -39,17 +48,29 @@ public class TradeCommand extends ListenerClient {
     ItemStack itemStack = sender.getEquipment().getItemInMainHand();
     itemsToSend.add(itemStack);
     sender.getInventory().setItemInMainHand(null);
-    Integer payment = (Integer) args[2];
-    Inventory tempFrom = Bukkit.createInventory(null, 2);
+    Integer payment = (Integer) args[1];
+    Inventory tempFrom = Bukkit.createInventory(null, 9);
     tempFrom.addItem(itemStack);
-
-    GamerTransaction gt = new GamerTransaction(from, to, payment, 0,
-                                        tempFrom, player.getInventory(),
-        itemsToSend, null);
-
-    TextComponent confirm = new TextComponent("Click to approve:\n"+gt.getGamers()+" "+gt.getItemStacks()+" "+gt.getDeltas());
-    confirm.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/help"));
+    GamerTransaction gt = new GamerTransaction(from, to, 0, payment, tempFrom, player.getInventory(), itemsToSend, null);
+    transactions.put(from, to, gt);
+    TextComponent confirm = new TextComponent("Click bellow to approve the following trade\n");
+    TextComponent trade = new TextComponent(itemStack.getAmount() + " " + itemStack.getDisplayName() + " for " + payment + " monies.");
+    trade.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/approve " + from.getPlayer().getName()));
     player.sendMessage(confirm);
+    player.sendMessage(trade);
+  }
+
+  public void approve(Player sender, Object[] args){
+    Player player = (Player) args[0];
+    Gamer from = context.getGamer(player.getUniqueId());
+    Gamer to = context.getGamer(sender.getUniqueId());
+    GamerTransaction gt = this.transactions.get(from, to);
+    if(gt!=null){
+      Bukkit.getLogger().info("sending process message");
+      channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+    }else{
+      sender.sendMessage("The transaction as expired");
+    }
   }
 
   public void register() {
@@ -59,6 +80,11 @@ public class TradeCommand extends ListenerClient {
             .withArguments(new IntegerArgument("requested payment"))
             .withPermission("etherlands.public")
             .executesPlayer(this::tradeMenu);
+    CommandAPICommand ApproveCommand =
+        new CommandAPICommand("approve")
+            .withArguments(new PlayerArgument("player"))
+            .executesPlayer(this::approve);
+    ApproveCommand.register();
     TradeCommand.register();
   }
 }

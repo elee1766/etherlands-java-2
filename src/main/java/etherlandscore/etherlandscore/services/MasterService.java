@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.write.*;
 import org.jetlang.fibers.Fiber;
@@ -69,6 +70,7 @@ public class MasterService extends ServerModule {
             case map_rerender_maps -> context.map_rerender_maps();
             case district_update_district -> context.district_update_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
             case district_forceupdate_district -> context.district_forceupdate_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
+            case context_process_gamer_transaction -> context.context_process_gamer_transaction((GamerTransaction) _args[0]);
         }
         global_update();
     }

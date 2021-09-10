@@ -26,6 +26,7 @@ public class CouchPersister extends ServerModule {
   private final DistrictRepo districtRepo;
   private final NFTRepo nftRepo;
   private final MapRepo mapRepo;
+  private final BankRecordRepo bankRecordRepo;
   private final CouchDbConnector linkConnector;
   private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
   Channels channels;
@@ -47,6 +48,7 @@ public class CouchPersister extends ServerModule {
     this.teamRepo = new TeamRepo(this.instance.createConnector("teams", true), WriteTeam.class);
     this.mapRepo = new MapRepo(this.instance.createConnector("maps", true), WriteMap.class);
     this.nftRepo = new NFTRepo(this.instance.createConnector("nfts", true), WriteNFT.class);
+    this.bankRecordRepo = new BankRecordRepo(this.instance.createConnector("bankrecord", true), WriteBankRecord.class);
     this.linkConnector = this.instance.createConnector("linked",true);
 
     channels.db_gamer.subscribe(fiber, this::write);
@@ -71,6 +73,7 @@ public class CouchPersister extends ServerModule {
       districtRepo.save(context.getDistricts().values());
       teamRepo.save(context.getTeams().values());
       nftRepo.save(context.getNftUrls().values());
+      nftRepo.save(context.getBankRecords().values());
       mapRepo.save(context.getMaps());
   }
 
@@ -110,6 +113,10 @@ public class CouchPersister extends ServerModule {
       empty.nfts.put(writeNFT.getContract(), writeNFT.getItem(), writeNFT);
       empty.nftUrls.put(writeNFT.getUrl(), writeNFT);
     }
+    Bukkit.getLogger().info("doing bankRecords");
+    for (WriteBankRecord bankRecord: this.bankRecordRepo.getAll()) {
+      empty.bankRecords.put(bankRecord.getId(),bankRecord);
+    }
     Bukkit.getLogger().info("done reading from db");
   }
 
@@ -131,6 +138,9 @@ public class CouchPersister extends ServerModule {
   public void write(WriteNFT nft){
     this.nftRepo.save(nft);
   }
+  public void write(WriteBankRecord bankRecord){
+    this.bankRecordRepo.save(bankRecord);
+  }
 
   public void update(WriteGamer gamer){
     this.channels.db_gamer.publish(gamer);
@@ -146,6 +156,9 @@ public class CouchPersister extends ServerModule {
   }
   public void update(WriteNFT nft) {this.channels.db_nft.publish(nft); }
   public void update(WriteMap map) {this.channels.db_map.publish(map); }
+
+  public void update(WriteBankRecord bankRecord){this.channels.db_bankrecord.publish(bankRecord);}
+
 
   public void remove(WriteGamer gamer){
     this.gamerRepo.delete(gamer);

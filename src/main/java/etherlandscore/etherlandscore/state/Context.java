@@ -5,8 +5,9 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
 import etherlandscore.etherlandscore.services.EthProxyClient;
+import etherlandscore.etherlandscore.state.bank.GamerTransaction;
+import etherlandscore.etherlandscore.state.read.BankRecord;
 import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
@@ -43,6 +44,9 @@ public class Context<WriteMaps> {
   public final Map<String, WriteNFT> nftUrls = new HashMap<>();
   public final Map2<String,String,WriteNFT> nfts = new Map2<>();
   public final Set<WriteMap> maps = new HashSet<>();
+  public final Map<String, BankRecord> bankRecords = new HashMap<>();
+
+  public final Map<UUID,Integer> balanceCache = new HashMap<>();
 
   public Context(Channels channels){
     try {
@@ -53,6 +57,10 @@ public class Context<WriteMaps> {
       e.printStackTrace();
     }
     couchPersister.populateContext(this);
+  }
+
+  public Map<String, BankRecord> getBankRecords() {
+    return this.bankRecords;
   }
 
   public void saveAll(){
@@ -69,6 +77,63 @@ public class Context<WriteMaps> {
       Bukkit.getLogger().info("Published new gamer");
     }
     Bukkit.getLogger().info("Gamer already exists");
+  }
+
+  private Integer getAbsoluteBalance(UUID gamerId) {
+    Integer balance = 0;
+    for (BankRecord bankRecord : bankRecords.values()) {
+      if (bankRecord.getFrom().equals(gamerId)) {
+        balance = balance - bankRecord.getDelta();
+      }
+      if(bankRecord.getTo().equals(gamerId)){
+        balance = balance - bankRecord.getDelta();
+      }
+    }
+    this.balanceCache.put(gamerId,balance);
+    return balance;
+  }
+
+  private void context_process_gamer_transaction(GamerTransaction transaction) {
+    Set<ItemStack> leftItems= transaction.getItemStacks().getFirst();
+    Set<ItemStack> rightItems= transaction.getItemStacks().getSecond();
+
+    for (ItemStack item : leftItems) {
+      if(!transaction.getInventorys().getFirst().contains(item)){
+        return;
+      }
+    }
+    for (ItemStack item : rightItems) {
+      if(!transaction.getInventorys().getSecond().contains(item)){
+        return;
+      }
+    }
+
+    transaction.getInventorys().getFirst().removeItem((ItemStack[]) leftItems.toArray());
+    transaction.getInventorys().getSecond().addItem((ItemStack[]) leftItems.toArray());
+    transaction.getInventorys().getFirst().removeItem((ItemStack[]) rightItems.toArray());
+    transaction.getInventorys().getSecond().addItem((ItemStack[]) rightItems.toArray());
+
+    // the final delta is the amount that gets "subtracted from left" and "added to "right"
+    Integer final_delta = transaction.getDeltas().getFirst() - transaction.getDeltas().getSecond();
+    if (final_delta != 0) {
+      if (final_delta > 0) {
+        Integer balanceLeft = this.getAbsoluteBalance(transaction.getGamers().getFirst().getUuid());
+        Integer balanceRight = this.getAbsoluteBalance(transaction.getGamers().getSecond().getUuid());
+        if ((balanceLeft - final_delta) >= 0 && (balanceRight + final_delta) >= 0) {
+          String id = UUID.randomUUID().toString();
+          this.bankRecords.put(
+              id,
+              new WriteBankRecord(
+                  id,
+                  transaction.getGamers().getFirst().getUuid(),
+                  transaction.getGamers().getSecond().getUuid(),
+                  final_delta,
+                  (int) System.currentTimeMillis())
+          );
+        }
+      }
+    }
+
   }
 
   public void district_set_gamer_permission(

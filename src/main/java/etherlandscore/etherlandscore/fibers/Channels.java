@@ -9,6 +9,7 @@ public class Channels {
   public final MemoryChannel<Message<MasterCommand>> master_command = new MemoryChannel<>();
   public final MemoryChannel<Message<EthersCommand>> ethers_command = new MemoryChannel<>();
 
+  public final MemoryChannel<Message<ChatTarget>> chat_message = new MemoryChannel<>();
 
 
   public final MemoryChannel<Context> global_update = new MemoryChannel<Context>();

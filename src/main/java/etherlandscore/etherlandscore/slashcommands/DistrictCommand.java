@@ -26,6 +26,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+import org.w3c.dom.Text;
 
 public class DistrictCommand extends ListenerClient {
   private final Fiber fiber;
@@ -130,7 +131,15 @@ public class DistrictCommand extends ListenerClient {
   }
 
   void help(Player sender, Object[] args) {
-    sender.sendMessage("/district delegate [teamname]");
+    TextComponent help = new TextComponent("======District Help======\n\n");
+    TextComponent delegate = new TextComponent("/district delegate [teamname] -> delegates plot to given team\n\n");
+    TextComponent reclaim = new TextComponent("/district reclaim [DistrictIDs/Nothing] -> reclaims given district from team\n\n");
+    TextComponent info = new TextComponent("/district info [DistrictID/Nothing] -> displays helpful info about the district");
+    help.addExtra(delegate);
+    help.addExtra(reclaim);
+    help.addExtra(info);
+    help.setColor(ChatColor.LIGHT_PURPLE);
+    sender.sendMessage(help);
   }
 
   void update(CommandSender sender, Object[] args) {

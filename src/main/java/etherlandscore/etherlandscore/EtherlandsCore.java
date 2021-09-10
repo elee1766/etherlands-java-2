@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore;
 
+import dev.jorel.commandapi.CommandAPI;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
@@ -62,6 +63,7 @@ public final class EtherlandsCore extends JavaPlugin {
 
     getLogger().info("Hooking Commands");
     new CommandDisabler().disable();
+    CommandAPI.unregister("help");
     Fiber districtCommandFiber = new ThreadFiber();
     modules.add(new DistrictCommand(channels, districtCommandFiber));
     Fiber scheduleFiber = new ThreadFiber();
@@ -85,6 +87,8 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new GamerCommand(channels, gamerCommandFiber));
     Fiber mapCommandFiber = new ThreadFiber();
     modules.add(new MapCommand(channels, mapCommandFiber));
+    Fiber generalCommandFiber = new ThreadFiber();
+    modules.add(new GeneralCommand(channels, generalCommandFiber));
 
     getLogger().info("Hooking Ethers");
     Fiber ethersFiber = new ThreadFiber();

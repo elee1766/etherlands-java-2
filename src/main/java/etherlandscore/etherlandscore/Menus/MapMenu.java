@@ -38,8 +38,8 @@ public class MapMenu extends ListenerClient {
     this.fiber = fiber;
     this.gamer = gamer;
 
-    WIDTH = 37;
-    HEIGHT = 7;
+    WIDTH = 9;
+    HEIGHT = 9;
 
     unclaimedKey = new TextComponent("-");
     unclaimedKey.setColor(ChatColor.GRAY);

@@ -122,11 +122,15 @@ public class DistrictCommand extends ListenerClient {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Chunk chunk = gamer.getPlayer().getChunk();
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
-    if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
-      DistrictSender.reclaimDistrict(this.channels, writeDistrict);
-      sender.sendMessage(writeDistrict.getIdInt() + " has been reclaimed");
-    }else {
-      sender.sendMessage("You do not own this district");
+    if(writeDistrict != null) {
+      if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
+        DistrictSender.reclaimDistrict(this.channels, writeDistrict);
+        sender.sendMessage("District: " + writeDistrict.getIdInt() + " has been reclaimed");
+      } else {
+        sender.sendMessage("You do not own district:" + writeDistrict.getIdInt());
+      }
+    }else{
+      sender.sendMessage("This district is currently unclaimed");
     }
   }
 

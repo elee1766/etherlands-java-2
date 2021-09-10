@@ -225,21 +225,21 @@ public class TeamCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand TeamCommand =
-        new CommandAPICommand("team")
+        new CommandAPICommand("team").withAliases("t")
             .withPermission("etherlands.public")
             .executesPlayer(this::infoLocal);
     TeamCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
     TeamCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
     TeamCommand.withSubcommand(
-        new CommandAPICommand("info")
+        new CommandAPICommand("info").withAliases("i")
             .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
             .executesPlayer(this::info));
     TeamCommand.withSubcommand(
-        new CommandAPICommand("create")
+        new CommandAPICommand("create").withAliases("cre")
             .withArguments(cleanNameArgument("teamname"))
             .executesPlayer(this::create));
     TeamCommand.withSubcommand(
-        new CommandAPICommand("invite")
+        new CommandAPICommand("invite").withAliases("inv")
             .withArguments(
                 new PlayerArgument("player").replaceSuggestions(info -> getOnlinePlayerStrings()))
             .executesPlayer(this::invite));

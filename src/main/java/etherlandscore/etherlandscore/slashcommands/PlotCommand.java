@@ -22,7 +22,7 @@ public class PlotCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand ChunkCommand =
-        new CommandAPICommand("plot")
+        new CommandAPICommand("plot").withAliases("p")
             .withPermission("etherlands.public")
             .withArguments(new IntegerArgument("PlotID"))
             .executesPlayer(this::coord);

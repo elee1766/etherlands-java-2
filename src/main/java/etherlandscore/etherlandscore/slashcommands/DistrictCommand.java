@@ -130,7 +130,7 @@ public class DistrictCommand extends ListenerClient {
   }
 
   void help(Player sender, Object[] args) {
-    sender.sendMessage("create");
+    sender.sendMessage("/district delegate [teamname]");
   }
 
   void update(CommandSender sender, Object[] args) {
@@ -161,11 +161,11 @@ public class DistrictCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand DistrictCommand =
-        new CommandAPICommand("district")
+        new CommandAPICommand("district").withAliases("d")
             .withPermission("etherlands.public")
             .executesPlayer(this::infoLocal);
     CommandAPICommand DistrictInfoCommand =
-        new CommandAPICommand("district")
+        new CommandAPICommand("district").withAliases("d")
             .withPermission("etherlands.public")
             .withArguments(new IntegerArgument("DistrictID"))
             .executesPlayer(this::infoGiven);
@@ -200,7 +200,7 @@ public class DistrictCommand extends ListenerClient {
     DistrictCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
 
     DistrictCommand.withSubcommand(
-        new CommandAPICommand("info")
+        new CommandAPICommand("info").withAliases("i")
             .withArguments(
                 new IntegerArgument("District Id").replaceSuggestions(info -> getChunkStrings()))
             .executes(this::infoGiven));

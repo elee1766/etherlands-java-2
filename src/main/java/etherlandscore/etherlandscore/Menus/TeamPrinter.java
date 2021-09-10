@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -35,16 +36,20 @@ public class TeamPrinter {
     for (Field field : fields) {
       try {
         if (field.getName() == "districts") {
-          String ds = "";
-          Map<String, District> districts = this.writeTeam.getDistricts();
-          Bukkit.getLogger().info("Doing districts");
-          Bukkit.getLogger().info(districts.toString());
-          for (Map.Entry d : districts.entrySet()) {
-            Bukkit.getLogger().info(d.getValue().toString());
-            District dist = (District) d.getValue();
-            ds = ds + dist.getIdInt() + " ";
+          Set<Integer> districtIds = new HashSet<>();
+          Map<Integer, WriteDistrict> districts = state().getDistricts();
+          Set<WriteDistrict> matches = new HashSet<>();
+          for(WriteDistrict d : districts.values()){
+            if(d.hasTeam()){
+              if(d.getTeamObject().getName()==this.writeTeam.getName())
+                matches.add(d);
+            }
           }
-          prettyPrint.addField(field.getName(), ds);
+          for (WriteDistrict wd : matches) {
+            Bukkit.getLogger().info(wd.getId());
+            districtIds.add(wd.getIdInt());
+          }
+          prettyPrint.addDistricts(field.getName(), districtIds);
         }else if(field.getName()=="groups") {
           String ds = "";
           Map<String, WriteGroup> groups = (Map<String, WriteGroup>) field.get(this.writeTeam);

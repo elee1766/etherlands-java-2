@@ -7,8 +7,12 @@ import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.read.Gamer;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -53,8 +57,18 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockExplode(EntityExplodeEvent explodeEvent) {
-    Bukkit.getLogger().warning("TNT GO BOOM BOOM");
     try {
+      Gamer placer = null;
+      Entity entity = explodeEvent.getEntity();
+      if(entity instanceof TNTPrimed){
+        Entity source = ((TNTPrimed) entity).getSource();
+        if(source!=null && source instanceof Player){
+          placer = context.getGamer(source.getUniqueId());
+        }
+      }
+      if(placer!=null){
+        Bukkit.getLogger().warning(placer.getUuid() + " Placed TNT on " + explodeEvent.getLocation());
+      }
       District d = context.getDistrict(explodeEvent.getLocation().getChunk().getX(), explodeEvent.getLocation().getChunk().getX());
       List<Block> blockList = explodeEvent.blockList();
       Iterator<Block> it = blockList.iterator();
@@ -98,7 +112,7 @@ public class BlockEventListener extends ListenerClient implements Listener {
       if (!code) {
         if(context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ())!=null) {
           int dID = context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
-          placeEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + dID);
+          placeEvent.getPlayer().sendMessage("you do not have permission to BUILD in district " + dID);
         }else{
           placeEvent.getPlayer().sendMessage("The Plot at [" + placeEvent.getBlock().getChunk().getX() + ", " + placeEvent.getBlock().getChunk().getZ() + "] is unclaimed");
         }

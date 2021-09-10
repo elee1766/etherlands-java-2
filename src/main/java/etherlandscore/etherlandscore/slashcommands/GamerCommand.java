@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.Menus.GamerPrinter;
@@ -10,6 +11,7 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -25,7 +27,7 @@ public class GamerCommand extends ListenerClient {
   }
 
   void info(Player sender, Object[] args) {
-    Player player = (Player) args[0];
+    OfflinePlayer player = (OfflinePlayer) args[0];
     Gamer gamer = context.getGamer(player.getUniqueId());
     GamerPrinter printer = new GamerPrinter(gamer);
     printer.printGamer(sender);
@@ -50,19 +52,20 @@ public class GamerCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand GamerCommand =
-        new CommandAPICommand("gamer").withPermission("etherlands.public").executesPlayer(this::infoLocal);
+        new CommandAPICommand("gamer").withAliases("g")
+            .withPermission("etherlands.public").executesPlayer(this::infoLocal);
 
     CommandAPICommand SuicideCommand =
         new CommandAPICommand("suicide").withAliases("neckrope").withPermission("etherlands.public").executesPlayer(this::suicide);
 
     GamerCommand.withSubcommand(
-        new CommandAPICommand("info")
+        new CommandAPICommand("info").withAliases("i")
             .withArguments(
-                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+                new OfflinePlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .executesPlayer(this::info));
 
     GamerCommand.withSubcommand(
-        new CommandAPICommand("info")
+        new CommandAPICommand("info").withAliases("i")
             .executesPlayer(this::infoLocal));
 
     GamerCommand.withSubcommand(

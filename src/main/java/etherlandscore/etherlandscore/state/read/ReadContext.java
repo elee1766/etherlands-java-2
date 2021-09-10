@@ -4,6 +4,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.Context;
+import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.util.Map2;
@@ -48,6 +49,10 @@ public class ReadContext {
 
   public Team getTeam(String team) {
     return context.getTeam(team);
+  }
+
+  public Map<Integer, WriteDistrict> getDistricts() {
+    return context.getDistricts();
   }
 
   public Map<String, Team> getTeams() {

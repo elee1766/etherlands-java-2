@@ -77,20 +77,20 @@ public class GroupCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand GroupCommand =
-        new CommandAPICommand("group")
+        new CommandAPICommand("group").withAliases("gr")
             .withPermission("etherlands.public")
             .executesPlayer(this::runHelpCommand);
     GroupCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::runHelpCommand));
     GroupCommand.withSubcommand(
-        new CommandAPICommand("create")
+        new CommandAPICommand("create").withAliases("cre")
             .withArguments(cleanNameArgument("groupname"))
             .executesPlayer(this::create));
     GroupCommand.withSubcommand(
-        new CommandAPICommand("info")
+        new CommandAPICommand("info").withAliases("i")
             .withArguments(teamGroupArgument("group"))
             .executesPlayer(this::info));
     GroupCommand.withSubcommand(
-        new CommandAPICommand("delete")
+        new CommandAPICommand("delete").withAliases("del")
             .withArguments(cleanNameArgument("groupname"))
             .executesPlayer(this::delete));
     GroupCommand.withSubcommand(

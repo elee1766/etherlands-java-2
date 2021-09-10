@@ -7,8 +7,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.Locale;
+import java.util.Set;
 
 public class MessageFormatter {
   private final TextComponent message;
@@ -102,12 +104,34 @@ public class MessageFormatter {
       String url = ("https://polygonscan.com/address/"+value);
       System.out.println("doing address");
       valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,url));
-    }else if(name.toLowerCase().contains("friend")){
-      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/friend list"));
+    }else if(name.toLowerCase().contains("team")) {
+      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+value));
+    }else if(name.equalsIgnoreCase("owner")) {
+      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+value));
     }else{
       valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,value));
     }
     valuecomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text(value)));
+    namecomp.setColor(ChatColor.AQUA);
+    namecomp.addExtra(": ");
+    valuecomp.addExtra("\n");
+
+    message.addExtra(namecomp);
+    message.addExtra(valuecomp);
+  }
+
+
+  public void addDistricts(String name, Set<Integer> districts) {
+    TextComponent valuecomp = new TextComponent("");
+    for(Integer districtID : districts){
+      TextComponent dComp = new TextComponent(districtID.toString());
+      dComp.setColor(ChatColor.DARK_AQUA);
+      dComp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district info "+districtID));
+      valuecomp.addExtra(dComp);
+      valuecomp.addExtra(" ");
+    }
+    TextComponent namecomp = new TextComponent(name);
+    valuecomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to view more info")));
     namecomp.setColor(ChatColor.AQUA);
     namecomp.addExtra(": ");
     valuecomp.addExtra("\n");

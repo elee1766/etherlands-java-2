@@ -3,6 +3,7 @@ package etherlandscore.etherlandscore.Menus;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
@@ -26,7 +27,7 @@ public class FriendPrinter {
     Set<UUID> friends = gamer.getFriends();
     for(UUID friend : friends){
       Gamer f = state().getGamer(friend);
-      String name = f.getPlayer().getName();
+      String name = Bukkit.getOfflinePlayer(friend).getName();
       String address = f.getAddress();
       prettyPrint.addFriend(name, address);
       prettyPrint.addLine();

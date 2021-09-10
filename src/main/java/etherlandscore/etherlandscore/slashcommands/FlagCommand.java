@@ -45,18 +45,18 @@ public class FlagCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand flagMenuDistrictPlayer =
-        new CommandAPICommand("player")
+        new CommandAPICommand("player").withAliases("p")
             .withArguments(new IntegerArgument("districtID"))
             .withArguments(
                 new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
             .executesPlayer(this::districtPlayer);
     CommandAPICommand flagMenuDistrictGroup =
-        new CommandAPICommand("group")
+        new CommandAPICommand("group").withAliases("g")
             .withArguments(new IntegerArgument("districtID"))
             .withArguments(teamGroupArgument("group"))
             .executesPlayer(this::districtGroup);
     CommandAPICommand FlagCommand =
-        new CommandAPICommand("flags")
+        new CommandAPICommand("flags").withAliases("f")
             .withArguments(new IntegerArgument("district"))
             .withSubcommand(flagMenuDistrictGroup)
             .withSubcommand(flagMenuDistrictPlayer)

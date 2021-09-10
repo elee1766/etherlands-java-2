@@ -4,19 +4,13 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Plot;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.util.Map2;
-import jnr.constants.platform.Access;
-import net.kyori.adventure.bossbar.BossBar;
-import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -37,11 +31,11 @@ public class DistrictPrinter {
     Field[] fields = writeDistrict.getDeclaredFields();
     for (Field field : fields) {
       try {
-        if (field.getName() == "groupPermissionMap" || field.getName() == "gamerPermissionMap") {
+        if (field.getName().equals("groupPermissionMap") || field.getName().equals("gamerPermissionMap")) {
           prettyPrint.addField(field.getName(), mapHelper(field.getName()));
-        }else if (field.getName() == "plotIds") {
+        }else if (field.getName().equals("plotIds")) {
           prettyPrint.plotIds(field.getName(), plotHelper());
-        }else if (field.getName() != "chunk" && field.getName() != "_id") {
+        }else if (!field.getName().equals("chunk") && !field.getName().equals("_id")) {
           prettyPrint.addField(field.getName(), String.valueOf(field.get(this.writeDistrict)));
         }
 
@@ -65,20 +59,20 @@ public class DistrictPrinter {
   }
 
   private String mapHelper(String fieldName){
-    String result = "";
+    StringBuilder result = new StringBuilder();
     if(fieldName.equals("groupPermissionMap")){
       Map2<String, AccessFlags, FlagValue> gpMap = this.writeDistrict.getGroupPermissionMap();
       for (Map.Entry<String, Map<AccessFlags, FlagValue>> entry : gpMap.getMap().entrySet())
       {
-        result+=entry.getKey() + ": " + entry.getValue() + " ";
+        result.append(entry.getKey()).append(": ").append(entry.getValue()).append(" ");
       }
     }else{
       Map2<UUID, AccessFlags, FlagValue> pMap = this.writeDistrict.getGamerPermissionMap();
       for (Map.Entry<UUID, Map<AccessFlags, FlagValue>> entry : pMap.getMap().entrySet())
       {
-        result+=entry.getKey() + ": " + entry.getValue() + " ";
+        result.append(entry.getKey()).append(": ").append(entry.getValue()).append(" ");
       }
     }
-    return result;
+    return result.toString();
   }
 }

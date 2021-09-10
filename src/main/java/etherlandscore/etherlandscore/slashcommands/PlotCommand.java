@@ -65,7 +65,7 @@ public class PlotCommand extends ListenerClient {
     if(p==null){
       sender.sendMessage("There is no plot here");
     }else{
-      sender.sendMessage("Plot coords: " + p.getX() + ", " + p.getZ());
+      sender.sendMessage("Plot coords: " + p.getX() + ", " + p.getZ() + " district:" + p.getDistrict());
     }
   }
 }

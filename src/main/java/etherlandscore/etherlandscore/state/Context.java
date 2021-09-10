@@ -246,12 +246,14 @@ public class Context<WriteMaps> {
       WritePlot plot = this.getPlot(i);
       plot.setDistrict(districtID);
       plot.setOwner(owner,ownerUUID);
-      couchPersister.update(this.getPlot(i));
     }
     district.setPlotIds(chunkIds);
     district_set_owner(district, owner);
     district.setGroupPermissionMap(groupPerms);
     district.setGamerPermissionMap(gamerPerms);
+    for(int i : chunkIds){
+      couchPersister.update(this.getPlot(i));
+    }
     couchPersister.update(district);
   }
 

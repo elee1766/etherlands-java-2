@@ -15,10 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetlang.fibers.Fiber;
 
@@ -52,6 +49,40 @@ public class BlockEventListener extends ListenerClient implements Listener {
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
       breakEvent.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onBlockSpread(BlockSpreadEvent spreadEvent) {
+    Bukkit.getLogger().info("Spreading");
+    Block spreadFrom = spreadEvent.getSource();
+    Block spreadTo = spreadEvent.getBlock();
+    try {
+      District fromDistrict = context.getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
+      District toDistrict = context.getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
+      if(fromDistrict!=toDistrict){
+        spreadEvent.setCancelled(true);
+      }
+    } catch (Exception e) {
+      Bukkit.getLogger().warning(e.toString());
+      spreadEvent.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onBlockBurn(BlockBurnEvent burnEvent) {
+    Bukkit.getLogger().info("Burning");
+    Block spreadFrom = burnEvent.getIgnitingBlock();
+    Block spreadTo = burnEvent.getBlock();
+    try {
+      District fromDistrict = context.getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
+      District toDistrict = context.getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
+      if(fromDistrict!=toDistrict){
+        burnEvent.setCancelled(true);
+      }
+    } catch (Exception e) {
+      Bukkit.getLogger().warning(e.toString());
+      burnEvent.setCancelled(true);
     }
   }
 

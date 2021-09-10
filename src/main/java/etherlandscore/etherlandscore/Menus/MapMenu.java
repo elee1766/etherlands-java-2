@@ -9,6 +9,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -67,38 +68,21 @@ public class MapMenu extends ListenerClient {
         new TextComponent(
             "=======,[Etherlands Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing) + " ],=======\n");
     map.addExtra(title);
-    if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-      x = x - HEIGHT / 2 - 1;
-      z = z - WIDTH / 2 - 1;
-    } else {
-      z = z - HEIGHT / 2 - 1;
-      x = x - WIDTH / 2 - 1;
-    }
+    x = x - HEIGHT / 2 - 1;
+    z = z - WIDTH / 2 - 1;
 
     TextComponent[][] mapArray = new TextComponent[WIDTH][HEIGHT];
     for (int i = 0; i < HEIGHT; i++) {
-      if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-        x++;
-      } else {
-        z++;
-      }
+      x++;
       for (int j = 0; j < WIDTH; j++) {
-        if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-          z++;
-        } else {
-          x++;
-        }
+        z++;
         boolean claimedflag = false;
         boolean ownedflag = false;
         boolean playerflag = false;
         boolean friendflag = false;
         boolean selfFlag = false;
         Plot plot;
-        if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-          plot = state().getPlot(x, z);
-        } else {
-          plot = state().getPlot(z, x);
-        }
+        plot = state().getPlot(x, z);
         if (plot != null) {
           claimedflag = true;
           if (plot.isOwner(gamer)) {
@@ -133,56 +117,48 @@ public class MapMenu extends ListenerClient {
           mapArray[j][i] = unclaimedKey;
         }
       }
-      if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-        z = z - WIDTH;
-      } else {
-        x = x - WIDTH;
-      }
+      z = z - WIDTH;
     }
+
+    if(facing.toLowerCase().contains("n")){
+      flipHorizontalInPlace(mapArray);
+      mapArray = rotateMap(rotateMap(rotateMap(mapArray)));
+    } else if(facing.toLowerCase().contains("w")){
+      Bukkit.getLogger().info("facing west");
+      mapArray = rotateMap(mapArray);
+      flipInPlace(mapArray);
+      mapArray = rotateMap(mapArray);
+      flipInPlace(mapArray);
+    } else if(facing.toLowerCase().contains("s")){
+      mapArray = rotateMap(mapArray);
+      flipInPlace(mapArray);
+    }
+
+    TextComponent[] key = key();
+
     for (int i = 0; i < HEIGHT; i++) {
       map.addExtra(compass[i]);
       map.addExtra("|");
       for (int j = 0; j < WIDTH; j++) {
-        if (facing.toLowerCase().contains("s")) {
-          map.addExtra(mapArray[WIDTH - j - 1][HEIGHT - i - 1]);
-        }else if(facing.toLowerCase().contains("e")){
-          map.addExtra(mapArray[j][HEIGHT - i - 1]);
-        }else if(facing.toLowerCase().contains("w")){
-          map.addExtra(mapArray[WIDTH - j - 1][i]);
-        } else {
-          map.addExtra(mapArray[j][i]);
-        }
+        map.addExtra(mapArray[j][HEIGHT - i - 1]);
       }
       map.addExtra("|");
+      map.addExtra(key[i]);
       if (i != HEIGHT - 1) {
         map.addExtra("\n");
       }
     }
-    BaseComponent[] key =
-        new ComponentBuilder("-")
-            .color(ChatColor.GRAY)
-            .append(" = Unclaimed ")
-            .color(ChatColor.WHITE)
-            .append("+ = Claimed ")
-            .append("+")
-            .color(ChatColor.GREEN)
-            .append(" = Your Plot \n")
-            .color(ChatColor.WHITE)
-            .append("^")
-            .color(ChatColor.YELLOW)
-            .append(" = You ")
-            .color(ChatColor.WHITE)
-            .append("+")
-            .color(ChatColor.DARK_GREEN)
-            .append(" = Friend ")
-            .color(ChatColor.WHITE)
-            .append("+")
-            .color(ChatColor.RED)
-            .append(" = Players")
-            .color(ChatColor.WHITE)
-            .create();
     player.sendMessage(map);
-    player.sendMessage(key);
+  }
+
+  private TextComponent[][] rotateMap(TextComponent[][] mapArray) {
+    TextComponent[][] newMapArray = new TextComponent[WIDTH][HEIGHT];
+    for (int i = 0; i < mapArray[0].length; i++) {
+      for (int j = mapArray.length - 1; j >= 0; j--) {
+        newMapArray[i][j] = mapArray[j][i];
+      }
+    }
+    return newMapArray;
   }
 
   public static String facingCoord(String facing){
@@ -197,6 +173,25 @@ public class MapMenu extends ListenerClient {
     }
   }
 
+  public static void flipInPlace(Object[][] theArray) {
+    for(int i = 0; i < (theArray.length / 2); i++) {
+      Object[] temp = theArray[i];
+      theArray[i] = theArray[theArray.length - i - 1];
+      theArray[theArray.length - i - 1] = temp;
+    }
+  }
+
+  public static void flipHorizontalInPlace(Object[][] theArray) {
+    Object temp;
+    for (int i = 0; i < theArray.length / 2; i++) {
+      for (int j = 0; j < theArray[i].length; j++) {
+        temp = theArray[i][j];
+        theArray[i][j] = theArray[theArray.length - 1 - i][j];
+        theArray[theArray.length - 1 -i][j] = temp;
+      }
+    }
+
+  }
   public void mapMenu() {
     Player player = this.gamer.getPlayer();
     TextComponent map = new TextComponent("");
@@ -209,40 +204,23 @@ public class MapMenu extends ListenerClient {
     TextComponent[] compass = compass(facing, x, z);
     TextComponent title =
         new TextComponent(
-            "=====,[Etherlands Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing) + " ],=======\n");
+            "[Etherlands Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing) + " ]\n");
     map.addExtra(title);
-    if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-      x = x - HEIGHT / 2 - 1;
-      z = z - WIDTH / 2 - 1;
-    } else {
-      z = x - HEIGHT / 2 - 1;
-      x = z - WIDTH / 2 - 1;
-    }
+    x = x - HEIGHT / 2 - 1;
+    z = z - WIDTH / 2 - 1;
     
     TextComponent[][] mapArray = new TextComponent[WIDTH][HEIGHT];
     for (int i = 0; i < HEIGHT; i++) {
-      if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-        x++;
-      } else {
-        z++;
-      }
+      x++;
       for (int j = 0; j < WIDTH; j++) {
-        if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-          z++;
-        } else {
-          x++;
-        }
+        z++;
         boolean claimedflag = false;
         boolean ownedflag = false;
         boolean playerflag = false;
         boolean friendflag = false;
         boolean selfFlag = false;
         Plot plot;
-        if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-          plot = state().getPlot(x, z);
-        } else {
-          plot = state().getPlot(z, x);
-        }
+        plot = state().getPlot(x, z);
         if (plot != null) {
           claimedflag = true;
           if (plot.isOwner(gamer)) {
@@ -277,56 +255,80 @@ public class MapMenu extends ListenerClient {
           mapArray[j][i] = unclaimedKey;
         }
       }
-      if (facing.toLowerCase().contains("e") || facing.toLowerCase().contains("w")) {
-        z = z - WIDTH;
-      } else {
-        x = x - WIDTH;
-      }
+      z = z - WIDTH;
     }
+
+    if(facing.toLowerCase().contains("n")){
+      flipHorizontalInPlace(mapArray);
+      mapArray = rotateMap(rotateMap(rotateMap(mapArray)));
+    } else if(facing.toLowerCase().contains("w")){
+      Bukkit.getLogger().info("facing west");
+      mapArray = rotateMap(mapArray);
+      flipInPlace(mapArray);
+      mapArray = rotateMap(mapArray);
+      flipInPlace(mapArray);
+    } else if(facing.toLowerCase().contains("s")){
+      mapArray = rotateMap(mapArray);
+      flipInPlace(mapArray);
+    }
+
+    TextComponent[] key = key();
+
     for (int i = 0; i < HEIGHT; i++) {
       map.addExtra(compass[i]);
       map.addExtra("|");
       for (int j = 0; j < WIDTH; j++) {
-        if (facing.toLowerCase().contains("s")) {
-          map.addExtra(mapArray[WIDTH - j - 1][HEIGHT - i - 1]);
-        }else if(facing.toLowerCase().contains("e")){
-          map.addExtra(mapArray[j][HEIGHT - i - 1]);
-        }else if(facing.toLowerCase().contains("w")){
-          map.addExtra(mapArray[WIDTH - j - 1][i]);
-        } else {
-          map.addExtra(mapArray[j][i]);
-        }
+        map.addExtra(mapArray[j][HEIGHT - i - 1]);
       }
       map.addExtra("|");
+      map.addExtra(key[i]);
       if (i != HEIGHT - 1) {
         map.addExtra("\n");
       }
     }
-    BaseComponent[] key =
-        new ComponentBuilder("-")
-            .color(ChatColor.GRAY)
-            .append(" = Unclaimed ")
-            .color(ChatColor.WHITE)
-            .append("+ = Claimed ")
-            .append("+")
-            .color(ChatColor.GREEN)
-            .append(" = Your Plot \n")
-            .color(ChatColor.WHITE)
-            .append("^")
-            .color(ChatColor.YELLOW)
-            .append(" = You ")
-            .color(ChatColor.WHITE)
-            .append("+")
-            .color(ChatColor.DARK_GREEN)
-            .append(" = Friend ")
-            .color(ChatColor.WHITE)
-            .append("+")
-            .color(ChatColor.RED)
-            .append(" = Players")
-            .color(ChatColor.WHITE)
-            .create();
     player.sendMessage(map);
-    player.sendMessage(key);
+  }
+
+  private TextComponent[] key() {
+    TextComponent[] compassComps = new TextComponent[HEIGHT];
+
+    TextComponent blank = new TextComponent("");
+
+    TextComponent unclaimed = new TextComponent(" -");
+    unclaimed.setColor(ChatColor.GRAY);
+    unclaimed.addExtra(" = unclaimed");
+
+    TextComponent claimed = new TextComponent(" +");
+    claimed.setColor(ChatColor.LIGHT_PURPLE);
+    claimed.addExtra(" = claimed");
+
+    TextComponent yourPlot = new TextComponent(" +");
+    yourPlot.setColor(ChatColor.GREEN);
+    yourPlot.addExtra(" = your plot");
+
+    TextComponent you = new TextComponent(" ^");
+    you.setColor(ChatColor.YELLOW);
+    you.addExtra(" = you");
+
+    TextComponent friend = new TextComponent(" +");
+    friend.setColor(ChatColor.DARK_GREEN);
+    friend.addExtra(" = friend");
+
+    TextComponent player = new TextComponent(" +");
+    player.setColor(ChatColor.RED);
+    player.addExtra(" = player");
+
+    compassComps[0] = unclaimed;
+    compassComps[1] = claimed;
+    compassComps[2] = yourPlot;
+    compassComps[3] = you;
+    compassComps[4] = friend;
+    compassComps[5] = player;
+    compassComps[6] = blank;
+    compassComps[7] = blank;
+    compassComps[8] = blank;
+
+    return compassComps;
   }
 
   private TextComponent[] compass(String facing, int xin, int zin) {

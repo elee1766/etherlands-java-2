@@ -86,7 +86,7 @@ public class Context<WriteMaps> {
         balance = balance - bankRecord.getDelta();
       }
       if(bankRecord.getTo().equals(gamerId)){
-        balance = balance - bankRecord.getDelta();
+        balance = balance + bankRecord.getDelta();
       }
     }
     this.balanceCache.put(gamerId,balance);

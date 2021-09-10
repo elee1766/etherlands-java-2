@@ -71,6 +71,8 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(scheduler);
     Fiber imageCommandFiber = new ThreadFiber();
     modules.add(new ImageCommand(channels, imageCommandFiber));
+    Fiber tradeCommandFiber = new ThreadFiber();
+    modules.add(new TradeCommand(channels, tradeCommandFiber));
     Fiber groupCommandFiber = new ThreadFiber();
     modules.add(new GroupCommand(channels, groupCommandFiber));
     Fiber teamCommandFiber = new ThreadFiber();

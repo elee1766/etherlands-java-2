@@ -25,12 +25,16 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.block.data.Directional;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
@@ -78,6 +82,7 @@ public class ImageCommand extends ListenerClient {
       EnsResolver ens = new EnsResolver(web3, 300);
       slug = ens.resolve(slug);
     }
+
     if(slug.startsWith("0x")) { contract = true; }
     int width = (int) args[2];
     Block placed = sender.getTargetBlock(null, 10);

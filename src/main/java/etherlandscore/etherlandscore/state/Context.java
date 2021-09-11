@@ -14,6 +14,7 @@ import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +24,7 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
+import org.web3j.tuples.Tuple;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -45,6 +47,7 @@ public class Context<WriteMaps> {
   public final Map2<String,String,WriteNFT> nfts = new Map2<>();
   public final Set<WriteMap> maps = new HashSet<>();
   public final Map<String, BankRecord> bankRecords = new HashMap<>();
+  public final Map<Location, WriteShop> shops = new HashMap<>();
 
   public final Map<UUID,Integer> balanceCache = new HashMap<>();
 
@@ -394,8 +397,10 @@ public class Context<WriteMaps> {
     }
     for(int i : chunkIds){
       WritePlot plot = this.getPlot(i);
-      plot.setDistrict(districtID);
-      plot.setOwner(owner,ownerUUID);
+      if(plot!=null){
+        plot.setDistrict(districtID);
+        plot.setOwner(owner,ownerUUID);
+      }
     }
     district_set_owner(district, owner);
     if (districtID != 0) {
@@ -403,7 +408,10 @@ public class Context<WriteMaps> {
       district.setGroupPermissionMap(groupPerms);
       district.setGamerPermissionMap(gamerPerms);
       for (int i : chunkIds) {
-        couchPersister.update(this.getPlot(i));
+        WritePlot plot = this.getPlot(i);
+        if(plot!=null) {
+          couchPersister.update(plot);
+        }
       }
       couchPersister.update(district);
     }
@@ -575,5 +583,14 @@ public class Context<WriteMaps> {
     }
   }
 
+  public void shop_create_shop(WriteShop shop) {
+    if(shop!=null){
+      Bukkit.getLogger().info("Creating shop");
+      this.shops.put(shop.getLocation(), shop);
+    }
+  }
 
+  public WriteShop getShop(Location location) {
+    return this.shops.get(location);
+  }
 }

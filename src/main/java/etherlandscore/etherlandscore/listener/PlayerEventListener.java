@@ -5,9 +5,16 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.write.WriteShop;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.jetlang.fibers.Fiber;
@@ -19,6 +26,24 @@ public class PlayerEventListener extends ListenerClient implements Listener {
   public PlayerEventListener(Channels channels, Fiber fiber) {
     super(channels, fiber);
     this.channels = channels;
+  }
+
+  @EventHandler
+  public void clickblock(PlayerInteractEvent event) {
+    Player p = event.getPlayer();
+    if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+      Block b = event.getClickedBlock();
+      Bukkit.getLogger().info("Clicked on" + b.getLocation().getX() + ", " + b.getLocation().getY() + ", " + b.getLocation().getZ());
+      if (b.getState() instanceof Chest){
+        Bukkit.getLogger().info("Clicked on chest");
+        WriteShop shop = context.getShop(b.getLocation());
+        if(shop!=null){
+          Bukkit.getLogger().info("opening inventory");
+          p.closeInventory();
+          p.openInventory(shop.getInventory());
+        }
+      }
+    }
   }
 
   @EventHandler

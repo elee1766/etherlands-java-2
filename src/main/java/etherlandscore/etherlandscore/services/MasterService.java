@@ -75,6 +75,7 @@ public class MasterService extends ServerModule {
             case context_process_gamer_transaction -> context.context_process_gamer_transaction((GamerTransaction) _args[0]);
             case context_mint_tokens -> context.context_mint_tokens((WriteGamer) _args[0], (Integer)_args[1]);
             case plot_set_coords ->  context.plot_set_coords((Integer) _args[0], (Integer) _args[1], (Integer) _args[2]);
+            case shop_create_shop -> context.shop_create_shop((WriteShop) _args[0]);
         }
         global_update();
     }

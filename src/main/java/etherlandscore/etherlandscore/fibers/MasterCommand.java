@@ -27,5 +27,7 @@ public enum MasterCommand {
   district_update_district,
   district_forceupdate_district,
   context_process_gamer_transaction,
-  context_mint_tokens, plot_set_coords;
+  context_mint_tokens,
+  plot_set_coords,
+  shop_create_shop
 }

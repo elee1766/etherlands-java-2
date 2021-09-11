@@ -9,16 +9,24 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.write.WriteShop;
 import etherlandscore.etherlandscore.util.Map2;
+import jnr.ffi.annotations.Meta;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetlang.fibers.Fiber;
 
+import java.awt.*;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -88,6 +96,23 @@ public class TradeCommand extends ListenerClient {
     }
   }
 
+  public void addItem(Player sender, Object[] args){
+    Integer price = (Integer) args[0];
+    Block shop = sender.getTargetBlock(null, 10);
+    if(shop.getState() instanceof Chest){
+      WriteShop writeShop = context.getShop(shop.getLocation());
+      Inventory shopInventory = writeShop.getInventory();
+      ItemStack item = sender.getEquipment().getItemInMainHand();
+      if(shopInventory.firstEmpty()==-1){
+        sender.sendMessage("This shop is full");
+      }else{
+        sender.getInventory().removeItem(item);
+        shopInventory.addItem(item);
+        item.setLore(Collections.singletonList(price.toString()));
+      }
+    }
+  }
+
   public void register() {
     CommandAPICommand TradeCommand =
         new CommandAPICommand("offer")
@@ -95,6 +120,11 @@ public class TradeCommand extends ListenerClient {
             .withArguments(new IntegerArgument("requested payment"))
             .withPermission("etherlands.public")
             .executesPlayer(this::tradeMenu);
+    CommandAPICommand AddItem =
+        new CommandAPICommand("additem")
+            .withArguments(new IntegerArgument("price"))
+            .withPermission("etherlands.public")
+            .executesPlayer(this::addItem);
     CommandAPICommand ApproveCommand =
         new CommandAPICommand("approve")
             .withArguments(new PlayerArgument("player"))
@@ -116,6 +146,7 @@ public class TradeCommand extends ListenerClient {
     BalCommand.register();
     MintCommand.register();
     PayCommand.register();
+    AddItem.register();
     ApproveCommand.register();
     TradeCommand.register();
   }

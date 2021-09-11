@@ -11,10 +11,8 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.write.ResponseHelper;
-import etherlandscore.etherlandscore.state.write.WriteMap;
-import etherlandscore.etherlandscore.state.write.WriteNFT;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.write.*;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -23,6 +21,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.WallSign;
@@ -35,6 +34,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapCanvas;
@@ -71,6 +71,9 @@ public class SignEventListener extends ListenerClient implements Listener {
   public void onSignEdit(SignChangeEvent signChangeEvent) {
     boolean contract = false;
     String[] lines = signChangeEvent.getLines();
+    if(lines[0].equals("[Shop]")){
+      checkChest(signChangeEvent.getBlock(), signChangeEvent.getPlayer());
+    }
     if(lines[0].contains("nft") || lines[0].contains("NFT")){
       String slug = "";
       String item_id = "";
@@ -99,6 +102,27 @@ public class SignEventListener extends ListenerClient implements Listener {
         imageMap(player, Integer.parseInt(width), slug, item_id, placed, facing, contract);
       }
     }
+  }
+
+  private void checkChest(Block block, Player player) {
+    District shopDistrict = context.getDistrict(block.getChunk().getX(), block.getChunk().getZ());
+    Gamer shopOwner = context.getGamer(player.getUniqueId());
+    Location signLocation = block.getLocation();
+    Location chestLocation = new Location(signLocation.getWorld(), signLocation.getX(), (signLocation.getY()-1), signLocation.getZ());
+    Bukkit.getLogger().info("Creating shop at: " + signLocation.getX() + ", " + (signLocation.getY()-1) + ", " + signLocation.getZ());
+    Block chestBlock = chestLocation.getBlock();
+    if(chestBlock.getState() instanceof Chest){
+      Chest chest = (Chest)chestBlock.getState();
+      setShop(chest, shopDistrict, shopOwner);
+    }else{
+      player.sendMessage("There must be a chest bellow the sign in order to create a shop");
+    }
+  }
+
+  private void setShop(Chest chest, District district, Gamer owner){
+    Inventory shopInventory = Bukkit.createInventory(null, 54);
+    WriteShop shop = new WriteShop(chest, district, owner, shopInventory);
+    channels.master_command.publish(new Message<>(MasterCommand.shop_create_shop, shop));
   }
 
   private BlockFace facing(Block placed){

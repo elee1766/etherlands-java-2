@@ -5,7 +5,9 @@ import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
+import etherlandscore.etherlandscore.state.write.WriteShop;
 import etherlandscore.etherlandscore.util.Map2;
+import org.bukkit.Location;
 
 import java.util.Map;
 import java.util.Set;
@@ -79,4 +81,6 @@ public class ReadContext {
 
   public District getDistrict(int x, int z) { return context.getDistrict(x, z); }
 
+  public WriteShop getShop(Location location) { return context.getShop(location);
+  }
 }

@@ -96,7 +96,6 @@ public final class EtherlandsCore extends JavaPlugin {
     Fiber ethersFiber = new ThreadFiber();
     try {
       EthereumService es = new EthereumService(channels, ethersFiber);
-      scheduler.newEthSchedule(es,30);
       modules.add(es);
     } catch (Exception e) {
       e.printStackTrace();

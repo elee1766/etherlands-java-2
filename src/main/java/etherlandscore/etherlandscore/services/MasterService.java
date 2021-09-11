@@ -73,6 +73,8 @@ public class MasterService extends ServerModule {
             case district_update_district -> context.district_update_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
             case district_forceupdate_district -> context.district_forceupdate_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
             case context_process_gamer_transaction -> context.context_process_gamer_transaction((GamerTransaction) _args[0]);
+            case context_mint_tokens -> context.context_mint_tokens((WriteGamer) _args[0], (Integer)_args[1]);
+            case plot_set_coords ->  context.plot_set_coords((Integer) _args[0], (Integer) _args[1], (Integer) _args[2]);
         }
         global_update();
     }

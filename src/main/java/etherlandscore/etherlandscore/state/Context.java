@@ -3,8 +3,9 @@ package etherlandscore.etherlandscore.state;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.EthersCommand;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
-import etherlandscore.etherlandscore.services.EthProxyClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.BankRecord;
 import etherlandscore.etherlandscore.state.read.District;
@@ -12,7 +13,6 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
-import kotlin.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -48,7 +48,10 @@ public class Context<WriteMaps> {
 
   public final Map<UUID,Integer> balanceCache = new HashMap<>();
 
+  private final Channels channels;
+
   public Context(Channels channels){
+    this.channels = channels;
     try {
       Fiber couchFiber = new ThreadFiber();
       this.couchPersister = new CouchPersister(channels, couchFiber);
@@ -61,6 +64,13 @@ public class Context<WriteMaps> {
 
   public Map<String, BankRecord> getBankRecords() {
     return this.bankRecords;
+  }
+
+  public void plot_set_coords(Integer id, Integer x, Integer z) {
+    WritePlot plot = this.getPlot(id);
+    if(plot == null){
+      this.getPlots().put(id, new WritePlot(id,x,z));
+    }
   }
 
   public void saveAll(){
@@ -79,6 +89,10 @@ public class Context<WriteMaps> {
     Bukkit.getLogger().info("Gamer already exists");
   }
 
+
+  public Integer getBalance(UUID gamerId){
+    return this.balanceCache.getOrDefault(gamerId,0);
+  }
   private Integer getAbsoluteBalance(UUID gamerId) {
     Integer balance = 0;
     try {
@@ -97,20 +111,22 @@ public class Context<WriteMaps> {
     return balance;
   }
 
+  public void context_mint_tokens(WriteGamer gamer, Integer amount){
+    String id = UUID.randomUUID().toString();
+    this.bankRecords.put(
+        id,
+        new WriteBankRecord(
+            id,
+            new UUID(0,0),
+            gamer.getUuid(),
+            amount,
+            (int) System.currentTimeMillis())
+    );
+    getAbsoluteBalance(gamer.getUuid());
+  }
+
   public void context_process_gamer_transaction(GamerTransaction transaction) {
     Bukkit.getLogger().info("Doing Transaction");
-    if(transaction.getGamers().getFirst()==null){
-      String id = UUID.randomUUID().toString();
-      this.bankRecords.put(
-          id,
-          new WriteBankRecord(
-              id,
-              UUID.fromString("00000000-0000-0000-0000-000000000000"),
-              transaction.getGamers().getSecond().getUuid(),
-              transaction.getDeltas().getFirst(),
-              (int) System.currentTimeMillis())
-      );
-    }
     Set<ItemStack> leftItems= transaction.getItemStacks().getFirst();
     Set<ItemStack> rightItems= transaction.getItemStacks().getSecond();
 
@@ -204,6 +220,8 @@ public class Context<WriteMaps> {
         }
       }
     }
+    getAbsoluteBalance(transaction.getGamers().getFirst().getUuid());
+    getAbsoluteBalance(transaction.getGamers().getSecond().getUuid());
     Bukkit.getLogger().info("Transaction Complete");
   }
 
@@ -281,14 +299,7 @@ public class Context<WriteMaps> {
         return plots.get(id);
       }
     }
-    try {
-      Pair<Integer, Integer> coords = EthProxyClient.locate_plot(id);
-      plots.put(id,new WritePlot(id,coords.getFirst(),coords.getSecond()));
-      plotLocations.put(coords.getFirst(),coords.getSecond(),id);
-      return plots.get(id);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    this.channels.ethers_command.publish(new Message<>(EthersCommand.plot_update,id));
     return null;
   }
 

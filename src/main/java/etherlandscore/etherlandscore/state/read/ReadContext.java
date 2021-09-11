@@ -1,8 +1,6 @@
 package etherlandscore.etherlandscore.state.read;
 
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.write.WriteMap;
@@ -21,6 +19,10 @@ public class ReadContext {
   }
 
   public void createTeam(Channels channels, Gamer gamer, String name) {
+  }
+
+  public Object getBalance(UUID uniqueId) {
+    return context.getBalance(uniqueId);
   }
 
   public Gamer getGamer(UUID uuid) {

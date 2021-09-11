@@ -18,11 +18,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetlang.fibers.Fiber;
-import org.web3j.abi.datatypes.Int;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 public class TradeCommand extends ListenerClient {
   private final Fiber fiber;
@@ -48,8 +46,11 @@ public class TradeCommand extends ListenerClient {
     Player p = (Player) args[0];
     Gamer to = context.getGamer(p.getUniqueId());
     Integer amount = (Integer) args[1];
-    GamerTransaction gt = new GamerTransaction(null, to, amount, 0, null, null, null, null);
-    this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+    this.channels.master_command.publish(new Message<>(MasterCommand.context_mint_tokens, to,amount));
+  }
+
+  void balanceSelf(Player sender, Object[]args){
+    sender.sendMessage("you have "+ context.getBalance(sender.getUniqueId()) + " monies");
   }
 
   public void tradeMenu(Player sender, Object[] args){
@@ -108,6 +109,11 @@ public class TradeCommand extends ListenerClient {
             .withArguments(new PlayerArgument("player"))
             .withArguments(new IntegerArgument("amount"))
             .executesConsole(this::mint);
+    CommandAPICommand BalCommand =
+        new CommandAPICommand("balance")
+            .withAliases("bal")
+            .executesPlayer(this::balanceSelf);
+    BalCommand.register();
     MintCommand.register();
     PayCommand.register();
     ApproveCommand.register();

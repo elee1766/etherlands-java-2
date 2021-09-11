@@ -76,18 +76,44 @@ public class EthereumService extends ListenerClient {
                         update_district((Integer) x.getArgs()[0]);
                     } catch (Exception e) {
                         Bukkit.getLogger().warning("EthProxy is currently unavailable");
+                        Bukkit.getLogger().warning(e.getMessage());
                     }
                 }
                 case force_update -> {
                     try {
                         force_update_district((Integer) x.getArgs()[0]);
                     } catch (Exception e) {
-                        Bukkit.getLogger().warning("EthProxy is currently unavailable");
+                        Bukkit.getLogger().warning("force_update failed");
+                        Bukkit.getLogger().warning(e.toString());
+                    }
+                }
+                case scan_update-> {
+                    try {
+                        update_districts();
+                    } catch (Exception e) {
+                        Bukkit.getLogger().warning("scan_update failed");
+                        Bukkit.getLogger().warning(e.toString());
+                    }
+                }
+                case plot_update -> {
+                    try {
+                        update_plot((Integer) x.getArgs()[0]);
+                    } catch (Exception e) {
+                        Bukkit.getLogger().warning("plot_update failed");
+                        Bukkit.getLogger().warning(e.toString());
                     }
                 }
             }
         });
         listenHttp();
+    }
+
+    private void update_plot(Integer plot_id) throws Exception {
+        Pair<Integer, Integer> thing = EthProxyClient.locate_plot(plot_id);
+        if(plot_id != 0){
+        this.channels.master_command.publish(
+            new Message<>(MasterCommand.plot_set_coords, plot_id, thing.getFirst(),thing.getSecond()));
+        }
     }
 
     private void update_district(Integer district_id) throws Exception {

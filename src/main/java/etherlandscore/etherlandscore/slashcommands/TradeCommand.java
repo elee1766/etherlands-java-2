@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.util.Map2;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -17,9 +18,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetlang.fibers.Fiber;
+import org.web3j.abi.datatypes.Int;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class TradeCommand extends ListenerClient {
   private final Fiber fiber;
@@ -32,6 +35,21 @@ public class TradeCommand extends ListenerClient {
     this.channels = channels;
     this.transactions = new Map2<>();
     register();
+  }
+
+  public void pay(Player sender, Object[] args){
+    Player p = (Player) args[0];
+    Gamer to = context.getGamer(p.getUniqueId());
+    GamerTransaction gt = new GamerTransaction(context.getGamer(sender.getUniqueId()), to, (Integer) args[1], 0, null, null, null, null);
+    this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+  }
+
+  void mint(Object o,Object[] args) {
+    Player p = (Player) args[0];
+    Gamer to = context.getGamer(p.getUniqueId());
+    Integer amount = (Integer) args[1];
+    GamerTransaction gt = new GamerTransaction(null, to, amount, 0, null, null, null, null);
+    this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
   }
 
   public void tradeMenu(Player sender, Object[] args){
@@ -47,11 +65,13 @@ public class TradeCommand extends ListenerClient {
     tempFrom.addItem(itemStack);
     GamerTransaction gt = new GamerTransaction(from, to, 0, payment, tempFrom, player.getInventory(), itemsToSend, null);
     transactions.put(from, to, gt);
-    TextComponent confirm = new TextComponent("Click bellow to approve the following trade\n");
-    TextComponent trade = new TextComponent(itemStack.getAmount() + " " + itemStack.getDisplayName() + " for " + payment + " monies.");
+    TextComponent confirm = new TextComponent("Click above or type /approve " + sender.getName() + " to approve the trade above");
+    confirm.setColor(ChatColor.GOLD);
+    TextComponent trade = new TextComponent("====REQUESTED TRADE====\n\n" + itemStack.getAmount() + " " + itemStack.getType() + " for " + payment + " monies.\n");
+    trade.setColor(ChatColor.GOLD);
     trade.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/approve " + from.getPlayer().getName()));
-    player.sendMessage(confirm);
     player.sendMessage(trade);
+    player.sendMessage(confirm);
   }
 
   public void approve(Player sender, Object[] args){
@@ -60,8 +80,8 @@ public class TradeCommand extends ListenerClient {
     Gamer to = context.getGamer(sender.getUniqueId());
     GamerTransaction gt = this.transactions.get(from, to);
     if(gt!=null){
-      Bukkit.getLogger().info("sending process message");
       this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+      sender.sendMessage("Transaction has been complete items have been added to your inventory");
     }else{
       sender.sendMessage("The transaction has expired");
     }
@@ -78,6 +98,18 @@ public class TradeCommand extends ListenerClient {
         new CommandAPICommand("approve")
             .withArguments(new PlayerArgument("player"))
             .executesPlayer(this::approve);
+    CommandAPICommand PayCommand =
+        new CommandAPICommand("pay")
+            .withArguments(new PlayerArgument("player"))
+            .withArguments(new IntegerArgument("amount"))
+            .executesPlayer(this::pay);
+    CommandAPICommand MintCommand =
+        new CommandAPICommand("mint")
+            .withArguments(new PlayerArgument("player"))
+            .withArguments(new IntegerArgument("amount"))
+            .executesConsole(this::mint);
+    MintCommand.register();
+    PayCommand.register();
     ApproveCommand.register();
     TradeCommand.register();
   }

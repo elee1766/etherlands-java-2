@@ -81,45 +81,47 @@ public class Context<WriteMaps> {
 
   private Integer getAbsoluteBalance(UUID gamerId) {
     Integer balance = 0;
-    for (BankRecord bankRecord : bankRecords.values()) {
-      if (bankRecord.getFrom().equals(gamerId)) {
-        balance = balance - bankRecord.getDelta();
+    try {
+      for (BankRecord bankRecord : bankRecords.values()) {
+        if (bankRecord.getFrom().equals(gamerId)) {
+          balance = balance - bankRecord.getDelta();
+        }
+        if (bankRecord.getTo().equals(gamerId)) {
+          balance = balance + bankRecord.getDelta();
+        }
       }
-      if(bankRecord.getTo().equals(gamerId)){
-        balance = balance + bankRecord.getDelta();
-      }
+      this.balanceCache.put(gamerId, balance);
+    }catch(Exception ex){
+      return 0;
     }
-    this.balanceCache.put(gamerId,balance);
     return balance;
   }
 
   public void context_process_gamer_transaction(GamerTransaction transaction) {
     Bukkit.getLogger().info("Doing Transaction");
+    if(transaction.getGamers().getFirst()==null){
+      String id = UUID.randomUUID().toString();
+      this.bankRecords.put(
+          id,
+          new WriteBankRecord(
+              id,
+              UUID.fromString("00000000-0000-0000-0000-000000000000"),
+              transaction.getGamers().getSecond().getUuid(),
+              transaction.getDeltas().getFirst(),
+              (int) System.currentTimeMillis())
+      );
+    }
     Set<ItemStack> leftItems= transaction.getItemStacks().getFirst();
     Set<ItemStack> rightItems= transaction.getItemStacks().getSecond();
 
-    for (ItemStack item : leftItems) {
-      if(!transaction.getInventorys().getFirst().contains(item)){
-        return;
-      }
-    }
-    for (ItemStack item : rightItems) {
-      if(!transaction.getInventorys().getSecond().contains(item)){
-        return;
-      }
-    }
-
-    transaction.getInventorys().getFirst().removeItem((ItemStack[]) leftItems.toArray());
-    transaction.getInventorys().getSecond().addItem((ItemStack[]) leftItems.toArray());
-    transaction.getInventorys().getFirst().removeItem((ItemStack[]) rightItems.toArray());
-    transaction.getInventorys().getSecond().addItem((ItemStack[]) rightItems.toArray());
-
     // the final delta is the amount that gets "subtracted from left" and "added to "right"
     Integer final_delta = transaction.getDeltas().getFirst() - transaction.getDeltas().getSecond();
+    Bukkit.getLogger().info(final_delta + " " + leftItems + " " + rightItems);
     if (final_delta != 0) {
-      if (final_delta > 0) {
+        Bukkit.getLogger().info("delta not 0");
         Integer balanceLeft = this.getAbsoluteBalance(transaction.getGamers().getFirst().getUuid());
         Integer balanceRight = this.getAbsoluteBalance(transaction.getGamers().getSecond().getUuid());
+        Bukkit.getLogger().info("Balances" + balanceLeft + " " + balanceRight);
         if ((balanceLeft - final_delta) >= 0 && (balanceRight + final_delta) >= 0) {
           String id = UUID.randomUUID().toString();
           this.bankRecords.put(
@@ -131,6 +133,74 @@ public class Context<WriteMaps> {
                   final_delta,
                   (int) System.currentTimeMillis())
           );
+          Bukkit.getLogger().info("Bank statement written");
+          if(leftItems!=null) {
+            for (ItemStack item : leftItems) {
+              if (!transaction.getInventorys().getFirst().contains(item)) {
+                return;
+              }
+            }
+          }
+          if(rightItems!=null){
+            for (ItemStack item : rightItems) {
+              if(!transaction.getInventorys().getSecond().contains(item)){
+                return;
+              }
+            }
+          }
+
+          if(leftItems!=null){
+            for(ItemStack item : leftItems){
+              transaction.getInventorys().getFirst().removeItem(item);
+              transaction.getInventorys().getSecond().addItem(item);
+            }
+          }
+          if(rightItems!=null){
+            for(ItemStack item : rightItems){
+              transaction.getInventorys().getFirst().removeItem(item);
+              transaction.getInventorys().getSecond().addItem(item);
+            }
+          }
+        }else{
+          if(leftItems!=null){
+            for(ItemStack item : leftItems){
+              transaction.getInventorys().getFirst().removeItem(item);
+              transaction.getGamers().getFirst().getPlayer().getInventory().addItem(item);
+            }
+          }
+          if(rightItems!=null){
+            for(ItemStack item : rightItems){
+              transaction.getInventorys().getSecond().removeItem(item);
+              transaction.getGamers().getSecond().getPlayer().getInventory().addItem(item);
+            }
+          }
+        }
+    }else{
+      if(leftItems!=null) {
+        for (ItemStack item : leftItems) {
+          if (!transaction.getInventorys().getFirst().contains(item)) {
+            return;
+          }
+        }
+      }
+      if(rightItems!=null){
+        for (ItemStack item : rightItems) {
+          if(!transaction.getInventorys().getSecond().contains(item)){
+            return;
+          }
+        }
+      }
+
+      if(leftItems!=null){
+        for(ItemStack item : leftItems){
+          transaction.getInventorys().getFirst().removeItem(item);
+          transaction.getInventorys().getSecond().addItem(item);
+        }
+      }
+      if(rightItems!=null){
+        for(ItemStack item : rightItems){
+          transaction.getInventorys().getFirst().removeItem(item);
+          transaction.getInventorys().getSecond().addItem(item);
         }
       }
     }

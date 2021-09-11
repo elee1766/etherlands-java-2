@@ -297,7 +297,10 @@ public class Context<WriteMaps> {
   }
 
   public void district_update_district(int districtID, Set<Integer> chunkIds, String owner) {
-    UUID ownerUUID = this.getLinks().getOrDefault(owner, null);
+    UUID ownerUUID = this.getLinks().getOrDefault(owner, new UUID(0,0));
+    if(districtID == 0){
+      ownerUUID = new UUID(0,0);
+    }
     if (!this.getDistricts().containsKey(districtID)) {
       this.getDistricts().put(districtID, new WriteDistrict(districtID, chunkIds, owner));
     }
@@ -313,14 +316,16 @@ public class Context<WriteMaps> {
       plot.setDistrict(districtID);
       plot.setOwner(owner,ownerUUID);
     }
-    district.setPlotIds(chunkIds);
     district_set_owner(district, owner);
-    district.setGroupPermissionMap(groupPerms);
-    district.setGamerPermissionMap(gamerPerms);
-    for(int i : chunkIds){
-      couchPersister.update(this.getPlot(i));
+    if (districtID != 0) {
+      district.setPlotIds(chunkIds);
+      district.setGroupPermissionMap(groupPerms);
+      district.setGamerPermissionMap(gamerPerms);
+      for (int i : chunkIds) {
+        couchPersister.update(this.getPlot(i));
+      }
+      couchPersister.update(district);
     }
-    couchPersister.update(district);
   }
 
   public void district_forceupdate_district(int districtID, Set<Integer> chunkIds, String owner) {

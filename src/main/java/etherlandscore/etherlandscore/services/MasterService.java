@@ -41,8 +41,8 @@ public class MasterService extends ServerModule {
     }
 
     private void process_command(Message<MasterCommand> message) {
-        Bukkit.getLogger().info(message.toString());
         Object[] _args = message.getArgs();
+        Bukkit.getLogger().info(message.getCommand() + _args.toString());
         switch (message.getCommand()) {
             case context_create_gamer -> context.context_create_gamer((UUID) _args[0]);
             case context_save_all -> context.saveAll();

@@ -9,7 +9,6 @@ import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.read.Team;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -71,12 +70,12 @@ public class ListenerClient extends ServerModule {
     return new CustomArgument<Gamer>(
             nodeName,
             input -> {
-              Player player = Bukkit.getPlayer(input);
-              if (player != null) {
-                return context.getGamer(player.getUniqueId());
-              } else {
+              OfflinePlayer player = Bukkit.getOfflinePlayer(input);
+              if (!player.hasPlayedBefore()) {
                 throw new CustomArgument.CustomArgumentException(
                     new CustomArgument.MessageBuilder("Player not found."));
+              } else {
+                return context.getGamer(player.getUniqueId());
               }
             })
         .replaceSuggestions(

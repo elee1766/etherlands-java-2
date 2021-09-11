@@ -25,7 +25,7 @@ public class EthProxyClient {
         String endpoint = root + "district/" + id.toString();
         Request req = Dsl.get(endpoint).build();
         Response resp = client.executeRequest(req).get();
-        Bukkit.getLogger().info(endpoint+ " " + resp.getResponseBody());
+        //Bukkit.getLogger().info(endpoint+ " " + resp.getResponseBody());
         JsonElement jsonElement = new JsonParser().parse(resp.getResponseBody());
         String addr = jsonElement.getAsJsonObject().get("owner").getAsString();
         JsonArray array = jsonElement.getAsJsonObject().get("contains").getAsJsonArray();

@@ -1,31 +1,25 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.*;
+import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
-import etherlandscore.etherlandscore.state.read.BankRecord;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.write.WriteBankRecord;
 import etherlandscore.etherlandscore.util.Map2;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bouncycastle.util.Arrays;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetlang.fibers.Fiber;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class TradeCommand extends ListenerClient {
   private final Fiber fiber;
@@ -67,10 +61,9 @@ public class TradeCommand extends ListenerClient {
     GamerTransaction gt = this.transactions.get(from, to);
     if(gt!=null){
       Bukkit.getLogger().info("sending process message");
-      Bukkit.getLogger().info(gt.toString());
-      channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+      this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
     }else{
-      sender.sendMessage("The transaction as expired");
+      sender.sendMessage("The transaction has expired");
     }
   }
 

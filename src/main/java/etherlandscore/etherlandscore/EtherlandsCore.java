@@ -9,6 +9,7 @@ import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.listener.BlockEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.listener.SignEventListener;
+import etherlandscore.etherlandscore.services.ChatService;
 import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.services.Scheduler;
@@ -103,6 +104,9 @@ public final class EtherlandsCore extends JavaPlugin {
     getLogger().info("initializing master service");
     Fiber databaseFiber = new ThreadFiber();
     modules.add(new MasterService(channels, databaseFiber));
+    getLogger().info("initializing chat service");
+    Fiber chatFiber = new ThreadFiber();
+    modules.add(new ChatService(channels, chatFiber));
     for (var m : modules) {
       getLogger().info(String.format("Starting MODULE %s", m.getClass().getName()));
       m.start();

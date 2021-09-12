@@ -29,5 +29,6 @@ public enum MasterCommand {
   context_process_gamer_transaction,
   context_mint_tokens,
   plot_set_coords,
+  gamer_toggle_message,
   shop_create_shop
 }

@@ -2,6 +2,8 @@ package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.enums.MessageToggles;
+import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.EthersCommand;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -238,6 +240,11 @@ public class Context<WriteMaps> {
       WriteDistrict district, WriteGroup writeGroup, AccessFlags flag, FlagValue value) {
     district.setGroupPermission(writeGroup, flag, value);
     couchPersister.update(district);
+  }
+
+  public void gamer_toggle_message(WriteGamer gamer, MessageToggles flag, ToggleValues value) {
+    gamer.setMessageToggle(flag, value);
+    couchPersister.update(gamer);
   }
 
   public void gamer_add_friend(WriteGamer a, Gamer b) {

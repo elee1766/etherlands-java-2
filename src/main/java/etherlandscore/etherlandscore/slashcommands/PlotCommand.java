@@ -3,11 +3,17 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Plot;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class PlotCommand extends ListenerClient {
   private final Fiber fiber;
@@ -46,7 +52,8 @@ public class PlotCommand extends ListenerClient {
     if(p==null){
       sender.sendMessage("There is no plot here");
     }else{
-      sender.sendMessage("Plot coords: " + p.getIdInt());
+      TextComponent response = new TextComponent("Plot ID: " + p.getIdInt());
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer, context.getGamer(sender.getUniqueId()), response));
     }
   }
 
@@ -56,7 +63,7 @@ public class PlotCommand extends ListenerClient {
     if(p==null){
       sender.sendMessage("There is no plot here");
     }else {
-      sender.sendMessage("Plot coords: " + p.getIdInt());
+      sender.sendMessage("Plot ID: " + p.getIdInt());
     }
   }
 
@@ -65,7 +72,7 @@ public class PlotCommand extends ListenerClient {
     if(p==null){
       sender.sendMessage("There is no plot here");
     }else{
-      sender.sendMessage("Plot coords: " + p.getX() + ", " + p.getZ() + " district:" + p.getDistrict());
+      sender.sendMessage("Plot coords: " + p.getX() + ", " + p.getZ() + " district: " + p.getDistrict());
     }
   }
 }

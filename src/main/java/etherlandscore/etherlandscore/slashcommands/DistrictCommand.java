@@ -9,6 +9,8 @@ import etherlandscore.etherlandscore.Menus.DistrictPrinter;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.enums.MessageToggles;
+import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.EthersCommand;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -18,7 +20,9 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.DistrictSender;
+import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
+import etherlandscore.etherlandscore.state.write.WriteGamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Chunk;
@@ -184,6 +188,9 @@ public class DistrictCommand extends ListenerClient {
             .executesPlayer(this::infoGiven);
     DistrictCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
     DistrictCommand.withSubcommand(
+        new CommandAPICommand("toggle_announcements")
+        .executesPlayer(this::toggle));
+    DistrictCommand.withSubcommand(
         new CommandAPICommand("set_player")
             .withAliases("setp", "setplayer", "setPlayer")
             .withArguments(new IntegerArgument("districtID"))
@@ -241,6 +248,15 @@ public class DistrictCommand extends ListenerClient {
 
     DistrictCommand.register();
     DistrictInfoCommand.register();
+  }
+
+  void toggle(Player sender, Object[] args) {
+    WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
+    if(gamer.readToggle(MessageToggles.DISTRICT).equals(ToggleValues.ENABLED)){
+      GamerSender.setMessageToggle(channels, MessageToggles.DISTRICT, ToggleValues.DISABLED, gamer);
+    }else{
+      GamerSender.setMessageToggle(channels, MessageToggles.DISTRICT, ToggleValues.ENABLED, gamer);
+    }
   }
 
   void setGroup(Player sender, Object[] args) {

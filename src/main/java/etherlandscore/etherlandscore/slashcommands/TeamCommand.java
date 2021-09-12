@@ -7,8 +7,10 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.TeamPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.services.ChatService;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
@@ -22,6 +24,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +36,7 @@ public class TeamCommand extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
   private final Map<String, Map<UUID, Long>> invites = new HashMap<>();
+  private TextComponent response = new TextComponent("");
 
   public TeamCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
@@ -43,16 +47,18 @@ public class TeamCommand extends ListenerClient {
 
   void create(Player sender, Object[] args) {
     if (context.hasTeam((String) args[0])) {
-      sender.sendMessage("A team already exists by that name");
+      response.setText("A team already exists by that name");
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       return;
     }
     if (context.hasGamer(sender.getUniqueId())) {
       if(context.getGamer(sender.getUniqueId()).hasTeam()){
-        sender.sendMessage("You are already in a team");
+        response.setText("You are already in a team");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
         return;
       }
+      response.setText("Team created!");
       channels.master_command.publish(new Message<>(MasterCommand.team_create_team, state().getGamer(sender.getUniqueId()), args[0]));
-      sender.sendMessage("Team created!");
     }
   }
 
@@ -63,10 +69,12 @@ public class TeamCommand extends ListenerClient {
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
       TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam);
-      sender.sendMessage(
+      response.setText(
           "District: " + writeDistrict.getIdInt() + " has been delegated to " + writeTeam.getName());
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     } else {
-      sender.sendMessage("You do not own this plot");
+      response.setText("You do not own this plot");
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     }
   }
 
@@ -75,7 +83,8 @@ public class TeamCommand extends ListenerClient {
     Team writeTeam = gamer.getTeamObject();
     IntegerRange range = (IntegerRange) args[0];
     if(writeTeam == null){
-      sender.sendMessage("ur not in a team");
+      response.setText("ur not in a team");
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       return;
     }
     for (int i = range.getLowerBound();
@@ -83,9 +92,11 @@ public class TeamCommand extends ListenerClient {
         i++) {
       if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
         TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam);
-        sender.sendMessage("Plot: " + i + " has been delegated to " + writeTeam.getName());
+        response.setText("Plot: " + i + " has been delegated to " + writeTeam.getName());
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {
-        sender.sendMessage("You do not own this plot");
+        response.setText("You do not own this plot");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
     }
   }
@@ -97,15 +108,18 @@ public class TeamCommand extends ListenerClient {
     if (writeTeam.isOwner(manager)) {
       if (manager.getTeamObject().getName().equals(name)) {
         TeamSender.delete(channels, writeTeam);
-        sender.sendMessage("Team has been deleted");
+        response.setText("Team has been deleted");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {
-        sender.sendMessage("You are not a manager");
+        response.setText("You are not a manager");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
     }
   }
 
   void help(Player sender, Object[] args) {
-    sender.sendMessage("Create Info Invite Join Delete Leave Lick Delegate");
+    response.setText("Create Info Invite Join Delete Leave Lick Delegate");
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
   }
 
   void info(Player sender, Object[] args) {
@@ -119,7 +133,8 @@ public class TeamCommand extends ListenerClient {
       TeamPrinter printer = new TeamPrinter(gamer.getTeamObject());
       printer.printTeam(sender);
     } else {
-      sender.sendMessage("/team info <teamname>");
+      response.setText("/team info <teamname>");
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     }
   }
 
@@ -133,15 +148,17 @@ public class TeamCommand extends ListenerClient {
           if (!this.invites.containsKey(writeTeam.getName())) {
             this.invites.put(writeTeam.getName(), new HashMap<>());
           }
-          sender.sendMessage("You have invited " + receiver.getPlayer().getName() + " to your team!");
+          response.setText("You have invited " + receiver.getPlayer().getName() + " to your team!");
+          channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
           writeTeam.inviteGamer(this.invites.get(writeTeam.getName()), receiver.getUuid());
-          receiver.getPlayer().sendMessage("You have been invited to " + inviter.getTeam());
+          TextComponent invite = new TextComponent("You have been invited to " + inviter.getTeam() + "\n");
           TextComponent join = new TextComponent("click here to join");
           join.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team join " + inviter.getTeam()));
-          receiver.getPlayer().sendMessage(join);
-          receiver
-              .getPlayer()
-              .sendMessage("Or send command \"/team join " + inviter.getTeam() + "\" to join");
+          TextComponent command = new TextComponent("Or send command \"/team join " + inviter.getTeam() + "\" to join");
+          invite.addExtra(join);
+          invite.addExtra(command);
+          Gamer gamer = context.getGamer(receiver.getPlayer().getUniqueId());
+          channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, invite));
         }
       }
     }
@@ -156,12 +173,16 @@ public class TeamCommand extends ListenerClient {
           WriteGroup writeGroup = (WriteGroup) team.getGroup("member");
           TeamSender.addMember(this.channels, joiner, team);
           GroupSender.addMember(this.channels, writeGroup, joiner);
-          sender.sendMessage("Welcome to " + args[0]);
+          response.setText("Welcome to " + args[0]);
+          channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
           if(Bukkit.getPlayer(team.getOwnerUUID()) != null){
-            Bukkit.getPlayer(team.getOwnerUUID()).sendMessage(sender.getName() + " has joined your team!");
+            response.setText(sender.getName() + " has joined your team!");
+            Gamer gamer = context.getGamer(team.getOwnerUUID());
+            channels.chat_message.publish(new Message<>(ChatTarget.gamer,gamer, response));
           }
         } else {
-          sender.sendMessage("You must be invited before joining " + args[0]);
+          response.setText("You must be invited before joining " + args[0]);
+          channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
         }
       }
     }
@@ -174,14 +195,19 @@ public class TeamCommand extends ListenerClient {
     if (writeTeam.isManager(manager)) {
       if (!writeTeam.isManager(kicked)) {
         TeamSender.removeMember(channels, kicked, writeTeam);
-        sender.sendMessage("You kicked " + kicked.getPlayer().getName());
-        kicked.getPlayer().sendMessage("You have been kicked from " + writeTeam.getName());
+        response.setText("You kicked " + kicked.getPlayer().getName());
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,manager, response));
+        response.setText("You have been kicked from " + writeTeam.getName());
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,kicked, response));
       }
       {
-        sender.sendMessage("Can't kick manager");
+        response.setText("Can't kick manager");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
+
       }
     } else {
-      sender.sendMessage("You must be manager of a team to kick players");
+      response.setText("You must be manager of a team to kick players");
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     }
   }
 
@@ -191,19 +217,23 @@ public class TeamCommand extends ListenerClient {
     Team writeTeam = manager.getTeamObject();
     if (writeTeam.isOwner(manager)) {
       TeamSender.removeMember(channels, kicked, writeTeam);
-      sender.sendMessage("You kicked " + kicked.getPlayer().getName());
+      response.setText("You kicked " + kicked.getPlayer().getName());
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       return;
     }
     if (writeTeam.isManager(manager)) {
       if (!writeTeam.isManager(kicked)) {
         TeamSender.removeMember(channels, kicked, writeTeam);
-        sender.sendMessage("You kicked " + kicked.getPlayer().getName());
+        response.setText("You kicked " + kicked.getPlayer().getName());
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
       {
-        sender.sendMessage("Can't kick manager");
+        response.setText("Can't kick manager");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
     } else {
-      sender.sendMessage("You must be manager of a team to kick players");
+      response.setText("You must be manager of a team to kick players");
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     }
   }
 
@@ -212,14 +242,18 @@ public class TeamCommand extends ListenerClient {
     if (!gamer.getTeam().equals("")) {
       Team writeTeam = context.getTeam(gamer.getTeam());
       if (writeTeam.getOwnerUUID().equals(gamer.getUuid())) {
-        sender.sendMessage("You cannot leave the team you own");
+        response.setText("You cannot leave the team you own");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {
         TeamSender.removeMember(channels, gamer, writeTeam);
-        sender.sendMessage("You have left " + gamer.getTeam());
-        Bukkit.getPlayer(writeTeam.getOwnerUUID()).sendMessage(sender.getName() + " has left your team :(");
+        response.setText("You have left " + gamer.getTeam());
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
+        Gamer owner = context.getGamer(writeTeam.getOwnerUUID());
+        response.setText(sender.getName() + " has left your team :(");
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer,owner, response));
       }
     } else {
-      sender.sendMessage("You are not in a team");
+      response.setText("You are not in a team");
     }
   }
 

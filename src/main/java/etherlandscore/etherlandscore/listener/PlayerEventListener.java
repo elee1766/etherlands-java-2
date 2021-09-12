@@ -1,5 +1,8 @@
 package etherlandscore.etherlandscore.listener;
 
+import etherlandscore.etherlandscore.Menus.MapMenu;
+import etherlandscore.etherlandscore.enums.MessageToggles;
+import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -22,10 +25,12 @@ import org.jetlang.fibers.Fiber;
 public class PlayerEventListener extends ListenerClient implements Listener {
 
   private final Channels channels;
+  private final Fiber fiber;
 
   public PlayerEventListener(Channels channels, Fiber fiber) {
     super(channels, fiber);
     this.channels = channels;
+    this.fiber = fiber;
   }
 
   @EventHandler
@@ -56,37 +61,48 @@ public class PlayerEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onPlayerMove(PlayerMoveEvent event) {
-    int fromx = event.getFrom().getChunk().getX();
-    int fromz = event.getFrom().getChunk().getZ();
-    int tox = event.getTo().getChunk().getX();
-    int toz = event.getTo().getChunk().getZ();
+    if(context.getGamer(event.getPlayer().getUniqueId())==null){
+      return;
+    }
+    if(context.getGamer(event.getPlayer().getUniqueId()).readToggle(MessageToggles.DISTRICT).equals(ToggleValues.ENABLED)) {
+      int fromx = event.getFrom().getChunk().getX();
+      int fromz = event.getFrom().getChunk().getZ();
+      int tox = event.getTo().getChunk().getX();
+      int toz = event.getTo().getChunk().getZ();
 
-    if(context.getDistrict(fromx, fromz)==null){
-      if(context.getDistrict(tox, toz)!=null){
-        District d = context.getDistrict(tox, toz);
-        String teamname = "none";
-        if(d.getTeamObject()!=null){
-          teamname = d.getTeamObject().getName();
-        }
-        event.getPlayer().sendTitle("Entering District: " + d.getIdInt(), "Managed by team: " + teamname, 10, 60, 10);
-      }
-    }else{
-      if(context.getDistrict(tox, toz)!=null){
-        District d = context.getDistrict(tox, toz);
-        if(d!=context.getDistrict(fromx, fromz)){
+      if (context.getDistrict(fromx, fromz) == null) {
+        if (context.getDistrict(tox, toz) != null) {
+          District d = context.getDistrict(tox, toz);
           String teamname = "none";
-          if(d.getTeamObject()!=null){
+          if (d.getTeamObject() != null) {
             teamname = d.getTeamObject().getName();
           }
-          event.getPlayer().sendMessage("Moving to District: " + d.getIdInt() + " Managed by team: " + teamname);
+          event.getPlayer().sendTitle("Entering District: " + d.getIdInt(), "Managed by team: " + teamname, 10, 60, 10);
         }
-      }else{
-        District d = context.getDistrict(fromx, fromz);
-        String teamname = "none";
-        if(d.getTeamObject()!=null){
-          teamname = d.getTeamObject().getName();
+      } else {
+        if (context.getDistrict(tox, toz) != null) {
+          District d = context.getDistrict(tox, toz);
+          if (d != context.getDistrict(fromx, fromz)) {
+            String teamname = "none";
+            if (d.getTeamObject() != null) {
+              teamname = d.getTeamObject().getName();
+            }
+            event.getPlayer().sendMessage("Moving to District: " + d.getIdInt() + " Managed by team: " + teamname);
+          }
+        } else {
+          District d = context.getDistrict(fromx, fromz);
+          String teamname = "none";
+          if (d.getTeamObject() != null) {
+            teamname = d.getTeamObject().getName();
+          }
+          event.getPlayer().sendTitle("Leaving District: " + d.getIdInt(), "Managed by team: " + teamname, 10, 60, 10);
         }
-        event.getPlayer().sendTitle("Leaving District: " + d.getIdInt(), "Managed by team: " + teamname, 10, 60, 10);
+      }
+    }
+    if(context.getGamer(event.getPlayer().getUniqueId()).readToggle(MessageToggles.MAP).equals(ToggleValues.ENABLED)){
+      if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
+        MapMenu map = new MapMenu(context.getGamer(event.getPlayer().getUniqueId()), this.channels, this.fiber);
+        map.mapMenu();
       }
     }
   }

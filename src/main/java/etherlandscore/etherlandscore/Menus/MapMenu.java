@@ -39,8 +39,8 @@ public class MapMenu extends ListenerClient {
     this.fiber = fiber;
     this.gamer = gamer;
 
-    WIDTH = 9;
-    HEIGHT = 9;
+    WIDTH = 11;
+    HEIGHT = 11;
 
     unclaimedKey = new TextComponent("-");
     unclaimedKey.setColor(ChatColor.GRAY);
@@ -119,6 +119,7 @@ public class MapMenu extends ListenerClient {
       }
       z = z - WIDTH;
     }
+
 
     if(facing.toLowerCase().contains("n")){
       flipHorizontalInPlace(mapArray);
@@ -274,7 +275,7 @@ public class MapMenu extends ListenerClient {
 
     TextComponent[] key = key();
 
-    for (int i = 0; i < HEIGHT; i++) {
+    for (int i = 0; i < HEIGHT-2; i++) {
       map.addExtra(compass[i]);
       map.addExtra("|");
       for (int j = 0; j < WIDTH; j++) {
@@ -282,7 +283,7 @@ public class MapMenu extends ListenerClient {
       }
       map.addExtra("|");
       map.addExtra(key[i]);
-      if (i != HEIGHT - 1) {
+      if (i != HEIGHT - 3) {
         map.addExtra("\n");
       }
     }

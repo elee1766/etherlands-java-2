@@ -1,6 +1,8 @@
 package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
@@ -149,7 +151,7 @@ public class MapMenu extends ListenerClient {
         map.addExtra("\n");
       }
     }
-    player.sendMessage(map);
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, map));
   }
 
   private TextComponent[][] rotateMap(TextComponent[][] mapArray) {
@@ -287,7 +289,7 @@ public class MapMenu extends ListenerClient {
         map.addExtra("\n");
       }
     }
-    player.sendMessage(map);
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, map));
   }
 
   private TextComponent[] key() {

@@ -71,9 +71,6 @@ public class SignEventListener extends ListenerClient implements Listener {
   public void onSignEdit(SignChangeEvent signChangeEvent) {
     boolean contract = false;
     String[] lines = signChangeEvent.getLines();
-    if(lines[0].equals("[Shop]")){
-      checkChest(signChangeEvent.getBlock(), signChangeEvent.getPlayer());
-    }
     if(lines[0].contains("nft") || lines[0].contains("NFT")){
       String slug = "";
       String item_id = "";

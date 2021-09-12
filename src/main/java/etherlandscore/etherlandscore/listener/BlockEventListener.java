@@ -54,7 +54,6 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockSpread(BlockSpreadEvent spreadEvent) {
-    Bukkit.getLogger().info("Spreading");
     Block spreadFrom = spreadEvent.getSource();
     Block spreadTo = spreadEvent.getBlock();
     try {
@@ -71,7 +70,6 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockBurn(BlockBurnEvent burnEvent) {
-    Bukkit.getLogger().info("Burning");
     Block spreadFrom = burnEvent.getIgnitingBlock();
     Block spreadTo = burnEvent.getBlock();
     try {
@@ -98,7 +96,7 @@ public class BlockEventListener extends ListenerClient implements Listener {
         }
       }
       if(placer!=null){
-        Bukkit.getLogger().warning(placer.getUuid() + " Placed TNT on " + explodeEvent.getLocation());
+        //Bukkit.getLogger().warning(placer.getUuid() + " Placed TNT on " + explodeEvent.getLocation());
       }
       District d = context.getDistrict(explodeEvent.getLocation().getChunk().getX(), explodeEvent.getLocation().getChunk().getX());
       List<Block> blockList = explodeEvent.blockList();

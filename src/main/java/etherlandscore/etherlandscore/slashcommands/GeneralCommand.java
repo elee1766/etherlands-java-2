@@ -40,10 +40,6 @@ public class GeneralCommand extends ListenerClient {
   }
 
   public void register() {
-    CommandAPI.unregister("help", true);
-    CommandAPI.unregister("minecraft:help", true);
-    CommandAPI.unregister("spigot:help", true);
-    CommandAPI.unregister("bukkit:elp", true);
     CommandAPICommand RulesCommand =
         new CommandAPICommand("rules")
             .withPermission("etherlands.public")

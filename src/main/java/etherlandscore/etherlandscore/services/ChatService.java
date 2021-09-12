@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore.services;
 
+import etherlandscore.etherlandscore.enums.MessageToggles;
+import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -42,14 +44,18 @@ public class ChatService extends ListenerClient {
 
   private void send_global(TextComponent message){
     for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
-      onlinePlayer.sendMessage(message);
+      if(context.getGamer(onlinePlayer.getUniqueId()).readToggle(MessageToggles.TEAM_CHAT).equals(ToggleValues.ENABLED)){
+        onlinePlayer.sendMessage(message);
+      }
     }
   }
   private void send_team(Team team,TextComponent message){
     for (UUID member : team.getMembers()) {
       Player player = Bukkit.getServer().getPlayer(member);
       if(player != null){
-        player.sendMessage(message);
+        if(context.getGamer(player.getUniqueId()).readToggle(MessageToggles.TEAM_CHAT).equals(ToggleValues.ENABLED)){
+          player.sendMessage(message);
+        }
       }
     }
   }

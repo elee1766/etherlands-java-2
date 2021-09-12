@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore.Menus;
 
+import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -8,6 +10,7 @@ import etherlandscore.etherlandscore.state.write.WriteGroup;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetlang.fibers.Fiber;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
@@ -17,17 +20,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class TeamPrinter {
+public class TeamPrinter extends ListenerClient {
+  private final Fiber fiber;
+  private final Channels channels;
   private final Team writeTeam;
 
-  public TeamPrinter(Team writeTeam) {
-    super();
+  public TeamPrinter(Team writeTeam, Fiber fiber, Channels channels) {
+    super(channels, fiber);
+    this.fiber = fiber;
+    this.channels = channels;
     this.writeTeam = writeTeam;
   }
 
   public void printTeam(Player sender) {
     TextComponent print = new TextComponent("");
-    MessageFormatter prettyPrint = new MessageFormatter(print);
+    MessageFormatter prettyPrint = new MessageFormatter(print, fiber, channels);
     prettyPrint.addBar("=", "TeamInfo");
     if(this.writeTeam == null){
       return;

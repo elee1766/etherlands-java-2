@@ -1,24 +1,31 @@
 package etherlandscore.etherlandscore.Menus;
 
+import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
+import org.jetlang.fibers.Fiber;
 
 import java.lang.reflect.Field;
 
-public class GroupPrinter {
+public class GroupPrinter extends ListenerClient {
+  private final Fiber fiber;
+  private final Channels channels;
   private final Group writeGroup;
 
-  public GroupPrinter(Group writeGroup) {
-    super();
+  public GroupPrinter(Group writeGroup, Fiber fiber, Channels channels) {
+    super(channels, fiber);
+    this.fiber = fiber;
+    this.channels = channels;
     this.writeGroup = writeGroup;
   }
 
   public void printGroup(Player sender, WriteDistrict district) {
     TextComponent print = new TextComponent("");
-    MessageFormatter prettyPrint = new MessageFormatter(print);
+    MessageFormatter prettyPrint = new MessageFormatter(print, fiber, channels);
     prettyPrint.addBar("=", "GroupInfo");
 
     Field[] fields = writeGroup.getDeclaredFields();

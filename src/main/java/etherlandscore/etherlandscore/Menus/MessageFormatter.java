@@ -1,21 +1,35 @@
 package etherlandscore.etherlandscore.Menus;
 
+import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
+import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.state.write.WriteGamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.StringUtils;
+import static etherlandscore.etherlandscore.services.MasterService.state;
+import etherlandscore.etherlandscore.state.read.*;
+import org.bukkit.command.MessageCommandSender;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.units.qual.C;
+import org.jetlang.fibers.Fiber;
 
 import java.util.Locale;
 import java.util.Set;
 
-public class MessageFormatter {
+public class MessageFormatter  extends ListenerClient {
+  private final Fiber fiber;
+  private final Channels channels;
   private final TextComponent message;
 
-  public MessageFormatter(TextComponent message) {
+  public MessageFormatter(TextComponent message, Fiber fiber, Channels channels) {
+    super(channels, fiber);
+    this.fiber = fiber;
+    this.channels = channels;
     this.message = message;
   }
 
@@ -141,6 +155,7 @@ public class MessageFormatter {
   }
 
   public void printOut(Player player) {
-    player.sendMessage(message);
+    WriteGamer gamer = (WriteGamer) state().getGamer(player.getUniqueId());
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, message));
   }
 }

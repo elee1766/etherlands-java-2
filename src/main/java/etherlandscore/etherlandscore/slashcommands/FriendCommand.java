@@ -41,7 +41,7 @@ public class FriendCommand extends ListenerClient {
   void friendList(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     if (gamer.getFriends() != null) {
-      FriendPrinter fp = new FriendPrinter(gamer);
+      FriendPrinter fp = new FriendPrinter(gamer, channels, fiber);
       fp.printFriends();
     } else {
       sender.sendMessage("There are no friends");

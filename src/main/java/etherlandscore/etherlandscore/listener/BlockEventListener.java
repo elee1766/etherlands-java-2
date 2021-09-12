@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -41,7 +42,8 @@ public class BlockEventListener extends ListenerClient implements Listener {
       if (!code) {
         if(context.getPlot(breakEvent.getBlock().getChunk().getX(), breakEvent.getBlock().getChunk().getZ())!=null) {
           int dID = context.getPlot(breakEvent.getBlock().getChunk().getX(), breakEvent.getBlock().getChunk().getZ()).getDistrict();
-          breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + dID);
+          TextComponent response = new TextComponent("you do not have permission to DESTROY in district " + dID);
+
         }else{
           breakEvent.getPlayer().sendMessage("The Plot at [" + breakEvent.getBlock().getChunk().getX() + ", " + breakEvent.getBlock().getChunk().getZ() + "] is unclaimed");
         }

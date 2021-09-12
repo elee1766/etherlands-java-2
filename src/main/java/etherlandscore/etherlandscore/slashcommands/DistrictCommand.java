@@ -79,7 +79,7 @@ public class DistrictCommand extends ListenerClient {
       unclaimed.setColor(ChatColor.YELLOW);
       sender.sendMessage(unclaimed);
     } else {
-      DistrictPrinter printer = new DistrictPrinter(writeDistrict);
+      DistrictPrinter printer = new DistrictPrinter(writeDistrict, fiber, channels);
       printer.printDistrict((Player) sender);
     }
   }
@@ -96,7 +96,7 @@ public class DistrictCommand extends ListenerClient {
       unclaimed.setColor(ChatColor.YELLOW);
       sender.sendMessage(unclaimed);
     } else {
-      DistrictPrinter printer = new DistrictPrinter(writeDistrict);
+      DistrictPrinter printer = new DistrictPrinter(writeDistrict, fiber, channels);
       printer.printDistrict(sender);
     }
   }

@@ -70,7 +70,7 @@ public class GroupCommand extends ListenerClient {
 
   void info(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    GroupPrinter printer = new GroupPrinter((Group) args[0]);
+    GroupPrinter printer = new GroupPrinter((Group) args[0], fiber, channels);
     WriteDistrict wd = (WriteDistrict) context.getDistrict(sender.getChunk().getX(), sender.getChunk().getZ());
     printer.printGroup(sender, wd);
   }

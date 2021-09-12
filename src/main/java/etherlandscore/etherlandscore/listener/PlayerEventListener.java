@@ -4,11 +4,16 @@ import etherlandscore.etherlandscore.Menus.MapMenu;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -38,7 +43,6 @@ public class PlayerEventListener extends ListenerClient implements Listener {
     Player p = event.getPlayer();
     if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
       Block b = event.getClickedBlock();
-      Bukkit.getLogger().info("Clicked on" + b.getLocation().getX() + ", " + b.getLocation().getY() + ", " + b.getLocation().getZ());
       if (b.getState() instanceof Chest){
         Bukkit.getLogger().info("Clicked on chest");
         WriteShop shop = context.getShop(b.getLocation());
@@ -53,7 +57,10 @@ public class PlayerEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
-    Bukkit.getServer().getConsoleSender().sendMessage("hello there!");
+    TextComponent welcome = new TextComponent("Welcome to Etherlands!");
+    welcome.setColor(ChatColor.GOLD);
+    WriteGamer joiner = (WriteGamer) context.getGamer(event.getPlayer().getUniqueId());
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer,joiner, welcome));
     Bukkit.getLogger().info("Creating Gamer for: " + event.getPlayer().getUniqueId());
     channels.master_command.publish(
         new Message<>(MasterCommand.context_create_gamer, event.getPlayer().getUniqueId()));
@@ -64,7 +71,8 @@ public class PlayerEventListener extends ListenerClient implements Listener {
     if(context.getGamer(event.getPlayer().getUniqueId())==null){
       return;
     }
-    if(context.getGamer(event.getPlayer().getUniqueId()).readToggle(MessageToggles.DISTRICT).equals(ToggleValues.ENABLED)) {
+    WriteGamer gamer = (WriteGamer) context.getGamer(event.getPlayer().getUniqueId());
+    if(gamer.readToggle(MessageToggles.DISTRICT).equals(ToggleValues.ENABLED)) {
       int fromx = event.getFrom().getChunk().getX();
       int fromz = event.getFrom().getChunk().getZ();
       int tox = event.getTo().getChunk().getX();
@@ -87,7 +95,8 @@ public class PlayerEventListener extends ListenerClient implements Listener {
             if (d.getTeamObject() != null) {
               teamname = d.getTeamObject().getName();
             }
-            event.getPlayer().sendMessage("Moving to District: " + d.getIdInt() + " Managed by team: " + teamname);
+            TextComponent move = new TextComponent("Moving to District: " + d.getIdInt() + " Managed by team: " + teamname);
+            channels.chat_message.publish(new Message<>(ChatTarget.gamer,gamer, move));
           }
         } else {
           District d = context.getDistrict(fromx, fromz);
@@ -99,9 +108,9 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         }
       }
     }
-    if(context.getGamer(event.getPlayer().getUniqueId()).readToggle(MessageToggles.MAP).equals(ToggleValues.ENABLED)){
+    if(gamer.readToggle(MessageToggles.MAP).equals(ToggleValues.ENABLED)){
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
-        MapMenu map = new MapMenu(context.getGamer(event.getPlayer().getUniqueId()), this.channels, this.fiber);
+        MapMenu map = new MapMenu(gamer, this.channels, this.fiber);
         map.mapMenu();
       }
     }

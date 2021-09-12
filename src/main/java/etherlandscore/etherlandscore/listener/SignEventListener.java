@@ -101,27 +101,6 @@ public class SignEventListener extends ListenerClient implements Listener {
     }
   }
 
-  private void checkChest(Block block, Player player) {
-    District shopDistrict = context.getDistrict(block.getChunk().getX(), block.getChunk().getZ());
-    Gamer shopOwner = context.getGamer(player.getUniqueId());
-    Location signLocation = block.getLocation();
-    Location chestLocation = new Location(signLocation.getWorld(), signLocation.getX(), (signLocation.getY()-1), signLocation.getZ());
-    Bukkit.getLogger().info("Creating shop at: " + signLocation.getX() + ", " + (signLocation.getY()-1) + ", " + signLocation.getZ());
-    Block chestBlock = chestLocation.getBlock();
-    if(chestBlock.getState() instanceof Chest){
-      Chest chest = (Chest)chestBlock.getState();
-      setShop(chest, shopDistrict, shopOwner);
-    }else{
-      player.sendMessage("There must be a chest bellow the sign in order to create a shop");
-    }
-  }
-
-  private void setShop(Chest chest, District district, Gamer owner){
-    Inventory shopInventory = Bukkit.createInventory(null, 54);
-    WriteShop shop = new WriteShop(chest, district, owner, shopInventory);
-    channels.master_command.publish(new Message<>(MasterCommand.shop_create_shop, shop));
-  }
-
   private BlockFace facing(Block placed){
     return ((Directional) placed.getBlockData()).getFacing();
   }

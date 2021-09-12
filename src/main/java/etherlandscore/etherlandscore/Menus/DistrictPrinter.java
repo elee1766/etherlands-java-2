@@ -2,6 +2,8 @@ package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
+import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.util.Map2;
@@ -9,23 +11,28 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Player;
+import org.jetlang.fibers.Fiber;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class DistrictPrinter {
+public class DistrictPrinter extends ListenerClient {
+  private final Fiber fiber;
+  private final Channels channels;
   private final District writeDistrict;
 
-  public DistrictPrinter(District writeDistrict) {
-    super();
+  public DistrictPrinter(District writeDistrict, Fiber fiber, Channels channels) {
+    super(channels, fiber);
+    this.fiber = fiber;
+    this.channels = channels;
     this.writeDistrict = writeDistrict;
   }
 
   public void printDistrict(Player sender) {
     TextComponent print = new TextComponent("");
-    MessageFormatter prettyPrint = new MessageFormatter(print);
+    MessageFormatter prettyPrint = new MessageFormatter(print, fiber, channels);
     prettyPrint.addBar("=", "District: " + this.writeDistrict.getIdInt());
 
     Field[] fields = writeDistrict.getDeclaredFields();
@@ -43,6 +50,7 @@ public class DistrictPrinter {
         System.out.println(ex);
       }
     }
+
     prettyPrint.printOut(sender);
   }
 

@@ -29,13 +29,13 @@ public class GamerCommand extends ListenerClient {
   void info(Player sender, Object[] args) {
     OfflinePlayer player = (OfflinePlayer) args[0];
     Gamer gamer = context.getGamer(player.getUniqueId());
-    GamerPrinter printer = new GamerPrinter(gamer);
+    GamerPrinter printer = new GamerPrinter(gamer, fiber, channels);
     printer.printGamer(sender);
   }
 
   void infoLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    GamerPrinter printer = new GamerPrinter(gamer);
+    GamerPrinter printer = new GamerPrinter(gamer, fiber, channels);
     printer.printGamer(sender);
   }
 

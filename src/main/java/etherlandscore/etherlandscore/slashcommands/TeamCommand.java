@@ -123,14 +123,14 @@ public class TeamCommand extends ListenerClient {
   }
 
   void info(Player sender, Object[] args) {
-    TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]));
+    TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]), fiber, channels);
     printer.printTeam(sender);
   }
 
   void infoLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     if (gamer.hasTeam()) {
-      TeamPrinter printer = new TeamPrinter(gamer.getTeamObject());
+      TeamPrinter printer = new TeamPrinter(gamer.getTeamObject(), fiber, channels);
       printer.printTeam(sender);
     } else {
       response.setText("/team info <teamname>");

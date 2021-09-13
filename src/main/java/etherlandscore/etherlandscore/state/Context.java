@@ -600,4 +600,8 @@ public class Context<WriteMaps> {
   public WriteShop getShop(Location location) {
     return this.shops.get(location);
   }
+
+  public Map<Location, WriteShop> getShops() {
+    return shops;
+  }
 }

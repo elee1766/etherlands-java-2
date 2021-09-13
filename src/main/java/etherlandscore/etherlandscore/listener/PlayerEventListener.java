@@ -19,13 +19,19 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetlang.fibers.Fiber;
 
@@ -44,20 +50,54 @@ public class PlayerEventListener extends ListenerClient implements Listener {
   }
 
   @EventHandler
+  public void inventoryMove(InventoryMoveItemEvent event){
+    ItemStack item = event.getItem();
+    Inventory destination = event.getDestination();
+    for(WriteShop shop : context.getShops().values()){
+      if(shop.getInventory().equals(destination)){
+        if(!(item.equals(shop.getItem()))){
+          event.setCancelled(true);
+          return;
+        }
+      }else{
+        event.setCancelled(true);
+        return;
+      }
+    }
+  }
+
+  @EventHandler
+  public void onInventoryOpenEvent(InventoryOpenEvent e){
+    Inventory inventory = e.getInventory();
+    if (inventory.getHolder() instanceof Chest || inventory.getHolder() instanceof DoubleChest){
+      for(WriteShop shop : context.getShops().values()){
+        if(inventory.equals(shop.getInventory())){
+          if(!(context.getGamer(e.getPlayer().getUniqueId()).equals(shop.getOwner()))){
+            e.setCancelled(true);
+          }
+        }
+      }
+    }
+  }
+
+  @EventHandler
   public void clickblock(PlayerInteractEvent event) {
     Player p = event.getPlayer();
     if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
       Block b = event.getClickedBlock();
       if (b.getState() instanceof Chest){
-        Bukkit.getLogger().info("Clicked on chest");
         WriteShop shop = context.getShop(b.getLocation());
         if(shop!=null){
-          Bukkit.getLogger().info("This is a shop");
           p.closeInventory();
           Set<ItemStack> items = new HashSet<>();
-          items.add(shop.getItem());
-          GamerTransaction gt = new GamerTransaction(shop.getOwner(), context.getGamer(p.getUniqueId()), 0, shop.getPrice(), shop.getInventory(), p.getInventory(), items, null);
-          this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+          if(shop.getInventory().isEmpty()){
+            p.sendMessage("This shop is empty");
+            return;
+          }else {
+            items.add(shop.getItem());
+            GamerTransaction gt = new GamerTransaction(shop.getOwner(), context.getGamer(p.getUniqueId()), 0, shop.getPrice(), shop.getInventory(), p.getInventory(), items, null);
+            this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+          }
         }
       }
     }

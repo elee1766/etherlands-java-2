@@ -81,6 +81,7 @@ public class ReadContext {
 
   public District getDistrict(int x, int z) { return context.getDistrict(x, z); }
 
-  public WriteShop getShop(Location location) { return context.getShop(location);
-  }
+  public Map<Location, WriteShop> getShops() { return context.getShops();}
+
+  public WriteShop getShop(Location location) { return context.getShop(location);}
 }

@@ -72,7 +72,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       return;
     }
     WriteGamer gamer = (WriteGamer) context.getGamer(event.getPlayer().getUniqueId());
-    if(gamer.readToggle(MessageToggles.DISTRICT).equals(ToggleValues.ENABLED)) {
+    if(gamer.preferences.district()) {
       int fromx = event.getFrom().getChunk().getX();
       int fromz = event.getFrom().getChunk().getZ();
       int tox = event.getTo().getChunk().getX();
@@ -108,7 +108,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         }
       }
     }
-    if(gamer.readToggle(MessageToggles.MAP).equals(ToggleValues.ENABLED)){
+    if(gamer.preferences.automap()){
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
         MapMenu map = new MapMenu(gamer, this.channels, this.fiber);
         map.mapMenu();

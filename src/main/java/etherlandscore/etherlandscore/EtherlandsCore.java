@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.listener.BlockEventListener;
+import etherlandscore.etherlandscore.listener.ChatEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.listener.SignEventListener;
 import etherlandscore.etherlandscore.services.ChatService;
@@ -61,6 +62,12 @@ public final class EtherlandsCore extends JavaPlugin {
         new BlockEventListener(channels, blockEventListenerFiber);
     modules.add(blockEventListener);
     manager.registerEvents(blockEventListener, this);
+    getLogger().info("Hooking Chat Event Listener");
+    Fiber chatEventListenerFiber = new ThreadFiber();
+    ChatEventListener chatEventListener =
+        new ChatEventListener(channels, chatEventListenerFiber);
+    modules.add(chatEventListener);
+    manager.registerEvents(chatEventListener, this);
 
     getLogger().info("Hooking Commands");
     new CommandDisabler().disable();
@@ -72,6 +79,8 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(scheduler);
     Fiber imageCommandFiber = new ThreadFiber();
     modules.add(new ImageCommand(channels, imageCommandFiber));
+    Fiber chatCommandFiber = new ThreadFiber();
+    modules.add(new ChatCommand(channels, chatCommandFiber));
     Fiber tradeCommandFiber = new ThreadFiber();
     modules.add(new TradeCommand(channels, tradeCommandFiber));
     Fiber groupCommandFiber = new ThreadFiber();

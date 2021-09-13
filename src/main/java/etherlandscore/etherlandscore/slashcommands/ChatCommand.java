@@ -13,6 +13,7 @@ import etherlandscore.etherlandscore.state.write.WriteGamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.i18n.qual.LocalizableKey;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Map;
@@ -31,20 +32,29 @@ public class ChatCommand extends ListenerClient {
 
   void toggleTeam(Player sender, Object[] args) {
     WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
-    if (gamer.readToggle(MessageToggles.TEAM_CHAT).equals(ToggleValues.ENABLED)) {
-      GamerSender.setMessageToggle(channels, MessageToggles.TEAM_CHAT, ToggleValues.DISABLED, gamer);
-    }else{
-      GamerSender.setMessageToggle(channels, MessageToggles.TEAM_CHAT, ToggleValues.ENABLED, gamer);
-    }
+    GamerSender.setMessageToggle(channels, MessageToggles.LOCAL_CHAT, ToggleValues.DISABLED, gamer);
+    GamerSender.setMessageToggle(channels, MessageToggles.TEAM_CHAT, ToggleValues.ENABLED, gamer);
+  }
+
+  void toggleLocal(Player sender, Object[] args) {
+    WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
+    GamerSender.setMessageToggle(channels, MessageToggles.TEAM_CHAT, ToggleValues.DISABLED, gamer);
+    GamerSender.setMessageToggle(channels, MessageToggles.LOCAL_CHAT, ToggleValues.ENABLED, gamer);
   }
 
   void toggleGlobal(Player sender, Object[] args){
     WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
-    if (gamer.readToggle(MessageToggles.GLOBAL_CHAT).equals(ToggleValues.ENABLED)) {
+    if (gamer.preferences.globalChat()) {
       GamerSender.setMessageToggle(channels, MessageToggles.GLOBAL_CHAT, ToggleValues.DISABLED, gamer);
     }else{
       GamerSender.setMessageToggle(channels, MessageToggles.GLOBAL_CHAT, ToggleValues.ENABLED, gamer);
     }
+  }
+
+  void sendGlobal(Player sender, Object[] args){
+    WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
+    GamerSender.setMessageToggle(channels, MessageToggles.LOCAL_CHAT, ToggleValues.DISABLED, gamer);
+    GamerSender.setMessageToggle(channels, MessageToggles.TEAM_CHAT, ToggleValues.DISABLED, gamer);
   }
 
   void help(Player sender, Object[] args) {
@@ -60,10 +70,19 @@ public class ChatCommand extends ListenerClient {
             .executesPlayer(this::help);
     CommandAPICommand ToggleCommand =
         new CommandAPICommand("toggle");
-    CommandAPICommand TeamCommand =
-        new CommandAPICommand("team").executesPlayer(this::toggleTeam);
     CommandAPICommand GlobalCommand =
         new CommandAPICommand("global").executesPlayer(this::toggleGlobal);
+    CommandAPICommand TeamChat =
+        new CommandAPICommand("team").executesPlayer(this::toggleTeam);
+    CommandAPICommand LocalChat =
+        new CommandAPICommand("local").executesPlayer(this::toggleLocal);
+    CommandAPICommand GlobalChat =
+        new CommandAPICommand("global").executesPlayer(this::sendGlobal);
+    ToggleCommand.withSubcommand(GlobalCommand);
+    ChatCommand.withSubcommand(TeamChat);
+    ChatCommand.withSubcommand(ToggleCommand);
+    //ChatCommand.withSubcommand(LocalChat);
+    ChatCommand.withSubcommand(GlobalChat);
     ChatCommand.register();
   }
 }

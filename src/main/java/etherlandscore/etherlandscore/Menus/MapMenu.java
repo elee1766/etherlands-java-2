@@ -7,16 +7,13 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Plot;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-import org.w3c.dom.Text;
 
 import java.util.Locale;
 
@@ -83,10 +80,14 @@ public class MapMenu extends ListenerClient {
         boolean playerflag = false;
         boolean friendflag = false;
         boolean selfFlag = false;
+        HoverEvent friendHover = null;
+        HoverEvent playerHover = null;
+        HoverEvent claimedHover = null;
         Plot plot;
         plot = state().getPlot(x, z);
         if (plot != null) {
           claimedflag = true;
+          claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
           if (plot.isOwner(gamer)) {
             ownedflag = true;
           }
@@ -99,24 +100,32 @@ public class MapMenu extends ListenerClient {
               selfFlag = true;
             } else if (this.gamer.hasFriend(p)) {
               friendflag = true;
+              friendHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Friend: " + p.getName()));
             } else {
               playerflag = true;
+              playerHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Player: " + p.getName()));
             }
           }
         }
 
         if (selfFlag) {
-          mapArray[j][i] = selfKey;
+          mapArray[j][i] = new TextComponent(selfKey);
+          mapArray[j][i].setHoverEvent((new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("You"))));
         } else if (friendflag) {
-          mapArray[j][i] = friendKey;
+          mapArray[j][i] = new TextComponent(friendKey);
+          mapArray[j][i].setHoverEvent(friendHover);
         } else if (playerflag) {
-          mapArray[j][i] = playerKey;
+          mapArray[j][i] = new TextComponent(playerKey);
+          mapArray[j][i].setHoverEvent(playerHover);
         } else if (ownedflag) {
-          mapArray[j][i] = ownedKey;
+          mapArray[j][i] = new TextComponent(ownedKey);
+          mapArray[j][i].setHoverEvent(claimedHover);
         } else if (claimedflag) {
-          mapArray[j][i] = claimedKey;
+          mapArray[j][i] = new TextComponent(claimedKey);
+          mapArray[j][i].setHoverEvent(claimedHover);
         } else {
-          mapArray[j][i] = unclaimedKey;
+          mapArray[j][i] = new TextComponent(unclaimedKey);
+          mapArray[j][i].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Unclaimed: ("+x+", "+z+")")));
         }
       }
       z = z - WIDTH;
@@ -222,10 +231,18 @@ public class MapMenu extends ListenerClient {
         boolean playerflag = false;
         boolean friendflag = false;
         boolean selfFlag = false;
+        HoverEvent friendHover = null;
+        HoverEvent playerHover = null;
+        HoverEvent claimedHover = null;
+        ClickEvent friendClick = null;
+        ClickEvent playerClick = null;
+        ClickEvent claimedClick = null;
         Plot plot;
         plot = state().getPlot(x, z);
         if (plot != null) {
           claimedflag = true;
+          claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
+          claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + plot.getDistrict()));
           if (plot.isOwner(gamer)) {
             ownedflag = true;
           }
@@ -238,24 +255,39 @@ public class MapMenu extends ListenerClient {
               selfFlag = true;
             } else if (this.gamer.hasFriend(p)) {
               friendflag = true;
+              friendHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Friend: " + p.getName()));
+              friendClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/gamer info " + p.getName()));
             } else {
               playerflag = true;
+              playerHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Player: " + p.getName()));
+              playerClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/gamer info " + p.getName()));
             }
           }
         }
 
         if (selfFlag) {
-          mapArray[j][i] = selfKey;
+          mapArray[j][i] = new TextComponent(selfKey);
+          mapArray[j][i].setHoverEvent((new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("You"))));
+          mapArray[j][i].setClickEvent((new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info")));
         } else if (friendflag) {
-          mapArray[j][i] = friendKey;
+          mapArray[j][i] = new TextComponent(friendKey);
+          mapArray[j][i].setHoverEvent(friendHover);
+          mapArray[j][i].setClickEvent(friendClick);
         } else if (playerflag) {
-          mapArray[j][i] = playerKey;
+          mapArray[j][i] = new TextComponent(playerKey);
+          mapArray[j][i].setHoverEvent(playerHover);
+          mapArray[j][i].setClickEvent(playerClick);
         } else if (ownedflag) {
-          mapArray[j][i] = ownedKey;
+          mapArray[j][i] = new TextComponent(ownedKey);
+          mapArray[j][i].setHoverEvent(claimedHover);
+          mapArray[j][i].setClickEvent(claimedClick);
         } else if (claimedflag) {
-          mapArray[j][i] = claimedKey;
+          mapArray[j][i] = new TextComponent(claimedKey);
+          mapArray[j][i].setHoverEvent(claimedHover);
+          mapArray[j][i].setClickEvent(claimedClick);
         } else {
-          mapArray[j][i] = unclaimedKey;
+          mapArray[j][i] = new TextComponent(unclaimedKey);
+          mapArray[j][i].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Unclaimed: ("+x+", "+z+")")));
         }
       }
       z = z - WIDTH;
@@ -321,6 +353,13 @@ public class MapMenu extends ListenerClient {
     player.setColor(ChatColor.RED);
     player.addExtra(" = player");
 
+    Player p = this.gamer.getPlayer();
+    Location pLoc = p.getLocation();
+    TextComponent pos = new TextComponent(" Pos: (" + (int)pLoc.getX() + ", " + (int)pLoc.getY() + ", " + (int)pLoc.getZ() + ")");
+    TextComponent npos = new TextComponent(" Nether: (" + ((int)pLoc.getX())/8 + ", " + ((int)pLoc.getY()) + ", " + ((int)pLoc.getZ())/8 + ")");
+    pos.setColor(ChatColor.GOLD);
+    npos.setColor(ChatColor.RED);
+
     compassComps[0] = unclaimed;
     compassComps[1] = claimed;
     compassComps[2] = yourPlot;
@@ -328,7 +367,7 @@ public class MapMenu extends ListenerClient {
     compassComps[4] = friend;
     compassComps[5] = player;
     compassComps[6] = blank;
-    compassComps[7] = blank;
+    compassComps[7] = pos;
     compassComps[8] = blank;
 
     return compassComps;

@@ -2,16 +2,18 @@ package etherlandscore.etherlandscore.state.write;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
+import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.util.Map2;
+import net.luckperms.api.model.user.User;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -19,14 +21,14 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WriteGamer extends CouchDocument implements Gamer {
   private final UUID uuid;
   private final Set<String> groups;
   private String team;
   private String address;
   private Set<UUID> friends;
-  private Map<MessageToggles, ToggleValues> messageToggles;
+  public UserPreferences preferences;
 
   @JsonProperty("_id")
   private String _id;
@@ -36,40 +38,12 @@ public class WriteGamer extends CouchDocument implements Gamer {
     this.uuid = uuid;
     this.groups = groups;
     this.address = "";
-    messageToggles = new HashMap<>();
-    setDefaults();
+    this.preferences = new UserPreferences();
   }
 
   public WriteGamer(UUID uuid) {
     this.uuid = uuid;
     this.groups = new HashSet<>();
-    messageToggles = new HashMap<>();
-    setDefaults();
-  }
-
-  public void setDefaults(){
-    for(MessageToggles mt : MessageToggles.values()){
-      this.messageToggles.put(mt, ToggleValues.ENABLED);
-    }
-  }
-
-  @Override
-  public Map<MessageToggles, ToggleValues> getMessageToggles() {
-    return messageToggles;
-  }
-
-  public void setMessageToggles(Map<MessageToggles, ToggleValues> messageToggles) {
-    this.messageToggles = messageToggles;
-  }
-
-  @JsonIgnore
-  public void setMessageToggle(MessageToggles toggle, ToggleValues value) {
-    this.messageToggles.put(toggle, value);
-  }
-
-  @Override
-  public ToggleValues readToggle(MessageToggles toggle){
-    return this.messageToggles.get(toggle);
   }
 
   public void addFriend(Gamer gamer) {

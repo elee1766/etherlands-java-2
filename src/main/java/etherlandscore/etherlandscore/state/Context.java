@@ -243,7 +243,7 @@ public class Context<WriteMaps> {
   }
 
   public void gamer_toggle_message(WriteGamer gamer, MessageToggles flag, ToggleValues value) {
-    gamer.setMessageToggle(flag, value);
+    gamer.preferences.set(flag, value);
     couchPersister.update(gamer);
   }
 

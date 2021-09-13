@@ -35,10 +35,6 @@ public interface Gamer {
 
   boolean hasFriend(Player player);
 
-  ToggleValues readToggle(MessageToggles toggle);
-
-  Map<MessageToggles, ToggleValues> getMessageToggles();
-
   boolean hasTeam();
 
   @Override

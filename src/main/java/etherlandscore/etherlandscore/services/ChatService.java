@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -46,7 +47,8 @@ public class ChatService extends ListenerClient {
 
   private void send_global(TextComponent message){
     Bukkit.getLogger().info("Sending global message");
-    TextComponent globalChat = new TextComponent("[Global] ");
+    TextComponent globalChat = new TextComponent("[G] ");
+    globalChat.setColor(ChatColor.GOLD);
     globalChat.addExtra(message);
     for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
       WriteGamer gamer = (WriteGamer) context.getGamer(onlinePlayer.getUniqueId());
@@ -57,7 +59,8 @@ public class ChatService extends ListenerClient {
   }
   private void send_team(Team team,TextComponent message){
     Bukkit.getLogger().info("Sending team message");
-    TextComponent teamChat = new TextComponent("[Team] ");
+    TextComponent teamChat = new TextComponent("[T] ");
+    teamChat.setColor(ChatColor.AQUA);
     teamChat.addExtra(message);
     Player owner = Bukkit.getPlayer(team.getOwnerUUID());
     if(owner!=null){
@@ -72,7 +75,8 @@ public class ChatService extends ListenerClient {
   }
   private void send_local(Gamer gamer,Integer range, TextComponent message){
     Bukkit.getLogger().info("Sending local message");
-    TextComponent local = new TextComponent("[Local] ");
+    TextComponent local = new TextComponent("[L] ");
+    local.setColor(ChatColor.LIGHT_PURPLE);
     local.addExtra(message);
     Player player = gamer.getPlayer();
     if(player != null){

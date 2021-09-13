@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
@@ -25,7 +26,11 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetlang.fibers.Fiber;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class PlayerEventListener extends ListenerClient implements Listener {
 
@@ -47,9 +52,12 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         Bukkit.getLogger().info("Clicked on chest");
         WriteShop shop = context.getShop(b.getLocation());
         if(shop!=null){
-          Bukkit.getLogger().info("opening inventory");
+          Bukkit.getLogger().info("This is a shop");
           p.closeInventory();
-          p.openInventory(shop.getInventory());
+          Set<ItemStack> items = new HashSet<>();
+          items.add(shop.getItem());
+          GamerTransaction gt = new GamerTransaction(shop.getOwner(), context.getGamer(p.getUniqueId()), 0, shop.getPrice(), shop.getInventory(), p.getInventory(), items, null);
+          this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
         }
       }
     }

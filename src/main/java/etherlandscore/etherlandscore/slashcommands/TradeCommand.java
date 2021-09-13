@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
+import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import etherlandscore.etherlandscore.util.Map2;
@@ -17,8 +18,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -97,18 +101,26 @@ public class TradeCommand extends ListenerClient {
   }
 
   public void addItem(Player sender, Object[] args){
+    ItemStack item = sender.getEquipment().getItemInMainHand();
     Integer price = (Integer) args[0];
     Block shop = sender.getTargetBlock(null, 10);
     if(shop.getState() instanceof Chest){
-      WriteShop writeShop = context.getShop(shop.getLocation());
+      Chest shopChest = (Chest) shop.getState();
+      District district = context.getDistrict(shopChest.getLocation().getChunk().getX(), shopChest.getLocation().getChunk().getZ());
+      WriteShop writeShop = new WriteShop(shopChest, district, context.getGamer(sender.getUniqueId()), shopChest.getInventory(), item, price);
+      this.channels.master_command.publish(new Message<>(MasterCommand.shop_create_shop, writeShop));
+      Location location = writeShop.getLocation();
+      Location hologramLocation = new Location(location.getWorld(), location.getX()+.5, location.getY(), location.getZ()+.5);
+      ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(hologramLocation, EntityType.ARMOR_STAND);
+      armorStand.setVisible(false);
+      armorStand.setCustomName(sender.getEquipment().getItemInMainHand().getAmount() + " " + sender.getEquipment().getItemInMainHand().getType() + " Price: " + price);
+      armorStand.setCustomNameVisible(true);
       Inventory shopInventory = writeShop.getInventory();
-      ItemStack item = sender.getEquipment().getItemInMainHand();
       if(shopInventory.firstEmpty()==-1){
         sender.sendMessage("This shop is full");
       }else{
         sender.getInventory().removeItem(item);
         shopInventory.addItem(item);
-        item.setLore(Collections.singletonList(price.toString()));
       }
     }
   }

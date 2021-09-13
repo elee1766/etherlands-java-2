@@ -16,14 +16,18 @@ public class WriteShop extends CouchDocument implements Shop {
     private final Inventory inventory;
     private final Chest chest;
     private final Gamer owner;
+    private final ItemStack item;
+    private final Integer price;
     private String _id;
 
     @JsonCreator
-    public WriteShop(@JsonProperty("chest") Chest chest, @JsonProperty("district") District district, @JsonProperty("owner") Gamer owner, @JsonProperty("inventory") Inventory shopInventory){
+    public WriteShop(@JsonProperty("chest") Chest chest, @JsonProperty("district") District district, @JsonProperty("owner") Gamer owner, @JsonProperty("inventory") Inventory shopInventory, @JsonProperty("Item") ItemStack item, @JsonProperty("Price") Integer price){
         this.district = district;
         this.chest = chest;
         this.owner = owner;
         this.inventory = shopInventory;
+        this.item = item;
+        this.price = price;
         this._id = (chest.getLocation().getBlockX() + "_" + chest.getLocation().getY() + "_" + chest.getZ());
     }
 
@@ -39,6 +43,17 @@ public class WriteShop extends CouchDocument implements Shop {
     @Override
     public Location getLocation(){
         return this.chest.getLocation();
+    }
+
+    @Override
+    public ItemStack getItem() { return this.item ;}
+
+    @Override
+    public Integer getPrice() { return this.price ;}
+
+    @Override
+    public Gamer getOwner(){
+        return this.owner;
     }
 
     @Override

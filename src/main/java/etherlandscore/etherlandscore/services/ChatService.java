@@ -79,13 +79,19 @@ public class ChatService extends ListenerClient {
     local.setColor(ChatColor.LIGHT_PURPLE);
     local.addExtra(message);
     Player player = gamer.getPlayer();
+    player.sendMessage(local);
     if(player != null){
-      Collection<Entity> entities = player.getNearbyEntities(range,range,range);
-      for (Entity entity : entities) {
-        if(entity.getType() == EntityType.PLAYER){
-          entity.sendMessage(local);
+      Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("EtherlandsCore"), new Runnable() {
+        @Override
+        public void run() {
+          Collection<Entity> entities = player.getNearbyEntities(range,range,range);
+          for (Entity entity : entities) {
+            if(entity.getType() == EntityType.PLAYER){
+              entity.sendMessage(local);
+            }
+          }
         }
-      }
+      });
     }
   }
   private void send_gamer(Gamer gamer,TextComponent message) {

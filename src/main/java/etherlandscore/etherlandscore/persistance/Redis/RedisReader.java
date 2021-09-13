@@ -16,7 +16,7 @@ public class RedisReader {
   KeyCommands commands;
 
   public RedisReader() {
-    this.client = RedisClient.create("redis://localhost");
+    this.client = RedisClient.create("http://localhost:63");
     this.factory = new RedisCommandFactory(client.connect());
     this.commands = factory.getCommands(KeyCommands.class);
   }

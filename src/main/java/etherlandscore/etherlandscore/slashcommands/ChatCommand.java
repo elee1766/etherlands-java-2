@@ -81,7 +81,7 @@ public class ChatCommand extends ListenerClient {
     ToggleCommand.withSubcommand(GlobalCommand);
     ChatCommand.withSubcommand(TeamChat);
     ChatCommand.withSubcommand(ToggleCommand);
-    //ChatCommand.withSubcommand(LocalChat);
+    ChatCommand.withSubcommand(LocalChat);
     ChatCommand.withSubcommand(GlobalChat);
     ChatCommand.register();
   }

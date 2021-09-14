@@ -4,6 +4,7 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.util.Map2;
@@ -56,10 +57,10 @@ public class DistrictPrinter extends ListenerClient {
 
   private TextComponent plotHelper(){
     TextComponent combined = new TextComponent();
-    Set<Plot> plots = this.writeDistrict.getPlotObjects();
-    for(Plot plot : plots){
-      TextComponent pcomp = new TextComponent(plot.getIdInt().toString());
-      pcomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")")));
+    Set<String> plotIDs = RedisGetter.getPlotsinDistrict(writeDistrict.getIdInt().toString());
+    for(String plot : plotIDs){
+      TextComponent pcomp = new TextComponent(plot);
+      pcomp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+RedisGetter.getPlotX(plot) + ", " + RedisGetter.getPlotZ(plot)+")")));
       combined.addExtra(pcomp);
       combined.addExtra(" ");
     }

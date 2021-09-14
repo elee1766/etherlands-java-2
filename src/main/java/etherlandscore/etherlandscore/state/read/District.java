@@ -21,8 +21,6 @@ public interface District extends Comparable<District> {
 
   Field[] getDeclaredFields();
 
-  Set<Plot> getPlotObjects();
-
   Gamer getOwnerObject();
 
   String getOwnerAddress();

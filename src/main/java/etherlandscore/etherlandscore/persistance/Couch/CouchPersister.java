@@ -99,10 +99,6 @@ public class CouchPersister extends ServerModule {
     Bukkit.getLogger().info("doing districts");
     for (WriteDistrict writeDistrict : this.districtRepo.getAll()) {
       empty.districts.put(writeDistrict.getIdInt(),writeDistrict);
-        for(int id : writeDistrict.getPlotIds()) {
-          WritePlot plot = empty.getPlot(id);
-          empty.districtLocations.put(plot, writeDistrict);
-        }
     }
     Bukkit.getLogger().info("doing maps");
     for (WriteMap writeMap: this.mapRepo.getAll()) {

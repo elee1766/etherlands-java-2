@@ -35,7 +35,15 @@ public class RedisGetter {
     return plotID;
   }
 
-  public static Double getDistrictOfPlot(String key){
+  public static String getOwnerOfDistrict(String key){
+    String owner;
+    try (Jedis jedis = JedisFactory.getPool().getResource()) {
+      owner = jedis.get("district:"+key+":address");
+    }
+    return owner;
+  }
+
+  public static Double getDistrictOfPlot(String key) {
     Double district;
     try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       district = jedis.zscore("districtZplot", key);

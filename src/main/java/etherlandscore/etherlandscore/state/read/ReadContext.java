@@ -84,4 +84,6 @@ public class ReadContext {
   public Map<Location, WriteShop> getShops() { return context.getShops();}
 
   public WriteShop getShop(Location location) { return context.getShop(location);}
+
+  public Map<String, UUID> getLinks() { return context.getLinks();}
 }

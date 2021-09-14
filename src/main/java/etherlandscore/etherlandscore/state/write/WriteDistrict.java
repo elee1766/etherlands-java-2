@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
+import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.util.Map2;
 import org.bukkit.Bukkit;
@@ -21,18 +22,10 @@ import static etherlandscore.etherlandscore.services.MasterService.state;
 public class WriteDistrict extends CouchDocument implements District {
   @JsonProperty("_id")
   private String _id;
-  private String ownerAddress;
-  private Set<Integer> plotIds;
   private Map2<String, AccessFlags, FlagValue> groupPermissionMap;
   private Map2<UUID, AccessFlags, FlagValue> gamerPermissionMap;
   private Integer priority;
   private String team;
-  private String ownerUUID;
-  private String ownerServerName;
-
-  public void setPlotIds(Set<Integer> plotIds) {
-    this.plotIds = plotIds;
-  }
 
   public void setGroupPermissionMap(Map2<String, AccessFlags, FlagValue> groupPermissionMap) {
     this.groupPermissionMap = groupPermissionMap;
@@ -45,23 +38,17 @@ public class WriteDistrict extends CouchDocument implements District {
   @JsonCreator
   public WriteDistrict(
       @JsonProperty("priority") Integer priority,
-      @JsonProperty("ownerAddress") String ownerAddress,
       @JsonProperty("_id") Integer id,
       @JsonProperty("default") boolean isDefault) {
     this.priority = priority;
     this._id = id.toString();
-    this.ownerAddress = ownerAddress;
   }
 
   public WriteDistrict(
-      int id,
-      Set<Integer> chunkIds,
-      String ownerAddress) {
-    this.plotIds = chunkIds;
+      int id) {
     this.groupPermissionMap = new Map2<>();
     this.gamerPermissionMap = new Map2<>();
     this._id = String.valueOf(id);
-    this.ownerAddress = ownerAddress;
   }
 
   @Override
@@ -111,7 +98,7 @@ public class WriteDistrict extends CouchDocument implements District {
       return false;
     }
   }
-
+  @JsonIgnore
   public void setDefaults(){
     for(AccessFlags af : AccessFlags.values()){
       setGroupPermission(this.getTeamObject().getGroup("member"), af, FlagValue.ALLOW);
@@ -121,7 +108,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public Gamer getOwnerObject() {
-    return state().getGamer(UUID.fromString(ownerUUID));
+    return state().getGamer(state().getLinks().getOrDefault(RedisGetter.getOwnerOfDistrict(this._id), null));
   }
 
   @Override
@@ -144,8 +131,9 @@ public class WriteDistrict extends CouchDocument implements District {
   }
 
   @Override
+  @JsonIgnore
   public String getOwnerAddress() {
-    return ownerAddress;
+    return RedisGetter.getOwnerOfDistrict(this._id);
   }
 
   @Override
@@ -193,18 +181,9 @@ public class WriteDistrict extends CouchDocument implements District {
     return groupPermissionMap;
   }
 
-  public Set<Integer> getPlotIds() {
-    return plotIds;
-  }
-
-  @Override
   @JsonIgnore
-  public Set<Plot> getPlotObjects() {
-    Set<Plot> writePlots = new java.util.HashSet<>(Collections.emptySet());
-    for (int pId : plotIds) {
-      writePlots.add(state().getPlot(pId));
-    }
-    return writePlots;
+  public Set<String> getPlotIds() {
+    return RedisGetter.getPlotsinDistrict(this._id);
   }
 
   @Override
@@ -254,42 +233,14 @@ public class WriteDistrict extends CouchDocument implements District {
   }
 
   @Override
+  @JsonIgnore
   public UUID getOwnerUUID() {
-    if(ownerUUID == ""||ownerUUID==null){
-      return null;
-    }
-    return UUID.fromString(ownerUUID);
-  }
-
-  public void setOwnerUUID(UUID ownerUUID) {
-    this.ownerUUID = ownerUUID.toString();
-  }
-
-  public void setOwnerAddress(String ownerAddress) {
-    this.ownerAddress = ownerAddress;
-  }
-
-  public String getOwnerServerName() {
-    return ownerServerName;
-  }
-
-  public void setOwnerServerName(String ownerServerName) {
-    this.ownerServerName = ownerServerName;
+    return state().getLinks().getOrDefault(RedisGetter.getOwnerOfDistrict(this._id), null);
   }
 
   @JsonIgnore
-  public void setOwner(String ownerAddress, UUID ownerUUID) {
-    this.ownerAddress = ownerAddress;
-    if (!(ownerUUID ==null)) {
-      this.ownerUUID = ownerUUID.toString();
-    }
-    if (this.ownerUUID != null) {
-      if(state().getGamer(ownerUUID)!=null) {
-        this.ownerServerName = Bukkit.getOfflinePlayer(ownerUUID).getName();
-      } else {
-        this.ownerServerName = "player-uuid: [" + ownerUUID + "]";
-      }
-    }
+  public String getOwnerServerName() {
+    return Bukkit.getOfflinePlayer(state().getLinks().getOrDefault(RedisGetter.getOwnerOfDistrict(this._id), null)).getName();
   }
 
 }

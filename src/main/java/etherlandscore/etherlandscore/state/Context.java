@@ -264,7 +264,6 @@ public class Context<WriteMaps> {
         Bukkit.getLogger().info(wd.getOwnerAddress() + " should equal " + address);
         if(wd.getOwnerAddress().equals(address)){
           Bukkit.getLogger().info("they are equal");
-          wd.setOwner(address, gamer.getUuid());
           couchPersister.update(wd);
         }
       }
@@ -383,7 +382,6 @@ public class Context<WriteMaps> {
 
   public void district_set_owner(WriteDistrict district, String address) {
     UUID ownerUUID = this.getLinks().getOrDefault(address, null);
-    district.setOwner(address, ownerUUID);
     couchPersister.update(district);
   }
 
@@ -393,7 +391,7 @@ public class Context<WriteMaps> {
       ownerUUID = new UUID(0,0);
     }
     if (!this.getDistricts().containsKey(districtID)) {
-      this.getDistricts().put(districtID, new WriteDistrict(districtID, chunkIds, owner));
+      this.getDistricts().put(districtID, new WriteDistrict(districtID));
     }
     WriteDistrict district = this.getDistrict(districtID);
     Map2<UUID, AccessFlags, FlagValue> gamerPerms = district.getGamerPermissionMap();
@@ -411,7 +409,6 @@ public class Context<WriteMaps> {
     }
     district_set_owner(district, owner);
     if (districtID != 0) {
-      district.setPlotIds(chunkIds);
       district.setGroupPermissionMap(groupPerms);
       district.setGamerPermissionMap(gamerPerms);
       for (int i : chunkIds) {
@@ -427,7 +424,7 @@ public class Context<WriteMaps> {
   public void district_forceupdate_district(int districtID, Set<Integer> chunkIds, String owner) {
     UUID ownerUUID = this.getLinks().getOrDefault(owner, null);
     if (!this.getDistricts().containsKey(districtID)) {
-      this.getDistricts().put(districtID, new WriteDistrict(districtID, chunkIds, owner));
+      this.getDistricts().put(districtID, new WriteDistrict(districtID));
     }
     WriteDistrict district = this.getDistrict(districtID);
     Map2<UUID, AccessFlags, FlagValue> gamerPerms = district.getGamerPermissionMap();
@@ -438,7 +435,6 @@ public class Context<WriteMaps> {
       plot.setOwner(owner,ownerUUID);
       couchPersister.update(this.getPlot(i));
     }
-    district.setPlotIds(chunkIds);
     district_set_owner(district, owner);
     district.setGroupPermissionMap(groupPerms);
     district.setGamerPermissionMap(gamerPerms);

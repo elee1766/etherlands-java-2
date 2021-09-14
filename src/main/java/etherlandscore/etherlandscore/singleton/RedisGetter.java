@@ -27,10 +27,10 @@ public class RedisGetter {
     return output;
   }
 
-  public static Set<String> getPlotID(String x, String z){
-    Set<String> plotID;
+  public static String getPlotID(String x, String z){
+    String plotID;
     try (Jedis jedis = JedisFactory.getPool().getResource()) {
-      plotID = jedis.sinter("plot:key:"+x, "plot:key:"+z);
+      plotID = jedis.get("plot_coord:"+x+"_"+z);
     }
     return plotID;
   }

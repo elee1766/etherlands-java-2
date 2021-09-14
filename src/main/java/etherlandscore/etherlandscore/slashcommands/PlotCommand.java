@@ -61,7 +61,7 @@ public class PlotCommand extends ListenerClient {
     Location loc = sender.getLocation();
     String x = String.valueOf(loc.getChunk().getX());
     String z = String.valueOf(loc.getChunk().getZ());
-    Set<String> plotIDs = RedisGetter.getPlotID(x, z);
+    String plotIDs = RedisGetter.getPlotID(x, z);
     if(plotIDs==null){
       sender.sendMessage("There is no plot here");
     }else {
@@ -72,11 +72,11 @@ public class PlotCommand extends ListenerClient {
   void idGiven(Player sender, Object[] args) {
     String x = (String) args[0];
     String z = (String) args[1];
-    Set<String> plotIDs = RedisGetter.getPlotID(x, z);
+    String plotIDs = RedisGetter.getPlotID(x, z);
     if(plotIDs==null){
       sender.sendMessage("There is no plot here");
     }else{
-      Double district = RedisGetter.getDistrictOfPlot(plotIDs.iterator().next());
+      Double district = RedisGetter.getDistrictOfPlot(plotIDs);
       sender.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
     }
   }

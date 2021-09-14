@@ -55,10 +55,11 @@ public class PlotCommand extends ListenerClient {
   }
 
   void idRed(Player player, Object[] args) {
+    RedisGetter redis = new RedisGetter();
     String idString = (String) args[0];
-    String x = RedisGetter.getPlotX(idString);
-    String z = RedisGetter.getPlotZ(idString);
-    Set<String> district = RedisGetter.getDistrictOfPlot(idString);
+    String x = redis.getPlotX(idString);
+    String z = redis.getPlotZ(idString);
+    Set<String> district = redis.getDistrictOfPlot(idString);
     player.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
   }
 

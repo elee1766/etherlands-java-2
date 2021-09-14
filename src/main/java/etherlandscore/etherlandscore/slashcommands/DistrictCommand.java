@@ -188,9 +188,6 @@ public class DistrictCommand extends ListenerClient {
             .executesPlayer(this::infoGiven);
     DistrictCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
     DistrictCommand.withSubcommand(
-        new CommandAPICommand("toggle_announcements")
-        .executesPlayer(this::toggle));
-    DistrictCommand.withSubcommand(
         new CommandAPICommand("set_player")
             .withAliases("setp", "setplayer", "setPlayer")
             .withArguments(new IntegerArgument("districtID"))
@@ -248,15 +245,6 @@ public class DistrictCommand extends ListenerClient {
 
     DistrictCommand.register();
     DistrictInfoCommand.register();
-  }
-
-  void toggle(Player sender, Object[] args) {
-    WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
-    if(gamer.preferences.checkPreference(MessageToggles.GLOBAL_CHAT)){
-      GamerSender.setMessageToggle(channels, MessageToggles.DISTRICT, ToggleValues.DISABLED, gamer);
-    }else{
-      GamerSender.setMessageToggle(channels, MessageToggles.DISTRICT, ToggleValues.ENABLED, gamer);
-    }
   }
 
   void setGroup(Player sender, Object[] args) {

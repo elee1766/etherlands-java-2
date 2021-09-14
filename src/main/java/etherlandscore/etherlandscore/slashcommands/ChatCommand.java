@@ -44,7 +44,7 @@ public class ChatCommand extends ListenerClient {
 
   void toggleGlobal(Player sender, Object[] args){
     WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
-    if (gamer.preferences.globalChat()) {
+    if (gamer.preferences.checkPreference(MessageToggles.GLOBAL_CHAT)) {
       GamerSender.setMessageToggle(channels, MessageToggles.GLOBAL_CHAT, ToggleValues.DISABLED, gamer);
     }else{
       GamerSender.setMessageToggle(channels, MessageToggles.GLOBAL_CHAT, ToggleValues.ENABLED, gamer);

@@ -120,7 +120,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       return;
     }
     WriteGamer gamer = (WriteGamer) context.getGamer(event.getPlayer().getUniqueId());
-    if(gamer.preferences.district()) {
+    if(gamer.preferences.checkPreference(MessageToggles.DISTRICT)) {
       int fromx = event.getFrom().getChunk().getX();
       int fromz = event.getFrom().getChunk().getZ();
       int tox = event.getTo().getChunk().getX();
@@ -156,7 +156,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         }
       }
     }
-    if(gamer.preferences.automap()){
+    if(gamer.preferences.checkPreference(MessageToggles.MAP)){
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
         MapMenu map = new MapMenu(gamer, this.channels, this.fiber);
         map.mapMenu();

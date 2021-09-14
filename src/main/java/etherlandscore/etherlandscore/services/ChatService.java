@@ -52,7 +52,7 @@ public class ChatService extends ListenerClient {
     globalChat.addExtra(message);
     for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
       WriteGamer gamer = (WriteGamer) context.getGamer(onlinePlayer.getUniqueId());
-      if(gamer.preferences.globalChat()){
+      if(gamer.preferences.checkPreference(MessageToggles.GLOBAL_CHAT)){
         onlinePlayer.sendMessage(globalChat);
       }
     }

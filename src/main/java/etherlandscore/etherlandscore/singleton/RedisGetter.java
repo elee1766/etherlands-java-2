@@ -7,61 +7,46 @@ import redis.clients.jedis.JedisPoolConfig;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
-
-
 public class RedisGetter {
-  public JedisPoolConfig poolConfig;
-  public JedisPool jedisPool;
-  public RedisGetter(){
-    this.poolConfig = buildPoolConfig();
-    this.jedisPool = new JedisPool(this.poolConfig, "localhost");
-  }
 
-  public JedisPoolConfig buildPoolConfig() {
-    final JedisPoolConfig poolConfig = new JedisPoolConfig();
-    poolConfig.setMaxTotal(128);
-    poolConfig.setMaxIdle(128);
-    poolConfig.setMinIdle(16);
-    poolConfig.setTestOnBorrow(true);
-    poolConfig.setTestOnReturn(true);
-    poolConfig.setTestWhileIdle(true);
-    poolConfig.setMinEvictableIdleTimeMillis(Duration.ofSeconds(60).toMillis());
-    poolConfig.setTimeBetweenEvictionRunsMillis(Duration.ofSeconds(30).toMillis());
-    poolConfig.setNumTestsPerEvictionRun(3);
-    poolConfig.setBlockWhenExhausted(true);
-    return poolConfig;
-  }
-
-  public String getPlotX(String key){
+  public static String getPlotX(String key){
     String output = "";
-    try (Jedis jedis = this.jedisPool.getResource()) {
+    try (Jedis jedis = JedisFactory.getPool().getResource()) {
       String input = ("plot:"+key+":x");
       output = jedis.get(input);
     }
     return output;
   }
 
-  public String getPlotZ(String key){
+  public static String getPlotZ(String key){
     String output = "";
-    try (redis.clients.jedis.Jedis jedis = this.jedisPool.getResource()) {
+    try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       String input = ("plot:"+key+":z");
       output = jedis.get(input);
     }
     return output;
   }
 
-  public Double getDistrictOfPlot(String key){
+  public static Set<String> getPlotID(String x, String z){
+    Set<String> plotID;
+    try (Jedis jedis = JedisFactory.getPool().getResource()) {
+      plotID = jedis.sinter("plot:key:"+x, "plot:key:"+z);
+    }
+    return plotID;
+  }
+
+  public static Double getDistrictOfPlot(String key){
     Double district;
-    try (redis.clients.jedis.Jedis jedis = this.jedisPool.getResource()) {
+    try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       district = jedis.zscore("districtZplot", key);
     }
     return district;
   }
 
-  public Set<String> getPlotsinDistrict(String key){
+  public static Set<String> getPlotsinDistrict(String key){
     Double minmax = Double.parseDouble(key);
     Set<String> districts;
-    try (redis.clients.jedis.Jedis jedis = this.jedisPool.getResource()) {
+    try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       districts = jedis.zrangeByScore("districtZplot", minmax, minmax);
     }
     return districts;

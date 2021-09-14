@@ -36,7 +36,7 @@ public class MapCommand extends ListenerClient {
 
   void auto(Player sender, Object[] args){
     WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
-    if (gamer.preferences.automap()) {
+    if (gamer.preferences.checkPreference(MessageToggles.MAP)) {
       GamerSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.DISABLED, gamer);
     }else{
       GamerSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.ENABLED, gamer);

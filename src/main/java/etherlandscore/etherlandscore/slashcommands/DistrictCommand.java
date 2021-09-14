@@ -252,7 +252,7 @@ public class DistrictCommand extends ListenerClient {
 
   void toggle(Player sender, Object[] args) {
     WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
-    if(gamer.preferences.district()){
+    if(gamer.preferences.checkPreference(MessageToggles.GLOBAL_CHAT)){
       GamerSender.setMessageToggle(channels, MessageToggles.DISTRICT, ToggleValues.DISABLED, gamer);
     }else{
       GamerSender.setMessageToggle(channels, MessageToggles.DISTRICT, ToggleValues.ENABLED, gamer);

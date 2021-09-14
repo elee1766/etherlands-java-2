@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.listener;
 
 import etherlandscore.etherlandscore.Menus.MapMenu;
+import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
@@ -50,11 +51,11 @@ public class ChatEventListener extends ListenerClient implements Listener {
     Player p = event.getPlayer();
     WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
     WriteTeam team = (WriteTeam) gamer.getTeamObject();
-    if(gamer.preferences.teamChat()) {
+    if(gamer.preferences.checkPreference(MessageToggles.TEAM_CHAT)) {
       Bukkit.getLogger().info("teamchat enabled");
       event.getRecipients().clear();
       channels.chat_message.publish(new Message<>(ChatTarget.team, team, message));
-    }else if(gamer.preferences.localChat()){
+    }else if(gamer.preferences.checkPreference(MessageToggles.LOCAL_CHAT)){
       Bukkit.getLogger().info("local chat enabled");
       event.getRecipients().clear();
       channels.chat_message.publish(new Message<>(ChatTarget.local, gamer, 100, message));

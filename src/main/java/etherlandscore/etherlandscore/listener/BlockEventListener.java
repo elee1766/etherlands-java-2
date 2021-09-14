@@ -8,9 +8,14 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.write.WriteShop;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
@@ -36,6 +41,17 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockBreak(BlockBreakEvent breakEvent) {
+    if(breakEvent.getBlock().getState() instanceof Chest){
+      WriteShop shop = context.getShop(breakEvent.getBlock().getLocation());
+      if(shop!=null){
+        if(context.getGamer(breakEvent.getPlayer().getUniqueId()).equals(shop.getOwner())){
+          shop.getLabel().remove();
+          return;
+        }else{
+          breakEvent.setCancelled(true);
+        }
+      }
+    }
     try {
       BlockBreakAction action = new BlockBreakAction(context, breakEvent);
       boolean code = action.process();
@@ -137,6 +153,22 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockPlace(BlockPlaceEvent placeEvent) {
+    if(placeEvent.getBlock().getState() instanceof Chest){
+      Block chest = placeEvent.getBlock();
+      Location loc = chest.getLocation();
+      World world = loc.getWorld();
+      for(int i = -1; i<2; i++){
+        for(int j = -1; j<2; j++){
+          Location check = new Location(world, loc.getX()+i, loc.getY(), loc.getZ()+j);
+          if(!check.equals(loc)) {
+            if (world.getBlockAt(check).getState() instanceof Chest) {
+              placeEvent.setCancelled(true);
+              return;
+            }
+          }
+        }
+      }
+    }
     try {
       BlockPlaceAction action = new BlockPlaceAction(context, placeEvent);
       boolean code = action.process();

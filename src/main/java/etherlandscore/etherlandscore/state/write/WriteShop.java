@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Shop;
 import org.bukkit.Location;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -18,11 +19,13 @@ public class WriteShop extends CouchDocument implements Shop {
     private final Gamer owner;
     private final ItemStack item;
     private final Integer price;
+    private final ArmorStand label;
     private String _id;
 
     @JsonCreator
-    public WriteShop(@JsonProperty("chest") Chest chest, @JsonProperty("district") District district, @JsonProperty("owner") Gamer owner, @JsonProperty("inventory") Inventory shopInventory, @JsonProperty("Item") ItemStack item, @JsonProperty("Price") Integer price){
+    public WriteShop(@JsonProperty("chest") Chest chest, @JsonProperty("district") District district, @JsonProperty("owner") Gamer owner, @JsonProperty("inventory") Inventory shopInventory, @JsonProperty("Item") ItemStack item, @JsonProperty("Price") Integer price, @JsonProperty("Label")ArmorStand armorStand){
         this.district = district;
+        this.label = armorStand;
         this.chest = chest;
         this.owner = owner;
         this.inventory = shopInventory;
@@ -39,6 +42,9 @@ public class WriteShop extends CouchDocument implements Shop {
     public void setId(String string) {
         this._id = (chest.getLocation().getBlockX() + "_" + chest.getLocation().getY() + "_" + chest.getZ());
     }
+
+    @Override
+    public ArmorStand getLabel() {return this.label;}
 
     @Override
     public Location getLocation(){

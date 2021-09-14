@@ -24,10 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -62,6 +59,30 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       }else{
         event.setCancelled(true);
         return;
+      }
+    }
+  }
+
+  @EventHandler
+  public void onChestMoveItems (InventoryClickEvent event)
+  {
+    if (event.getClickedInventory() == null)
+    {
+      return;
+    }
+    if ((event.getClickedInventory().getType().equals(InventoryType.CHEST) && event.getCursor() != null) || event.isShiftClick())
+    {
+      Inventory shopInventory = event.getView().getTopInventory();
+      for(WriteShop shop : context.getShops().values()) {
+        if(shop.getInventory().equals(shopInventory)){
+          if(event.isShiftClick()){
+            if(!(event.getCurrentItem().equals(shop.getItem()))){
+              event.setCancelled(true);
+            }
+          } else if(!(event.getCursor().equals(shop.getItem()))) {
+                event.setCancelled(true);
+          }
+        }
       }
     }
   }

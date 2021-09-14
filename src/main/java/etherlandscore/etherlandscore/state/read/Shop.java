@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.state.read;
 
 import org.bukkit.Location;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,5 +16,8 @@ public interface Shop {
   ItemStack getItem();
 
   Integer getPrice();
+
+  ArmorStand getLabel();
+
 
 }

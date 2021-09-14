@@ -107,14 +107,15 @@ public class TradeCommand extends ListenerClient {
     if(shop.getState() instanceof Chest){
       Chest shopChest = (Chest) shop.getState();
       District district = context.getDistrict(shopChest.getLocation().getChunk().getX(), shopChest.getLocation().getChunk().getZ());
-      WriteShop writeShop = new WriteShop(shopChest, district, context.getGamer(sender.getUniqueId()), shopChest.getInventory(), item, price);
-      this.channels.master_command.publish(new Message<>(MasterCommand.shop_create_shop, writeShop));
-      Location location = writeShop.getLocation();
+      Location location = shopChest.getLocation();
       Location hologramLocation = new Location(location.getWorld(), location.getX()+.5, location.getY(), location.getZ()+.5);
       ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(hologramLocation, EntityType.ARMOR_STAND);
       armorStand.setVisible(false);
+      armorStand.setGravity(false);
       armorStand.setCustomName(sender.getEquipment().getItemInMainHand().getAmount() + " " + sender.getEquipment().getItemInMainHand().getType() + " Price: " + price);
       armorStand.setCustomNameVisible(true);
+      WriteShop writeShop = new WriteShop(shopChest, district, context.getGamer(sender.getUniqueId()), shopChest.getInventory(), item, price, armorStand);
+      this.channels.master_command.publish(new Message<>(MasterCommand.shop_create_shop, writeShop));
       Inventory shopInventory = writeShop.getInventory();
       if(shopInventory.firstEmpty()==-1){
         sender.sendMessage("This shop is full");

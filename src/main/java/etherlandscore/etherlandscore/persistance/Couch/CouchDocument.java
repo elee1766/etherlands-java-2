@@ -2,6 +2,7 @@ package etherlandscore.etherlandscore.persistance.Couch;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.bukkit.entity.ArmorStand;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class CouchDocument {
@@ -22,4 +23,5 @@ public abstract class CouchDocument {
   public void setRevision(String s) {
     this.rev = s;
   }
+
 }

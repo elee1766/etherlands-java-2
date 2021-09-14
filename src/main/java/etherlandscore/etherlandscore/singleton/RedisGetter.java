@@ -50,13 +50,12 @@ public class RedisGetter {
     return output;
   }
 
-  public Set<String> getDistrictOfPlot(String key){
-    Double minmax = Double.parseDouble(key);
-    Set<String> districts;
+  public Double getDistrictOfPlot(String key){
+    Double district;
     try (redis.clients.jedis.Jedis jedis = this.jedisPool.getResource()) {
-      districts = jedis.zmscore("districtZplot", minmax, minmax);
+      district = jedis.zscore("districtZplot", key);
     }
-    return districts;
+    return district;
   }
 
   public Set<String> getPlotsinDistrict(String key){

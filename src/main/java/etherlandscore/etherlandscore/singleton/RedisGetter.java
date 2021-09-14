@@ -9,7 +9,15 @@ import java.util.Set;
 
 
 public class RedisGetter {
+
   public static JedisPool pool = new JedisPool(new JedisPoolConfig(), "localhost:6379");
+
+  public static JedisPool GetRedisPool(){
+    if(pool == null){
+      pool = new JedisPool(new JedisPoolConfig(), "localhost:6379");
+    }
+    return pool;
+  }
 
   public static String getPlotX(String key){
     String output = "";

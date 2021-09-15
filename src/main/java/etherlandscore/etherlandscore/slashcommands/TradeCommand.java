@@ -6,14 +6,13 @@ import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import etherlandscore.etherlandscore.util.Map2;
-import jnr.ffi.annotations.Meta;
-import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -26,15 +25,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetlang.fibers.Fiber;
 
-import java.awt.*;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TradeCommand extends ListenerClient {
+public class TradeCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
   private final Map2<Gamer, Gamer, GamerTransaction> transactions;
@@ -128,32 +124,30 @@ public class TradeCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand TradeCommand =
-        new CommandAPICommand("offer")
+        createPlayerCommand("offer", SlashCommands.tradeMenu,this::tradeMenu)
             .withArguments(new PlayerArgument("player"))
             .withArguments(new IntegerArgument("requested payment"))
             .withPermission("etherlands.public")
             .executesPlayer(this::tradeMenu);
     CommandAPICommand AddItem =
-        new CommandAPICommand("additem")
+        createPlayerCommand("additem",SlashCommands.addItem,this::addItem)
             .withArguments(new IntegerArgument("price"))
             .withPermission("etherlands.public")
             .executesPlayer(this::addItem);
     CommandAPICommand ApproveCommand =
-        new CommandAPICommand("approve")
-            .withArguments(new PlayerArgument("player"))
-            .executesPlayer(this::approve);
+        createPlayerCommand("approve",SlashCommands.approve,this::approve)
+            .withArguments(new PlayerArgument("player"));
     CommandAPICommand PayCommand =
-        new CommandAPICommand("pay")
+        createPlayerCommand("pay",SlashCommands.pay,this::pay)
             .withArguments(new PlayerArgument("player"))
-            .withArguments(new IntegerArgument("amount"))
-            .executesPlayer(this::pay);
+            .withArguments(new IntegerArgument("amount"));
     CommandAPICommand MintCommand =
-        new CommandAPICommand("mint")
+        createPlayerCommand("mint",SlashCommands.mint,this::mint)
             .withArguments(new PlayerArgument("player"))
             .withArguments(new IntegerArgument("amount"))
             .executesConsole(this::mint);
     CommandAPICommand BalCommand =
-        new CommandAPICommand("balance")
+        createPlayerCommand("balance",SlashCommands.balanceSelf, this::balanceSelf)
             .withAliases("bal")
             .executesPlayer(this::balanceSelf);
     BalCommand.register();

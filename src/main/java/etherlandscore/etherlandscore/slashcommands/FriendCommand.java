@@ -4,13 +4,14 @@ import dev.jorel.commandapi.CommandAPICommand;
 import etherlandscore.etherlandscore.Menus.FriendPrinter;
 import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-public class FriendCommand extends ListenerClient {
+public class FriendCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
 
@@ -67,22 +68,25 @@ public class FriendCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand FriendCommand =
-        new CommandAPICommand("friend")
-            .withPermission("etherlands.public")
-            .executesPlayer(this::help);
+        createPlayerCommand("friend", SlashCommands.help,this::help)
+            .withPermission("etherlands.public");
     FriendCommand.withSubcommand(
-        new CommandAPICommand("add")
+        createPlayerCommand("add",SlashCommands.friendAdd,this::friendAdd)
             .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
-            .executesPlayer(this::friendAdd));
+    );
     FriendCommand.withSubcommand(
-        new CommandAPICommand("add").executesPlayer(this::friendAddSelector));
+        createPlayerCommand("add",SlashCommands.friendAddSelector,this::friendAddSelector)
+    );
     FriendCommand.withSubcommand(
-        new CommandAPICommand("remove")
+        createPlayerCommand("remove",SlashCommands.friendRemove,this::friendRemove)
             .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
-            .executesPlayer(this::friendRemove));
+    );
     FriendCommand.withSubcommand(
-        new CommandAPICommand("remove").executesPlayer(this::friendRemoveSelector));
-    FriendCommand.withSubcommand(new CommandAPICommand("list").executesPlayer(this::friendList));
+        createPlayerCommand("remove",SlashCommands.friendRemoveSelector,this::friendRemoveSelector)
+    );
+    FriendCommand.withSubcommand(
+        createPlayerCommand("list",SlashCommands.list).executesPlayer(this::friendList)
+    );
     FriendCommand.register();
   }
 }

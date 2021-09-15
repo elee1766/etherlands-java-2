@@ -1,19 +1,18 @@
 package etherlandscore.etherlandscore.slashcommands;
 
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.StringArgument;
-import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.singleton.SettingsSingleton;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bouncycastle.util.Arrays;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+
 import java.util.Map;
 
-public class GeneralCommand extends ListenerClient {
+public class GeneralCommand extends CommandProcessor {
   private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
   private final Fiber fiber;
   private final Channels channels;
@@ -41,15 +40,14 @@ public class GeneralCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand RulesCommand =
-        new CommandAPICommand("rules")
-            .withPermission("etherlands.public")
-            .executesPlayer(this::rules);
+        createPlayerCommand("rules",SlashCommands.rules,this::rules)
+            .withPermission("etherlands.public");
     RulesCommand.register();
 
     CommandAPICommand HelpCommand =
-        new CommandAPICommand("help")
-            .withPermission("etherlands.public")
-            .executesPlayer(this::help);
+        createPlayerCommand("help", SlashCommands.help,this::help)
+            .withPermission("etherlands.public");
+
     HelpCommand.register();
   }
 }

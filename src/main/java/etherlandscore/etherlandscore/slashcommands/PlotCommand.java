@@ -3,13 +3,14 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.RedisGetter;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-public class PlotCommand extends ListenerClient {
+public class PlotCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
 
@@ -21,23 +22,24 @@ public class PlotCommand extends ListenerClient {
   }
 
   public void register() {
+
     CommandAPICommand ChunkCommand =
-        new CommandAPICommand("plot").withAliases("p")
+        createPlayerCommand("plot",SlashCommands.plot,this::coord)
+            .withAliases("p")
             .withPermission("etherlands.public")
-            .withArguments(new StringArgument("PlotID"))
-            .executesPlayer(this::coord);
+            .withArguments(new StringArgument("PlotID"));
     ChunkCommand.register();
+
     CommandAPICommand ChunkCommandidGiven =
-        new CommandAPICommand("plot")
+        createPlayerCommand("plot",SlashCommands.idGiven,this::idGiven)
             .withPermission("etherlands.public")
             .withArguments(new StringArgument("X"))
-            .withArguments(new StringArgument("Z"))
-            .executesPlayer(this::idGiven);
+            .withArguments(new StringArgument("Z"));
     ChunkCommandidGiven.register();
+
     CommandAPICommand ChunkCommandidLocal =
-        new CommandAPICommand("plot")
-            .withPermission("etherlands.public")
-            .executesPlayer(this::idLocal);
+        createPlayerCommand("plot", SlashCommands.idLocal,this::idLocal)
+            .withPermission("etherlands.public");
     ChunkCommandidLocal.register();
   }
 

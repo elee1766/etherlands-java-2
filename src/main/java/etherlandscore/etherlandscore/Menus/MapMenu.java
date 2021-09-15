@@ -243,8 +243,10 @@ public class MapMenu extends ListenerClient {
           claimedflag = true;
           claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
           claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + plot.getDistrict()));
-          if (plot.getDistrict().isOwner(gamer)) {
-            ownedflag = true;
+          if(plot.getDistrict() != null){
+            if (plot.getDistrict().isOwner(gamer)) {
+              ownedflag = true;
+            }
           }
         }
 

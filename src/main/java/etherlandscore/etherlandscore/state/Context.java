@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
 import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
+import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
@@ -230,6 +231,9 @@ public class Context<WriteMaps> {
   }
 
   public void gamer_toggle_message(WriteGamer gamer, MessageToggles flag, ToggleValues value) {
+    if(gamer.preferences == null){
+      gamer.preferences = new UserPreferences();
+    }
     gamer.preferences.set(flag, value);
     couchPersister.update(gamer);
   }
@@ -270,6 +274,9 @@ public class Context<WriteMaps> {
 
   public ReadPlot getPlot(Integer x, Integer z) {
     Integer id = RedisGetter.GetPlotID(x.toString(),z.toString());
+    if(id == null){
+      return null;
+    }
     return new ReadPlot(id,x,z);
   }
 

@@ -7,13 +7,14 @@ import etherlandscore.etherlandscore.Menus.MapMenu;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-public class MapCommand extends ListenerClient {
+public class MapCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
 
@@ -45,16 +46,16 @@ public class MapCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand MapCommand =
-        new CommandAPICommand("map").withPermission("etherlands.public").executesPlayer(this::map);
+        createPlayerCommand("map",SlashCommands.map,this::map).withPermission("etherlands.public");
     MapCommand.withSubcommand(
-        new CommandAPICommand("coord")
+        createPlayerCommand("coord",SlashCommands.coord,this::mapCoords)
             .withArguments(new StringArgument("facing"))
             .withArguments(new IntegerArgument("x"))
             .withArguments(new IntegerArgument("z"))
-        .executesPlayer(this::mapCoords));
+    );
     MapCommand.withSubcommand(
-        new CommandAPICommand("auto")
-        .executesPlayer(this::auto));
+        createPlayerCommand("auto", SlashCommands.auto,this::auto)
+    );
     MapCommand.register();
   }
 }

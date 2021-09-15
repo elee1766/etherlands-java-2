@@ -8,8 +8,12 @@ import etherlandscore.etherlandscore.Menus.DistrictPrinter;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.fibers.*;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
+import etherlandscore.etherlandscore.fibers.EthersCommand;
+import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
@@ -24,7 +28,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-public class DistrictCommand extends ListenerClient {
+public class DistrictCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
 
@@ -165,77 +169,6 @@ public class DistrictCommand extends ListenerClient {
     }
   }
 
-  public void register() {
-    CommandAPICommand DistrictCommand =
-        new CommandAPICommand("district").withAliases("d")
-            .withPermission("etherlands.public")
-            .executesPlayer(this::infoLocal);
-    CommandAPICommand DistrictInfoCommand =
-        new CommandAPICommand("district").withAliases("d")
-            .withPermission("etherlands.public")
-            .withArguments(new IntegerArgument("DistrictID"))
-            .executesPlayer(this::infoGiven);
-    DistrictCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("set_player")
-            .withAliases("setp", "setplayer", "setPlayer")
-            .withArguments(new IntegerArgument("districtID"))
-            .withArguments(teamMemberArgument("member"))
-            .withArguments(accessFlagArgument("flag"))
-            .withArguments(flagValueArgument("value"))
-            .executesPlayer(this::setPlayer));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("set_group")
-            .withAliases("setg", "setgroup", "setGroup")
-            .withArguments(new IntegerArgument("districtID"))
-            .withArguments(teamGroupArgument("group"))
-            .withArguments(accessFlagArgument("flag"))
-            .withArguments(
-                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer(this::setGroup));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("set_all_group")
-            .withAliases("setag", "setallgroup", "setAllGroup")
-            .withArguments(new IntegerArgument("districtID"))
-            .withArguments(teamGroupArgument("group"))
-            .withArguments(
-                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
-            .withPermission("etherlands.public")
-            .executesPlayer(this::setAllGroup));
-    DistrictCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
-
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("info").withAliases("i")
-            .withArguments(
-                new IntegerArgument("District Id"))
-            .executes(this::infoGiven));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("update")
-            .withArguments(new IntegerRangeArgument("chunkId"))
-            .executes(this::update));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("forceupdate")
-            .withArguments(new IntegerRangeArgument("chunkId"))
-            .executes(this::forceUpdate));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("reclaim")
-            .withArguments(new IntegerRangeArgument("chunkId"))
-            .executesPlayer(this::reclaim));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("reclaim")
-            .executesPlayer(this::reclaimLocal));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("delegate")
-            .withArguments(new IntegerRangeArgument("DEED id"))
-            .executesPlayer(this::delegate));
-    DistrictCommand.withSubcommand(
-        new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
-
-    DistrictCommand.register();
-    DistrictInfoCommand.register();
-  }
-
   void setGroup(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Team team = manager.getTeamObject();
@@ -291,5 +224,87 @@ public class DistrictCommand extends ListenerClient {
     }else{
       sender.sendMessage("only managers may set district permissions");
     }
+  }
+
+  public void register() {
+    CommandAPICommand DistrictCommand =
+        createPlayerCommand("district", SlashCommands.infoLocal,this::infoLocal)
+            .withAliases("d")
+            .withPermission("etherlands.public");
+    CommandAPICommand DistrictInfoCommand =
+        createPlayerCommand("district", SlashCommands.infoGiven,this::infoGiven)
+            .withAliases("d")
+            .withPermission("etherlands.public")
+            .withArguments(new IntegerArgument("DistrictID"));
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("help", SlashCommands.help,this::help)
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("set_player", SlashCommands.setPlayer,this::setPlayer)
+            .withAliases("setp", "setplayer", "setPlayer")
+            .withArguments(new IntegerArgument("districtID"))
+            .withArguments(teamMemberArgument("member"))
+            .withArguments(accessFlagArgument("flag"))
+            .withArguments(flagValueArgument("value"))
+            .executesPlayer(this::setPlayer));
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("set_group", SlashCommands.setGroup,this::setGroup)
+            .withAliases("setg", "setgroup", "setGroup")
+            .withArguments(new IntegerArgument("districtID"))
+            .withArguments(teamGroupArgument("group"))
+            .withArguments(accessFlagArgument("flag"))
+            .withArguments(
+                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
+            .withPermission("etherlands.public")
+        );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("set_all_group", SlashCommands.setAllGroup,this::setAllGroup)
+            .withAliases("setag", "setallgroup", "setAllGroup")
+            .withArguments(new IntegerArgument("districtID"))
+            .withArguments(teamGroupArgument("group"))
+            .withArguments(
+                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
+            .withPermission("etherlands.public")
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("info", SlashCommands.infoLocal,this::infoLocal)
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("info", SlashCommands.infoGiven,this::infoGiven)
+            .withAliases("i")
+            .withArguments(
+                new IntegerArgument("District Id")
+            )
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("update", SlashCommands.update,this::update)
+            .withArguments(new IntegerRangeArgument("chunkId"))
+            .executes(this::update)
+    );
+
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("forceupdate", SlashCommands.forceUpdate,this::forceUpdate)
+            .withArguments(new IntegerRangeArgument("chunkId"))
+            .executes(this::forceUpdate)
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("reclaim", SlashCommands.reclaim,this::reclaim)
+            .withArguments(new IntegerRangeArgument("chunkId"))
+            .withArguments(new IntegerRangeArgument("chunkId"))
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("reclaim", SlashCommands.reclaimLocal,this::reclaimLocal)
+            .executesPlayer(this::reclaimLocal)
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("delegate", SlashCommands.delegate,this::delegate)
+            .withArguments(new IntegerRangeArgument("DEED id"))
+            .executesPlayer(this::delegate)
+    );
+    DistrictCommand.withSubcommand(
+        createPlayerCommand("delegate", SlashCommands.delegateLocal,this::delegateLocal)
+    );
+    DistrictCommand.register();
+    DistrictInfoCommand.register();
   }
 }

@@ -6,7 +6,8 @@ import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.Menus.GamerPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
@@ -15,7 +16,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-public class GamerCommand extends ListenerClient {
+public class GamerCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
 
@@ -52,20 +53,27 @@ public class GamerCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand GamerCommand =
-        new CommandAPICommand("gamer").withAliases("g")
-            .withPermission("etherlands.public").executesPlayer(this::infoLocal);
+        createPlayerCommand("gamer",SlashCommands.infoLocal,this::infoLocal)
+            .withAliases("g")
+            .withPermission("etherlands.public");
 
+    // cannot do sender.setHealth async
     CommandAPICommand SuicideCommand =
-        new CommandAPICommand("suicide").withAliases("neckrope").withPermission("etherlands.public").executesPlayer(this::suicide);
+        new CommandAPICommand("suicide")
+            .withAliases("neckrope").withPermission("etherlands.public")
+                .executesPlayer(this::suicide);
 
     GamerCommand.withSubcommand(
-        new CommandAPICommand("info").withAliases("i")
+        createPlayerCommand("info",SlashCommands.infoGiven,this::info)
+            .withAliases("i")
             .withArguments(
-                new OfflinePlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
-            .executesPlayer(this::info));
+                new OfflinePlayerArgument("gamer")
+                    .replaceSuggestions(info -> getPlayerStrings()))
+    );
 
     GamerCommand.withSubcommand(
-        new CommandAPICommand("info").withAliases("i")
+        createPlayerCommand("info", SlashCommands.infoLocal,this::infoLocal)
+            .withAliases("i")
             .executesPlayer(this::infoLocal));
 
     GamerCommand.withSubcommand(

@@ -4,21 +4,18 @@ import dev.jorel.commandapi.CommandAPICommand;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.ChatTarget;
-import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Map;
 
-public class ToggleCommand extends ListenerClient {
+public class ToggleCommand extends CommandProcessor {
   private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
   private final Fiber fiber;
   private final Channels channels;
@@ -46,7 +43,7 @@ public class ToggleCommand extends ListenerClient {
         new CommandAPICommand("toggle")
             .withPermission("etherlands.public");
     CommandAPICommand MoveCommand =
-        new CommandAPICommand("movealerts").executesPlayer(this::toggleDistrictNotifications);
+        createPlayerCommand("movealerts", SlashCommands.moveAlerts,this::toggleDistrictNotifications);
     ToggleCommand.withSubcommand(MoveCommand);
     ToggleCommand.register();
   }

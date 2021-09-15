@@ -5,7 +5,8 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
@@ -13,7 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-public class FlagCommand extends ListenerClient {
+public class FlagCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
 
@@ -45,23 +46,24 @@ public class FlagCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand flagMenuDistrictPlayer =
-        new CommandAPICommand("player").withAliases("p")
+        createPlayerCommand("player", SlashCommands.districtPlayer,this::districtPlayer)
+            .withAliases("p")
             .withArguments(new IntegerArgument("districtID"))
             .withArguments(
-                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
-            .executesPlayer(this::districtPlayer);
+                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings())
+            );
     CommandAPICommand flagMenuDistrictGroup =
-        new CommandAPICommand("group").withAliases("g")
+        createPlayerCommand("group",SlashCommands.districtGroup, this::districtGroup)
+            .withAliases("g")
             .withArguments(new IntegerArgument("districtID"))
-            .withArguments(teamGroupArgument("group"))
-            .executesPlayer(this::districtGroup);
+            .withArguments(teamGroupArgument("group"));
     CommandAPICommand FlagCommand =
-        new CommandAPICommand("flags").withAliases("f")
+        createPlayerCommand("flags",SlashCommands.help,this::help)
+            .withAliases("f")
             .withArguments(new IntegerArgument("district"))
             .withSubcommand(flagMenuDistrictGroup)
             .withSubcommand(flagMenuDistrictPlayer)
-            .withPermission("etherlands.public")
-            .executesPlayer(this::help);
+            .withPermission("etherlands.public");
 
     FlagCommand.register();
   }

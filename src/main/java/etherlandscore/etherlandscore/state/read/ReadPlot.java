@@ -27,6 +27,9 @@ public class ReadPlot  {
     }
 
     public District getDistrict() {
+      if(this.id == null){
+        return null;
+      }
       return state().getDistrict(this.id);
     }
 

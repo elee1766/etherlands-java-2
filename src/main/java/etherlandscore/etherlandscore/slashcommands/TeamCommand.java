@@ -9,7 +9,8 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -29,7 +30,7 @@ import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class TeamCommand extends ListenerClient {
+public class TeamCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
   private final Map<String, Map<UUID, Long>> invites = new HashMap<>();
@@ -252,45 +253,51 @@ public class TeamCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand TeamCommand =
-        new CommandAPICommand("team").withAliases("t")
-            .withPermission("etherlands.public")
-            .executesPlayer(this::infoLocal);
-    TeamCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::help));
-    TeamCommand.withSubcommand(new CommandAPICommand("info").executesPlayer(this::infoLocal));
+        createPlayerCommand("team",SlashCommands.infoLocal,this::infoLocal).withAliases("t")
+            .withPermission("etherlands.public");
     TeamCommand.withSubcommand(
-        new CommandAPICommand("info").withAliases("i")
+        createPlayerCommand("help",SlashCommands.help,this::help)
+    );
+    TeamCommand.withSubcommand(
+        createPlayerCommand("info",SlashCommands.infoLocal)
+    );
+    TeamCommand.withSubcommand(
+        createPlayerCommand("info",SlashCommands.info,this::info).withAliases("i")
             .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
-            .executesPlayer(this::info));
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("create").withAliases("cre")
+        createPlayerCommand("create",SlashCommands.create,this::create).withAliases("cre")
             .withArguments(cleanNameArgument("teamname"))
-            .executesPlayer(this::create));
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("invite").withAliases("inv")
+        createPlayerCommand("invite",SlashCommands.invite,this::invite).withAliases("inv")
             .withArguments(
                 new PlayerArgument("player").replaceSuggestions(info -> getOnlinePlayerStrings()))
-            .executesPlayer(this::invite));
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("join")
+        createPlayerCommand("join",SlashCommands.join,this::join)
             .withArguments(new StringArgument("team").replaceSuggestions(info -> getTeamStrings()))
-            .executesPlayer(this::join));
-    TeamCommand.withSubcommand(new CommandAPICommand("leave").executesPlayer(this::leave));
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("kick")
+        createPlayerCommand("leave",SlashCommands.leave,this::leave)
+    );
+    TeamCommand.withSubcommand(
+        createPlayerCommand("kick",SlashCommands.kick,this::kick)
             .withArguments(teamMemberArgument("member"))
-            .executesPlayer(this::kick));
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("kick")
+        createPlayerCommand("kick",SlashCommands.kickOwner,this::kickOwner)
             .withArguments(teamMemberArgument("member"))
-            .executesPlayer(this::kickOwner));
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("delegate")
-            .withArguments(new IntegerArgument("distrit-id"))
-            .executesPlayer(this::delegateDistrict));
+        createPlayerCommand("delegate",SlashCommands.delegate,this::delegateDistrict)
+            .withArguments(new IntegerArgument("district-id"))
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
+        createPlayerCommand("delegate", SlashCommands.delegateLocal,this::delegateLocal)
+    );
     TeamCommand.withSubcommand(
-        new CommandAPICommand("delete")
+        createPlayerCommand("delete",SlashCommands.deleteTeam, this::deleteTeam)
             .withArguments(new StringArgument("teamname"))
             .executesPlayer(this::deleteTeam));
 

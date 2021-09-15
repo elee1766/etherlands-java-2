@@ -1,4 +1,4 @@
-package etherlandscore.etherlandscore.slashcommands;
+package etherlandscore.etherlandscore.slashcommands.helpers;
 
 import dev.jorel.commandapi.CommandAPI;
 

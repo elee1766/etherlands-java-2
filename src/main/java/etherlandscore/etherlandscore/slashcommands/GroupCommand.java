@@ -3,7 +3,8 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
+import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -13,7 +14,7 @@ import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-public class GroupCommand extends ListenerClient {
+public class GroupCommand extends CommandProcessor {
   private final Fiber fiber;
   private final Channels channels;
 
@@ -77,34 +78,40 @@ public class GroupCommand extends ListenerClient {
 
   public void register() {
     CommandAPICommand GroupCommand =
-        new CommandAPICommand("group").withAliases("gr")
-            .withPermission("etherlands.public")
-            .executesPlayer(this::runHelpCommand);
-    GroupCommand.withSubcommand(new CommandAPICommand("help").executesPlayer(this::runHelpCommand));
+        createPlayerCommand("group",SlashCommands.help,this::runHelpCommand)
+            .withAliases("gr")
+            .withPermission("etherlands.public");
+
     GroupCommand.withSubcommand(
-        new CommandAPICommand("create").withAliases("cre")
+        createPlayerCommand("help",SlashCommands.help)
+    );
+    GroupCommand.withSubcommand(
+        createPlayerCommand("create",SlashCommands.create,this::create)
+            .withAliases("cre")
             .withArguments(cleanNameArgument("groupname"))
-            .executesPlayer(this::create));
+    );
     GroupCommand.withSubcommand(
-        new CommandAPICommand("info").withAliases("i")
+        createPlayerCommand("info",SlashCommands.info,this::info)
+            .withAliases("i")
             .withArguments(teamGroupArgument("group"))
-            .executesPlayer(this::info));
+    );
     GroupCommand.withSubcommand(
-        new CommandAPICommand("delete").withAliases("del")
+        createPlayerCommand("delete",SlashCommands.delete,this::delete)
+            .withAliases("del")
             .withArguments(cleanNameArgument("groupname"))
-            .executesPlayer(this::delete));
+    );
     GroupCommand.withSubcommand(
-        new CommandAPICommand("add")
+        createPlayerCommand("add",SlashCommands.add,this::add)
             .withAliases("addPlayer")
             .withArguments(teamMemberArgument("player"))
             .withArguments(teamGroupArgument("group"))
-            .executesPlayer(this::add));
+    );
     GroupCommand.withSubcommand(
-        new CommandAPICommand("remove")
+        createPlayerCommand("remove", SlashCommands.remove,this::remove)
             .withAliases("removePlayer")
             .withArguments(teamMemberArgument("player"))
             .withArguments(teamGroupArgument("group"))
-            .executesPlayer(this::remove));
+    );
 
     GroupCommand.register();
   }

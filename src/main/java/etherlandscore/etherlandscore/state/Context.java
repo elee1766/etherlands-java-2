@@ -305,7 +305,9 @@ public class Context<WriteMaps> {
     District out = null;
     if(location != null){
       Integer district_id = RedisGetter.GetDistrictOfPlot(location.getIdInt());
-      out = getDistrict(district_id);
+      if(district_id != null){
+        out = getDistrict(district_id);
+      }
     }
     return out;
   }

@@ -12,6 +12,7 @@ public class RedisGetter {
       String input = ("plot:"+key+":x");
       output = Integer.parseInt(jedis.get(input));
     }catch (Exception e){
+      return null;
     }
     return output;
   }
@@ -21,7 +22,8 @@ public class RedisGetter {
     try (Jedis jedis = JedisFactory.getPool().getResource()) {
       String input = ("plot:"+key+":x");
       output = jedis.get(input);
-    }catch (Exception e){
+    }catch (Exception ignored){
+      return null;
     }
     return output;
   }
@@ -31,7 +33,8 @@ public class RedisGetter {
     try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       String input = ("plot:"+key+":z");
       output = Integer.parseInt(jedis.get(input));
-    }catch (Exception e){
+    }catch (Exception ignored){
+      return null;
     }
     return output;
   }
@@ -41,7 +44,8 @@ public class RedisGetter {
     try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       String input = ("plot:"+key+":z");
       output = jedis.get(input);
-    }catch (Exception e){
+    }catch (Exception ignored){
+      return null;
     }
     return output;
   }
@@ -51,6 +55,7 @@ public class RedisGetter {
     try (Jedis jedis = JedisFactory.getPool().getResource()) {
       plotID = Integer.parseInt(jedis.get("plot_coord:"+x+"_"+z));
     } catch (Exception e){
+      return null;
     }
     return plotID;
   }
@@ -59,7 +64,8 @@ public class RedisGetter {
     String owner = "0x0000000000000000000000000000000000000000";
     try (Jedis jedis = JedisFactory.getPool().getResource()) {
       owner = jedis.get("district:"+key+":address");
-    }catch (Exception e){
+    }catch (Exception ignored){
+      return null;
     }
     return owner;
   }
@@ -69,9 +75,8 @@ public class RedisGetter {
     Double district;
     try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       district = jedis.zscore("districtZplot", key.toString());
-      if(district == null){
-        return null;
-      }
+    } catch (Exception ignored){
+      return null;
     }
     return Math.toIntExact(Math.round(district));
   }
@@ -82,6 +87,8 @@ public class RedisGetter {
       if(district == null){
         return null;
       }
+    }catch (Exception ignored){
+      return null;
     }
     return Math.toIntExact(Math.round(district));
   }
@@ -91,6 +98,8 @@ public class RedisGetter {
     Set<String> districts;
     try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       districts = jedis.zrangeByScore("districtZplot", minmax, minmax);
+    } catch (Exception ignored){
+      return null;
     }
     return districts;
   }

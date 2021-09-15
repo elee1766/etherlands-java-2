@@ -1,7 +1,6 @@
 package etherlandscore.etherlandscore.slashcommands.helpers;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandExecutor;
 import dev.jorel.commandapi.executors.IExecutorNormal;
 import dev.jorel.commandapi.executors.PlayerCommandExecutor;
@@ -35,7 +34,7 @@ public class CommandProcessor extends ListenerClient {
       IExecutorNormal exec = executor_map.get(msg.getCommand());
       try {
         exec.run(msg.getSender(),msg.getArgs());
-      } catch (WrapperCommandSyntaxException e) {
+      } catch (Exception e) {
         Bukkit.getLogger().warning("Failed to execute command" + e.getMessage());
         e.printStackTrace();
       }

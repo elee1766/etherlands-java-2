@@ -8,7 +8,6 @@ import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
-import io.lettuce.core.dynamic.annotation.Command;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -35,11 +34,11 @@ public class ChatService extends ListenerClient {
     this.channels = channels;
     this.fiber = fiber;
 
-
     this.channels.chat_message.subscribe(fiber,this::process_chat);
   }
 
   private void process_chat(Message<ChatTarget> message){
+    try{
     if(message!=null){
       Bukkit.getLogger().info(message.toString());
         Object[] _args = message.getArgs();
@@ -54,6 +53,10 @@ public class ChatService extends ListenerClient {
           case district_touch_district -> this.district_touch_district((CommandSender) _args[0], (Integer) _args[1]);
         }
       }
+    }catch(Exception e){
+      Bukkit.getLogger().warning("Failed to process ChatMessage" + message.getCommand());
+      e.printStackTrace();
+    }
   }
 
   private void district_touch_district(CommandSender player, Integer id) {
@@ -123,6 +126,10 @@ public class ChatService extends ListenerClient {
     }
   }
   private void send_team(Team team, String message, Gamer arg){
+    if(team == null){
+      arg.getPlayer().sendMessage("you are not in a team");
+      return;
+    }
     Bukkit.getLogger().info("Sending team message");
     String teamname = team.getName();
     if(teamname.length()>12){

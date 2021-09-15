@@ -40,7 +40,8 @@ public class MasterService extends ServerModule {
 
     private void process_command(Message<MasterCommand> message) {
         Object[] _args = message.getArgs();
-        Bukkit.getLogger().info(message.getCommand() + _args.toString());
+        Bukkit.getLogger().info("MasterService: "+ message.getCommand());
+        try{
         switch (message.getCommand()) {
             case context_create_gamer -> context.context_create_gamer((UUID) _args[0]);
             case context_save_all -> context.saveAll();
@@ -74,12 +75,15 @@ public class MasterService extends ServerModule {
             case gamer_toggle_message -> context.gamer_toggle_message((WriteGamer) _args[0], (MessageToggles) _args[1], (ToggleValues) _args[2]);
             case touch_district -> context.touch_district((Integer) _args[0]);
         }
-        Bukkit.getLogger().info("Checking if needs to forward message");
         if(message.hasChatResponse()){
-                Bukkit.getLogger().info("Forwarding message");
                 forward_chat_message(message.getChatResponse());
+
         }
-        global_update();
+            global_update();
+        }catch(Exception e){
+            Bukkit.getLogger().warning("Failed to process MasterCommand" + message.getCommand());
+            e.printStackTrace();
+        }
     }
 
     private void forward_chat_message(Message<ChatTarget> message){

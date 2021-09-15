@@ -25,8 +25,10 @@ public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport
 
   public void save(Collection<T> entries) {
     for (T entry : entries) {
-      if (this.contains(entry.getId())) {
+      if (entry != null) {
+        if (this.contains(entry.getId())) {
           entry.setRevision(this.get(entry.getId()).getRevision());
+        }
       }
     }
     super.db.executeBulk(entries);

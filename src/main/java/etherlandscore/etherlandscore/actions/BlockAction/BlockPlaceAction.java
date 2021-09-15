@@ -4,7 +4,6 @@ import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import org.bukkit.event.block.BlockPlaceEvent;
 

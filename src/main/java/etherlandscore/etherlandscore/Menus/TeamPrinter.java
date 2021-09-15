@@ -2,8 +2,6 @@ package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Plot;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.write.WriteGroup;
@@ -12,13 +10,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-import static etherlandscore.etherlandscore.services.MasterService.state;
-
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class TeamPrinter extends ListenerClient {
   private final Fiber fiber;

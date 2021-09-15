@@ -11,7 +11,6 @@ import etherlandscore.etherlandscore.listener.ChatEventListener;
 import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.listener.SignEventListener;
 import etherlandscore.etherlandscore.services.ChatService;
-import etherlandscore.etherlandscore.services.EthereumService;
 import etherlandscore.etherlandscore.services.MasterService;
 import etherlandscore.etherlandscore.services.Scheduler;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
@@ -104,14 +103,6 @@ public final class EtherlandsCore extends JavaPlugin {
     Fiber generalCommandFiber = new ThreadFiber();
     modules.add(new GeneralCommand(channels, generalCommandFiber));
 
-    getLogger().info("Hooking Ethers");
-    Fiber ethersFiber = new ThreadFiber();
-    try {
-      EthereumService es = new EthereumService(channels, ethersFiber);
-      modules.add(es);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     getLogger().info("initializing master service");
     Fiber databaseFiber = new ThreadFiber();
     modules.add(new MasterService(channels, databaseFiber));

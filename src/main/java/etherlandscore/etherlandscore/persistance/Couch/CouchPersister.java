@@ -22,7 +22,6 @@ public class CouchPersister extends ServerModule {
   private final CouchDbInstance instance;
   private final GamerRepo gamerRepo;
   private final TeamRepo teamRepo;
-  private final PlotRepo plotRepo;
   private final DistrictRepo districtRepo;
   private final NFTRepo nftRepo;
   private final MapRepo mapRepo;
@@ -43,7 +42,6 @@ public class CouchPersister extends ServerModule {
     this.instance = new StdCouchDbInstance(httpClient);
     this.gamerRepo =
         new GamerRepo(this.instance.createConnector("gamers", true), WriteGamer.class);
-    this.plotRepo = new PlotRepo(this.instance.createConnector("plots", true), WritePlot.class);
     this.districtRepo = new DistrictRepo(this.instance.createConnector("districts", true), WriteDistrict.class);
     this.teamRepo = new TeamRepo(this.instance.createConnector("teams", true), WriteTeam.class);
     this.mapRepo = new MapRepo(this.instance.createConnector("maps", true), WriteMap.class);
@@ -53,7 +51,6 @@ public class CouchPersister extends ServerModule {
 
     channels.db_gamer.subscribe(fiber, this::write);
     channels.db_team.subscribe(fiber, this::write);
-    channels.db_plot.subscribe(fiber, this::write);
     channels.db_district.subscribe(fiber, this::write);
     channels.db_nft.subscribe(fiber, this::write);
     channels.db_map.subscribe(fiber, this::write);
@@ -61,7 +58,6 @@ public class CouchPersister extends ServerModule {
 
     channels.db_gamer_delete.subscribe(fiber, this::remove);
     channels.db_team_delete.subscribe(fiber, this::remove);
-    channels.db_plot_delete.subscribe(fiber, this::remove);
     channels.db_district_delete.subscribe(fiber, this::remove);
     channels.db_nft_delete.subscribe(fiber, this::remove);
     channels.db_map_delete.subscribe(fiber, this::remove);
@@ -69,7 +65,6 @@ public class CouchPersister extends ServerModule {
 
   public void saveContext(Context context) {
       gamerRepo.save(context.getGamers().values());
-      plotRepo.save(context.getPlots().values());
       districtRepo.save(context.getDistricts().values());
       teamRepo.save(context.getTeams().values());
       nftRepo.save(context.getNftUrls().values());
@@ -90,11 +85,6 @@ public class CouchPersister extends ServerModule {
     Bukkit.getLogger().info("doing teams");
     for (WriteTeam writeTeam : this.teamRepo.getAll()) {
       empty.teams.put(writeTeam.getName(),writeTeam);
-    }
-    Bukkit.getLogger().info("doing plots");
-    for (WritePlot writePlot : this.plotRepo.getAll()) {
-      empty.plots.put(writePlot.getIdInt(),writePlot);
-      empty.plotLocations.put(writePlot.getX(), writePlot.getZ(), writePlot.getIdInt());
     }
     Bukkit.getLogger().info("doing districts");
     for (WriteDistrict writeDistrict : this.districtRepo.getAll()) {
@@ -119,9 +109,6 @@ public class CouchPersister extends ServerModule {
   public void write(WriteGamer gamer){
     this.gamerRepo.save(gamer);
   }
-  public void write(WritePlot plot){
-    this.plotRepo.save(plot);
-  }
   public void write(WriteDistrict district){
     this.districtRepo.save(district);
   }
@@ -141,9 +128,6 @@ public class CouchPersister extends ServerModule {
   public void update(WriteGamer gamer){
     this.channels.db_gamer.publish(gamer);
   }
-  public void update(WritePlot plot){
-    this.channels.db_plot.publish(plot);
-  }
   public void update(WriteDistrict district){
     this.channels.db_district.publish(district);
   }
@@ -158,9 +142,6 @@ public class CouchPersister extends ServerModule {
 
   public void remove(WriteGamer gamer){
     this.gamerRepo.delete(gamer);
-  }
-  public void remove(WritePlot plot){
-    this.plotRepo.delete(plot);
   }
   public void remove(WriteDistrict district){
     this.districtRepo.delete(district);
@@ -177,9 +158,6 @@ public class CouchPersister extends ServerModule {
 
   public void delete(WriteGamer gamer){
     this.channels.db_gamer_delete.publish(gamer);
-  }
-  public void delete(WritePlot plot){
-    this.channels.db_plot_delete.publish(plot);
   }
   public void delete(WriteDistrict district){
     this.channels.db_district_delete.publish(district);

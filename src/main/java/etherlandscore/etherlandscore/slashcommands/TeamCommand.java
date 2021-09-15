@@ -1,16 +1,14 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.IntegerRangeArgument;
+import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.TeamPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.services.ChatService;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
@@ -24,7 +22,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,27 +75,23 @@ public class TeamCommand extends ListenerClient {
     }
   }
 
-  void delegatePlot(Player sender, Object[] args) {
+  void delegateDistrict(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team writeTeam = gamer.getTeamObject();
-    IntegerRange range = (IntegerRange) args[0];
+     Integer i = (Integer) args[0];
     if(writeTeam == null){
       response.setText("ur not in a team");
       channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       return;
     }
-    for (int i = range.getLowerBound();
-        i <= Math.min(context.getPlots().size(), range.getUpperBound());
-        i++) {
-      if (context.getPlot(i).getOwnerUUID().equals(gamer.getUuid())) {
+      if (context.getPlot(i).getDistrict().equals(gamer.getUuid())) {
         TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam);
-        response.setText("Plot: " + i + " has been delegated to " + writeTeam.getName());
+        response.setText("District: " + i + " has been delegated to " + writeTeam.getName());
         channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {
         response.setText("You do not own this plot");
         channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
-    }
   }
 
   void deleteTeam(Player sender, Object[] args) {
@@ -292,8 +285,8 @@ public class TeamCommand extends ListenerClient {
             .executesPlayer(this::kickOwner));
     TeamCommand.withSubcommand(
         new CommandAPICommand("delegate")
-            .withArguments(new IntegerRangeArgument("plot-ids"))
-            .executesPlayer(this::delegatePlot));
+            .withArguments(new IntegerArgument("distrit-id"))
+            .executesPlayer(this::delegateDistrict));
     TeamCommand.withSubcommand(
         new CommandAPICommand("delegate").executesPlayer(this::delegateLocal));
     TeamCommand.withSubcommand(

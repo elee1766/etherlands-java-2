@@ -3,16 +3,14 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.Menus.DistrictPrinter;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.enums.MessageToggles;
-import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.EthersCommand;
+import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
@@ -20,9 +18,7 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.sender.DistrictSender;
-import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.sender.TeamSender;
-import etherlandscore.etherlandscore.state.write.WriteGamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Chunk;
@@ -30,7 +26,6 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-import org.w3c.dom.Text;
 
 public class DistrictCommand extends ListenerClient {
   private final Fiber fiber;
@@ -155,7 +150,7 @@ public class DistrictCommand extends ListenerClient {
       sender.sendMessage(args[0] + " is being updated...");
       IntegerRange range = (IntegerRange) args[0];
       for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
-        this.channels.ethers_command.publish(new Message<>(EthersCommand.ethers_query_nft, i));
+        this.channels.master_command.publish(new Message<>(MasterCommand.touch_district, i));
       }
       sender.sendMessage(args[0] + " have been updated");
     } else {
@@ -219,7 +214,7 @@ public class DistrictCommand extends ListenerClient {
     DistrictCommand.withSubcommand(
         new CommandAPICommand("info").withAliases("i")
             .withArguments(
-                new IntegerArgument("District Id").replaceSuggestions(info -> getChunkStrings()))
+                new IntegerArgument("District Id"))
             .executes(this::infoGiven));
     DistrictCommand.withSubcommand(
         new CommandAPICommand("update")

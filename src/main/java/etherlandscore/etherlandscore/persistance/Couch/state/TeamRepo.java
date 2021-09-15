@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.persistance.Couch.state;
 
-import etherlandscore.etherlandscore.state.write.WritePlot;
 import etherlandscore.etherlandscore.state.write.WriteTeam;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.support.View;

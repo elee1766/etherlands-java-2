@@ -5,16 +5,24 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
-import org.bukkit.Bukkit;
 import org.bukkit.event.block.BlockBreakEvent;
 
 public class BlockBreakAction extends PermissionedAction {
   private final BlockBreakEvent event;
   private final AccessFlags flag = AccessFlags.DESTROY;
 
+
   public BlockBreakAction(ReadContext context, BlockBreakEvent event) {
     super(context, event);
     this.event = event;
+  }
+
+  public Integer getChunkX(){
+    return this.event.getBlock().getChunk().getX();
+  }
+
+  public Integer getChunkZ(){
+    return this.event.getBlock().getChunk().getZ();
   }
 
   @Override
@@ -28,7 +36,6 @@ public class BlockBreakAction extends PermissionedAction {
       return super.process();
     }
     if (writeDistrict == null) {
-      Bukkit.getLogger().info("there is no district here");
       return super.rollback();
     }
     Boolean canPerform = writeDistrict.canGamerPerform(this.flag, gamer);

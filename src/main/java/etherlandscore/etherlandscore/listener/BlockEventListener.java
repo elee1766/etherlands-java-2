@@ -1,20 +1,16 @@
 package etherlandscore.etherlandscore.listener;
 
-import com.destroystokyo.paper.event.block.BlockDestroyEvent;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockBreakAction;
-import etherlandscore.etherlandscore.actions.BlockAction.BlockExplodeAction;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -56,10 +52,9 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockBreakAction action = new BlockBreakAction(context, breakEvent);
       boolean code = action.process();
       if (!code) {
-        if(context.getPlot(breakEvent.getBlock().getChunk().getX(), breakEvent.getBlock().getChunk().getZ())!=null) {
-          int dID = context.getPlot(breakEvent.getBlock().getChunk().getX(), breakEvent.getBlock().getChunk().getZ()).getDistrict();
-          TextComponent response = new TextComponent("you do not have permission to DESTROY in district " + dID);
-
+        District d = context.getPlot(action.getChunkX(),action.getChunkZ()).getDistrict();
+        if(d != null){
+          breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + d.getIdInt());
         }else{
           breakEvent.getPlayer().sendMessage("The Plot at [" + breakEvent.getBlock().getChunk().getX() + ", " + breakEvent.getBlock().getChunk().getZ() + "] is unclaimed");
         }
@@ -173,9 +168,9 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockPlaceAction action = new BlockPlaceAction(context, placeEvent);
       boolean code = action.process();
       if (!code) {
-        if(context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ())!=null) {
-          int dID = context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
-          placeEvent.getPlayer().sendMessage("you do not have permission to BUILD in district " + dID);
+        District dID = context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
+        if(dID != null){
+          placeEvent.getPlayer().sendMessage("you do not have permission to BUILD in district " + dID.getIdInt());
         }else{
           placeEvent.getPlayer().sendMessage("The Plot at [" + placeEvent.getBlock().getChunk().getX() + ", " + placeEvent.getBlock().getChunk().getZ() + "] is unclaimed");
         }

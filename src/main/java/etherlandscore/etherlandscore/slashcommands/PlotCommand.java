@@ -1,21 +1,13 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.ChatTarget;
-import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.RedisGetter;
-import etherlandscore.etherlandscore.state.read.Plot;
-import io.lettuce.core.models.role.RedisNodeDescription;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-
-import java.util.Set;
 
 public class PlotCommand extends ListenerClient {
   private final Fiber fiber;
@@ -51,9 +43,9 @@ public class PlotCommand extends ListenerClient {
 
   void coord(Player player, Object[] args) {
     String idString = (String) args[0];
-    String x = RedisGetter.getPlotX(idString);
-    String z = RedisGetter.getPlotZ(idString);
-    Double district = RedisGetter.getDistrictOfPlot(idString);
+    String x = RedisGetter.GetPlotX(idString);
+    String z = RedisGetter.GetPlotZ(idString);
+    Integer district = RedisGetter.GetDistrictOfPlot(idString);
     player.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
   }
 
@@ -61,7 +53,7 @@ public class PlotCommand extends ListenerClient {
     Location loc = sender.getLocation();
     String x = String.valueOf(loc.getChunk().getX());
     String z = String.valueOf(loc.getChunk().getZ());
-    String plotIDs = RedisGetter.getPlotID(x, z);
+    Integer plotIDs = RedisGetter.GetPlotID(x, z);
     if(plotIDs==null){
       sender.sendMessage("There is no plot here");
     }else {
@@ -72,11 +64,11 @@ public class PlotCommand extends ListenerClient {
   void idGiven(Player sender, Object[] args) {
     String x = (String) args[0];
     String z = (String) args[1];
-    String plotIDs = RedisGetter.getPlotID(x, z);
+    Integer plotIDs = RedisGetter.GetPlotID(x, z);
     if(plotIDs==null){
       sender.sendMessage("There is no plot here");
     }else{
-      Double district = RedisGetter.getDistrictOfPlot(plotIDs);
+      Integer district = RedisGetter.GetDistrictOfPlot(plotIDs.toString());
       sender.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
     }
   }

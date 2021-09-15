@@ -10,10 +10,8 @@ import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.util.Map2;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
@@ -108,7 +106,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public Gamer getOwnerObject() {
-    return state().getGamer(state().getLinks().getOrDefault(RedisGetter.getOwnerOfDistrict(this._id), null));
+    return state().getGamer(state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null));
   }
 
   @Override
@@ -133,7 +131,12 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public String getOwnerAddress() {
-    return RedisGetter.getOwnerOfDistrict(this._id);
+    return RedisGetter.GetOwnerOfDistrict(this._id);
+  }
+
+  @Override
+  public boolean isOwner(Gamer gamer){
+    return this.getOwnerAddress().equals(gamer.getAddress());
   }
 
   @Override
@@ -183,7 +186,7 @@ public class WriteDistrict extends CouchDocument implements District {
 
   @JsonIgnore
   public Set<String> getPlotIds() {
-    return RedisGetter.getPlotsinDistrict(this._id);
+    return RedisGetter.GetPlotsInDistrict(this._id);
   }
 
   @Override
@@ -235,12 +238,12 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public UUID getOwnerUUID() {
-    return state().getLinks().getOrDefault(RedisGetter.getOwnerOfDistrict(this._id), null);
+    return state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null);
   }
 
   @JsonIgnore
   public String getOwnerServerName() {
-    return Bukkit.getOfflinePlayer(state().getLinks().getOrDefault(RedisGetter.getOwnerOfDistrict(this._id), null)).getName();
+    return Bukkit.getOfflinePlayer(state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null)).getName();
   }
 
 }

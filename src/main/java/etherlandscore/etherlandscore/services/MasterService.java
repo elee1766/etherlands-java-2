@@ -12,18 +12,16 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
-import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.write.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
 
-import java.util.Set;
 import java.util.UUID;
 
 public class MasterService extends ServerModule {
     private static Context context;
-    private final Channels channels;
+    private static Channels channels;
     private final Gson gson;
 
     public MasterService(Channels channels, Fiber fiber) {
@@ -36,7 +34,7 @@ public class MasterService extends ServerModule {
     }
 
     public static ReadContext state() {
-        return new ReadContext(context);
+        return new ReadContext(context, channels);
     }
 
     private void global_update(){
@@ -73,13 +71,11 @@ public class MasterService extends ServerModule {
             case nft_create_nft -> context.nft_create_nft((WriteNFT) _args[0]);
             case map_create_map -> context.map_create_map((WriteMap) _args[0]);
             case map_rerender_maps -> context.map_rerender_maps();
-            case district_update_district -> context.district_update_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
-            case district_forceupdate_district -> context.district_forceupdate_district((Integer) _args[0], (Set<Integer>) _args[1], (String) _args[2]);
             case context_process_gamer_transaction -> context.context_process_gamer_transaction((GamerTransaction) _args[0]);
             case context_mint_tokens -> context.context_mint_tokens((WriteGamer) _args[0], (Integer)_args[1]);
-            case plot_set_coords ->  context.plot_set_coords((Integer) _args[0], (Integer) _args[1], (Integer) _args[2]);
             case shop_create_shop -> context.shop_create_shop((WriteShop) _args[0]);
             case gamer_toggle_message -> context.gamer_toggle_message((WriteGamer) _args[0], (MessageToggles) _args[1], (ToggleValues) _args[2]);
+            case touch_district -> context.touch_district((Integer) _args[0]);
         }
         global_update();
     }

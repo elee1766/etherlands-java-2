@@ -4,14 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
-import etherlandscore.etherlandscore.state.read.*;
+import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Group;
+import etherlandscore.etherlandscore.state.read.Team;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.*;
-
-import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class WriteTeam extends CouchDocument implements Team {
   private final String name;
@@ -79,9 +80,6 @@ public class WriteTeam extends CouchDocument implements Team {
 
   public void deleteDistrict(String name) {
     if (districts.containsKey(name)) {
-        for (Integer plot : plots) {
-          ((WritePlot) state().getPlot(plot)).removeTeam();
-        }
         this.districts.remove(name);
     }
   }

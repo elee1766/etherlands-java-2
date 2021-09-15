@@ -15,9 +15,11 @@ import java.util.UUID;
 
 public class ReadContext {
   private final Context context;
+  private final Channels channels;
 
-  public ReadContext(Context context) {
+  public ReadContext(Context context, Channels channels) {
     this.context = context;
+    this.channels = channels;
   }
 
   public void createTeam(Channels channels, Gamer gamer, String name) {
@@ -39,16 +41,12 @@ public class ReadContext {
     return (Map2) context.getNfts();
   }
 
-  public Plot getPlot(Integer id) {
+  public ReadPlot getPlot(Integer id) {
     return context.getPlot(id);
   }
 
-  public Plot getPlot(Integer x, Integer z) {
+  public ReadPlot getPlot(Integer x, Integer z) {
     return context.getPlot(x, z);
-  }
-
-  public Map<Integer, Plot> getPlots() {
-    return (Map) context.getPlots();
   }
 
   public Team getTeam(String team) {
@@ -57,6 +55,9 @@ public class ReadContext {
 
   public Map<Integer, WriteDistrict> getDistricts() {
     return context.getDistricts();
+  }
+  public District getDistrict(int id) {
+    return context.getDistrict(id);
   }
 
   public Map<String, Team> getTeams() {
@@ -76,8 +77,6 @@ public class ReadContext {
   public Map<String, WriteNFT> getNftUrls() {return context.getNftUrls(); }
 
   public Set<WriteMap> getMaps() {return context.getMaps(); }
-
-  public District getDistrict(int i) { return context.getDistrict(i); }
 
   public District getDistrict(int x, int z) { return context.getDistrict(x, z); }
 

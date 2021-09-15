@@ -5,17 +5,17 @@ import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Plot;
+import etherlandscore.etherlandscore.state.read.ReadPlot;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-
-import java.util.Locale;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
@@ -83,12 +83,12 @@ public class MapMenu extends ListenerClient {
         HoverEvent friendHover = null;
         HoverEvent playerHover = null;
         HoverEvent claimedHover = null;
-        Plot plot;
+        ReadPlot plot;
         plot = state().getPlot(x, z);
         if (plot != null) {
           claimedflag = true;
           claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
-          if (plot.isOwner(gamer)) {
+          if (plot.getDistrict().isOwner(gamer)) {
             ownedflag = true;
           }
         }
@@ -237,13 +237,13 @@ public class MapMenu extends ListenerClient {
         ClickEvent friendClick = null;
         ClickEvent playerClick = null;
         ClickEvent claimedClick = null;
-        Plot plot;
+        ReadPlot plot;
         plot = state().getPlot(x, z);
         if (plot != null) {
           claimedflag = true;
           claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
           claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + plot.getDistrict()));
-          if (plot.isOwner(gamer)) {
+          if (plot.getDistrict().isOwner(gamer)) {
             ownedflag = true;
           }
         }

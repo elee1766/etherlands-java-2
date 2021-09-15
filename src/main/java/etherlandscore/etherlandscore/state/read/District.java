@@ -5,7 +5,6 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.util.Map2;
 
 import java.lang.reflect.Field;
-import java.util.Set;
 import java.util.UUID;
 
 public interface District extends Comparable<District> {
@@ -36,6 +35,8 @@ public interface District extends Comparable<District> {
   Map2<String, AccessFlags, FlagValue> getGroupPermissionMap();
 
   boolean hasTeam();
+
+  boolean isOwner(Gamer gamer);
 
   FlagValue readGamerPermission(Gamer gamer, AccessFlags flag);
 

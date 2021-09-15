@@ -1,8 +1,6 @@
 package etherlandscore.etherlandscore.services;
 
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.EthersCommand;
-import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import org.jetlang.fibers.Fiber;
 
@@ -19,7 +17,6 @@ public class Scheduler extends ServerModule {
 
         this.fiber.scheduleAtFixedRate(
             () -> {
-                    this.channels.ethers_command.publish(new Message<>(EthersCommand.scan_update));
             },
             1,
             5,

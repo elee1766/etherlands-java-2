@@ -91,10 +91,6 @@ public class ListenerClient extends ServerModule {
     return Stream.of(AccessFlags.values()).map(AccessFlags::name).toArray(String[]::new);
   }
 
-  protected String[] getChunkStrings() {
-    return this.context.getPlots().keySet().stream().map(Object::toString).toArray(String[]::new);
-  }
-
   protected String[] getFlagValueStrings() {
     return Stream.of(FlagValue.values()).map(FlagValue::name).toArray(String[]::new);
   }
@@ -127,7 +123,7 @@ public class ListenerClient extends ServerModule {
     channels.global_update.subscribe(
         fiber,
         global -> {
-          context = new ReadContext(global);
+          context = new ReadContext(global,channels);
         });
   }
 

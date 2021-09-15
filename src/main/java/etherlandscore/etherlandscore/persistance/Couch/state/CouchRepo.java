@@ -15,12 +15,14 @@ public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport
   }
 
   public void save(T entry) {
-    if (this.contains(entry.getId())) {
+    if (entry != null) {
+      if (this.contains(entry.getId())) {
         entry.setRevision(this.get(entry.getId()).getRevision());
         this.update(entry);
-      return;
+        return;
+      }
+      this.add(entry);
     }
-    this.add(entry);
   }
 
   public void save(Collection<T> entries) {
@@ -31,6 +33,7 @@ public class CouchRepo<T extends CouchDocument> extends CouchDbRepositorySupport
         }
       }
     }
+    entries.remove(null);
     super.db.executeBulk(entries);
   }
 

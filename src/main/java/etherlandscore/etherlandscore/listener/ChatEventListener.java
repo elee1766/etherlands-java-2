@@ -45,24 +45,22 @@ public class ChatEventListener extends ListenerClient implements Listener {
   @EventHandler
   public void messageSent(AsyncPlayerChatEvent event) {
     Bukkit.getLogger().info("MESSAGE SENT");
-    TextComponent message = new TextComponent("");
-    String formatted = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
-    message.addExtra(formatted);
+    String message = event.getMessage();
     Player p = event.getPlayer();
     WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
     WriteTeam team = (WriteTeam) gamer.getTeamObject();
     if(gamer.preferences.checkPreference(MessageToggles.TEAM_CHAT)) {
       Bukkit.getLogger().info("teamchat enabled");
       event.getRecipients().clear();
-      channels.chat_message.publish(new Message<>(ChatTarget.team, team, message));
+      channels.chat_message.publish(new Message<>(ChatTarget.team, team, message, gamer));
     }else if(gamer.preferences.checkPreference(MessageToggles.LOCAL_CHAT)){
       Bukkit.getLogger().info("local chat enabled");
       event.getRecipients().clear();
-      channels.chat_message.publish(new Message<>(ChatTarget.local, gamer, 100, message));
+      channels.chat_message.publish(new Message<>(ChatTarget.local, gamer, 100, message, gamer));
     }else{
       event.getRecipients().clear();
       Bukkit.getLogger().info("nothing enabled");
-      channels.chat_message.publish(new Message<>(ChatTarget.global, message));
+      channels.chat_message.publish(new Message<>(ChatTarget.global, message, gamer));
     }
   }
 }

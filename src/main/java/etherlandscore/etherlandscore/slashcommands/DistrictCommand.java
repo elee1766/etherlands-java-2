@@ -8,10 +8,7 @@ import etherlandscore.etherlandscore.Menus.DistrictPrinter;
 import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.EthersCommand;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.fibers.*;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
@@ -108,8 +105,7 @@ public class DistrictCommand extends ListenerClient {
       District writeDistrict = context.getDistrict(i);
       if(writeDistrict != null) {
         if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
-          DistrictSender.reclaimDistrict(this.channels, writeDistrict);
-          sender.sendMessage("District: " + i + " has been reclaimed");
+          DistrictSender.reclaimDistrict(this.channels, writeDistrict, new Message(ChatTarget.gamer_distric_reclaim, gamer, writeDistrict));
         } else {
           sender.sendMessage("You do not own district:" + i);
         }
@@ -125,8 +121,7 @@ public class DistrictCommand extends ListenerClient {
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if(writeDistrict != null) {
       if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
-        DistrictSender.reclaimDistrict(this.channels, writeDistrict);
-        sender.sendMessage("District: " + writeDistrict.getIdInt() + " has been reclaimed");
+        DistrictSender.reclaimDistrict(this.channels, writeDistrict, new Message(ChatTarget.gamer_distric_reclaim, gamer, writeDistrict));
       } else {
         sender.sendMessage("You do not own district:" + writeDistrict.getIdInt());
       }

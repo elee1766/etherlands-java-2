@@ -4,11 +4,15 @@ import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -36,12 +40,21 @@ public class ChatService extends ListenerClient {
   private void process_chat(Message<ChatTarget> message){
     Object[] _args = message.getArgs();
     switch(message.getCommand()){
-      case global -> this.send_global((TextComponent) _args[0]);
-      case local -> this.send_local((Gamer) _args[0], (Integer) _args[1], (TextComponent) _args[2]);
+      case global -> this.send_global((String) _args[0], (Gamer) _args[1]);
+      case local -> this.send_local((Gamer) _args[0], (Integer) _args[1], (String) _args[2], (Gamer) _args[3]);
       case gamer -> this.send_gamer((Gamer) _args[0], (TextComponent) _args[1]);
-      case team -> this.send_team((Team) _args[0], (TextComponent) _args[1]);
+      case team -> this.send_team((Team) _args[0], (String) _args[1], (Gamer) _args[2]);
 
       case gamer_add_friend_response -> this.gamer_add_friend_response((Gamer) _args[0], (Gamer) _args[1]);
+      case gamer_distric_reclaim -> this.gamer_district_reclaim((Gamer) _args[0], (District) _args[1]);
+    }
+  }
+
+  private void gamer_district_reclaim(Gamer arg, District district) {
+    if(district.hasTeam()){
+      arg.getPlayer().sendMessage("District " + district.getIdInt() + " has been reclaimed");
+    }else{
+      arg.getPlayer().sendMessage("Reclaim has failed");
     }
   }
 
@@ -53,35 +66,90 @@ public class ChatService extends ListenerClient {
     }
   }
 
-  private void send_global(TextComponent message){
+  private void send_global(String message, Gamer arg){
     Bukkit.getLogger().info("Sending global message");
-    TextComponent globalChat = new TextComponent("[G] ");
-    globalChat.setColor(ChatColor.GOLD);
-    globalChat.addExtra(message);
+    TextComponent combined = new TextComponent("");
+    TextComponent prefix = new TextComponent("[g]");
+    TextComponent name = new TextComponent(arg.getPlayer().getName());
+    name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
+    name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+arg.getPlayer().getName()));
+    TextComponent at = new TextComponent("@");
+    at.setColor(ChatColor.RED);
+    TextComponent team = new TextComponent("");
+    name.setColor(ChatColor.WHITE);
+    prefix.setColor(ChatColor.GOLD);
+    combined.addExtra(prefix);
+    combined.addExtra(name);
+    if(arg.hasTeam()){
+      team.addExtra(arg.getTeam());
+      team.setColor(ChatColor.DARK_GRAY);
+      team.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
+      team.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+arg.getTeam()));
+      combined.addExtra(at);
+      combined.addExtra(team);
+    }
+    TextComponent messageComp = new TextComponent(message);
+    TextComponent carrot;
+    if(message.startsWith(">")){
+      carrot = new TextComponent(" >");
+      carrot.setColor(ChatColor.DARK_GREEN);
+      message=(message.substring(1));
+      messageComp.setText(message);
+      messageComp.setColor(ChatColor.DARK_GREEN);
+    }else{
+      carrot = new TextComponent(" > ");
+    }
+    combined.addExtra(carrot);
+    combined.addExtra(messageComp);
     for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
       WriteGamer gamer = (WriteGamer) context.getGamer(onlinePlayer.getUniqueId());
       if(gamer.preferences.checkPreference(MessageToggles.GLOBAL_CHAT)){
-        onlinePlayer.sendMessage(globalChat);
+        onlinePlayer.sendMessage(combined);
       }
     }
   }
-  private void send_team(Team team,TextComponent message){
+  private void send_team(Team team, String message, Gamer arg){
     Bukkit.getLogger().info("Sending team message");
-    TextComponent teamChat = new TextComponent("[T] ");
-    teamChat.setColor(ChatColor.AQUA);
-    teamChat.addExtra(message);
+    String teamname = team.getName();
+    if(teamname.length()>12){
+      teamname = teamname.substring(0, 11);
+    }
+    TextComponent combined = new TextComponent("");
+    TextComponent prefix = new TextComponent("["+teamname+"]");
+    prefix.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
+    prefix.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+team.getName()));
+    TextComponent name = new TextComponent(arg.getPlayer().getName());
+    name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
+    name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+arg.getPlayer().getName()));
+    name.setColor(ChatColor.WHITE);
+    prefix.setColor(ChatColor.AQUA);
+    combined.addExtra(prefix);
+    combined.addExtra(name);
+    TextComponent messageComp = new TextComponent(message);
+    TextComponent carrot;
+    if(message.startsWith(">")){
+      carrot = new TextComponent(" >");
+      carrot.setColor(ChatColor.DARK_GREEN);
+      message=(message.substring(1));
+      messageComp.setText(message);
+      messageComp.setColor(ChatColor.DARK_GREEN);
+    }else{
+      carrot = new TextComponent(" > ");
+    }
+    combined.addExtra(carrot);
+    combined.addExtra(messageComp);
     Player owner = Bukkit.getPlayer(team.getOwnerUUID());
     if(owner!=null){
-      owner.sendMessage(teamChat);
+      owner.sendMessage(combined);
     }
     for (UUID member : team.getMembers()) {
       Player player = Bukkit.getServer().getPlayer(member);
       if(player != null){
-        player.sendMessage(teamChat);
+        player.sendMessage(combined);
       }
     }
   }
-  private void send_local(Gamer gamer,Integer range, TextComponent message){
+  private void send_local(Gamer gamer, Integer range, String message, Gamer arg){
     Bukkit.getLogger().info("Sending local message");
     TextComponent local = new TextComponent("[L] ");
     local.setColor(ChatColor.LIGHT_PURPLE);

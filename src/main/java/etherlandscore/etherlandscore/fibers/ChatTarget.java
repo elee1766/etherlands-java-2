@@ -8,4 +8,5 @@ public enum ChatTarget {
 
 
   gamer_add_friend_response,
+  gamer_distric_reclaim
 }

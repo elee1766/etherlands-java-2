@@ -3,6 +3,7 @@ package etherlandscore.etherlandscore.state.sender;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.District;
@@ -11,9 +12,9 @@ import etherlandscore.etherlandscore.state.read.Group;
 
 public class DistrictSender {
 
-  public static void reclaimDistrict(Channels channels, District writeDistrict) {
+  public static void reclaimDistrict(Channels channels, District writeDistrict, Message message) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.district_reclaim_district, writeDistrict));
+        new Message<>(MasterCommand.district_reclaim_district, writeDistrict).setChatResponse(ChatTarget.gamer_distric_reclaim, message));
   }
 
   public static void setGamerPermission(

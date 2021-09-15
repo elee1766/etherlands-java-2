@@ -33,6 +33,7 @@ public class DistrictPrinter extends ListenerClient {
     TextComponent print = new TextComponent("");
     MessageFormatter prettyPrint = new MessageFormatter(print, fiber, channels);
     prettyPrint.addBar("=", "District: " + this.district.getIdInt());
+
     prettyPrint.addField("owner", this.district.getOwnerAddress());
 
 

@@ -11,15 +11,13 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.StringUtils;
-import static etherlandscore.etherlandscore.services.MasterService.state;
-import etherlandscore.etherlandscore.state.read.*;
-import org.bukkit.command.MessageCommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.C;
 import org.jetlang.fibers.Fiber;
 
-import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class MessageFormatter  extends ListenerClient {
   private final Fiber fiber;
@@ -99,7 +97,7 @@ public class MessageFormatter  extends ListenerClient {
 
   public void addField(String name, String value) {
     TextComponent valuecomp;
-    if(value=="null"){
+    if(Objects.equals(value, "null") || value == null){
       valuecomp = new TextComponent("none");
       valuecomp.setColor(ChatColor.GRAY);
     }else if (name.toLowerCase().contains("address") || (name.toLowerCase().contains("uuid"))){

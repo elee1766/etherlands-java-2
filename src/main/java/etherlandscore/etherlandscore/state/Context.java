@@ -498,8 +498,11 @@ public class Context<WriteMaps> {
   }
 
   public void touch_district(Integer id) {
-    WriteDistrict dis = new WriteDistrict(id);
-    this.districts.putIfAbsent(id,dis);
-    couchPersister.update(dis);
+    String owner = RedisGetter.GetOwnerOfDistrict(id.toString());
+    if (owner != null) {
+      WriteDistrict dis = new WriteDistrict(id);
+      this.districts.putIfAbsent(id, dis);
+      couchPersister.update(dis);
+    }
   }
 }

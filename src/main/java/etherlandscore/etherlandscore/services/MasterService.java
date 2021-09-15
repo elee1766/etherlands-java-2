@@ -74,8 +74,10 @@ public class MasterService extends ServerModule {
             case gamer_toggle_message -> context.gamer_toggle_message((WriteGamer) _args[0], (MessageToggles) _args[1], (ToggleValues) _args[2]);
             case touch_district -> context.touch_district((Integer) _args[0]);
         }
+        Bukkit.getLogger().info("Checking if needs to forward message");
         if(message.hasChatResponse()){
-            forward_chat_message(message.getChatResponse());
+                Bukkit.getLogger().info("Forwarding message");
+                forward_chat_message(message.getChatResponse());
         }
         global_update();
     }

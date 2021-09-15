@@ -8,12 +8,14 @@ import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import io.lettuce.core.dynamic.annotation.Command;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -38,23 +40,35 @@ public class ChatService extends ListenerClient {
   }
 
   private void process_chat(Message<ChatTarget> message){
-    Object[] _args = message.getArgs();
-    switch(message.getCommand()){
-      case global -> this.send_global((String) _args[0], (Gamer) _args[1]);
-      case local -> this.send_local((Gamer) _args[0], (Integer) _args[1], (String) _args[2], (Gamer) _args[3]);
-      case gamer -> this.send_gamer((Gamer) _args[0], (TextComponent) _args[1]);
-      case team -> this.send_team((Team) _args[0], (String) _args[1], (Gamer) _args[2]);
+    if(message!=null){
+      Bukkit.getLogger().info(message.toString());
+        Object[] _args = message.getArgs();
+        switch(message.getCommand()) {
+          case global -> this.send_global((String) _args[0], (Gamer) _args[1]);
+          case local -> this.send_local((Gamer) _args[0], (Integer) _args[1], (String) _args[2], (Gamer) _args[3]);
+          case gamer -> this.send_gamer((Gamer) _args[0], (TextComponent) _args[1]);
+          case team -> this.send_team((Team) _args[0], (String) _args[1], (Gamer) _args[2]);
 
-      case gamer_add_friend_response -> this.gamer_add_friend_response((Gamer) _args[0], (Gamer) _args[1]);
-      case gamer_distric_reclaim -> this.gamer_district_reclaim((Gamer) _args[0], (District) _args[1]);
+          case gamer_add_friend_response -> this.gamer_add_friend_response((Gamer) _args[0], (Gamer) _args[1]);
+          case gamer_distric_reclaim -> this.gamer_district_reclaim((Player) _args[0], (District) _args[1]);
+          case district_touch_district -> this.district_touch_district((CommandSender) _args[0], (Integer) _args[1]);
+        }
+      }
+  }
+
+  private void district_touch_district(CommandSender player, Integer id) {
+    if(context.getDistrict(id)==null){
+      player.sendMessage("District does not exist");
+    }else{
+      player.sendMessage("District: " + id+ "  has been updated");
     }
   }
 
-  private void gamer_district_reclaim(Gamer arg, District district) {
+  private void gamer_district_reclaim(Player arg, District district) {
     if(district.hasTeam()){
-      arg.getPlayer().sendMessage("District " + district.getIdInt() + " has been reclaimed");
+      arg.sendMessage("District " + district.getIdInt() + " has been reclaimed");
     }else{
-      arg.getPlayer().sendMessage("Reclaim has failed");
+      arg.sendMessage("Reclaim has failed");
     }
   }
 

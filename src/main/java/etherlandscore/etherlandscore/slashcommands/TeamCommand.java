@@ -65,7 +65,7 @@ public class TeamCommand extends ListenerClient {
     Chunk chunk = gamer.getPlayer().getChunk();
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
-      TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam);
+      TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam, new Message(ChatTarget.team_delegate_district, gamer, writeDistrict));
       response.setText(
           "District: " + writeDistrict.getIdInt() + " has been delegated to " + writeTeam.getName());
       channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
@@ -84,8 +84,8 @@ public class TeamCommand extends ListenerClient {
       channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       return;
     }
-      if (context.getPlot(i).getDistrict().equals(gamer.getUuid())) {
-        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam);
+      if (context.getDistrict(i).getOwnerUUID().equals(gamer.getUuid())) {
+        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam, new Message(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
         response.setText("District: " + i + " has been delegated to " + writeTeam.getName());
         channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {

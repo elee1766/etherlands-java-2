@@ -26,7 +26,7 @@ public class Message<T> {
     return this;
   }
   public boolean hasChatResponse(){
-    return chatResponse == null;
+    return chatResponse != null;
   }
   public Message getChatResponse(){
     return chatResponse;

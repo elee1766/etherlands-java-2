@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.state.sender;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.District;
@@ -23,9 +24,9 @@ public class TeamSender {
         new Message<>(MasterCommand.team_create_group, writeTeam, name));
   }
 
-  public static void delegateDistrict(Channels channels, District writeDistrict, Team writeTeam) {
+  public static void delegateDistrict(Channels channels, District writeDistrict, Team writeTeam, Message message) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_delegate_district, writeTeam, writeDistrict));
+        new Message<>(MasterCommand.team_delegate_district, writeTeam, writeDistrict).setChatResponse(ChatTarget.team_delegate_district, message));
   }
 
   public static void delete(Channels channels, Team writeTeam) {

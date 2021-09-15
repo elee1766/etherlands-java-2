@@ -8,5 +8,9 @@ public enum ChatTarget {
 
 
   gamer_add_friend_response,
-  gamer_distric_reclaim
+  gamer_distric_reclaim,
+  team_delegate_district,
+  team_reclaim_district,
+  district_update_district,
+  district_touch_district
 }

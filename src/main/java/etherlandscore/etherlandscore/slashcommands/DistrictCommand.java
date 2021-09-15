@@ -44,8 +44,7 @@ public class DistrictCommand extends ListenerClient {
          i++) {
       if(context.getDistrict(i) != null){
         if(context.getDistrict(i).isOwner(gamer)) {
-          TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team);
-          sender.sendMessage("District: " + i + " has been delegated to " + team.getName());
+          TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team, new Message(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
         } else {
           sender.sendMessage("You do not own this district");
         }
@@ -59,8 +58,7 @@ public class DistrictCommand extends ListenerClient {
     Chunk chunk = gamer.getPlayer().getChunk();
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
-      TeamSender.delegateDistrict(this.channels, writeDistrict, team);
-      sender.sendMessage(writeDistrict.getIdInt() + " has been delegated to " + team.getName());
+      TeamSender.delegateDistrict(this.channels, writeDistrict, team, new Message(ChatTarget.team_delegate_district, gamer, writeDistrict));
     } else {
       sender.sendMessage("You do not own this district");
     }
@@ -105,7 +103,7 @@ public class DistrictCommand extends ListenerClient {
       District writeDistrict = context.getDistrict(i);
       if(writeDistrict != null) {
         if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
-          DistrictSender.reclaimDistrict(this.channels, writeDistrict, new Message(ChatTarget.gamer_distric_reclaim, gamer, writeDistrict));
+          DistrictSender.reclaimDistrict(this.channels, writeDistrict, sender);
         } else {
           sender.sendMessage("You do not own district:" + i);
         }
@@ -121,7 +119,7 @@ public class DistrictCommand extends ListenerClient {
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if(writeDistrict != null) {
       if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
-        DistrictSender.reclaimDistrict(this.channels, writeDistrict, new Message(ChatTarget.gamer_distric_reclaim, gamer, writeDistrict));
+        DistrictSender.reclaimDistrict(this.channels, writeDistrict, sender);
       } else {
         sender.sendMessage("You do not own district:" + writeDistrict.getIdInt());
       }
@@ -147,9 +145,8 @@ public class DistrictCommand extends ListenerClient {
       sender.sendMessage(args[0] + " is being updated...");
       IntegerRange range = (IntegerRange) args[0];
       for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
-        this.channels.master_command.publish(new Message<>(MasterCommand.touch_district, i));
+        DistrictSender.touchDistrict(this.channels, i, sender);
       }
-      sender.sendMessage(args[0] + " have been updated");
     } else {
       sender.sendMessage("You do not have permission to run this command");
     }

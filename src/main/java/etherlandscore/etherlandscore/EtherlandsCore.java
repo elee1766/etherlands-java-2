@@ -73,9 +73,6 @@ public final class EtherlandsCore extends JavaPlugin {
     CommandAPI.unregister("help");
     Fiber districtCommandFiber = new ThreadFiber();
     modules.add(new DistrictCommand(channels, districtCommandFiber));
-    Fiber scheduleFiber = new ThreadFiber();
-    Scheduler scheduler = new Scheduler(channels, scheduleFiber);
-    modules.add(scheduler);
     Fiber imageCommandFiber = new ThreadFiber();
     modules.add(new ImageCommand(channels, imageCommandFiber));
     Fiber toggleCommandFiber = new ThreadFiber();

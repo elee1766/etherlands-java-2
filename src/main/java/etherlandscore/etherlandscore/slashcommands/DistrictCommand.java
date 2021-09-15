@@ -45,11 +45,13 @@ public class DistrictCommand extends ListenerClient {
     for (int i = range.getLowerBound();
          i <= range.getUpperBound();
          i++) {
-      if (context.getDistrict(i).getOwnerUUID().equals(gamer.getUuid())) {
-        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team);
-        sender.sendMessage("District: " + i + " has been delegated to " + team.getName());
-      } else {
-        sender.sendMessage("You do not own this district");
+      if(context.getDistrict(i) != null){
+        if(context.getDistrict(i).isOwner(gamer)) {
+          TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team);
+          sender.sendMessage("District: " + i + " has been delegated to " + team.getName());
+        } else {
+          sender.sendMessage("You do not own this district");
+        }
       }
     }
   }

@@ -1,7 +1,6 @@
 package etherlandscore.etherlandscore.services;
 
 import etherlandscore.etherlandscore.enums.MessageToggles;
-import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -15,7 +14,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-import org.w3c.dom.Text;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -42,6 +40,16 @@ public class ChatService extends ListenerClient {
       case local -> this.send_local((Gamer) _args[0], (Integer) _args[1], (TextComponent) _args[2]);
       case gamer -> this.send_gamer((Gamer) _args[0], (TextComponent) _args[1]);
       case team -> this.send_team((Team) _args[0], (TextComponent) _args[1]);
+
+      case gamer_add_friend_response -> this.gamer_add_friend_response((Gamer) _args[0], (Gamer) _args[1]);
+    }
+  }
+
+  private void gamer_add_friend_response(Gamer arg, Gamer arg1) {
+    if(arg.hasFriend(arg1.getPlayer())){
+      arg.getPlayer().sendMessage("You are now friends with " + arg1.getPlayer().getName());
+    }else{
+      arg.getPlayer().sendMessage("Friend failed to be added");
     }
   }
 

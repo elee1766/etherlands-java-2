@@ -5,4 +5,7 @@ public enum ChatTarget {
   team,
   local,
   gamer,
+
+
+  gamer_add_friend_response,
 }

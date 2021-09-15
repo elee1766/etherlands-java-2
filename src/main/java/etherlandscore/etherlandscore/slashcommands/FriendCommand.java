@@ -7,7 +7,6 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
-import org.bouncycastle.math.ec.rfc7748.X448;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -27,9 +26,7 @@ public class FriendCommand extends ListenerClient {
     Gamer newFriend = (Gamer) args[0];
     if (!gamer.getFriends().contains(newFriend.getUuid())) {
       GamerSender.addFriend(this.channels, gamer, newFriend);
-      sender.sendMessage("Friend added successfully");
     } else {
-      sender.sendMessage("Friend failed to be added");
     }
   }
 

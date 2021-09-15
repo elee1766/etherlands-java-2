@@ -6,10 +6,7 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.MasterCommand;
-import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.fibers.ServerModule;
+import etherlandscore.etherlandscore.fibers.*;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.ReadContext;
@@ -77,7 +74,14 @@ public class MasterService extends ServerModule {
             case gamer_toggle_message -> context.gamer_toggle_message((WriteGamer) _args[0], (MessageToggles) _args[1], (ToggleValues) _args[2]);
             case touch_district -> context.touch_district((Integer) _args[0]);
         }
+        if(message.hasChatResponse()){
+            forward_chat_message(message.getChatResponse());
+        }
         global_update();
+    }
+
+    private void forward_chat_message(Message<ChatTarget> message){
+        channels.chat_message.publish(message);
     }
 
 

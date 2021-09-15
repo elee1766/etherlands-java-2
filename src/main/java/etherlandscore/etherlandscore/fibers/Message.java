@@ -3,6 +3,7 @@ package etherlandscore.etherlandscore.fibers;
 public class Message<T> {
   private final T command;
   private final Object[] args;
+  private Message chatResponse = null;
 
   public Message(T command, Object... args) {
     this.command = command;
@@ -15,5 +16,19 @@ public class Message<T> {
 
   public T getCommand() {
     return command;
+  }
+
+  public void setChatResponse(Message chatResponse) {
+    this.chatResponse = chatResponse;
+  }
+  public Message<T> setChatResponse(ChatTarget target, Object...args){
+    this.chatResponse = new Message<>(target, args);
+    return this;
+  }
+  public boolean hasChatResponse(){
+    return chatResponse == null;
+  }
+  public Message getChatResponse(){
+    return chatResponse;
   }
 }

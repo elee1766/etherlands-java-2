@@ -4,21 +4,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
-import etherlandscore.etherlandscore.util.Map2;
-import net.luckperms.api.model.user.User;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -160,6 +157,7 @@ public class WriteGamer extends CouchDocument implements Gamer {
   public boolean hasFriend(Player player) {
     return this.getFriends().contains(player.getUniqueId());
   }
+
 
   @Override
   public boolean hasTeam() {

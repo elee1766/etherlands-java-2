@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.listener;
 
-import etherlandscore.etherlandscore.Menus.MapMenu;
 import etherlandscore.etherlandscore.actions.BlockAction.PlayerInteractAction;
 import etherlandscore.etherlandscore.actions.BlockAction.PlayerSwitchAction;
 import etherlandscore.etherlandscore.enums.MessageToggles;
@@ -239,8 +238,8 @@ public class PlayerEventListener extends ListenerClient implements Listener {
     }
     if(gamer.preferences.checkPreference(MessageToggles.MAP)){
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
-        MapMenu map = new MapMenu(gamer, this.channels, this.fiber);
-        map.mapMenu();
+        //MapMenu map = new MapMenu(gamer, this.channels, this.fiber);
+        //map.mapMenu();
       }
     }
   }

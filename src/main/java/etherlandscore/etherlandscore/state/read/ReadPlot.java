@@ -30,7 +30,7 @@ public class ReadPlot  {
       if(this.id == null){
         return null;
       }
-      return state().getDistrict(this.id);
+      return state().getDistrict(this.x, this.z);
     }
 
     public Integer getIdInt() {

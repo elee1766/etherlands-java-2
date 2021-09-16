@@ -72,4 +72,8 @@ public class MessageCreator {
   public BaseComponent[] getMessage() {
     return message;
   }
+
+  public void addMap(){
+
+  }
 }

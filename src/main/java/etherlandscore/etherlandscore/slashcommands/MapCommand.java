@@ -3,7 +3,7 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import etherlandscore.etherlandscore.Menus.MapMenu;
+import etherlandscore.etherlandscore.Menus.MapCreator;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
@@ -11,6 +11,7 @@ import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -26,13 +27,13 @@ public class MapCommand extends CommandProcessor {
   }
 
   void map(Player sender, Object[] args) {
-    MapMenu map = new MapMenu(context.getGamer(sender.getUniqueId()), this.channels, this.fiber);
-    map.mapMenu();
+    //MapCreator map = new MapCreator(context.getGamer(sender.getUniqueId()), this.channels, this.fiber, sender.getFacing(), sender.getLocation().getChunk().getX(), sender.getLocation().getChunk().getZ());
+    //TextComponent[] test = (map.mapMenu());
   }
 
   void mapCoords(Player sender, Object[] args) {
-    MapMenu map = new MapMenu(context.getGamer(sender.getUniqueId()), this.channels, this.fiber);
-    map.mapMenuCoord((String) args[0],(Integer) args[1],(Integer) args[2]);
+    //MapMenu map = new MapMenu(context.getGamer(sender.getUniqueId()), this.channels, this.fiber);
+    //map.mapMenuCoord((String) args[0],(Integer) args[1],(Integer) args[2]);
   }
 
   void auto(Player sender, Object[] args){

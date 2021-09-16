@@ -267,13 +267,15 @@ public class Context {
 
   public ReadPlot getPlot(Integer x, Integer z) {
     Integer id = RedisGetter.GetPlotID(x.toString(),z.toString());
-    return new ReadPlot(id,x,z);
+    ReadPlot plot = new ReadPlot(id, x, z);
+    return plot;
   }
 
   public ReadPlot getPlot(Integer id){
     Integer x = RedisGetter.GetPlotX(id);
     Integer z = RedisGetter.GetPlotZ(id);
-    return new ReadPlot(id,x,z);
+    ReadPlot plot = new ReadPlot(id, x, z);
+    return plot;
   }
 
   public Map<Integer, WriteDistrict> getDistricts() {

@@ -42,6 +42,4 @@ public class GamerSender {
         new Message<>(ChatTarget.gamer_gamer_info, gamer, target));
   }
 
-
-
 }

@@ -138,6 +138,7 @@ public class ComponentCreator {
       combined.addExtra(component);
       combined.addExtra(display);
       if(current_line > 40){
+        current_line=0;
         combined.addExtra("\n");
       }else{
         combined.addExtra("      ");

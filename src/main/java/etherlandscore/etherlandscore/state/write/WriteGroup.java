@@ -74,6 +74,14 @@ public class WriteGroup implements Group {
 
   @Override
   public Set<UUID> getMembers() {
+    if (isDefault()) {
+      if (getName().equals("member")) {
+        return this.getTeamObject().getMembers();
+      }
+      if (getName().equals("outsiders")) {
+        return new HashSet<>();
+      }
+    }
     return members;
   }
 

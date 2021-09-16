@@ -4,13 +4,10 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
-import etherlandscore.etherlandscore.Menus.DistrictPrinter;
-import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
-import etherlandscore.etherlandscore.fibers.EthersCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
@@ -27,6 +24,8 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class DistrictCommand extends CommandProcessor {
   private final Fiber fiber;
@@ -69,32 +68,24 @@ public class DistrictCommand extends CommandProcessor {
   }
 
   void infoGiven(CommandSender sender, Object[] args) {
-    District writeDistrict = context.getDistrict((int) args[0]);
-    if (writeDistrict == null) {
-      TextComponent unclaimed = new TextComponent("This Land is unclaimed");
-      unclaimed.setColor(ChatColor.YELLOW);
-      sender.sendMessage(unclaimed);
-    } else {
-      DistrictPrinter printer = new DistrictPrinter(writeDistrict, fiber, channels);
-      printer.printDistrict((Player) sender);
+    District district = context.getDistrict((int) args[0]);
+    if (sender instanceof Player) {
+      Gamer gamer = state().getGamer(((Player) sender).getUniqueId());
+      channels.chat_message.publish(
+          new Message<>(ChatTarget.gamer_district_info, gamer, district));
     }
   }
 
   void infoLocal(Player sender, Object[] args) {
-    District writeDistrict;
     Location loc = sender.getLocation();
     Chunk chunk = loc.getChunk();
     int x = chunk.getX();
     int z = chunk.getZ();
-    writeDistrict = context.getDistrict(x, z);
-    if (writeDistrict == null) {
-      TextComponent unclaimed = new TextComponent("This Land is unclaimed");
-      unclaimed.setColor(ChatColor.YELLOW);
-      sender.sendMessage(unclaimed);
-    } else {
-      DistrictPrinter printer = new DistrictPrinter(writeDistrict, fiber, channels);
-      printer.printDistrict(sender);
-    }
+    District district = context.getDistrict(x, z);
+    Gamer gamer = state().getGamer(sender.getUniqueId());
+      channels.chat_message.publish(
+          new Message<>(ChatTarget.gamer_district_info, gamer, district)
+      );
   }
 
   void reclaim(Player sender, Object[] args) {
@@ -151,59 +142,22 @@ public class DistrictCommand extends CommandProcessor {
       for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
         DistrictSender.touchDistrict(this.channels, i, sender);
       }
-    } else {
-      sender.sendMessage("You do not have permission to run this command");
     }
   }
 
-  void forceUpdate(CommandSender sender, Object[] args) {
-    if(sender.isOp() || (!(sender instanceof Player))){
-      sender.sendMessage(args[0] + " is being updated...");
-      IntegerRange range = (IntegerRange) args[0];
-      for (int i = range.getLowerBound(); i <= Math.min(1000000, range.getUpperBound()); i++) {
-        this.channels.ethers_command.publish(new Message<>(EthersCommand.force_update, i));
-      }
-      sender.sendMessage(args[0] + " have been updated");
-    } else {
-      sender.sendMessage("You do not have permission to run this command");
-    }
-  }
 
   void setGroup(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Team team = manager.getTeamObject();
     if(team == null){
-      sender.sendMessage("ur not in a team");
     }
     if (team.isManager(manager)) {
       District writeDistrict = context.getDistrict((int) args[0]);
       Group member = (Group) args[1];
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
-      DistrictSender.setGroupPermission(channels, member, flag, value, writeDistrict);
-      sender.sendMessage("group permission set");
-      FlagMenu.clickMenu(manager, "group", "district set_group", writeDistrict, member);
+      DistrictSender.setGroupPermission(channels, member, flag, value, writeDistrict,manager);
     }else{
-      sender.sendMessage("only managers may set district permissions");
-    }
-  }
-
-  void setAllGroup(Player sender, Object[] args) {
-    Gamer manager = context.getGamer(sender.getUniqueId());
-    Team team = manager.getTeamObject();
-    if(team == null){
-      sender.sendMessage("ur not in a team");
-    }
-    if (team.isManager(manager)) {
-      District writeDistrict = context.getDistrict((int) args[0]);
-      Group member = (Group) args[1];
-      for(AccessFlags af : AccessFlags.values()){
-        DistrictSender.setGroupPermission(channels, member, af, (FlagValue) args[2], writeDistrict);
-      }
-      sender.sendMessage("All permitions set to allow for group " + member.getName());
-      FlagMenu.clickMenu(manager, "group", "district set_group", writeDistrict, member);
-    }else{
-      sender.sendMessage("only managers may set district permissions");
     }
   }
 
@@ -219,10 +173,7 @@ public class DistrictCommand extends CommandProcessor {
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
       DistrictSender.setGamerPermission(channels, member, flag, value, writeDistrict);
-      sender.sendMessage("group permission set");
-      FlagMenu.clickMenu(manager, "group", "district set_group", writeDistrict, member.getPlayer());
     }else{
-      sender.sendMessage("only managers may set district permissions");
     }
   }
 
@@ -258,15 +209,6 @@ public class DistrictCommand extends CommandProcessor {
             .withPermission("etherlands.public")
         );
     DistrictCommand.withSubcommand(
-        createPlayerCommand("set_all_group", SlashCommands.setAllGroup,this::setAllGroup)
-            .withAliases("setag", "setallgroup", "setAllGroup")
-            .withArguments(new IntegerArgument("districtID"))
-            .withArguments(teamGroupArgument("group"))
-            .withArguments(
-                flagValueArgument("value").replaceSuggestions(info -> getFlagValueStrings()))
-            .withPermission("etherlands.public")
-    );
-    DistrictCommand.withSubcommand(
         createPlayerCommand("info", SlashCommands.infoLocal,this::infoLocal)
     );
     DistrictCommand.withSubcommand(
@@ -282,11 +224,6 @@ public class DistrictCommand extends CommandProcessor {
             .executes(this::update)
     );
 
-    DistrictCommand.withSubcommand(
-        createPlayerCommand("forceupdate", SlashCommands.forceUpdate,this::forceUpdate)
-            .withArguments(new IntegerRangeArgument("chunkId"))
-            .executes(this::forceUpdate)
-    );
     DistrictCommand.withSubcommand(
         createPlayerCommand("reclaim", SlashCommands.reclaim,this::reclaim)
             .withArguments(new IntegerRangeArgument("chunkId"))

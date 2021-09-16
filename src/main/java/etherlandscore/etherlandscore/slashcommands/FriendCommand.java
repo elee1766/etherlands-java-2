@@ -85,7 +85,7 @@ public class FriendCommand extends CommandProcessor {
         createPlayerCommand("remove",SlashCommands.friendRemoveSelector,this::friendRemoveSelector)
     );
     FriendCommand.withSubcommand(
-        createPlayerCommand("list",SlashCommands.list).executesPlayer(this::friendList)
+        createPlayerCommand("list",SlashCommands.list,this::friendList)
     );
     FriendCommand.register();
   }

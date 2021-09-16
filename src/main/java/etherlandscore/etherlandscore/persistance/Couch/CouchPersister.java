@@ -68,7 +68,7 @@ public class CouchPersister extends ServerModule {
       districtRepo.save(context.getDistricts().values());
       teamRepo.save(context.getTeams().values());
       nftRepo.save(context.getNftUrls().values());
-      nftRepo.save(context.getBankRecords().values());
+      bankRecordRepo.save(context.getBankRecords().values());
       mapRepo.save(context.getMaps());
   }
 

@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.util.Map2;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 import java.util.UUID;
 
 public interface District extends Comparable<District> {
@@ -18,6 +19,8 @@ public interface District extends Comparable<District> {
   @Override
   int compareTo(District r);
 
+  Set<Integer> getPlots();
+
   Field[] getDeclaredFields();
 
   Gamer getOwnerObject();
@@ -25,6 +28,8 @@ public interface District extends Comparable<District> {
   String getOwnerAddress();
 
   Integer getPriority();
+
+  String getTeam();
 
   Team getTeamObject();
 

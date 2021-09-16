@@ -7,13 +7,16 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.*;
+import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.write.*;
 import org.bukkit.Bukkit;
 import org.jetlang.fibers.Fiber;
+import org.jetlang.fibers.ThreadFiber;
 
+import java.net.MalformedURLException;
 import java.util.UUID;
 
 public class MasterService extends ServerModule {
@@ -25,9 +28,19 @@ public class MasterService extends ServerModule {
         super(fiber);
         this.channels = channels;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        context = new Context(this.channels);
-        this.channels.global_update.publish(context);
-        this.channels.master_command.subscribe(fiber, this::process_command);
+        CouchPersister couchPersister;
+        context = new Context(channels);
+        try {
+            Fiber couchFiber = new ThreadFiber();
+            couchPersister = new CouchPersister(channels, couchFiber);
+            context.addPersister(couchPersister);
+            couchPersister.start();
+            couchPersister.populateContext(context);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        channels.global_update.publish(context);
+        channels.master_command.subscribe(fiber, this::process_command);
     }
 
     public static ReadContext state() {
@@ -74,6 +87,7 @@ public class MasterService extends ServerModule {
             case shop_create_shop -> context.shop_create_shop((WriteShop) _args[0]);
             case gamer_toggle_message -> context.gamer_toggle_message((WriteGamer) _args[0], (MessageToggles) _args[1], (ToggleValues) _args[2]);
             case touch_district -> context.touch_district((Integer) _args[0]);
+            case touch_gamer -> context.touch_gamer((UUID) _args[0]);
         }
         if(message.hasChatResponse()){
                 forward_chat_message(message.getChatResponse());

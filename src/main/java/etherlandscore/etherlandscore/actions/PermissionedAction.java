@@ -4,17 +4,17 @@ import etherlandscore.etherlandscore.state.read.ReadContext;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class PermissionedAction {
   private final Event event;
-  private final ReadContext context;
 
-  public PermissionedAction(ReadContext context, Event event) {
+  public PermissionedAction(Event event) {
     this.event = event;
-    this.context = context;
   }
 
   public ReadContext getContext() {
-    return context;
+    return state();
   }
 
   public boolean process() {

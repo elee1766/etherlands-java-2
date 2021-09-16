@@ -5,5 +5,5 @@ public enum AccessFlags {
   BUILD,
   DESTROY,
   INTERACT,
-  ACCESS,
+  SWITCH,
 }

@@ -85,7 +85,7 @@ public class MapMenu extends ListenerClient {
         HoverEvent claimedHover = null;
         ReadPlot plot;
         plot = state().getPlot(x, z);
-        if (plot != null) {
+        if (plot.getDistrict() != null) {
           claimedflag = true;
           claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
           if (plot.getDistrict().isOwner(gamer)) {
@@ -239,14 +239,12 @@ public class MapMenu extends ListenerClient {
         ClickEvent claimedClick = null;
         ReadPlot plot;
         plot = state().getPlot(x, z);
-        if (plot != null) {
-          claimedflag = true;
-          claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
-          claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + plot.getDistrict()));
-          if(plot.getDistrict() != null){
-            if (plot.getDistrict().isOwner(gamer)) {
-              ownedflag = true;
-            }
+        claimedflag = true;
+        claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+plot.getX() + ", " + plot.getZ()+")"));
+        claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + plot.getDistrict()));
+        if(plot.getDistrict() != null){
+          if (plot.getDistrict().isOwner(gamer)) {
+            ownedflag = true;
           }
         }
 

@@ -14,27 +14,35 @@ import org.bukkit.entity.Player;
 
 public class DistrictSender {
 
-  public static void reclaimDistrict(Channels channels, District writeDistrict, Player sender) {
+  public static void reclaimDistrict(Channels channels, District district, Player sender) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.district_reclaim_district, writeDistrict).setChatResponse(ChatTarget.gamer_distric_reclaim, sender, writeDistrict));
+        new Message<>(MasterCommand.district_reclaim_district, district)
+            .setChatResponse(ChatTarget.gamer_distric_reclaim, sender, district)
+    );
   }
 
   public static void setGamerPermission(
-      Channels channels, Gamer gamer, AccessFlags flag, FlagValue value, District writeDistrict) {
+      Channels channels, Gamer gamer, AccessFlags flag, FlagValue value, District district) {
     channels.master_command.publish(
         new Message<>(
-            MasterCommand.district_set_gamer_permission, writeDistrict, gamer, flag, value));
+            MasterCommand.district_set_gamer_permission, district, gamer, flag, value)
+            .setChatResponse(ChatTarget.gamer_district_info, gamer, district)
+    );
   }
 
   public static void setGroupPermission(
       Channels channels,
-      Group writeGroup,
+      Group group,
       AccessFlags flag,
       FlagValue value,
-      District writeDistrict) {
+      District district,
+      Gamer gamer
+  ) {
     channels.master_command.publish(
         new Message<>(
-            MasterCommand.district_set_group_permission, writeDistrict, writeGroup, flag, value));
+            MasterCommand.district_set_group_permission, district, group, flag, value)
+            .setChatResponse(ChatTarget.gamer_district_info, gamer, district)
+    );
   }
 
   public static void touchDistrict(Channels channels, int i, CommandSender sender) {

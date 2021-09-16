@@ -19,7 +19,9 @@ public interface Team {
 
   District getDistrict(Integer x);
 
-  Map<String, District> getDistricts();
+  Set<District> getDistrictObjects();
+
+  Set<Integer> getDistricts();
 
   Group getGroup(String name);
 

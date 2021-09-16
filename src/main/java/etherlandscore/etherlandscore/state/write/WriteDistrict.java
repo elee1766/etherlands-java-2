@@ -134,6 +134,12 @@ public class WriteDistrict extends CouchDocument implements District {
     return RedisGetter.GetOwnerOfDistrict(this._id);
   }
 
+  @JsonIgnore
+  @Override
+  public Set<Integer> getPlots() {
+    return RedisGetter.GetPlotsInDistrict(this._id);
+  }
+
   @Override
   public boolean isOwner(Gamer gamer){
     return this.getOwnerAddress().equals(gamer.getAddress());
@@ -185,7 +191,7 @@ public class WriteDistrict extends CouchDocument implements District {
   }
 
   @JsonIgnore
-  public Set<String> getPlotIds() {
+  public Set<Integer> getPlotIds() {
     return RedisGetter.GetPlotsInDistrict(this._id);
   }
 
@@ -193,6 +199,7 @@ public class WriteDistrict extends CouchDocument implements District {
   public Integer getPriority() {
     return this.priority;
   }
+
 
   public String getTeam() {
     return team;

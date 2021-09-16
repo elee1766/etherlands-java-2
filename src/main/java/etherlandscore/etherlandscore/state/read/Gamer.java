@@ -1,11 +1,8 @@
 package etherlandscore.etherlandscore.state.read;
 
-import etherlandscore.etherlandscore.enums.MessageToggles;
-import etherlandscore.etherlandscore.enums.ToggleValues;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +27,8 @@ public interface Gamer {
   String getTeam();
 
   Team getTeamObject();
+
+  String getName();
 
   UUID getUuid();
 

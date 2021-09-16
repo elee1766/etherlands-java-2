@@ -4,24 +4,31 @@ import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
-public class BlockBreakAction extends PermissionedAction {
-  private final BlockBreakEvent event;
-  private final AccessFlags flag = AccessFlags.DESTROY;
+public class PlayerSwitchAction extends PermissionedAction {
+  private final PlayerInteractEvent event;
+  private final AccessFlags flag = AccessFlags.SWITCH;
 
 
-  public BlockBreakAction(BlockBreakEvent event) {
+  public PlayerSwitchAction(PlayerInteractEvent event) {
     super(event);
     this.event = event;
   }
 
   public Integer getChunkX(){
-    return event.getBlock().getChunk().getX();
+    if(event.getInteractionPoint() == null){
+      return 0;
+    }
+    return event.getInteractionPoint().getChunk().getX();
   }
 
   public Integer getChunkZ(){
-    return event.getBlock().getChunk().getZ();
+    if (event.getInteractionPoint() == null) {
+      return 0;
+      }
+
+    return event.getInteractionPoint().getChunk().getZ();
   }
 
   @Override
@@ -31,10 +38,8 @@ public class BlockBreakAction extends PermissionedAction {
     if (gamer.getPlayer().isOp()) {
       return super.process();
     }
-
     District writeDistrict=
-        getContext()
-            .getDistrict(getChunkX(), getChunkZ());
+        getContext().getDistrict(getChunkX(), getChunkZ());
     if (writeDistrict == null) {
       return super.rollback();
     }

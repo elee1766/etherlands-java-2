@@ -24,6 +24,8 @@ import org.jetlang.fibers.Fiber;
 import java.util.Iterator;
 import java.util.List;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class BlockEventListener extends ListenerClient implements Listener {
 
   public final Fiber fiber;
@@ -38,9 +40,9 @@ public class BlockEventListener extends ListenerClient implements Listener {
   @EventHandler
   public void onBlockBreak(BlockBreakEvent breakEvent) {
     if(breakEvent.getBlock().getState() instanceof Chest){
-      WriteShop shop = context.getShop(breakEvent.getBlock().getLocation());
+      WriteShop shop = state().getShop(breakEvent.getBlock().getLocation());
       if(shop!=null){
-        if(context.getGamer(breakEvent.getPlayer().getUniqueId()).equals(shop.getOwner())){
+        if(state().getGamer(breakEvent.getPlayer().getUniqueId()).equals(shop.getOwner())){
           shop.getLabel().remove();
           return;
         }else{
@@ -49,10 +51,10 @@ public class BlockEventListener extends ListenerClient implements Listener {
       }
     }
     try {
-      BlockBreakAction action = new BlockBreakAction(context, breakEvent);
+      BlockBreakAction action = new BlockBreakAction(breakEvent);
       boolean code = action.process();
       if (!code) {
-        District d = context.getPlot(action.getChunkX(),action.getChunkZ()).getDistrict();
+        District d = state().getDistrict(action.getChunkX(),action.getChunkZ());
         if(d != null){
           breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + d.getIdInt());
         }else{
@@ -70,8 +72,8 @@ public class BlockEventListener extends ListenerClient implements Listener {
     Block spreadFrom = spreadEvent.getSource();
     Block spreadTo = spreadEvent.getBlock();
     try {
-      District fromDistrict = context.getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
-      District toDistrict = context.getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
+      District fromDistrict = state().getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
+      District toDistrict = state().getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
       if(fromDistrict!=toDistrict){
         spreadEvent.setCancelled(true);
       }
@@ -86,8 +88,8 @@ public class BlockEventListener extends ListenerClient implements Listener {
     Block spreadFrom = burnEvent.getIgnitingBlock();
     Block spreadTo = burnEvent.getBlock();
     try {
-      District fromDistrict = context.getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
-      District toDistrict = context.getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
+      District fromDistrict = state().getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
+      District toDistrict = state().getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
       if(fromDistrict!=toDistrict){
         burnEvent.setCancelled(true);
       }
@@ -105,21 +107,21 @@ public class BlockEventListener extends ListenerClient implements Listener {
       if(entity instanceof TNTPrimed){
         Entity source = ((TNTPrimed) entity).getSource();
         if(source!=null && source instanceof Player){
-          placer = context.getGamer(source.getUniqueId());
+          placer = state().getGamer(source.getUniqueId());
         }
       }
       if(placer!=null){
         //Bukkit.getLogger().warning(placer.getUuid() + " Placed TNT on " + explodeEvent.getLocation());
       }
-      District d = context.getDistrict(explodeEvent.getLocation().getChunk().getX(), explodeEvent.getLocation().getChunk().getX());
+      District d = state().getDistrict(explodeEvent.getLocation().getChunk().getX(), explodeEvent.getLocation().getChunk().getX());
       List<Block> blockList = explodeEvent.blockList();
       Iterator<Block> it = blockList.iterator();
       while (it.hasNext()) {
         Block block = it.next();
-        if (context.getDistrict(block.getChunk().getX(), block.getChunk().getZ())==null) {
+        if (state().getDistrict(block.getChunk().getX(), block.getChunk().getZ())==null) {
           it.remove();
         }else{
-          District db = context.getDistrict(block.getChunk().getX(), block.getChunk().getZ());
+          District db = state().getDistrict(block.getChunk().getX(), block.getChunk().getZ());
           if(db!=d){
             it.remove();
           }
@@ -135,8 +137,8 @@ public class BlockEventListener extends ListenerClient implements Listener {
   @EventHandler
   public void onLiquidFlow(BlockFromToEvent flowEvent) {
     try {
-      District dFrom = context.getDistrict(flowEvent.getBlock().getChunk().getX(), flowEvent.getBlock().getChunk().getZ());
-      District dTo = context.getDistrict(flowEvent.getToBlock().getChunk().getX(), flowEvent.getToBlock().getChunk().getZ());
+      District dFrom = state().getDistrict(flowEvent.getBlock().getChunk().getX(), flowEvent.getBlock().getChunk().getZ());
+      District dTo = state().getDistrict(flowEvent.getToBlock().getChunk().getX(), flowEvent.getToBlock().getChunk().getZ());
       if(dFrom!=dTo){
         flowEvent.setCancelled(true);
       }
@@ -165,10 +167,10 @@ public class BlockEventListener extends ListenerClient implements Listener {
       }
     }
     try {
-      BlockPlaceAction action = new BlockPlaceAction(context, placeEvent);
+      BlockPlaceAction action = new BlockPlaceAction(placeEvent);
       boolean code = action.process();
       if (!code) {
-        District dID = context.getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
+        District dID = state().getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
         if(dID != null){
           placeEvent.getPlayer().sendMessage("you do not have permission to BUILD in district " + dID.getIdInt());
         }else{

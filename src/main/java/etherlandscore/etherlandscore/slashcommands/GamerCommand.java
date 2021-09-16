@@ -10,7 +10,6 @@ import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
-import etherlandscore.etherlandscore.state.write.WriteGamer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -42,9 +41,8 @@ public class GamerCommand extends CommandProcessor {
 
   void link(Object o,Object[] args) {
     Player p = (Player) args[0];
-    WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
-    GamerSender.setAddress(channels, gamer, (String) args[1]);
-    Bukkit.getLogger().info(gamer.getPlayer().getName() + " has been linked successfully");
+    GamerSender.setAddress(channels, p.getUniqueId(), (String) args[1]);
+    Bukkit.getLogger().info(p.getUniqueId() + " has been linked successfully");
   }
 
   void suicide(Player sender, Object[] args) {

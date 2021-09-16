@@ -14,11 +14,13 @@ import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.*;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class WriteTeam extends CouchDocument implements Team {
   private final String name;
   private Set<UUID> members;
   private Set<Integer> plots;
-  private Map<String, WriteDistrict> districts;
+  private Set<Integer> districts;
   private Map<String, WriteGroup> groups;
   private UUID owner;
 
@@ -36,7 +38,7 @@ public class WriteTeam extends CouchDocument implements Team {
     this.owner = gamer.getUuid();
     this.members = new HashSet<>();
     this.plots = new HashSet<>();
-    this.districts = new HashMap<>();
+    this.districts = new HashSet<>();
     this.groups = new HashMap<>();
     this.groups.put("outsiders", new WriteGroup(this, "outsiders", -5, true));
     this.groups.put("member", new WriteGroup(this, "member", -1, true));
@@ -48,7 +50,7 @@ public class WriteTeam extends CouchDocument implements Team {
   }
 
   public void addDistrict(WriteDistrict district) {
-    this.districts.put(district.getId(), district);
+    this.districts.add(district.getIdInt());
   }
 
   @Override
@@ -78,14 +80,8 @@ public class WriteTeam extends CouchDocument implements Team {
     }
   }
 
-  public void deleteDistrict(String name) {
-    if (districts.containsKey(name)) {
-        this.districts.remove(name);
-    }
-  }
-
-  public void deletePlot(int ID) {
-    this.plots.remove(ID);
+  public void deleteDistrict(Integer id) {
+    this.districts.remove(id);
   }
 
   public void deleteGroup(String name) {
@@ -115,16 +111,30 @@ public class WriteTeam extends CouchDocument implements Team {
   }
 
   @Override
+  @JsonIgnore
   public District getDistrict(Integer x) {
-    return this.districts.getOrDefault(x, null);
+    return state().getDistrict(x);
+  }
+
+
+  @Override
+  @JsonIgnore
+  public Set<District> getDistrictObjects() {
+    Set<District> output = new HashSet<>();
+    for (Integer id : getDistricts()) {
+      District district = state().getDistrict(id);
+      if(district != null){
+        output.add(district);
+      }
+    }
+    return output;
   }
 
   @Override
-  public Map<String, District> getDistricts() {
-    return (Map) districts;
+  public Set<Integer> getDistricts() {
+    return districts;
   }
-
-  public void setDistricts(Map<String, WriteDistrict> districts) {
+  public void setDistricts(Set<Integer> districts) {
     this.districts = districts;
   }
 

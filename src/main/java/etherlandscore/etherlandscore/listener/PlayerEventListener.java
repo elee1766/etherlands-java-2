@@ -1,8 +1,9 @@
 package etherlandscore.etherlandscore.listener;
 
 import etherlandscore.etherlandscore.Menus.MapMenu;
+import etherlandscore.etherlandscore.actions.BlockAction.PlayerInteractAction;
+import etherlandscore.etherlandscore.actions.BlockAction.PlayerSwitchAction;
 import etherlandscore.etherlandscore.enums.MessageToggles;
-import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
@@ -10,13 +11,11 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
@@ -24,7 +23,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -102,7 +104,44 @@ public class PlayerEventListener extends ListenerClient implements Listener {
   }
 
   @EventHandler
-  public void clickblock(PlayerInteractEvent event) {
+  public void onPlayerInteract(PlayerInteractEvent event) {
+    try{
+      if(useShop(event)){
+        return;
+      }
+      PlayerInteractAction interactAction;
+      PlayerSwitchAction switchAction;
+      switch (event.getAction()) {
+
+      case RIGHT_CLICK_AIR, LEFT_CLICK_AIR, LEFT_CLICK_BLOCK:
+        interactAction = new PlayerInteractAction(event);
+        interactAction.process();
+      break;
+
+      case RIGHT_CLICK_BLOCK:
+        switch (event.getMaterial()) {
+          case DARK_OAK_DOOR, OAK_DOOR, BIRCH_DOOR, ACACIA_DOOR, CRIMSON_DOOR, JUNGLE_DOOR,
+              DARK_OAK_TRAPDOOR, OAK_TRAPDOOR, BIRCH_TRAPDOOR, ACACIA_TRAPDOOR, CRIMSON_TRAPDOOR, JUNGLE_TRAPDOOR -> {
+            switchAction = new PlayerSwitchAction(event);
+            switchAction.process();
+          }
+          default -> {
+            interactAction = new PlayerInteractAction(event);
+            interactAction.process();
+          }
+        }
+        break;
+      case PHYSICAL:
+        break;
+    }
+    }catch(Exception e){
+      Bukkit.getLogger().warning("Failed to parse Player Interact Event");
+      e.printStackTrace();
+      event.setCancelled(true);
+    }
+  }
+
+  private boolean useShop(PlayerInteractEvent event){
     Player p = event.getPlayer();
     if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
       Block b = event.getClickedBlock();
@@ -113,15 +152,19 @@ public class PlayerEventListener extends ListenerClient implements Listener {
           Set<ItemStack> items = new HashSet<>();
           if(shop.getInventory().isEmpty()){
             p.sendMessage("This shop is empty");
-            return;
+            event.setCancelled(true);
+            return true;
           }else {
             items.add(shop.getItem());
             GamerTransaction gt = new GamerTransaction(shop.getOwner(), context.getGamer(p.getUniqueId()), 0, shop.getPrice(), shop.getInventory(), p.getInventory(), items, null);
             this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
+            event.setCancelled(true);
+            return true;
           }
         }
       }
     }
+    return false;
   }
 
   @EventHandler

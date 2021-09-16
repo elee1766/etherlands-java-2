@@ -9,6 +9,8 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 
+import java.util.UUID;
+
 public class GamerSender {
 
   public static void addFriend(Channels channels, Gamer self, Gamer gamer) {
@@ -22,8 +24,8 @@ public class GamerSender {
         new Message<>(MasterCommand.gamer_remove_friend, self, newFriend));
   }
 
-  public static void setAddress(Channels channels, Gamer self, String address) {
-    channels.master_command.publish(new Message<>(MasterCommand.gamer_link_address, self, address));
+  public static void setAddress(Channels channels, UUID id, String address) {
+    channels.master_command.publish(new Message<>(MasterCommand.gamer_link_address, id, address));
   }
 
   public static void setMessageToggle(

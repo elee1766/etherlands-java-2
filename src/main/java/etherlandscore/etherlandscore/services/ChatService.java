@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore.services;
 
+import etherlandscore.etherlandscore.Menus.ComponentCreator;
+import etherlandscore.etherlandscore.Menus.MessageCreator;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
@@ -9,6 +11,7 @@ import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -46,17 +49,46 @@ public class ChatService extends ListenerClient {
           case global -> this.send_global((String) _args[0], (Gamer) _args[1]);
           case local -> this.send_local((Gamer) _args[0], (Integer) _args[1], (String) _args[2], (Gamer) _args[3]);
           case gamer -> this.send_gamer((Gamer) _args[0], (TextComponent) _args[1]);
+          case gamer_base -> this.send_gamer_base((Gamer) _args[0], (BaseComponent[]) _args[1]);
           case team -> this.send_team((Team) _args[0], (String) _args[1], (Gamer) _args[2]);
 
           case gamer_add_friend_response -> this.gamer_add_friend_response((Gamer) _args[0], (Gamer) _args[1]);
           case gamer_distric_reclaim -> this.gamer_district_reclaim((Player) _args[0], (District) _args[1]);
           case district_touch_district -> this.district_touch_district((CommandSender) _args[0], (Integer) _args[1]);
+          case gamer_district_info -> this.gamer_district_info((Gamer) _args[0], (District) _args[1] );
+          case gamer_land_unclaimed -> this.gamer_land_unclaimed((Gamer) _args[0]);
         }
       }
     }catch(Exception e){
       Bukkit.getLogger().warning("Failed to process ChatMessage" + message.getCommand());
       e.printStackTrace();
     }
+  }
+
+  private void gamer_land_unclaimed(Gamer gamer) {
+    TextComponent message = ComponentCreator.ColoredText("This Land is Unclaimed",ChatColor.YELLOW);
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer_base, gamer, message));
+  }
+
+  private void gamer_district_info(Gamer gamer, District district) {
+    if(district == null){
+      gamer_land_unclaimed(gamer);
+      return;
+    }
+    MessageCreator builder = new MessageCreator();
+    TextComponent title = ComponentCreator.ColoredText("District: " +district.getIdInt(),ChatColor.DARK_GREEN);
+    builder.addHeader(title);
+    builder.addField("owner",ComponentCreator.Address(district.getOwnerAddress()));
+    builder.addField("plots",ComponentCreator.Plots(district.getPlots()));
+    if(district.hasTeam()){
+      builder.addField("team",ComponentCreator.Team(district.getTeamObject()));
+      builder.addBody("group permissions",ComponentCreator.GroupPermissions(district.getGroupPermissionMap(),district.getIdInt()));
+      if(district.getGamerPermissionMap().getMap().size() > 0){
+        builder.addBody("gamer permissions",ComponentCreator.GamerPermissions(district.getGamerPermissionMap(),district.getIdInt()));
+      }
+    }
+    builder.finish();
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer_base, gamer, builder.getMessage()));
   }
 
   private void district_touch_district(CommandSender player, Integer id) {
@@ -192,11 +224,17 @@ public class ChatService extends ListenerClient {
     }
   }
   private void send_gamer(Gamer gamer,TextComponent message) {
-    Bukkit.getLogger().info("Sending gamer message");
     Player player = gamer.getPlayer();
     if(player != null){
       player.sendMessage(message);
     }
   }
+  private void send_gamer_base(Gamer gamer,BaseComponent[] message) {
+    Player player = gamer.getPlayer();
+    if(player != null){
+      player.sendMessage(message);
+    }
+  }
+
 
 }

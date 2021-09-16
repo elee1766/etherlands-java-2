@@ -41,6 +41,16 @@ public class WriteGamer extends CouchDocument implements Gamer {
   public WriteGamer(UUID uuid) {
     this.uuid = uuid;
     this.groups = new HashSet<>();
+    this.preferences = new UserPreferences();
+  }
+
+  @Override
+  @JsonIgnore
+  public String getName(){
+    if(this.getPlayer() != null){
+      return this.getPlayer().getName();
+    }
+    return this.getUuid().toString();
   }
 
   public void addFriend(Gamer gamer) {

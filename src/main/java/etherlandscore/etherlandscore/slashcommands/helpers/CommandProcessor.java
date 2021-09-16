@@ -29,13 +29,13 @@ public class CommandProcessor extends ListenerClient {
   }
 
   private void execute(CommandParameters msg) {
-    Bukkit.getLogger().info("Attempting to execute command" + msg.getCommand().toString());
+    Bukkit.getLogger().info("attempting to execute command: " + msg.getCommand().toString());
     if(executor_map.containsKey(msg.getCommand())){
       IExecutorNormal exec = executor_map.get(msg.getCommand());
       try {
         exec.run(msg.getSender(),msg.getArgs());
       } catch (Exception e) {
-        Bukkit.getLogger().warning("Failed to execute command" + e.getMessage());
+        Bukkit.getLogger().warning("Failed to execute command: " + e.getMessage());
         e.printStackTrace();
       }
     }

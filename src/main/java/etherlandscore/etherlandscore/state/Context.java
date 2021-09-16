@@ -23,18 +23,13 @@ import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
-import org.jetlang.fibers.Fiber;
-import org.jetlang.fibers.ThreadFiber;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.net.MalformedURLException;
 import java.util.*;
 
-public class Context<WriteMaps> {
-
-  private CouchPersister couchPersister;
+public class Context {
 
   public final Map<UUID, WriteGamer> gamers = new HashMap<>();
   public final Map<Integer, WriteDistrict> districts = new HashMap<>();
@@ -43,26 +38,24 @@ public class Context<WriteMaps> {
   public final Map<String, WriteNFT> nftUrls = new HashMap<>();
   public final Map2<String,String,WriteNFT> nfts = new Map2<>();
   public final Set<WriteMap> maps = new HashSet<>();
-  public final Map<String, BankRecord> bankRecords = new HashMap<>();
+  public final Map<String, WriteBankRecord> bankRecords = new HashMap<>();
   public final Map<Location, WriteShop> shops = new HashMap<>();
 
   public final Map<UUID,Integer> balanceCache = new HashMap<>();
 
   private final Channels channels;
 
+  private CouchPersister couchPersister;
+
   public Context(Channels channels){
     this.channels = channels;
-    try {
-      Fiber couchFiber = new ThreadFiber();
-      this.couchPersister = new CouchPersister(channels, couchFiber);
-      this.couchPersister.start();
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-    }
-    couchPersister.populateContext(this);
   }
 
-  public Map<String, BankRecord> getBankRecords() {
+  public void addPersister(CouchPersister persister){
+    couchPersister = persister;
+  }
+
+  public Map<String, WriteBankRecord> getBankRecords() {
     return this.bankRecords;
   }
 
@@ -71,15 +64,11 @@ public class Context<WriteMaps> {
   }
 
   public void context_create_gamer(UUID uuid) {
-    Bukkit.getLogger().info("Creating Gamer for: " + uuid);
     if (!this.getGamers().containsKey(uuid)) {
-      Bukkit.getLogger().info("Gamer does not already exist, creating now");
       WriteGamer gamer = new WriteGamer(uuid);
       this.getGamers().put(uuid, gamer);
       couchPersister.update(gamer);
-      Bukkit.getLogger().info("Published new gamer");
     }
-    Bukkit.getLogger().info("Gamer already exists");
   }
 
 
@@ -255,6 +244,10 @@ public class Context<WriteMaps> {
   }
 
   public WriteGamer getGamer(UUID uuid) {
+    if (!gamers.containsKey(uuid)) {
+      this.channels.master_command.publish(new Message<>(MasterCommand.touch_gamer, uuid));
+      return null;
+    }
     return gamers.get(uuid);
   }
 
@@ -274,9 +267,6 @@ public class Context<WriteMaps> {
 
   public ReadPlot getPlot(Integer x, Integer z) {
     Integer id = RedisGetter.GetPlotID(x.toString(),z.toString());
-    if(id == null){
-      return null;
-    }
     return new ReadPlot(id,x,z);
   }
 
@@ -342,7 +332,7 @@ public class Context<WriteMaps> {
     WriteTeam team = (WriteTeam) getTeam(district.getTeam());
     if(team!=null) {
       System.out.println("updating team");
-      team.deleteDistrict(district.getId());
+      team.deleteDistrict(district.getIdInt());
     }
     district.removeTeam();
     couchPersister.update(district);
@@ -384,7 +374,7 @@ public class Context<WriteMaps> {
   }
 
   public void team_delete_district(WriteTeam team, WriteDistrict writeDistrict) {
-    team.deleteDistrict(writeDistrict.getId());
+    team.deleteDistrict(writeDistrict.getIdInt());
     couchPersister.update(team);
   }
 
@@ -412,7 +402,7 @@ public class Context<WriteMaps> {
     gamer.setTeam("");
     gamer.clearGroups();
     couchPersister.update(gamer);
-    for (District d: writeTeam.getDistricts().values()) {
+    for (District d: writeTeam.getDistrictObjects()) {
       WriteDistrict wd = (WriteDistrict) getDistrict(d.getIdInt());
       wd.removeTeam();
       couchPersister.update(wd);
@@ -507,9 +497,15 @@ public class Context<WriteMaps> {
   public void touch_district(Integer id) {
     String owner = RedisGetter.GetOwnerOfDistrict(id.toString());
     if (owner != null) {
-      WriteDistrict dis = new WriteDistrict(id);
-      this.districts.putIfAbsent(id, dis);
-      couchPersister.update(dis);
+      if (!this.districts.containsKey(id)) {
+        WriteDistrict dis = new WriteDistrict(id);
+        this.districts.putIfAbsent(id, dis);
+        couchPersister.update(dis);
+      }
     }
+  }
+
+  public void touch_gamer(UUID id) {
+      context_create_gamer(id);
   }
 }

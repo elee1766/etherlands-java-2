@@ -13,7 +13,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -43,8 +42,8 @@ public class FlagMenu extends ListenerClient {
       Gamer gamer, String flagType, String command, District writeDistrict, String item) {
 
     Player player = gamer.getPlayer();
-    ArrayList<TextComponent> tc = new ArrayList<TextComponent>();
 
+    ArrayList<TextComponent> tc = new ArrayList<TextComponent>();
     TextComponent component = new TextComponent("");
     TextComponent space = new TextComponent(" ");
     TextComponent topBorder = new TextComponent("============== FLAGS ==============\n");

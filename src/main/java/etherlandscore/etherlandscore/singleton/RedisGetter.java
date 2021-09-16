@@ -2,6 +2,7 @@ package etherlandscore.etherlandscore.singleton;
 
 import redis.clients.jedis.Jedis;
 
+import java.util.HashSet;
 import java.util.Set;
 public class RedisGetter {
 
@@ -93,15 +94,19 @@ public class RedisGetter {
     return Math.toIntExact(Math.round(district));
   }
 
-  public static Set<String> GetPlotsInDistrict(String key){
+  public static Set<Integer> GetPlotsInDistrict(String key){
     double minmax = Double.parseDouble(key);
     Set<String> districts;
+    Set<Integer> output = new HashSet<>();
     try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
       districts = jedis.zrangeByScore("districtZplot", minmax, minmax);
+      for (String district : districts) {
+        output.add(Integer.parseInt(district));
+      }
     } catch (Exception ignored){
       return null;
     }
-    return districts;
+    return output;
   }
 
 }

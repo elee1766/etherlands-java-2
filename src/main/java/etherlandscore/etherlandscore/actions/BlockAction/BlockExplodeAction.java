@@ -1,20 +1,15 @@
 package etherlandscore.etherlandscore.actions.BlockAction;
 
-import com.destroystokyo.paper.event.block.BlockDestroyEvent;
 import etherlandscore.etherlandscore.actions.PermissionedAction;
-import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.ReadContext;
 import org.bukkit.Bukkit;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 
 public class BlockExplodeAction extends PermissionedAction {
   private final BlockExplodeEvent event;
 
-  public BlockExplodeAction(ReadContext context, BlockExplodeEvent event) {
-    super(context, event);
+  public BlockExplodeAction(BlockExplodeEvent event) {
+    super(event);
     this.event = event;
   }
 

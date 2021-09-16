@@ -40,7 +40,7 @@ public class MessageFormatter  extends ListenerClient {
     TextComponent titleBar =
         new TextComponent(
             StringUtils.repeat(bar, rep) + title + StringUtils.repeat(bar, rep) + "\n");
-    titleBar.setColor(ChatColor.AQUA);
+    titleBar.setColor(ChatColor.GRAY);
     message.addExtra(titleBar);
   }
 

@@ -35,8 +35,9 @@ public class FlagCommand extends CommandProcessor {
   void districtPlayer(Player sender, Object[] args) {
     Bukkit.getLogger().info(args[0] + ", " + args[1]);
     Gamer runner = context.getGamer(sender.getUniqueId());
+    District d = context.getDistrict((int) args[0]);
     FlagMenu.clickMenu(
-        runner, "player", "district set_player", (District) args[0], (Player) args[1]);
+        runner, "player", "district set_player", d, (Player) args[1]);
   }
 
   void help(Player sender, Object[] args) {

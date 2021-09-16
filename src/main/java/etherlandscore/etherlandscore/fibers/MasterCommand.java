@@ -30,5 +30,5 @@ public enum MasterCommand {
   context_mint_tokens,
   plot_set_coords,
   gamer_toggle_message,
-  touch_district, shop_create_shop
+  touch_district, touch_gamer, shop_create_shop
 }

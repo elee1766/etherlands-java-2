@@ -1,89 +1,51 @@
 package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
+import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
+import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
-import etherlandscore.etherlandscore.state.write.WriteGroup;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-import java.lang.reflect.Field;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class TeamPrinter extends ListenerClient {
   private final Fiber fiber;
   private final Channels channels;
-  private final Team writeTeam;
+  private final Team team;
 
   public TeamPrinter(Team writeTeam, Fiber fiber, Channels channels) {
     super(channels, fiber);
     this.fiber = fiber;
     this.channels = channels;
-    this.writeTeam = writeTeam;
+    this.team = writeTeam;
   }
 
   public void printTeam(Player sender) {
-    TextComponent print = new TextComponent("");
-    MessageFormatter prettyPrint = new MessageFormatter(print, fiber, channels);
-    prettyPrint.addBar("=", "TeamInfo");
-    if(this.writeTeam == null){
+    MessageCreator builder = new MessageCreator();
+    if (this.team == null) {
       return;
     }
-    Field[] fields = writeTeam.getDeclaredFields();
-    for (Field field : fields) {
-      try {
-        if (field.getName() == "districts") {
-          Set<Integer> districtIds = new HashSet<>();
-          Map<Integer, WriteDistrict> districts = state().getDistricts();
-          Set<WriteDistrict> matches = new HashSet<>();
-          for(WriteDistrict d : districts.values()){
-            if(d.hasTeam()){
-              if(d.getTeamObject().getName()==this.writeTeam.getName())
-                matches.add(d);
-            }
-          }
-          for (WriteDistrict wd : matches) {
-            Bukkit.getLogger().info(wd.getId());
-            districtIds.add(wd.getIdInt());
-          }
-          prettyPrint.addDistricts(field.getName(), districtIds);
-        }else if(field.getName()=="groups") {
-          String ds = "";
-          Map<String, WriteGroup> groups = (Map<String, WriteGroup>) field.get(this.writeTeam);
-          for (Map.Entry g : groups.entrySet()) {
-            ds = ds + g.getKey() + " ";
-          }
-          prettyPrint.addField(field.getName(), ds);
-        }else if(field.getName()=="members") {
-          String ds = "";
-          Set<UUID> members = (Set<UUID>) field.get(this.writeTeam);
-          for (UUID member : members) {
-            String memName = Bukkit.getOfflinePlayer(member).getName();
-            ds = ds + memName + " ";
-          }
-          prettyPrint.addField(field.getName(), ds);
-        }else if(field.getName()=="owner") {
-          String ds = "";
-          UUID ownerUUID = (UUID) field.get(this.writeTeam);
-          String ownName = Bukkit.getOfflinePlayer(ownerUUID).getName();
-          prettyPrint.addField(field.getName(), ownName);
-        }
+    TextComponent title = ComponentCreator.ColoredText(this.team.getName(), ChatColor.RED);
+    builder.addHeader(title);
+    builder.addField("team",ComponentCreator.Team(this.team));
+    builder.addField("owner",ComponentCreator.UUID(this.team.getOwnerUUID(),ChatColor.GOLD));
+    builder.addField("members",ComponentCreator.UUIDs(this.team.getMembers()));
+    builder.addField("districts",ComponentCreator.Districts(this.team.getDistrictObjects()));
+    Set<Group> groups = new HashSet<>(this.team.getGroups().values());
+    builder.addField("groups",ComponentCreator.Groups(groups));
+    builder.addFooter();
+    builder.finish();
 
-        else if (field.getName() != "_id" && field.getName() != "plots") {
-          prettyPrint.addField(field.getName(), String.valueOf(field.get(this.writeTeam)));
-        }
-      } catch (IllegalAccessException ex) {
-        System.out.println(ex);
-      }
-    }
-    prettyPrint.printOut(sender);
+    Gamer gamer = state().getGamer(sender.getUniqueId());
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer_base, gamer, builder.getMessage()));
   }
 }

@@ -4,15 +4,14 @@ import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.ReadContext;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockPlaceAction extends PermissionedAction {
   private final BlockPlaceEvent event;
   private final AccessFlags flag = AccessFlags.BUILD;
 
-  public BlockPlaceAction(ReadContext context, BlockPlaceEvent event) {
-    super(context, event);
+  public BlockPlaceAction(BlockPlaceEvent event) {
+    super(event);
     this.event = event;
   }
 

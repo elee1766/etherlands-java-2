@@ -107,7 +107,9 @@ public class CouchPersister extends ServerModule {
   }
 
   public void write(WriteGamer gamer){
-    this.gamerRepo.save(gamer);
+    if (gamer.getUuid() != null) {
+      this.gamerRepo.save(gamer);
+    }
   }
   public void write(WriteDistrict district){
     this.districtRepo.save(district);
@@ -137,7 +139,7 @@ public class CouchPersister extends ServerModule {
   public void update(WriteNFT nft) {this.channels.db_nft.publish(nft); }
   public void update(WriteMap map) {this.channels.db_map.publish(map); }
 
-  public void update(WriteBankRecord bankRecord){this.channels.db_bankrecord.publish(bankRecord);}
+  public void update(WriteBankRecord bankRecord){this.channels.db_bank_record.publish(bankRecord);}
 
 
   public void remove(WriteGamer gamer){

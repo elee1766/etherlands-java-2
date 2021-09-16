@@ -98,7 +98,7 @@ public class MapMenu extends ListenerClient {
           if (pc.getZ() == z && pc.getX() == x) {
             if (p.equals(player)) {
               selfFlag = true;
-            } else if (this.gamer.hasFriend(p)) {
+            } else if (this.gamer.hasFriend(p.getUniqueId())) {
               friendflag = true;
               friendHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Friend: " + p.getName()));
             } else {
@@ -253,7 +253,7 @@ public class MapMenu extends ListenerClient {
           if (pc.getZ() == z && pc.getX() == x) {
             if (p.equals(player)) {
               selfFlag = true;
-            } else if (this.gamer.hasFriend(p)) {
+            } else if (this.gamer.hasFriend(p.getUniqueId())) {
               friendflag = true;
               friendHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Friend: " + p.getName()));
               friendClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/gamer info " + p.getName()));

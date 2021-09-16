@@ -67,21 +67,21 @@ public class ListenerClient extends ServerModule {
   }
 
   public Argument gamerArgument(String nodeName) {
-    return new CustomArgument<Gamer>(
-            nodeName,
-            input -> {
-              OfflinePlayer player = Bukkit.getOfflinePlayer(input);
-              if (!player.hasPlayedBefore()) {
-                throw new CustomArgument.CustomArgumentException(
-                    new CustomArgument.MessageBuilder("Player not found."));
-              } else {
-                return context.getGamer(player.getUniqueId());
-              }
-            })
+    return new CustomArgument<>(
+        nodeName,
+        input -> {
+          OfflinePlayer player = Bukkit.getOfflinePlayer(input);
+          if (!player.hasPlayedBefore()) {
+            throw new CustomArgument.CustomArgumentException(
+                new CustomArgument.MessageBuilder("Player not found."));
+          } else {
+            return context.getGamer(player.getUniqueId());
+          }
+        })
         .replaceSuggestions(
             sender -> {
               String[] strings = getOnlinePlayerStrings();
-              List<String> list = new ArrayList<String>(Arrays.asList(strings));
+              List<String> list = new ArrayList<>(Arrays.asList(strings));
               list.remove(sender.sender().getName());
               return list.toArray(new String[0]);
             });
@@ -122,9 +122,7 @@ public class ListenerClient extends ServerModule {
   private void register() {
     channels.global_update.subscribe(
         fiber,
-        global -> {
-          context = new ReadContext(global,channels);
-        });
+        global -> context = new ReadContext(global,channels));
   }
 
   public Argument teamDistrictArgument(String districtID) {
@@ -195,7 +193,7 @@ public class ListenerClient extends ServerModule {
         .replaceSuggestions(
             sender -> {
               String[] strings = getOnlinePlayerStrings();
-              List<String> list = new ArrayList<String>(Arrays.asList(strings));
+              List<String> list = new ArrayList<>(Arrays.asList(strings));
               list.remove(sender.sender().getName());
               return list.toArray(new String[0]);
             });

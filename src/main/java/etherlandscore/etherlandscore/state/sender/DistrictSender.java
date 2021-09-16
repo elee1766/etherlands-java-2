@@ -17,7 +17,7 @@ public class DistrictSender {
   public static void reclaimDistrict(Channels channels, District district, Player sender) {
     channels.master_command.publish(
         new Message<>(MasterCommand.district_reclaim_district, district)
-            .setChatResponse(ChatTarget.gamer_distric_reclaim, sender, district)
+            .setChatResponse(ChatTarget.gamer_district_reclaim, sender, district)
     );
   }
 

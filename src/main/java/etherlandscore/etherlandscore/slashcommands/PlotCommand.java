@@ -11,13 +11,9 @@ import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 public class PlotCommand extends CommandProcessor {
-  private final Fiber fiber;
-  private final Channels channels;
 
   public PlotCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
-    this.fiber = fiber;
-    this.channels = channels;
     register();
   }
 

@@ -37,6 +37,11 @@ public class GamerSender {
         new Message<>(
             MasterCommand.gamer_toggle_message, gamer, flag, value));
   }
+  public static void sendGamerInfo(Channels channels, Gamer gamer, Gamer target) {
+    channels.chat_message.publish(
+        new Message<>(ChatTarget.gamer_gamer_info, gamer, target));
+  }
+
 
 
 }

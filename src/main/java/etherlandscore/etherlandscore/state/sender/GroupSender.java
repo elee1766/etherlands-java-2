@@ -1,6 +1,7 @@
 package etherlandscore.etherlandscore.state.sender;
 
 import etherlandscore.etherlandscore.fibers.Channels;
+import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.Gamer;
@@ -24,5 +25,11 @@ public class GroupSender {
     if (writeGroup.getDefault()) return;
     channels.master_command.publish(
         new Message<>(MasterCommand.group_set_priority, writeGroup, priority));
+  }
+
+
+  public static void sendGroupInfo(Channels channels, Gamer gamer, Group target) {
+    channels.chat_message.publish(
+        new Message<>(ChatTarget.gamer_group_info, gamer, target));
   }
 }

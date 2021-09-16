@@ -1,7 +1,6 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import etherlandscore.etherlandscore.Menus.GroupPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
@@ -70,8 +69,7 @@ public class GroupCommand extends CommandProcessor {
 
   void info(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    GroupPrinter printer = new GroupPrinter((Group) args[0], fiber, channels);
-    printer.printGroup(sender);
+    GroupSender.sendGroupInfo(channels,gamer,(Group) args[0]);
   }
 
   public void register() {

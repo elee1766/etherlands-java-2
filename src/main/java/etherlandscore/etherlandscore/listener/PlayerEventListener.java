@@ -11,6 +11,7 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import net.md_5.bungee.api.ChatColor;
@@ -23,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
@@ -36,6 +38,8 @@ import org.jetlang.fibers.Fiber;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class PlayerEventListener extends ListenerClient implements Listener {
 
@@ -66,6 +70,22 @@ public class PlayerEventListener extends ListenerClient implements Listener {
   }
 
   @EventHandler
+  public void onHit(EntityDamageByEntityEvent event){
+    if(event.getEntity() instanceof Player){
+      if(event.getDamager() instanceof  Player){
+        Gamer origin = state().getGamer(event.getDamager().getUniqueId());
+        Gamer target = state().getGamer(event.getEntity().getUniqueId());
+        if(origin.hasTeam() & target.hasTeam()){
+          if(origin.getTeam().equals(target.getTeam())){
+            event.setDamage(0);
+            event.setCancelled(true);
+          }
+        }
+      }
+    }
+  }
+
+  @EventHandler
   public void onChestMoveItems (InventoryClickEvent event)
   {
     if (event.getClickedInventory() == null)
@@ -82,7 +102,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
               event.setCancelled(true);
             }
           } else if(!(event.getCursor().equals(shop.getItem()))) {
-                event.setCancelled(true);
+            event.setCancelled(true);
           }
         }
       }
@@ -112,23 +132,22 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       PlayerInteractAction interactAction;
       PlayerSwitchAction switchAction;
       switch (event.getAction()) {
-
       case RIGHT_CLICK_AIR, LEFT_CLICK_AIR, LEFT_CLICK_BLOCK:
         interactAction = new PlayerInteractAction(event);
         interactAction.process();
       break;
-
       case RIGHT_CLICK_BLOCK:
-        switch (event.getMaterial()) {
-          case DARK_OAK_DOOR, OAK_DOOR, BIRCH_DOOR, ACACIA_DOOR, CRIMSON_DOOR, JUNGLE_DOOR,
-              DARK_OAK_TRAPDOOR, OAK_TRAPDOOR, BIRCH_TRAPDOOR, ACACIA_TRAPDOOR, CRIMSON_TRAPDOOR, JUNGLE_TRAPDOOR -> {
-            switchAction = new PlayerSwitchAction(event);
-            switchAction.process();
-          }
-          default -> {
-            interactAction = new PlayerInteractAction(event);
-            interactAction.process();
-          }
+        if (
+            event.getClickedBlock().getBlockData().getAsString().contains("door") ||
+                event.getClickedBlock().getBlockData().getAsString().contains("button") ||
+                event.getClickedBlock().getBlockData().getAsString().contains("lever") ||
+                event.getClickedBlock().getBlockData().getAsString().contains("pressure")
+        ) {
+          switchAction = new PlayerSwitchAction(event);
+          switchAction.process();
+        }else{
+          interactAction = new PlayerInteractAction(event);
+          interactAction.process();
         }
         break;
       case PHYSICAL:
@@ -152,15 +171,13 @@ public class PlayerEventListener extends ListenerClient implements Listener {
           Set<ItemStack> items = new HashSet<>();
           if(shop.getInventory().isEmpty()){
             p.sendMessage("This shop is empty");
-            event.setCancelled(true);
-            return true;
           }else {
             items.add(shop.getItem());
             GamerTransaction gt = new GamerTransaction(shop.getOwner(), context.getGamer(p.getUniqueId()), 0, shop.getPrice(), shop.getInventory(), p.getInventory(), items, null);
             this.channels.master_command.publish(new Message<>(MasterCommand.context_process_gamer_transaction, gt));
-            event.setCancelled(true);
-            return true;
           }
+          event.setCancelled(true);
+          return true;
         }
       }
     }
@@ -193,30 +210,30 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       if (context.getDistrict(fromx, fromz) == null) {
         if (context.getDistrict(tox, toz) != null) {
           District d = context.getDistrict(tox, toz);
-          String teamname = "none";
+          String team_name = "none";
           if (d.getTeamObject() != null) {
-            teamname = d.getTeamObject().getName();
+            team_name = d.getTeamObject().getName();
           }
-          event.getPlayer().sendTitle("Entering District: " + d.getIdInt(), "Managed by team: " + teamname, 10, 60, 10);
+          event.getPlayer().sendTitle("Entering District: " + d.getIdInt(), "Managed by team: " + team_name, 10, 60, 10);
         }
       } else {
         if (context.getDistrict(tox, toz) != null) {
           District d = context.getDistrict(tox, toz);
           if (d != context.getDistrict(fromx, fromz)) {
-            String teamname = "none";
+            String team_name = "none";
             if (d.getTeamObject() != null) {
-              teamname = d.getTeamObject().getName();
+              team_name = d.getTeamObject().getName();
             }
-            TextComponent move = new TextComponent("Moving to District: " + d.getIdInt() + " Managed by team: " + teamname);
+            TextComponent move = new TextComponent("Moving to District: " + d.getIdInt() + " Managed by team: " + team_name);
             channels.chat_message.publish(new Message<>(ChatTarget.gamer,gamer, move));
           }
         } else {
           District d = context.getDistrict(fromx, fromz);
-          String teamname = "none";
+          String team_name = "none";
           if (d.getTeamObject() != null) {
-            teamname = d.getTeamObject().getName();
+            team_name = d.getTeamObject().getName();
           }
-          event.getPlayer().sendTitle("Leaving District: " + d.getIdInt(), "Managed by team: " + teamname, 10, 60, 10);
+          event.getPlayer().sendTitle("Leaving District: " + d.getIdInt(), "Managed by team: " + team_name, 10, 60, 10);
         }
       }
     }

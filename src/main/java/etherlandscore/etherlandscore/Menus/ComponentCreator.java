@@ -5,8 +5,6 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Group;
-import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.util.Map2;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -14,9 +12,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
@@ -29,7 +25,7 @@ public class ComponentCreator {
   }
 
   public static TextComponent Address(String string) {
-    TextComponent component = new TextComponent(abbreviate(string, 10));
+    TextComponent component = new TextComponent(abbreviate(string));
     component.setColor(ChatColor.GRAY);
     component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text(string)));
     component.setClickEvent(
@@ -62,14 +58,14 @@ public class ComponentCreator {
         new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/district info " + district.getIdInt()));
     return component;
   }
-  public static TextComponent Groups(Set<Group> groupObjects){
+  public static TextComponent Groups(Set<String> groupObjects){
     return ComponentCreator.Groups(groupObjects,ChatColor.BLUE);
   }
-  public static TextComponent Groups(Set<Group> groupObjects,ChatColor colour) {
+  public static TextComponent Groups(Set<String> groupObjects,ChatColor colour) {
     groupObjects.remove(null);
     TextComponent combined = new TextComponent();
-    for(Group group : groupObjects){
-      TextComponent component = ComponentCreator.Group(group.getName(), colour);
+    for(String group : groupObjects){
+      TextComponent component = ComponentCreator.Group(group, colour);
       combined.addExtra(component);
       combined.addExtra(" ");
     }
@@ -77,7 +73,7 @@ public class ComponentCreator {
   }
 
   public static TextComponent Group(String group){
-    return ComponentCreator.Group(group,ChatColor.GRAY);
+    return ComponentCreator.Group(group,ChatColor.BLUE);
   }
   public static TextComponent Group(String group, ChatColor colour) {
     TextComponent component = ComponentCreator.ColoredText(group,colour);
@@ -96,11 +92,11 @@ public class ComponentCreator {
     return combined;
   }
 
-  public static TextComponent Team(Team team) {
-    return ComponentCreator.ColoredText(team.getName(),ChatColor.RED);
+  public static TextComponent Team(String team) {
+    return ComponentCreator.Team(team,ChatColor.RED);
   }
-  public static TextComponent Team(Team team, ChatColor color){
-    TextComponent component = ComponentCreator.ColoredText(team.getName(),color);
+  public static TextComponent Team(String team, ChatColor color){
+    TextComponent component = ComponentCreator.ColoredText(team,color);
     component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+team));
     return component;
   }
@@ -131,11 +127,11 @@ public class ComponentCreator {
     return component;
   }
 
-  public static TextComponent GroupPermissions(Map2<String,AccessFlags,FlagValue> perms, Integer district){
+  public static TextComponent GroupPermissions(Map2<String,AccessFlags,FlagValue> perms, Integer district, List<String> groups){
     TextComponent combined = new TextComponent();
 
     int current_line = 0;
-    for(String group: perms.getMap().keySet()){
+    for(String group: groups){
       TextComponent component =  ComponentCreator.Group(group);
       component.addExtra("-");
       TextComponent display =FlagDisplay(perms.getMap().get(group),"group",group, district);
@@ -173,6 +169,9 @@ public class ComponentCreator {
   }
 
   public static TextComponent FlagDisplay(Map<AccessFlags, FlagValue> permissions,String type,String target, Integer district){
+    if(permissions == null){
+      permissions = new HashMap<>();
+    }
     TextComponent component = new TextComponent();
     TextComponent d = createPermissionLetter("DESTROY",permissions.getOrDefault(AccessFlags.DESTROY,FlagValue.NONE),type,target,district);
     TextComponent b = createPermissionLetter("BUILD", permissions.getOrDefault(AccessFlags.BUILD, FlagValue.NONE),type,target,district);
@@ -195,19 +194,26 @@ public class ComponentCreator {
       component.setText(String.valueOf(flag.charAt(0)));
       component.setColor(ChatColor.GREEN);
       component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district set_" + type + " "+district + " "+ target + " " + flag + " DENY"  ));
-    }else{
+    }else if(value.equals(FlagValue.NONE)){
       component.setText("-");
       component.setColor(ChatColor.DARK_GRAY);
       component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district set_" + type + " "+district + " "+ target + " " + flag + " ALLOW"  ));
-    }
-    if(value.equals(FlagValue.DENY)){
+    }else if(value.equals(FlagValue.DENY)){
+      component.setText(String.valueOf(flag.charAt(0)));
       component.setColor(ChatColor.DARK_RED);
+      component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district set_" + type + " "+district + " "+ target + " " + flag + "  NONE"  ));
     }
     return component;
   }
 
 
-  private static String abbreviate(String value, int totlen) {
-    return value.substring(0, totlen / 2 - 2) + ".." + value.substring(value.length() - totlen / 4);
+  private static String abbreviate(String value) {
+    if(value == null){
+      return "";
+    }
+    if(value.length() < 16){
+      return value;
+    }
+    return value.substring(0, 10 / 2 - 2) + ".." + value.substring(value.length() - 10 / 4);
   }
 }

@@ -2,8 +2,6 @@ package etherlandscore.etherlandscore.listener;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import etherlandscore.etherlandscore.actions.BlockAction.BlockBreakAction;
-import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
@@ -11,8 +9,9 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.write.*;
+import etherlandscore.etherlandscore.state.write.ResponseHelper;
+import etherlandscore.etherlandscore.state.write.WriteMap;
+import etherlandscore.etherlandscore.state.write.WriteNFT;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -21,30 +20,18 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
-import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.type.WallSign;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
-import org.bukkit.util.Vector;
 import org.jetlang.fibers.Fiber;
-import org.web3j.ens.EnsResolver;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.http.HttpService;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -81,7 +68,7 @@ public class SignEventListener extends ListenerClient implements Listener {
         slug += lines[1]+lines[2]+lines[3];
         item_id += strArr[2];
       }else{
-        if (lines[3]!="") {
+        if (!Objects.equals(lines[3], "")) {
           slug += lines[1] + lines[2];
           item_id += lines[3];
         } else {
@@ -96,7 +83,7 @@ public class SignEventListener extends ListenerClient implements Listener {
       BlockFace facing = facing(placed);
       if(canBuildHere(width, placed, player, facing)) {
         signChangeEvent.getBlock().setType(Material.AIR);
-        imageMap(player, Integer.parseInt(width), slug, item_id, placed, facing, contract);
+        imageMap(Integer.parseInt(width), slug, item_id, placed, facing, contract);
       }
     }
   }
@@ -108,7 +95,7 @@ public class SignEventListener extends ListenerClient implements Listener {
   //x+ is east
   //z+ is south
   private boolean canBuildHere(String width, Block placed, Player player, BlockFace blockFace) {
-    int size = Integer.valueOf(width);
+    int size = Integer.parseInt(width);
     int x = placed.getX();
     int z = placed.getZ();
     switch (blockFace) {
@@ -120,6 +107,7 @@ public class SignEventListener extends ListenerClient implements Listener {
             if(player.isOp()){
               break;
             }
+            return false;
           }
           if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
@@ -134,6 +122,7 @@ public class SignEventListener extends ListenerClient implements Listener {
             if(player.isOp()){
               break;
             }
+            return false;
           }
           if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
@@ -148,6 +137,7 @@ public class SignEventListener extends ListenerClient implements Listener {
             if(player.isOp()){
               break;
             }
+            return false;
           }
           if(!p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
@@ -162,6 +152,7 @@ public class SignEventListener extends ListenerClient implements Listener {
             if(player.isOp()){
               break;
             }
+            return false;
           }
           if(p.canGamerPerform(AccessFlags.BUILD, context.getGamer(player.getUniqueId()))){
             return false;
@@ -197,21 +188,21 @@ public class SignEventListener extends ListenerClient implements Listener {
       objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       ResponseHelper entity = null;
       try {
-        entity = objectMapper.readValue(response.body().string(), ResponseHelper.class);
+        entity = objectMapper.readValue(Objects.requireNonNull(response.body()).string(), ResponseHelper.class);
+        Bukkit.getLogger().info(entity.getImageurl());
       }catch(Exception ex){
         ex.printStackTrace();
       }
-      Bukkit.getLogger().info(entity.getImageurl());
       WriteNFT writeNft = new WriteNFT(entity.getImageurl(), slug, token_id);
       channels.master_command.publish(new Message<>(MasterCommand.nft_create_nft, writeNft));
       return new URL(entity.getImageurl());
     }
   }
 
-  public void imageMap(Player player, int width, String slug, String item_id, Block block, BlockFace blockFace, boolean contract) {
+  public void imageMap(int width, String slug, String item_id, Block block, BlockFace blockFace, boolean contract) {
     int mapCount = width * width;
-    Image image = null;
-    URL url = null;
+    Image image;
+    URL url;
     try {
       url = getImage(slug, item_id, contract);
       if (url == null) {
@@ -224,9 +215,9 @@ public class SignEventListener extends ListenerClient implements Listener {
     }
     Image tmp = image.getScaledInstance(width * 128, width * 128, Image.SCALE_SMOOTH);
     BufferedImage photo = new BufferedImage(width * 128, width * 128, BufferedImage.TYPE_INT_ARGB);
-    ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-    ArrayList<MapView> maps = new ArrayList<MapView>();
-    ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+    ArrayList<ItemStack> stacks = new ArrayList<>();
+    ArrayList<MapView> maps = new ArrayList<>();
+    ArrayList<BufferedImage> images = new ArrayList<>();
     for (int i = 0; i < width; i++) {
       for (int j = 0; j < width; j++) {
         stacks.add(new ItemStack(Material.FILLED_MAP, 1));

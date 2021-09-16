@@ -1,8 +1,6 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import etherlandscore.etherlandscore.Menus.FriendPrinter;
-import etherlandscore.etherlandscore.Menus.SelectorMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
@@ -26,25 +24,13 @@ public class FriendCommand extends CommandProcessor {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Gamer newFriend = (Gamer) args[0];
     if (!gamer.getFriends().contains(newFriend.getUuid())) {
-      GamerSender.addFriend(this.channels, gamer, newFriend);
-    } else {
+      if (!gamer.getUuid().equals(newFriend.getUuid())) {
+        GamerSender.addFriend(this.channels, gamer, newFriend);
+      }
     }
   }
 
-  void friendAddSelector(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    SelectorMenu.menu(gamer, getPlayerStrings(), "friend add");
-  }
 
-  void friendList(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    if (gamer.getFriends() != null) {
-      FriendPrinter fp = new FriendPrinter(gamer, channels, fiber);
-      fp.printFriends();
-    } else {
-      sender.sendMessage("There are no friends");
-    }
-  }
 
   void friendRemove(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
@@ -55,11 +41,6 @@ public class FriendCommand extends CommandProcessor {
     } else {
       sender.sendMessage("Friend failed to be removed");
     }
-  }
-
-  void friendRemoveSelector(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    SelectorMenu.menu(gamer, getPlayerStrings(), "friend remove");
   }
 
   void help(Player sender, Object[] args) {
@@ -75,17 +56,8 @@ public class FriendCommand extends CommandProcessor {
             .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
     );
     FriendCommand.withSubcommand(
-        createPlayerCommand("add",SlashCommands.friendAddSelector,this::friendAddSelector)
-    );
-    FriendCommand.withSubcommand(
         createPlayerCommand("remove",SlashCommands.friendRemove,this::friendRemove)
             .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
-    );
-    FriendCommand.withSubcommand(
-        createPlayerCommand("remove",SlashCommands.friendRemoveSelector,this::friendRemoveSelector)
-    );
-    FriendCommand.withSubcommand(
-        createPlayerCommand("list",SlashCommands.list,this::friendList)
     );
     FriendCommand.register();
   }

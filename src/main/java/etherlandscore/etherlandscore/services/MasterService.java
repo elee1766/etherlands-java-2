@@ -1,7 +1,5 @@
 package etherlandscore.etherlandscore.services;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.enums.MessageToggles;
@@ -22,13 +20,11 @@ import java.util.UUID;
 public class MasterService extends ServerModule {
     private static Context context;
     private static Channels channels;
-    private final Gson gson;
 
     public MasterService(Channels channels, Fiber fiber) {
         super(fiber);
-        this.channels = channels;
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
         CouchPersister couchPersister;
+        MasterService.channels = channels;
         context = new Context(channels);
         try {
             Fiber couchFiber = new ThreadFiber();
@@ -43,12 +39,16 @@ public class MasterService extends ServerModule {
         channels.master_command.subscribe(fiber, this::process_command);
     }
 
+    public static void setChannels(Channels channels) {
+        MasterService.channels = channels;
+    }
+
     public static ReadContext state() {
         return new ReadContext(context, channels);
     }
 
     private void global_update(){
-        this.channels.global_update.publish(context);
+        channels.global_update.publish(context);
     }
 
     private void process_command(Message<MasterCommand> message) {
@@ -81,7 +81,7 @@ public class MasterService extends ServerModule {
             case district_set_gamer_permission -> context.district_set_gamer_permission((WriteDistrict) _args[0], (WriteGamer) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
             case nft_create_nft -> context.nft_create_nft((WriteNFT) _args[0]);
             case map_create_map -> context.map_create_map((WriteMap) _args[0]);
-            case map_rerender_maps -> context.map_rerender_maps();
+            case map_render_maps -> context.map_rerender_maps();
             case context_process_gamer_transaction -> context.context_process_gamer_transaction((GamerTransaction) _args[0]);
             case context_mint_tokens -> context.context_mint_tokens((WriteGamer) _args[0], (Integer)_args[1]);
             case shop_create_shop -> context.shop_create_shop((WriteShop) _args[0]);
@@ -102,12 +102,6 @@ public class MasterService extends ServerModule {
 
     private void forward_chat_message(Message<ChatTarget> message){
         channels.chat_message.publish(message);
-    }
-
-
-
-    public void save() {
-      context.saveAll();
     }
 
 }

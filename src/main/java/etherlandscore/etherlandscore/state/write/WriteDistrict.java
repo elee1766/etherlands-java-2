@@ -61,26 +61,28 @@ public class WriteDistrict extends CouchDocument implements District {
           return true;
         }
         Bukkit.getLogger().info(gamer.getUuid() + " " + gamer.getTeam());
-        if (gamer.getTeamObject().equals(team)) {
-          FlagValue res = FlagValue.NONE;
-          Set<String> groupNames = gamer.getGroups();
-          Integer bestPriority = -100;
-          for (String groupName : groupNames) {
-            Group group = team.getGroup(groupName);
-            Bukkit.getLogger().info(group.getName() + " " + res);
-            if (group.getPriority() > bestPriority) {
-              res = checkFlags(flag, team.getGroup(groupName), res);
-              Bukkit.getLogger().info(group.getName() + "  " +flag+ " " + res);
-              bestPriority = group.getPriority();
+        if (gamer.hasTeam()) {
+          if (gamer.getTeamObject().equals(team)) {
+            FlagValue res = FlagValue.NONE;
+            Set<String> groupNames = gamer.getGroups();
+            Integer bestPriority = -100;
+            for (String groupName : groupNames) {
+              Group group = team.getGroup(groupName);
+              Bukkit.getLogger().info(group.getName() + " " + res);
+              if (group.getPriority() > bestPriority) {
+                res = checkFlags(flag, team.getGroup(groupName), res);
+                Bukkit.getLogger().info(group.getName() + "  " + flag + " " + res);
+                bestPriority = group.getPriority();
+              }
             }
+            res = checkFlags(flag, gamer, res);
+            return res == FlagValue.ALLOW;
           }
-          res = checkFlags(flag, gamer, res);
-          return res == FlagValue.ALLOW;
-        } else {
-          FlagValue res =
-              checkFlags(flag,team.getGroup("outsiders"),FlagValue.NONE);
-          return res == FlagValue.ALLOW;
         }
+        FlagValue res =
+              checkFlags(flag,team.getGroup("outsiders"),FlagValue.NONE);
+        return res == FlagValue.ALLOW;
+
       } else {
         Gamer owner = this.getOwnerObject();
         if (owner == null) {
@@ -163,10 +165,6 @@ public class WriteDistrict extends CouchDocument implements District {
     return out;
   }
 
-  public void clearGroupPermission(String name) {
-    groupPermissionMap.clearGroup(name);
-  }
-
   @Override
   public int compareTo(District r) {
     return getPriority().compareTo(r.getPriority());
@@ -188,11 +186,6 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   public Map2<String, AccessFlags, FlagValue> getGroupPermissionMap() {
     return groupPermissionMap;
-  }
-
-  @JsonIgnore
-  public Set<Integer> getPlotIds() {
-    return RedisGetter.GetPlotsInDistrict(this._id);
   }
 
   @Override
@@ -248,9 +241,5 @@ public class WriteDistrict extends CouchDocument implements District {
     return state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null);
   }
 
-  @JsonIgnore
-  public String getOwnerServerName() {
-    return Bukkit.getOfflinePlayer(state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null)).getName();
-  }
 
 }

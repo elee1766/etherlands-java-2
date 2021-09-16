@@ -4,7 +4,6 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import etherlandscore.etherlandscore.Menus.TeamPrinter;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
@@ -31,14 +30,12 @@ import java.util.UUID;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class TeamCommand extends CommandProcessor {
-  private final Fiber fiber;
   private final Channels channels;
   private final Map<String, Map<UUID, Long>> invites = new HashMap<>();
-  private TextComponent response = new TextComponent("");
+  private final TextComponent response = new TextComponent("");
 
   public TeamCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
-    this.fiber = fiber;
     this.channels = channels;
     register();
   }
@@ -66,14 +63,13 @@ public class TeamCommand extends CommandProcessor {
     Chunk chunk = gamer.getPlayer().getChunk();
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
-      TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam, new Message(ChatTarget.team_delegate_district, gamer, writeDistrict));
+      TeamSender.delegateDistrict(this.channels, writeDistrict, writeTeam, new Message<>(ChatTarget.team_delegate_district, gamer, writeDistrict));
       response.setText(
           "District: " + writeDistrict.getIdInt() + " has been delegated to " + writeTeam.getName());
-      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     } else {
       response.setText("You do not own this plot");
-      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     }
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
   }
 
   void delegateDistrict(Player sender, Object[] args) {
@@ -86,13 +82,12 @@ public class TeamCommand extends CommandProcessor {
       return;
     }
       if (context.getDistrict(i).getOwnerUUID().equals(gamer.getUuid())) {
-        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam, new Message(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
+        TeamSender.delegateDistrict(this.channels, context.getDistrict(i), writeTeam, new Message<>(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
         response.setText("District: " + i + " has been delegated to " + writeTeam.getName());
-        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {
         response.setText("You do not own this plot");
-        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
   }
 
   void deleteTeam(Player sender, Object[] args) {
@@ -103,11 +98,10 @@ public class TeamCommand extends CommandProcessor {
       if (manager.getTeamObject().getName().equals(name)) {
         TeamSender.delete(channels, writeTeam);
         response.setText("Team has been deleted");
-        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {
         response.setText("You are not a manager");
-        channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
+      channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     }
   }
 
@@ -117,17 +111,17 @@ public class TeamCommand extends CommandProcessor {
   }
 
   void info(Player sender, Object[] args) {
-    TeamPrinter printer = new TeamPrinter(context.getTeam((String) args[0]), fiber, channels);
-    printer.printTeam(sender);
+    Team team = context.getTeam((String) args[0]);
+    Gamer gamer = context.getGamer(sender.getUniqueId());
+    TeamSender.sendInfo(this.channels,gamer,team);
   }
 
   void infoLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     if (gamer.hasTeam()) {
-      TeamPrinter printer = new TeamPrinter(gamer.getTeamObject(), fiber, channels);
-      printer.printTeam(sender);
+      TeamSender.sendInfo(this.channels,gamer,gamer.getTeamObject());
     } else {
-      response.setText("/team info <teamname>");
+      response.setText("/team info <team_name>");
       channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
     }
   }
@@ -253,13 +247,14 @@ public class TeamCommand extends CommandProcessor {
 
   public void register() {
     CommandAPICommand TeamCommand =
-        createPlayerCommand("team",SlashCommands.infoLocal,this::infoLocal).withAliases("t")
+        createPlayerCommand("team",SlashCommands.infoLocal,this::infoLocal)
+            .withAliases("t")
             .withPermission("etherlands.public");
     TeamCommand.withSubcommand(
         createPlayerCommand("help",SlashCommands.help,this::help)
     );
     TeamCommand.withSubcommand(
-        createPlayerCommand("info",SlashCommands.infoLocal)
+        createPlayerCommand("info",SlashCommands.infoLocal,this::infoLocal)
     );
     TeamCommand.withSubcommand(
         createPlayerCommand("info",SlashCommands.info,this::info).withAliases("i")
@@ -267,7 +262,7 @@ public class TeamCommand extends CommandProcessor {
     );
     TeamCommand.withSubcommand(
         createPlayerCommand("create",SlashCommands.create,this::create).withAliases("cre")
-            .withArguments(cleanNameArgument("teamname"))
+            .withArguments(cleanNameArgument("team_name"))
     );
     TeamCommand.withSubcommand(
         createPlayerCommand("invite",SlashCommands.invite,this::invite).withAliases("inv")
@@ -298,7 +293,7 @@ public class TeamCommand extends CommandProcessor {
     );
     TeamCommand.withSubcommand(
         createPlayerCommand("delete",SlashCommands.deleteTeam, this::deleteTeam)
-            .withArguments(new StringArgument("teamname"))
+            .withArguments(new StringArgument("team_name"))
             .executesPlayer(this::deleteTeam));
 
     TeamCommand.register();

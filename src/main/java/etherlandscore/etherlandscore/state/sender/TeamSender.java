@@ -47,4 +47,9 @@ public class TeamSender {
     channels.master_command.publish(
         new Message<>(MasterCommand.team_remove_gamer, writeTeam, gamer));
   }
+
+  public static void sendInfo(Channels channels, Gamer gamer, Team team){
+    channels.chat_message.publish(
+        new Message<>(ChatTarget.gamer_team_info, gamer, team));
+  }
 }

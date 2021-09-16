@@ -50,7 +50,8 @@ public class WriteGamer extends CouchDocument implements Gamer {
     if(this.getPlayer() != null){
       return this.getPlayer().getName();
     }
-    return this.getUuid().toString();
+    Bukkit.getOfflinePlayer(this.getUuid());
+    return Bukkit.getOfflinePlayer(this.getUuid()).getName();
   }
 
   public void addFriend(Gamer gamer) {
@@ -118,6 +119,9 @@ public class WriteGamer extends CouchDocument implements Gamer {
 
   @Override
   public Set<String> getGroups() {
+    if (hasTeam()) {
+      groups.add("member");
+    }
     return groups;
   }
 
@@ -144,17 +148,13 @@ public class WriteGamer extends CouchDocument implements Gamer {
 
   public void setTeam(String team) {
     this.team = team;
-    if (hasTeam()) {
-      groups.add("member");
-    } else {
-      groups.remove("member");
-    }
+
   }
 
   @Override
   @JsonIgnore
   public Team getTeamObject() {
-    return state().getTeam(team);
+    return state().getTeam(this.team);
   }
 
   @Override
@@ -164,8 +164,8 @@ public class WriteGamer extends CouchDocument implements Gamer {
   }
 
   @Override
-  public boolean hasFriend(Player player) {
-    return this.getFriends().contains(player.getUniqueId());
+  public boolean hasFriend(UUID player) {
+    return this.getFriends().contains(player);
   }
 
 

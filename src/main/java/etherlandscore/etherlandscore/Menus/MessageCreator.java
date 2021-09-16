@@ -27,7 +27,6 @@ public class MessageCreator {
     TextComponent componentRight = ComponentCreator.ColoredText(right,ChatColor.GOLD);
     output.append(componentLeft).append(title).append(componentRight).append("\n").append("\n");
     this.footer_length = 1;
-
     return this;
   }
 

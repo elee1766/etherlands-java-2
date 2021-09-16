@@ -1,7 +1,6 @@
 package etherlandscore.etherlandscore;
 
 import dev.jorel.commandapi.CommandAPI;
-import etherlandscore.etherlandscore.Menus.FlagMenu;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
@@ -89,10 +88,6 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new PlotCommand(channels, plotCommandFiber));
     Fiber friendCommandFiber = new ThreadFiber();
     modules.add(new FriendCommand(channels, friendCommandFiber));
-    Fiber flagCommandFiber = new ThreadFiber();
-    modules.add(new FlagCommand(channels, flagCommandFiber));
-    Fiber flagMenuFiber = new ThreadFiber();
-    modules.add(new FlagMenu(channels, flagMenuFiber));
     Fiber gamerCommandFiber = new ThreadFiber();
     modules.add(new GamerCommand(channels, gamerCommandFiber));
     Fiber mapCommandFiber = new ThreadFiber();
@@ -113,6 +108,6 @@ public final class EtherlandsCore extends JavaPlugin {
 
     getLogger().info("onEnable is done!");
     channels.master_command.publish(
-        new Message<>(MasterCommand.map_rerender_maps));
+        new Message<>(MasterCommand.map_render_maps));
   }
 }

@@ -12,7 +12,7 @@ public class LinkInformation {
   String message;
   String signature;
   String publickey;
-  boolean didpass = false;
+  boolean passed = false;
 
   public LinkInformation(String message, String signature, String publickey) {
     this.message = message;
@@ -25,7 +25,7 @@ public class LinkInformation {
   }
 
   public boolean didPass() {
-    return didpass;
+    return passed;
   }
 
   private byte[] getEthereumMessageHash(byte[] message) {
@@ -40,13 +40,12 @@ public class LinkInformation {
     return publickey;
   }
 
-  public String pubkey() {
+  public void pubkey() {
     String r = signature.substring(0, 66);
     String s = signature.substring(66, 130);
     String v = "0x" + signature.substring(130, 132);
     byte[] msgBytes = getEthereumMessageHash(message.getBytes());
-    String pubkey =
-        null;
+    String pubkey;
     try {
       pubkey = Sign.signedMessageToKey(
               msgBytes,
@@ -56,15 +55,14 @@ public class LinkInformation {
                   Numeric.hexStringToByteArray(s)))
           .toString(16);
     } catch (SignatureException e) {
-      return "";
+      return;
     }
     String recoveredAddress = "0x" + Keys.getAddress(pubkey);
     Bukkit.getLogger().info("public key: " + recoveredAddress + " : " + this.message);
     if (recoveredAddress.equalsIgnoreCase(this.publickey)) {
       this.publickey = recoveredAddress.toLowerCase();
-      this.didpass = true;
+      this.passed = true;
     }
-    return pubkey;
   }
 
   public String uuid() {

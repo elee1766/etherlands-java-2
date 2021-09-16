@@ -5,16 +5,12 @@ import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -102,17 +98,6 @@ public class BlockEventListener extends ListenerClient implements Listener {
   @EventHandler
   public void onBlockExplode(EntityExplodeEvent explodeEvent) {
     try {
-      Gamer placer = null;
-      Entity entity = explodeEvent.getEntity();
-      if(entity instanceof TNTPrimed){
-        Entity source = ((TNTPrimed) entity).getSource();
-        if(source!=null && source instanceof Player){
-          placer = state().getGamer(source.getUniqueId());
-        }
-      }
-      if(placer!=null){
-        //Bukkit.getLogger().warning(placer.getUuid() + " Placed TNT on " + explodeEvent.getLocation());
-      }
       District d = state().getDistrict(explodeEvent.getLocation().getChunk().getX(), explodeEvent.getLocation().getChunk().getX());
       List<Block> blockList = explodeEvent.blockList();
       Iterator<Block> it = blockList.iterator();

@@ -48,13 +48,11 @@ import java.util.Set;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class ImageCommand extends CommandProcessor {
-  private final Fiber fiber;
   private final Channels channels;
   private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
 
   public ImageCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
-    this.fiber = fiber;
     this.channels = channels;
     register();
   }

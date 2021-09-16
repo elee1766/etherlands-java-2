@@ -22,13 +22,10 @@ public enum MasterCommand {
   team_delete_team,
   team_add_gamer,
   map_create_map,
-  map_rerender_maps,
+  map_render_maps,
   nft_create_nft,
-  district_update_district,
-  district_forceupdate_district,
   context_process_gamer_transaction,
   context_mint_tokens,
-  plot_set_coords,
   gamer_toggle_message,
   touch_district, touch_gamer, shop_create_shop
 }

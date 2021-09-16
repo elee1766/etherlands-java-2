@@ -32,7 +32,7 @@ public interface Gamer {
 
   UUID getUuid();
 
-  boolean hasFriend(Player player);
+  boolean hasFriend(UUID player);
 
   boolean hasTeam();
 

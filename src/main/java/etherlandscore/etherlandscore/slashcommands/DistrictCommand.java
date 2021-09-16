@@ -28,12 +28,10 @@ import org.jetlang.fibers.Fiber;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class DistrictCommand extends CommandProcessor {
-  private final Fiber fiber;
   private final Channels channels;
 
   public DistrictCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
-    this.fiber = fiber;
     this.channels = channels;
     register();
   }
@@ -47,7 +45,7 @@ public class DistrictCommand extends CommandProcessor {
          i++) {
       if(context.getDistrict(i) != null){
         if(context.getDistrict(i).isOwner(gamer)) {
-          TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team, new Message(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
+          TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team, new Message<>(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
         } else {
           sender.sendMessage("You do not own this district");
         }
@@ -61,7 +59,7 @@ public class DistrictCommand extends CommandProcessor {
     Chunk chunk = gamer.getPlayer().getChunk();
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
-      TeamSender.delegateDistrict(this.channels, writeDistrict, team, new Message(ChatTarget.team_delegate_district, gamer, writeDistrict));
+      TeamSender.delegateDistrict(this.channels, writeDistrict, team, new Message<>(ChatTarget.team_delegate_district, gamer, writeDistrict));
     } else {
       sender.sendMessage("You do not own this district");
     }
@@ -125,7 +123,7 @@ public class DistrictCommand extends CommandProcessor {
 
   void help(Player sender, Object[] args) {
     TextComponent help = new TextComponent("======District Help======\n\n");
-    TextComponent delegate = new TextComponent("/district delegate [teamname] -> delegates plot to given team\n\n");
+    TextComponent delegate = new TextComponent("/district delegate [team_name] -> delegates plot to given team\n\n");
     TextComponent reclaim = new TextComponent("/district reclaim [DistrictIDs/Nothing] -> reclaims given district from team\n\n");
     TextComponent info = new TextComponent("/district info [DistrictID/Nothing] -> displays helpful info about the district");
     help.addExtra(delegate);
@@ -150,6 +148,7 @@ public class DistrictCommand extends CommandProcessor {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Team team = manager.getTeamObject();
     if(team == null){
+      return;
     }
     if (team.isManager(manager)) {
       District writeDistrict = context.getDistrict((int) args[0]);
@@ -157,7 +156,6 @@ public class DistrictCommand extends CommandProcessor {
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
       DistrictSender.setGroupPermission(channels, member, flag, value, writeDistrict,manager);
-    }else{
     }
   }
 
@@ -165,7 +163,7 @@ public class DistrictCommand extends CommandProcessor {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Team team = manager.getTeamObject();
     if(team == null){
-      sender.sendMessage("ur not in a team");
+      return;
     }
     if (team.isManager(manager)) {
       District writeDistrict = context.getDistrict((int) args[0]);
@@ -173,7 +171,6 @@ public class DistrictCommand extends CommandProcessor {
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
       DistrictSender.setGamerPermission(channels, member, flag, value, writeDistrict);
-    }else{
     }
   }
 

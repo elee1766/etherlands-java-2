@@ -155,11 +155,11 @@ public class MapCreator {
       case NORTH:
         this.mapArray = rotateMap(this.mapArray);
         flipHorizontalInPlace(this.mapArray);
-        this.mapArray = rotateMap(this.mapArray);
+        this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
       case WEST:
         this.mapArray = rotateMap(this.mapArray);
         flipHorizontalInPlace(this.mapArray);
-        this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
+        this.mapArray = rotateMap(this.mapArray);
       case SOUTH:
         this.mapArray = rotateMap(this.mapArray);
         flipHorizontalInPlace(this.mapArray);

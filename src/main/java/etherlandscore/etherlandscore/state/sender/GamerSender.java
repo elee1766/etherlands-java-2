@@ -8,6 +8,7 @@ import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import net.md_5.bungee.api.chat.TextComponent;
 
 import java.util.UUID;
 
@@ -40,6 +41,11 @@ public class GamerSender {
   public static void sendGamerInfo(Channels channels, Gamer gamer, Gamer target) {
     channels.chat_message.publish(
         new Message<>(ChatTarget.gamer_gamer_info, gamer, target));
+  }
+
+  public static void sendMap(Channels channels, TextComponent map, Gamer target) {
+    channels.chat_message.publish(
+        new Message<>(ChatTarget.gamer_send_map, map, target));
   }
 
 }

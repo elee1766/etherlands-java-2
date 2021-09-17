@@ -59,11 +59,19 @@ public class ChatService extends ListenerClient {
           case gamer_gamer_info -> this.gamer_gamer_info((Gamer) _args[0], (Gamer) _args[1] );
           case gamer_group_info -> this.gamer_group_info((Gamer) _args[0], (Group) _args[1] );
           case gamer_land_unclaimed -> this.gamer_land_unclaimed((Gamer) _args[0]);
+          case gamer_send_map -> this.gamer_send_map((TextComponent) _args[0], (Gamer) _args[1]);
         }
       }
     }catch(Exception e){
       Bukkit.getLogger().warning("Failed to process ChatMessage" + message.getCommand());
       e.printStackTrace();
+    }
+  }
+
+  private void gamer_send_map(TextComponent map, Gamer gamer) {
+    Player player = gamer.getPlayer();
+    if(player != null){
+      player.sendMessage(map);
     }
   }
 

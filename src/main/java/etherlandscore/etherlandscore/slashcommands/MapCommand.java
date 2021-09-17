@@ -27,8 +27,9 @@ public class MapCommand extends CommandProcessor {
   }
 
   void map(Player sender, Object[] args) {
-    //MapCreator map = new MapCreator(context.getGamer(sender.getUniqueId()), this.channels, this.fiber, sender.getFacing(), sender.getLocation().getChunk().getX(), sender.getLocation().getChunk().getZ());
-    //TextComponent[] test = (map.mapMenu());
+    MapCreator mapCreator = new MapCreator(context.getGamer(sender.getUniqueId()), sender.getFacing(), sender.getLocation().getChunk().getX(), sender.getLocation().getChunk().getZ());
+    TextComponent map = mapCreator.combined();
+    GamerSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
   }
 
   void mapCoords(Player sender, Object[] args) {

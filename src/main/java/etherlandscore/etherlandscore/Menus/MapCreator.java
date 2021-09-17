@@ -57,6 +57,25 @@ public class MapCreator {
     friendKey.setColor(ChatColor.DARK_GREEN);
   }
 
+  public TextComponent combined(){
+    TextComponent[] map = mapMenu();
+    TextComponent[] key = key();
+    TextComponent[] compass = compass();
+    TextComponent output = new TextComponent("");
+
+    for (int i = 0; i < this.SIZE-2; i++) {
+      output.addExtra(compass[i]);
+      output.addExtra("|");
+      output.addExtra(map[i]);
+      output.addExtra("|");
+      output.addExtra(key[i]);
+      if (i != SIZE - 1) {
+        output.addExtra("\n");
+      }
+    }
+    return output;
+  }
+
   public TextComponent[] mapMenu() {
     Player player = this.gamer.getPlayer();
     int x = this.x - SIZE / 2 - 1;
@@ -134,16 +153,20 @@ public class MapCreator {
 
     switch (this.facing) {
       case NORTH:
+        this.mapArray = rotateMap(this.mapArray);
         flipHorizontalInPlace(this.mapArray);
-        this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
+        this.mapArray = rotateMap(this.mapArray);
       case WEST:
         this.mapArray = rotateMap(this.mapArray);
-        flipInPlace(this.mapArray);
-        this.mapArray = rotateMap(this.mapArray);
-        flipInPlace(this.mapArray);
+        flipHorizontalInPlace(this.mapArray);
+        this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
       case SOUTH:
         this.mapArray = rotateMap(this.mapArray);
-        flipInPlace(this.mapArray);
+        flipHorizontalInPlace(this.mapArray);
+        this.mapArray = rotateMap(rotateMap(this.mapArray));
+      case EAST:
+        this.mapArray = rotateMap(this.mapArray);
+        flipHorizontalInPlace(this.mapArray);
     }
     Bukkit.getLogger().info(this.mapArray.toString());
     TextComponent[] returnValue = new TextComponent[SIZE-2];
@@ -271,7 +294,7 @@ public class MapCreator {
           }
         } else if (i == 4) {
             if(j==2){
-              spot.addExtra(facing.toString().substring(1));
+              spot.addExtra(facing.toString().substring(0,1));
               spot.setClickEvent(goup);
             }else{
               spot.addExtra("-");

@@ -70,7 +70,7 @@ public class MessageCreator {
   }
 
   public void addMap(Gamer gamer, BlockFace facing, int x, int z){
-    MapCreator mapCreator = new MapCreator(gamer, facing, x, z);
+    MapCreator mapCreator = new MapCreator(gamer, facing, x, z, 9);
     this.mapArray = mapCreator.mapMenu();
   }
 

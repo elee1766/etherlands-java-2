@@ -12,6 +12,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -23,7 +24,9 @@ import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class MapCreator {
   private final Gamer gamer;
-  private final int SIZE;
+  private final int SIZE_OF_SQUARE;
+  private final int HEIGHT = 9;
+  private final int WIDTH;
   private final BlockFace facing;
   private final int x;
   private final int z;
@@ -35,13 +38,14 @@ public class MapCreator {
   private final TextComponent friendKey;
   private TextComponent[][] mapArray;
 
-  public MapCreator(Gamer gamer, BlockFace facing, int xin, int zin) {
+  public MapCreator(Gamer gamer, BlockFace facing, int xin, int zin, int size) {
     this.gamer = gamer;
     this.facing = facing;
     this.x = xin;
     this.z = zin;
-    this.SIZE = 11;
-    this.mapArray = new TextComponent[SIZE][SIZE];
+    this.WIDTH = size;
+    this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
+    this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
 
     unclaimedKey = new TextComponent("-");
     unclaimedKey.setColor(ChatColor.GRAY);
@@ -57,19 +61,75 @@ public class MapCreator {
     friendKey.setColor(ChatColor.DARK_GREEN);
   }
 
+  public MapCreator(Gamer gamer, BlockFace facing, int xin, int zin) {
+    this.gamer = gamer;
+    this.facing = facing;
+    this.x = xin;
+    this.z = zin;
+    this.WIDTH = 11;
+    this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
+    this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
+
+    unclaimedKey = new TextComponent("-");
+    unclaimedKey.setColor(ChatColor.GRAY);
+    claimedKey = new TextComponent("+");
+    claimedKey.setColor(ChatColor.LIGHT_PURPLE);
+    ownedKey = new TextComponent("+");
+    ownedKey.setColor(ChatColor.GREEN);
+    playerKey = new TextComponent("+");
+    playerKey.setColor(ChatColor.RED);
+    selfKey = new TextComponent("^");
+    selfKey.setColor(ChatColor.YELLOW);
+    friendKey = new TextComponent("+");
+    friendKey.setColor(ChatColor.DARK_GREEN);
+  }
+
+  public static String facingCoord(BlockFace facing){
+    switch (facing) {
+      case NORTH:
+        return "-z";
+      case SOUTH:
+        return "+z";
+      case WEST:
+        return "-x";
+      default:
+        return "+x";
+    }
+  }
+
+  public TextComponent title(){
+    int initial_length = 50;
+    String title = "Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing);
+    int title_length = title.length();
+    int new_length = initial_length - title_length;
+    int half_length = new_length / 2;
+    String left = StringUtils.repeat("_",half_length) + ",[ ";
+    String right = " ],"+StringUtils.repeat("_",half_length);
+    TextComponent componentLeft = ComponentCreator.ColoredText(left, ChatColor.GOLD);
+    TextComponent componentRight = ComponentCreator.ColoredText(right,ChatColor.GOLD);
+    TextComponent header = new TextComponent("");
+    header.addExtra(componentLeft);
+    header.addExtra(title);
+    header.addExtra(componentRight);
+    header.addExtra("\n");
+    return header;
+  }
+
   public TextComponent combined(){
+    TextComponent title = title();
     TextComponent[] map = mapMenu();
     TextComponent[] key = key();
     TextComponent[] compass = compass();
     TextComponent output = new TextComponent("");
 
-    for (int i = 0; i < this.SIZE-2; i++) {
+    output.addExtra(title);
+    for (int i = 0; i < this.HEIGHT; i++) {
       output.addExtra(compass[i]);
       output.addExtra("|");
       output.addExtra(map[i]);
       output.addExtra("|");
       output.addExtra(key[i]);
-      if (i != SIZE - 1) {
+      if (i != HEIGHT - 1) {
         output.addExtra("\n");
       }
     }
@@ -77,12 +137,14 @@ public class MapCreator {
   }
 
   public TextComponent[] mapMenu() {
+    Bukkit.getLogger().info("center: " + this.x + " " + this.z);
     Player player = this.gamer.getPlayer();
-    int x = this.x - SIZE / 2 - 1;
-    int z = this.z - SIZE / 2 - 1;
-    for (int i = 0; i < SIZE; i++) {
+    int x = this.x - SIZE_OF_SQUARE / 2 - 1;
+    int z = this.z - SIZE_OF_SQUARE / 2 - 1;
+    Bukkit.getLogger().info("adjusted: " + x + " " + z);
+    for (int i = 0; i < SIZE_OF_SQUARE; i++) {
       x++;
-      for (int j = 0; j < SIZE; j++) {
+      for (int j = 0; j < SIZE_OF_SQUARE; j++) {
         z++;
         boolean selfFlag = false;
         boolean friendflag = false;
@@ -148,7 +210,7 @@ public class MapCreator {
           mapArray[j][i].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Unclaimed: ("+x+", "+z+")")));
         }
       }
-      z = z - SIZE;
+      z = z - WIDTH;
     }
 
     switch (this.facing) {
@@ -156,10 +218,14 @@ public class MapCreator {
         this.mapArray = rotateMap(this.mapArray);
         flipHorizontalInPlace(this.mapArray);
         this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
+        flipHorizontalInPlace(this.mapArray);
+        this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
       case WEST:
         this.mapArray = rotateMap(this.mapArray);
         flipHorizontalInPlace(this.mapArray);
         this.mapArray = rotateMap(this.mapArray);
+        this.mapArray = rotateMap(this.mapArray);
+        flipHorizontalInPlace(this.mapArray);
       case SOUTH:
         this.mapArray = rotateMap(this.mapArray);
         flipHorizontalInPlace(this.mapArray);
@@ -169,20 +235,41 @@ public class MapCreator {
         flipHorizontalInPlace(this.mapArray);
     }
     Bukkit.getLogger().info(this.mapArray.toString());
-    TextComponent[] returnValue = new TextComponent[SIZE-2];
-    for(int i = 1; i< SIZE-1; i++){
-      TextComponent line = new TextComponent("");
-      TextComponent[] comp = this.mapArray[i];
-      for(TextComponent block : comp){
-        line.addExtra(block);
+    TextComponent[] returnValue = new TextComponent[HEIGHT];
+
+    int c = 0;
+    int rangeCount = 0;
+    if(SIZE_OF_SQUARE%2==0){
+      double num = SIZE_OF_SQUARE - HEIGHT;
+      rangeCount = (int) Math.ceil(num/2.0);
+      for(int i = rangeCount-1; i< SIZE_OF_SQUARE-(rangeCount); i++){
+        TextComponent line = new TextComponent("");
+        TextComponent[] comp = this.mapArray[i];
+        for(TextComponent block : comp){
+          line.addExtra(block);
+        }
+        returnValue[c]=line;
+        c++;
       }
-      returnValue[i-1]=line;
+      return returnValue;
+
+    }else{
+      rangeCount = (SIZE_OF_SQUARE-HEIGHT)/2;
+      for(int i = rangeCount; i< SIZE_OF_SQUARE-(rangeCount); i++){
+        TextComponent line = new TextComponent("");
+        TextComponent[] comp = this.mapArray[i];
+        for(TextComponent block : comp){
+          line.addExtra(block);
+        }
+        returnValue[c]=line;
+        c++;
+      }
+      return returnValue;
     }
-    return returnValue;
   }
 
   private TextComponent[] key() {
-    TextComponent[] compassComps = new TextComponent[SIZE];
+    TextComponent[] compassComps = new TextComponent[HEIGHT];
 
     TextComponent blank = new TextComponent("");
 
@@ -224,14 +311,14 @@ public class MapCreator {
     compassComps[4] = friend;
     compassComps[5] = player;
     compassComps[6] = blank;
-    compassComps[7] = pos;
+    compassComps[7] = blank;
     compassComps[8] = blank;
 
     return compassComps;
   }
 
   private TextComponent[] compass() {
-    TextComponent[] compassComps = new TextComponent[SIZE];
+    TextComponent[] compassComps = new TextComponent[HEIGHT];
     ClickEvent gosouth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "S" + " " + x + " " + (z+2));
     ClickEvent gonorth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "N" + " " + x + " " + (z-2));
     ClickEvent gowest = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "W" + " " + (x-2) + " " + z);
@@ -277,7 +364,7 @@ public class MapCreator {
       godown = gowest;
     }
     int c = 0;
-    for(int i = 0; i< SIZE; i++) {
+    for(int i = 0; i< HEIGHT; i++) {
       TextComponent line = new TextComponent("");
       for (int j = 0; j < 5; j++) {
         TextComponent spot = new TextComponent("");
@@ -321,7 +408,7 @@ public class MapCreator {
   }
 
   private TextComponent[][] rotateMap(TextComponent[][] flip) {
-    TextComponent[][] newMapArray = new TextComponent[SIZE][SIZE];
+    TextComponent[][] newMapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
     for (int i = 0; i < flip[0].length; i++) {
       for (int j = flip.length - 1; j >= 0; j--) {
         newMapArray[i][j] = flip[j][i];

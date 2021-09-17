@@ -101,6 +101,7 @@ public class RedisGetter {
     }
     return Math.toIntExact(Math.round(district));
   }
+
   public static Integer GetDistrictOfPlot(String key) {
     Double district;
     try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {

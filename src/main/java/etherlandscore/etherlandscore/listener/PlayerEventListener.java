@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore.listener;
 
+import etherlandscore.etherlandscore.Menus.MapCreator;
 import etherlandscore.etherlandscore.actions.BlockAction.PlayerInteractAction;
 import etherlandscore.etherlandscore.actions.BlockAction.PlayerSwitchAction;
 import etherlandscore.etherlandscore.enums.MessageToggles;
@@ -11,6 +12,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import net.md_5.bungee.api.ChatColor;
@@ -238,8 +240,9 @@ public class PlayerEventListener extends ListenerClient implements Listener {
     }
     if(gamer.preferences.checkPreference(MessageToggles.MAP)){
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
-        //MapMenu map = new MapMenu(gamer, this.channels, this.fiber);
-        //map.mapMenu();
+        MapCreator mapCreator = new MapCreator(context.getGamer(event.getPlayer().getUniqueId()), event.getPlayer().getFacing(), event.getPlayer().getLocation().getChunk().getX(), event.getPlayer().getLocation().getChunk().getZ());
+        TextComponent map = mapCreator.combined();
+        GamerSender.sendMap(channels, map, context.getGamer(event.getPlayer().getUniqueId()));
       }
     }
   }

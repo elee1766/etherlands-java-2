@@ -21,9 +21,7 @@ import org.jetlang.fibers.Fiber;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class MapCreator extends ListenerClient {
-  private final Channels channels;
-  private final Fiber fiber;
+public class MapCreator {
   private final Gamer gamer;
   private final int SIZE;
   private final BlockFace facing;
@@ -37,10 +35,7 @@ public class MapCreator extends ListenerClient {
   private final TextComponent friendKey;
   private TextComponent[][] mapArray;
 
-  public MapCreator(Gamer gamer, Channels channels, Fiber fiber, BlockFace facing, int xin, int zin) {
-    super(channels, fiber);
-    this.channels = channels;
-    this.fiber = fiber;
+  public MapCreator(Gamer gamer, BlockFace facing, int xin, int zin) {
     this.gamer = gamer;
     this.facing = facing;
     this.x = xin;
@@ -92,7 +87,7 @@ public class MapCreator extends ListenerClient {
           }
         }
 
-        for (Player p : getOnlinePlayers()) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
           Chunk pc = p.getChunk();
           if (pc.getZ() == z && pc.getX() == x) {
             if (p.equals(player)) {

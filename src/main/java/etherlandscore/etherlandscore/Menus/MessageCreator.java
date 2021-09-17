@@ -1,18 +1,23 @@
 package etherlandscore.etherlandscore.Menus;
 
+import etherlandscore.etherlandscore.state.read.Gamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.block.BlockFace;
 
 public class MessageCreator {
 
   private final  ComponentBuilder output;
   private BaseComponent[] message;
+  private TextComponent[] mapArray;
+  private boolean map;
 
   private Integer footer_length = 0;
 
   public MessageCreator(){
     this.output = new ComponentBuilder();
+    this.map = false;
   }
 
   public MessageCreator addHeader(TextComponent title){
@@ -64,6 +69,14 @@ public class MessageCreator {
     this.output.event((ClickEvent) null).event((HoverEvent) null).color(ChatColor.RESET);
   }
 
+  public void addMap(Gamer gamer, BlockFace facing, int x, int z){
+    MapCreator mapCreator = new MapCreator(gamer, facing, x, z);
+    this.mapArray = mapCreator.mapMenu();
+  }
+
+  public boolean hasMap(){
+    return this.map;
+  }
 
   public void finish() {
     this.message = output.create();

@@ -291,6 +291,21 @@ public class Context {
   }
 
 
+  public District getDistrict(String nickname){
+    String clean = nickname.replace("#","");
+    try{
+      Integer numnick = Integer.parseInt(clean);
+      if(this.getDistrict(numnick) != null){
+        return this.getDistrict(numnick);
+      }
+    }catch(Exception ignored){}
+    Integer district_id = RedisGetter.GetDistrictOfName(clean);
+    if(district_id != null){
+      return getDistrict(district_id);
+    }
+    return null;
+  }
+
   public District getDistrict(int id) {
     if(this.districts.containsKey(id)){
       return this.districts.get(id);

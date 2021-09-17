@@ -60,6 +60,10 @@ public class ReadContext {
     return context.getDistrict(id);
   }
 
+  public District getDistrict(String nickname) {
+    return context.getDistrict(nickname);
+  }
+
   public Map<String, Team> getTeams() {
     return (Map) context.getTeams();
   }

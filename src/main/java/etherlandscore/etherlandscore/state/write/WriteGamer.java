@@ -50,8 +50,10 @@ public class WriteGamer extends CouchDocument implements Gamer {
     if(this.getPlayer() != null){
       return this.getPlayer().getName();
     }
-    Bukkit.getOfflinePlayer(this.getUuid());
-    return Bukkit.getOfflinePlayer(this.getUuid()).getName();
+    if (this.getUuid() != null) {
+      return Bukkit.getOfflinePlayer(this.getUuid()).getName();
+    }
+    return "??????";
   }
 
   public void addFriend(Gamer gamer) {

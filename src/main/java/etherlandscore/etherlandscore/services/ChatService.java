@@ -157,8 +157,9 @@ public class ChatService extends ListenerClient {
       return;
     }
     MessageCreator builder = new MessageCreator();
-    TextComponent title = ComponentCreator.ColoredText("District: " +district.getIdInt(),ChatColor.DARK_GREEN);
+    TextComponent title = ComponentCreator.ColoredText(district.getNickname(),ChatColor.DARK_GREEN);
     builder.addHeader(title);
+    builder.addField("nickname",ComponentCreator.ColoredText(district.getNickname(),ChatColor.DARK_GREEN));
     builder.addField("owner",ComponentCreator.UUID(district.getOwnerUUID(),ChatColor.GOLD));
     builder.addField("address",ComponentCreator.Address(district.getOwnerAddress()));
     builder.addField("plots",ComponentCreator.Plots(district.getPlots()));
@@ -182,13 +183,13 @@ public class ChatService extends ListenerClient {
     if(context.getDistrict(id)==null){
       player.sendMessage("District does not exist");
     }else{
-      player.sendMessage("District: " + id+ "  has been updated");
+      player.sendMessage("District: " + id + "  has been updated");
     }
   }
 
   private void gamer_district_reclaim(Player arg, District district) {
     if(district.hasTeam()){
-      arg.sendMessage("District " + district.getIdInt() + " has been reclaimed");
+      arg.sendMessage("District " + district.getNickname() + " has been reclaimed");
     }else{
       arg.sendMessage("Reclaim has failed");
     }

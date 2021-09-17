@@ -1,8 +1,8 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.IntegerRangeArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.wrappers.IntegerRange;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
@@ -39,16 +39,16 @@ public class DistrictCommand extends CommandProcessor {
   void delegate(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Team team = gamer.getTeamObject();
-    IntegerRange range = (IntegerRange) args[0];
-    for (int i = range.getLowerBound();
-         i <= range.getUpperBound();
-         i++) {
-      if(context.getDistrict(i) != null){
-        if(context.getDistrict(i).isOwner(gamer)) {
-          TeamSender.delegateDistrict(this.channels, context.getDistrict(i), team, new Message<>(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
-        } else {
-          sender.sendMessage("You do not own this district");
-        }
+    String i = (String) args[0];
+    if (context.getDistrict(i) != null) {
+      if (context.getDistrict(i).isOwner(gamer)) {
+        TeamSender.delegateDistrict(
+            this.channels,
+            context.getDistrict(i),
+            team,
+            new Message<>(ChatTarget.team_delegate_district, gamer, context.getDistrict(i)));
+      } else {
+        sender.sendMessage("You do not own this district");
       }
     }
   }
@@ -66,7 +66,7 @@ public class DistrictCommand extends CommandProcessor {
   }
 
   void infoGiven(CommandSender sender, Object[] args) {
-    District district = context.getDistrict((int) args[0]);
+    District district = context.getDistrict((String) args[0]);
     if (sender instanceof Player) {
       Gamer gamer = state().getGamer(((Player) sender).getUniqueId());
       channels.chat_message.publish(
@@ -88,11 +88,7 @@ public class DistrictCommand extends CommandProcessor {
 
   void reclaim(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    IntegerRange range = (IntegerRange) args[0];
-    for (int i = range.getLowerBound();
-         i <= range.getUpperBound();
-         i++) {
-
+    String i = (String) args[0];
       District writeDistrict = context.getDistrict(i);
       if(writeDistrict != null) {
         if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
@@ -103,7 +99,6 @@ public class DistrictCommand extends CommandProcessor {
       }else{
         sender.sendMessage("That district is currently unclaimed");
       }
-    }
   }
 
   void reclaimLocal(Player sender, Object[] args) {
@@ -151,7 +146,7 @@ public class DistrictCommand extends CommandProcessor {
       return;
     }
     if (team.isManager(manager)) {
-      District writeDistrict = context.getDistrict((int) args[0]);
+      District writeDistrict = context.getDistrict((String) args[0]);
       Group member = (Group) args[1];
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
@@ -166,7 +161,7 @@ public class DistrictCommand extends CommandProcessor {
       return;
     }
     if (team.isManager(manager)) {
-      District writeDistrict = context.getDistrict((int) args[0]);
+      District writeDistrict = context.getDistrict((String) args[0]);
       Gamer member = (Gamer) args[1];
       AccessFlags flag = (AccessFlags) args[2];
       FlagValue value = (FlagValue) args[3];
@@ -183,14 +178,14 @@ public class DistrictCommand extends CommandProcessor {
         createPlayerCommand("district", SlashCommands.infoGiven,this::infoGiven)
             .withAliases("d")
             .withPermission("etherlands.public")
-            .withArguments(new IntegerArgument("DistrictID"));
+            .withArguments(new StringArgument("district"));
     DistrictCommand.withSubcommand(
         createPlayerCommand("help", SlashCommands.help,this::help)
     );
     DistrictCommand.withSubcommand(
         createPlayerCommand("set_player", SlashCommands.setPlayer,this::setPlayer)
             .withAliases("setp", "setplayer", "setPlayer")
-            .withArguments(new IntegerArgument("districtID"))
+            .withArguments(new StringArgument("districtID"))
             .withArguments(teamMemberArgument("member"))
             .withArguments(accessFlagArgument("flag"))
             .withArguments(flagValueArgument("value"))
@@ -198,7 +193,7 @@ public class DistrictCommand extends CommandProcessor {
     DistrictCommand.withSubcommand(
         createPlayerCommand("set_group", SlashCommands.setGroup,this::setGroup)
             .withAliases("setg", "setgroup", "setGroup")
-            .withArguments(new IntegerArgument("districtID"))
+            .withArguments(new StringArgument("district"))
             .withArguments(teamGroupArgument("group"))
             .withArguments(accessFlagArgument("flag"))
             .withArguments(
@@ -212,7 +207,7 @@ public class DistrictCommand extends CommandProcessor {
         createPlayerCommand("info", SlashCommands.infoGiven,this::infoGiven)
             .withAliases("i")
             .withArguments(
-                new IntegerArgument("District Id")
+                new StringArgument("District Id")
             )
     );
     DistrictCommand.withSubcommand(
@@ -223,8 +218,7 @@ public class DistrictCommand extends CommandProcessor {
 
     DistrictCommand.withSubcommand(
         createPlayerCommand("reclaim", SlashCommands.reclaim,this::reclaim)
-            .withArguments(new IntegerRangeArgument("chunkId"))
-            .withArguments(new IntegerRangeArgument("chunkId"))
+            .withArguments(new StringArgument("chunkId"))
     );
     DistrictCommand.withSubcommand(
         createPlayerCommand("reclaim", SlashCommands.reclaimLocal,this::reclaimLocal)
@@ -232,7 +226,7 @@ public class DistrictCommand extends CommandProcessor {
     );
     DistrictCommand.withSubcommand(
         createPlayerCommand("delegate", SlashCommands.delegate,this::delegate)
-            .withArguments(new IntegerRangeArgument("DEED id"))
+            .withArguments(new StringArgument("District"))
             .executesPlayer(this::delegate)
     );
     DistrictCommand.withSubcommand(

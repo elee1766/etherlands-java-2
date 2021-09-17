@@ -66,9 +66,29 @@ public class RedisGetter {
     try (Jedis jedis = JedisFactory.getPool().getResource()) {
       owner = jedis.get("district:"+key+":address");
     }catch (Exception ignored){
-      return null;
+      return owner;
     }
     return owner;
+  }
+
+  public static String GetNameOfDistrict(Integer key){
+    String name = "#" + key.toString();
+    try (Jedis jedis = JedisFactory.getPool().getResource()) {
+      name = jedis.get("district:"+key.toString()+":name");
+    }catch (Exception ignored){
+      return name;
+    }
+    return name;
+  }
+
+  public static Integer GetDistrictOfName(String name){
+    int districtId = 0;
+    try (Jedis jedis = JedisFactory.getPool().getResource()) {
+      districtId = Integer.parseInt(jedis.get("name:"+name+":district"));
+    } catch (Exception e){
+      return null;
+    }
+    return districtId;
   }
 
 
@@ -108,5 +128,6 @@ public class RedisGetter {
     }
     return output;
   }
+
 
 }

@@ -14,6 +14,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class GamerCommand extends CommandProcessor {
   private final Channels channels;
 
@@ -25,19 +27,20 @@ public class GamerCommand extends CommandProcessor {
 
   void info(Player sender, Object[] args) {
     OfflinePlayer player = (OfflinePlayer) args[0];
-    Gamer gamer = context.getGamer(sender.getUniqueId());
-    Gamer target = context.getGamer(player.getUniqueId());
+    Gamer gamer = state().getGamer(sender.getUniqueId());
+    Gamer target = state().getGamer(player.getUniqueId());
     GamerSender.sendGamerInfo(channels,gamer,target);
   }
 
   void infoLocal(Player sender, Object[] args) {
-    Gamer gamer = context.getGamer(sender.getUniqueId());
+    Gamer gamer = state().getGamer(sender.getUniqueId());
     GamerSender.sendGamerInfo(channels,gamer,gamer);
   }
 
   void link(Object o,Object[] args) {
     Player p = (Player) args[0];
-    GamerSender.setAddress(channels, p.getUniqueId(), (String) args[1]);
+    Gamer gamer = state().getGamer(p.getUniqueId());
+    GamerSender.setAddress(channels, gamer, (String) args[1]);
     Bukkit.getLogger().info(p.getUniqueId() + " has been linked successfully");
   }
 

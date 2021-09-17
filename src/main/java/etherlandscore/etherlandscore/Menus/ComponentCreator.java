@@ -53,7 +53,7 @@ public class ComponentCreator {
     return ComponentCreator.District(district,ChatColor.DARK_GREEN);
   }
   public static TextComponent District(District district, ChatColor colour) {
-    TextComponent component = ComponentCreator.ColoredText(district.getIdInt().toString(), colour);
+    TextComponent component = ComponentCreator.ColoredText(district.getNickname(), colour);
     component.setClickEvent(
         new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/district info " + district.getIdInt()));
     return component;
@@ -107,10 +107,8 @@ public class ComponentCreator {
     TextComponent combined = new TextComponent();
     for(UUID id : members){
       TextComponent component = ComponentCreator.UUID(id, colour);
-      if (component != null) {
-        combined.addExtra(component);
-        combined.addExtra(" ");
-      }
+      combined.addExtra(component);
+      combined.addExtra(" ");
     }
     return combined;
   }
@@ -120,7 +118,10 @@ public class ComponentCreator {
   public static TextComponent UUID(UUID id, ChatColor colour) {
     Gamer gamer = state().getGamer(id);
     if(gamer == null){
-      return null;
+      return ComponentCreator.ColoredText("[Unlinked]",colour);
+    }
+    if(gamer.getName() == null){
+      return ComponentCreator.ColoredText("[Unlinked]",colour);
     }
     TextComponent component = ComponentCreator.ColoredText(gamer.getName(),colour);
     component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+ gamer.getName()));

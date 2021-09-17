@@ -50,6 +50,12 @@ public class WriteDistrict extends CouchDocument implements District {
   }
 
   @Override
+  @JsonIgnore
+  public String getNickname(){
+    return RedisGetter.GetNameOfDistrict(this.getIdInt());
+  }
+
+  @Override
   public boolean canGamerPerform(AccessFlags flag, Gamer gamer) {
     try {
       if (gamer.getPlayer().isOp()) {
@@ -238,7 +244,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public UUID getOwnerUUID() {
-    return state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null);
+    return state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), new UUID(0,0));
   }
 
 

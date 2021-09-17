@@ -133,7 +133,7 @@ public class ListenerClient extends ServerModule {
               if (player != null) {
                 Gamer gamer = state().getGamer(player.getUniqueId());
                 Team writeTeam = gamer.getTeamObject();
-                return (District) writeTeam.getDistrict(Integer.parseInt(districtID));
+                return writeTeam.getDistrict(Integer.parseInt(districtID));
               } else {
                 throw new CustomArgument.CustomArgumentException(
                     new CustomArgument.MessageBuilder("District not found."));

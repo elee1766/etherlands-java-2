@@ -19,6 +19,9 @@ public interface District extends Comparable<District> {
   @Override
   int compareTo(District r);
 
+
+  String getNickname();
+
   Set<Integer> getPlots();
 
   Field[] getDeclaredFields();

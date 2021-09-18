@@ -33,7 +33,7 @@ public class MapCreator {
 
   public MapCreator(Gamer gamer, int xin, int zin, int size) {
     this.gamer = gamer;
-    this.facing = gamer.getPlayer().getFacing();
+    this.facing = getCardinalDirection(gamer.getPlayer());
     this.x = xin;
     this.z = zin;
     this.WIDTH = size;
@@ -57,7 +57,7 @@ public class MapCreator {
 
   public MapCreator(Gamer gamer, int xin, int zin) {
     this.gamer = gamer;
-    this.facing = gamer.getPlayer().getFacing();
+    this.facing = getCardinalDirection(gamer.getPlayer());
     this.x = xin;
     this.z = zin;
     this.WIDTH = 25;
@@ -420,6 +420,33 @@ public class MapCreator {
         theArray[i][j] = theArray[theArray.length - 1 - i][j];
         theArray[theArray.length - 1 -i][j] = temp;
       }
+    }
+  }
+  public static BlockFace getCardinalDirection(Player player) {
+    double rotation = (player.getLocation().getYaw() - 180) % 360;
+    if (rotation < 0) {
+      rotation += 360.0;
+    }
+    if (0 <= rotation && rotation < 22.5) {
+      return BlockFace.NORTH;
+    } else if (22.5 <= rotation && rotation < 67.5) {
+      return BlockFace.NORTH_EAST;
+    } else if (67.5 <= rotation && rotation < 112.5) {
+      return BlockFace.EAST;
+    } else if (112.5 <= rotation && rotation < 157.5) {
+      return BlockFace.SOUTH_EAST;
+    } else if (157.5 <= rotation && rotation < 202.5) {
+      return BlockFace.SOUTH;
+    } else if (202.5 <= rotation && rotation < 247.5) {
+      return BlockFace.SOUTH_WEST;
+    } else if (247.5 <= rotation && rotation < 292.5) {
+      return BlockFace.WEST;
+    } else if (292.5 <= rotation && rotation < 337.5) {
+      return BlockFace.NORTH_WEST;
+    } else if (337.5 <= rotation && rotation < 360.0) {
+      return BlockFace.NORTH;
+    } else {
+      return BlockFace.NORTH;
     }
   }
 

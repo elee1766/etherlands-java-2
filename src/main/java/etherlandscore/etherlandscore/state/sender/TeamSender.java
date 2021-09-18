@@ -10,42 +10,42 @@ import etherlandscore.etherlandscore.state.read.Team;
 
 public class TeamSender {
 
-  public static void addMember(Channels channels, Gamer gamer, Team writeTeam) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_add_gamer, writeTeam, gamer));
+  public static void addMember(Channels channels, Gamer gamer, Team team) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_add_gamer, team, gamer));
   }
 
-  public static void createDistrict(Channels channels, String name, Team writeTeam) {
+  public static void createDistrict(Channels channels, String name, Team team) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_create_district, writeTeam, name));
+        new Message<>(MasterCommand.team_create_district, team, name));
   }
 
-  public static void createGroup(Channels channels, String name, Team writeTeam) {
+  public static void createGroup(Channels channels, String name, Team team) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_create_group, writeTeam, name));
+        new Message<>(MasterCommand.team_create_group, team, name));
   }
 
-  public static void delegateDistrict(Channels channels, District writeDistrict, Team writeTeam, Message message) {
+  public static void delegateDistrict(Channels channels, District writeDistrict, Team team, Message message) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_delegate_district, writeTeam, writeDistrict).setChatResponse(ChatTarget.team_delegate_district, message));
+        new Message<>(MasterCommand.team_delegate_district, team, writeDistrict).setChatResponse(ChatTarget.team_delegate_district, message));
   }
 
-  public static void delete(Channels channels, Team writeTeam) {
-    channels.master_command.publish(new Message<>(MasterCommand.team_delete_team, writeTeam));
+  public static void delete(Channels channels, Team team) {
+    channels.master_command.publish(new Message<>(MasterCommand.team_delete_team, team));
   }
 
-  public static void deleteDistrict(Channels channels, District arg, Team writeTeam) {
+  public static void deleteDistrict(Channels channels, District arg, Team team) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_delete_district, writeTeam, arg));
+        new Message<>(MasterCommand.team_delete_district, team, arg));
   }
 
-  public static void deleteGroup(Channels channels, String name, Team writeTeam) {
+  public static void deleteGroup(Channels channels, String name, Team team) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_delete_group, writeTeam, name));
+        new Message<>(MasterCommand.team_delete_group, team, name));
   }
 
-  public static void removeMember(Channels channels, Gamer gamer, Team writeTeam) {
+  public static void removeMember(Channels channels, Gamer gamer, Team team) {
     channels.master_command.publish(
-        new Message<>(MasterCommand.team_remove_gamer, writeTeam, gamer));
+        new Message<>(MasterCommand.team_remove_gamer, team, gamer));
   }
 
   public static void sendInfo(Channels channels, Gamer gamer, Team team){

@@ -247,7 +247,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
     }
     if(gamer.preferences.checkPreference(MessageToggles.MAP)){
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
-        MapCreator mapCreator = new MapCreator(context.getGamer(event.getPlayer().getUniqueId()), event.getPlayer().getFacing(), event.getPlayer().getLocation().getChunk().getX(), event.getPlayer().getLocation().getChunk().getZ());
+        MapCreator mapCreator = new MapCreator(context.getGamer(event.getPlayer().getUniqueId()), event.getPlayer().getLocation().getChunk().getX(), event.getPlayer().getLocation().getChunk().getZ());
         BaseComponent map = mapCreator.combined();
         GamerSender.sendMap(channels, map, context.getGamer(event.getPlayer().getUniqueId()));
       }

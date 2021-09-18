@@ -144,6 +144,11 @@ public class WriteGamer extends CouchDocument implements Gamer {
   }
 
   @Override
+  public UserPreferences getPreferences() {
+    return preferences;
+  }
+
+  @Override
   public String getTeam() {
     return team;
   }

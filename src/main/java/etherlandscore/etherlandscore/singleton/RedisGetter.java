@@ -1,7 +1,9 @@
 package etherlandscore.etherlandscore.singleton;
 
+import kotlin.Triple;
 import redis.clients.jedis.Jedis;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 public class RedisGetter {
@@ -113,6 +115,30 @@ public class RedisGetter {
       return null;
     }
     return Math.toIntExact(Math.round(district));
+  }
+
+
+  public static ArrayList<Triple<Integer, Integer, Integer>> ClustersOfDistrict(Integer key) {
+    ArrayList<Triple<Integer, Integer, Integer>> output = new ArrayList<Triple<Integer,Integer,Integer>>();
+
+    try (redis.clients.jedis.Jedis jedis = JedisFactory.getPool().getResource()) {
+      String name = jedis.get("district:"+key.toString()+":clusters");
+      if(name.equals("")){
+        return null;
+      }
+      String[] indiv = name.split("@");
+      for (String s : indiv) {
+        String[] data = s.split(":");
+          if(data.length != 3){
+            return null;
+          }
+          Triple<Integer, Integer, Integer> triple = new Triple<>(Integer.parseInt(data[0]),Integer.parseInt(data[1]),Integer.parseInt(data[2]));
+          output.add(triple);
+        }
+    }catch (Exception ignored){
+      return null;
+    }
+    return output;
   }
 
   public static Set<Integer> GetPlotsInDistrict(String key){

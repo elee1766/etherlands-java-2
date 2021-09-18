@@ -1,9 +1,5 @@
 package etherlandscore.etherlandscore.Menus;
 
-import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.fibers.ChatTarget;
-import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadPlot;
@@ -16,7 +12,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.jetlang.fibers.Fiber;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
@@ -36,9 +31,9 @@ public class MapCreator {
   private final TextComponent friendKey;
   private TextComponent[][] mapArray;
 
-  public MapCreator(Gamer gamer, BlockFace facing, int xin, int zin, int size) {
+  public MapCreator(Gamer gamer, int xin, int zin, int size) {
     this.gamer = gamer;
-    this.facing = facing;
+    this.facing = gamer.getPlayer().getFacing();
     this.x = xin;
     this.z = zin;
     this.WIDTH = size;
@@ -52,7 +47,7 @@ public class MapCreator {
     ownedKey = new TextComponent("+");
     ownedKey.setColor(ChatColor.GREEN);
     playerKey = new TextComponent("+");
-    playerKey.setColor(ChatColor.RED);
+    playerKey.setColor(ChatColor.DARK_RED);
     selfKey = new TextComponent("^");
     selfKey.setColor(ChatColor.YELLOW);
     friendKey = new TextComponent("+");
@@ -60,12 +55,12 @@ public class MapCreator {
     ComponentBuilder builder = new ComponentBuilder();
   }
 
-  public MapCreator(Gamer gamer, BlockFace facing, int xin, int zin) {
+  public MapCreator(Gamer gamer, int xin, int zin) {
     this.gamer = gamer;
-    this.facing = facing;
+    this.facing = gamer.getPlayer().getFacing();
     this.x = xin;
     this.z = zin;
-    this.WIDTH = 11;
+    this.WIDTH = 25;
     this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
     this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
 
@@ -76,29 +71,16 @@ public class MapCreator {
     ownedKey = new TextComponent("+");
     ownedKey.setColor(ChatColor.GREEN);
     playerKey = new TextComponent("+");
-    playerKey.setColor(ChatColor.RED);
+    playerKey.setColor(ChatColor.DARK_RED);
     selfKey = new TextComponent("^");
     selfKey.setColor(ChatColor.YELLOW);
     friendKey = new TextComponent("+");
     friendKey.setColor(ChatColor.DARK_GREEN);
   }
 
-  public static String facingCoord(BlockFace facing){
-    switch (facing) {
-      case NORTH:
-        return "-z";
-      case SOUTH:
-        return "+z";
-      case WEST:
-        return "-x";
-      default:
-        return "+x";
-    }
-  }
-
   public BaseComponent title(){
     int initial_length = 50;
-    String title = "Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing);
+    String title = "Map (" + x + ", " + z + ")";
     int title_length = title.length();
     int new_length = initial_length - title_length;
     int half_length = new_length / 2;
@@ -155,13 +137,16 @@ public class MapCreator {
         ClickEvent playerClick = null;
         ClickEvent claimedClick = null;
 
-        District district = state().getDistrict(x, z);
-        if(district != null){
-          claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+x + ", " + z+")"));
-          claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + district.getIdInt()));
-          claimedflag = true;
-          if (district.isOwner(gamer)) {
-            ownedflag = true;
+        ReadPlot plot = state().getPlot(x,z);
+        if(plot.getIdInt() != null){
+          District district = state().getDistrict(x, z);
+          if(district != null){
+            claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+x + ", " + z+")"));
+            claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + district.getIdInt()));
+            claimedflag = true;
+            if (district.isOwner(gamer)) {
+              ownedflag = true;
+            }
           }
         }
 
@@ -210,28 +195,8 @@ public class MapCreator {
       z = z - SIZE_OF_SQUARE;
     }
 
-    switch (this.facing) {
-      case NORTH:
-        this.mapArray = rotateMap(this.mapArray);
-        flipHorizontalInPlace(this.mapArray);
-        this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
-        flipHorizontalInPlace(this.mapArray);
-        this.mapArray = rotateMap(rotateMap(rotateMap(this.mapArray)));
-      case WEST:
-        this.mapArray = rotateMap(this.mapArray);
-        flipHorizontalInPlace(this.mapArray);
-        this.mapArray = rotateMap(this.mapArray);
-        this.mapArray = rotateMap(this.mapArray);
-        flipHorizontalInPlace(this.mapArray);
-      case SOUTH:
-        this.mapArray = rotateMap(this.mapArray);
-        flipHorizontalInPlace(this.mapArray);
-        this.mapArray = rotateMap(rotateMap(this.mapArray));
-      case EAST:
-        this.mapArray = rotateMap(this.mapArray);
-        flipHorizontalInPlace(this.mapArray);
-    }
-    Bukkit.getLogger().info(this.mapArray.toString());
+    this.mapArray = rotateMap(rotateMap(this.mapArray));
+    //flipHorizontalInPlace(this.mapArray);
     TextComponent[] returnValue = new TextComponent[HEIGHT];
 
     int c = 0;
@@ -314,7 +279,7 @@ public class MapCreator {
     friend.addExtra(" = friend");
 
     TextComponent player = new TextComponent(" +");
-    player.setColor(ChatColor.RED);
+    player.setColor(ChatColor.DARK_RED);
     player.addExtra(" = player");
 
     Player p = this.gamer.getPlayer();
@@ -339,85 +304,87 @@ public class MapCreator {
 
   private BaseComponent[] compass() {
     TextComponent[] compassComps = new TextComponent[HEIGHT];
-    ClickEvent gosouth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "S" + " " + x + " " + (z+2));
-    ClickEvent gonorth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "N" + " " + x + " " + (z-2));
-    ClickEvent gowest = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "W" + " " + (x-2) + " " + z);
-    ClickEvent goeast = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "E" + " " + (x+2) + " " + z);
-    ClickEvent goleft;
-    ClickEvent goright;
-    ClickEvent goup;
-    ClickEvent godown;
-    String left = "";
-    String right = "";
-    String down = "";
-    if (facing.equals(BlockFace.NORTH)) {
-      goup = gonorth;
-      left = "W";
-      goleft = gowest;
-      right = "E";
-      goright = goeast;
-      down = "S";
-      godown = gosouth;
-    } else if (facing.equals(BlockFace.SOUTH)) {
-      goup = gosouth;
-      left = "E";
-      goleft = goeast;
-      right = "W";
-      goright = gowest;
-      down = "N";
-      godown = gonorth;
-    } else if (facing.equals(BlockFace.WEST)) {
-      goup = gowest;
-      left = "S";
-      goleft = gosouth;
-      right = "N";
-      goright = gonorth;
-      down = "E";
-      godown = goeast;
-    } else {
-      goup = goeast;
-      left = "N";
-      goleft = gonorth;
-      right = "S";
-      goright = gosouth;
-      down = "W";
-      godown = gowest;
+    ClickEvent gosouth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + x + " " + (z+2));
+    ClickEvent gonorth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + x + " " + (z-2));
+    ClickEvent gowest = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + (x-2) + " " + z);
+    ClickEvent goeast = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + (x+2) + " " + z);
+
+    TextComponent center = ComponentCreator.ColoredText("+",ChatColor.RED);
+    TextComponent tick = ComponentCreator.ColoredText("-",ChatColor.BLACK);
+    TextComponent north = ComponentCreator.ColoredText("N",ChatColor.WHITE);
+    north.setClickEvent(gonorth);
+    TextComponent northeast = ComponentCreator.ColoredText("/",ChatColor.WHITE);
+    TextComponent east = ComponentCreator.ColoredText("E",ChatColor.WHITE);
+    east.setClickEvent(goeast);
+    TextComponent southeast = ComponentCreator.ColoredText("\\",ChatColor.WHITE);
+    TextComponent south = ComponentCreator.ColoredText("S",ChatColor.WHITE);
+    south.setClickEvent(gosouth);
+    TextComponent southwest = ComponentCreator.ColoredText("/",ChatColor.WHITE);
+    TextComponent west = ComponentCreator.ColoredText("W",ChatColor.WHITE);
+    west.setClickEvent(gowest);
+    TextComponent northwest = ComponentCreator.ColoredText("\\",ChatColor.WHITE);
+
+    switch (facing) {
+      case NORTH:
+        north.setColor(ChatColor.RED);
+        break;
+      case EAST:
+        east.setColor(ChatColor.RED);
+        break;
+      case SOUTH:
+        south.setColor(ChatColor.RED);
+        break;
+      case WEST:
+        west.setColor(ChatColor.RED);
+        break;
+      case NORTH_EAST:
+        northeast.setColor(ChatColor.RED);
+        break;
+      case NORTH_WEST:
+        northwest.setColor(ChatColor.RED);
+        break;
+      case SOUTH_EAST:
+        southeast.setColor(ChatColor.RED);
+        break;
+      case SOUTH_WEST:
+        southwest.setColor(ChatColor.RED);
+        break;
+      default:
+        break;
     }
     int c = 0;
     for(int i = 0; i< HEIGHT; i++) {
       TextComponent line = new TextComponent("");
       for (int j = 0; j < 5; j++) {
         TextComponent spot = new TextComponent("");
-        if (i == 5) {
-          if (j == 1) {
-            spot.addExtra(left);
-            spot.setClickEvent(goleft);
-          }else if (j == 3) {
-            spot.addExtra(right);
-            spot.setClickEvent(goright);
-          }else{
-            spot.addExtra("-");
-            spot.setColor(ChatColor.BLACK);
-          }
-        } else if (i == 4) {
-            if(j==2){
-              spot.addExtra(facing.toString().substring(0,1));
-              spot.setClickEvent(goup);
-            }else{
-              spot.addExtra("-");
-              spot.setColor(ChatColor.BLACK);
+        switch (i) {
+          case 5:
+            switch (j) {
+              case 1 -> spot.addExtra(west);
+              case 2 -> spot.addExtra(center);
+              case 3 -> spot.addExtra(east);
+              default -> spot.addExtra(tick);
             }
-        } else if (i == 6) {
-          if(j==2) {
-            spot.addExtra(down);
-            spot.setClickEvent(godown);
-          }else{
-            spot.addExtra("-");
-            spot.setColor(ChatColor.BLACK);
-          }
-        } else {
-          spot = new TextComponent("-");
-          spot.setColor(ChatColor.BLACK);
+            break;
+          case 4:
+            switch (j) {
+              case 1 -> spot.addExtra(northwest);
+              case 2 -> spot.addExtra(north);
+              case 3 -> spot.addExtra(northeast);
+              default -> spot.addExtra(tick);
+            }
+            break;
+          case 6:
+            switch (j) {
+              case 1 -> spot.addExtra(southwest);
+              case 2 -> spot.addExtra(south);
+              case 3 -> spot.addExtra(southeast);
+              default -> spot.addExtra(tick);
+            }
+            break;
+          default:
+            spot.addExtra(tick);
+            break;
         }
         line.addExtra(spot);
       }

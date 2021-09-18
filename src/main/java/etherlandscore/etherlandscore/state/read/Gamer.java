@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore.state.read;
 
+import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -23,6 +24,8 @@ public interface Gamer {
   Set<String> getGroups();
 
   Player getPlayer();
+
+  UserPreferences getPreferences();
 
   String getTeam();
 

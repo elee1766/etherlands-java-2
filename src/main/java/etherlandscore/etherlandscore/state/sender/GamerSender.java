@@ -7,7 +7,6 @@ import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.write.WriteGamer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -32,10 +31,14 @@ public class GamerSender {
       Channels channels,
       MessageToggles flag,
       ToggleValues value,
-      WriteGamer gamer) {
+      Gamer gamer) {
     channels.master_command.publish(
         new Message<>(
-            MasterCommand.gamer_toggle_message, gamer, flag, value));
+            MasterCommand.gamer_toggle_message, gamer, flag, value).setChatResponse(
+                ChatTarget.gamer,gamer, new TextComponent("Automap "+ value.toString())
+        )
+
+    );
   }
   public static void sendGamerInfo(Channels channels, Gamer gamer, Gamer target) {
     channels.chat_message.publish(

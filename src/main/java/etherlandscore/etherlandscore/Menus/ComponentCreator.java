@@ -6,6 +6,7 @@ import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.util.Map2;
+import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -17,6 +18,7 @@ import java.util.*;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class ComponentCreator {
+
 
   public static TextComponent ColoredText(String string, ChatColor colour) {
     TextComponent component = new TextComponent(string);
@@ -70,6 +72,42 @@ public class ComponentCreator {
       combined.addExtra(" ");
     }
     return combined;
+  }
+
+
+  public static TextComponent Cluster(Triple<Integer,Integer,Integer> cluster, ChatColor color){
+    String x = cluster.getFirst().toString();
+    String z = cluster.getSecond().toString();
+    String size = cluster.getThird().toString();
+
+    TextComponent component = new TextComponent();
+    TextComponent prefix = ComponentCreator.ColoredText("[",ChatColor.DARK_GRAY);
+    TextComponent pre_body =  ComponentCreator.ColoredText(size,color);
+    TextComponent body = ComponentCreator.ColoredText("@" + x +","+z,color);
+    TextComponent postfix= ComponentCreator.ColoredText("]",ChatColor.DARK_GRAY);
+
+    component.addExtra(prefix);
+    component.addExtra(pre_body);
+    component.addExtra(body);
+    component.addExtra(postfix);
+
+    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+        "/map coord " + x + " " + z ));
+    return component;
+  }
+
+  public static TextComponent Clusters(ArrayList<Triple<Integer, Integer, Integer>> clusters,ChatColor color) {
+    TextComponent combined = new TextComponent();
+    for(Triple<Integer,Integer,Integer> cluster : clusters){
+      TextComponent component = ComponentCreator.Cluster(cluster, color);
+      combined.addExtra(component);
+      combined.addExtra("  ");
+    }
+    return combined;
+  }
+
+  public static TextComponent Clusters(ArrayList<Triple<Integer, Integer, Integer>> clusters) {
+    return Clusters(clusters,ChatColor.AQUA);
   }
 
   public static TextComponent Group(String group){

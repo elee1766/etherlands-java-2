@@ -6,11 +6,13 @@ import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -20,12 +22,10 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.UUID;
 
@@ -157,13 +157,13 @@ public class ChatService extends ListenerClient {
       gamer_land_unclaimed(gamer);
       return;
     }
+    ArrayList<Triple<Integer, Integer, Integer>> clusters = RedisGetter.ClustersOfDistrict(district.getIdInt());
     MessageCreator builder = new MessageCreator();
     TextComponent title = ComponentCreator.ColoredText(district.getNickname(),ChatColor.DARK_GREEN);
     builder.addHeader(title);
     builder.addField("nickname",ComponentCreator.ColoredText(district.getNickname(),ChatColor.DARK_GREEN));
     builder.addField("owner",ComponentCreator.UUID(district.getOwnerUUID(),ChatColor.GOLD));
     builder.addField("address",ComponentCreator.Address(district.getOwnerAddress()));
-    builder.addField("plots",ComponentCreator.Plots(district.getPlots()));
     if(district.hasTeam()){
       builder.addField("team",ComponentCreator.Team(district.getTeam()));
       LinkedHashSet<String> all_groups = new LinkedHashSet<>();
@@ -175,6 +175,9 @@ public class ChatService extends ListenerClient {
       if(district.getGamerPermissionMap().getMap().size() > 0){
         builder.addBody("gamer permissions",ComponentCreator.GamerPermissions(district.getGamerPermissionMap(),district.getIdInt()));
       }
+    }
+    if(clusters != null){
+      builder.addField("location",ComponentCreator.Clusters(clusters));
     }
     builder.finish();
     channels.chat_message.publish(new Message<>(ChatTarget.gamer_base, gamer, builder.getMessage()));

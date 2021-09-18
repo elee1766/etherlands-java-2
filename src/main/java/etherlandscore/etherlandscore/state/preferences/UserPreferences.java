@@ -26,13 +26,6 @@ public class UserPreferences {
     set(MessageToggles.LOCAL_CHAT, ToggleValues.DISABLED);
   }
 
-  public void setStorage(Map<MessageToggles,ToggleValues> store){
-    this.storage = store;
-  }
-  public Map<MessageToggles,ToggleValues> getStorage(){
-    return this.storage;
-  }
-
   @JsonIgnore
   public void set(MessageToggles toggles, ToggleValues value) {
     storage.put(toggles, value);

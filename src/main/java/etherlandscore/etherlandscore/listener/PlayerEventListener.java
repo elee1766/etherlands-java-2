@@ -16,6 +16,7 @@ import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -241,7 +242,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
     if(gamer.preferences.checkPreference(MessageToggles.MAP)){
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
         MapCreator mapCreator = new MapCreator(context.getGamer(event.getPlayer().getUniqueId()), event.getPlayer().getFacing(), event.getPlayer().getLocation().getChunk().getX(), event.getPlayer().getLocation().getChunk().getZ());
-        TextComponent map = mapCreator.combined();
+        BaseComponent map = mapCreator.combined();
         GamerSender.sendMap(channels, map, context.getGamer(event.getPlayer().getUniqueId()));
       }
     }

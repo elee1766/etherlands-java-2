@@ -11,6 +11,7 @@ import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
@@ -27,8 +28,8 @@ public class MapCommand extends CommandProcessor {
   }
 
   void map(Player sender, Object[] args) {
-    MapCreator mapCreator = new MapCreator(context.getGamer(sender.getUniqueId()), sender.getFacing(), sender.getLocation().getChunk().getX(), sender.getLocation().getChunk().getZ());
-    TextComponent map = mapCreator.combined();
+    MapCreator mapCreator = new MapCreator(context.getGamer(sender.getUniqueId()), sender.getFacing(), sender.getLocation().getChunk().getX(), sender.getLocation().getChunk().getZ(), (Integer) args[0]);
+    BaseComponent map = mapCreator.combined();
     GamerSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
   }
 
@@ -48,7 +49,7 @@ public class MapCommand extends CommandProcessor {
 
   public void register() {
     CommandAPICommand MapCommand =
-        createPlayerCommand("map",SlashCommands.map,this::map).withPermission("etherlands.public");
+        createPlayerCommand("map",SlashCommands.map,this::map).withPermission("etherlands.public").withArguments(new IntegerArgument("size"));
     MapCommand.withSubcommand(
         createPlayerCommand("coord",SlashCommands.coord,this::mapCoords)
             .withArguments(new StringArgument("facing"))

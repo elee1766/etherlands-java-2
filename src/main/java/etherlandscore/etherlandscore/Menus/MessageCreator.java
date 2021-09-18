@@ -69,11 +69,6 @@ public class MessageCreator {
     this.output.event((ClickEvent) null).event((HoverEvent) null).color(ChatColor.RESET);
   }
 
-  public void addMap(Gamer gamer, BlockFace facing, int x, int z){
-    MapCreator mapCreator = new MapCreator(gamer, facing, x, z, 9);
-    this.mapArray = mapCreator.mapMenu();
-  }
-
   public boolean hasMap(){
     return this.map;
   }

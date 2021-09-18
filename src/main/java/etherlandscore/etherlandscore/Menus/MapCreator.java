@@ -8,9 +8,7 @@ import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadPlot;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -59,6 +57,7 @@ public class MapCreator {
     selfKey.setColor(ChatColor.YELLOW);
     friendKey = new TextComponent("+");
     friendKey.setColor(ChatColor.DARK_GREEN);
+    ComponentBuilder builder = new ComponentBuilder();
   }
 
   public MapCreator(Gamer gamer, BlockFace facing, int xin, int zin) {
@@ -97,7 +96,7 @@ public class MapCreator {
     }
   }
 
-  public TextComponent title(){
+  public BaseComponent title(){
     int initial_length = 50;
     String title = "Map (" + x + ", " + z + ") " + facing + " " + facingCoord(facing);
     int title_length = title.length();
@@ -115,12 +114,12 @@ public class MapCreator {
     return header;
   }
 
-  public TextComponent combined(){
-    TextComponent title = title();
-    TextComponent[] map = mapMenu();
-    TextComponent[] key = key();
-    TextComponent[] compass = compass();
-    TextComponent output = new TextComponent("");
+  public BaseComponent combined(){
+    BaseComponent title = title();
+    BaseComponent[] map = mapMenu();
+    BaseComponent[] key = key();
+    BaseComponent[] compass = compass();
+    BaseComponent output = new TextComponent("");
 
     output.addExtra(title);
     for (int i = 0; i < this.HEIGHT; i++) {
@@ -136,7 +135,7 @@ public class MapCreator {
     return output;
   }
 
-  public TextComponent[] mapMenu() {
+  public BaseComponent[] mapMenu() {
     Bukkit.getLogger().info("center: " + this.x + " " + this.z);
     Player player = this.gamer.getPlayer();
     int x = this.x - SIZE_OF_SQUARE / 2 - 1;
@@ -210,7 +209,7 @@ public class MapCreator {
           mapArray[j][i].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Unclaimed: ("+x+", "+z+")")));
         }
       }
-      z = z - WIDTH;
+      z = z - SIZE_OF_SQUARE;
     }
 
     switch (this.facing) {
@@ -239,10 +238,33 @@ public class MapCreator {
 
     int c = 0;
     int rangeCount = 0;
+    if(WIDTH<HEIGHT){
+      if(WIDTH%2!=0) {
+        for (int i = 0; i < HEIGHT; i++) {
+          TextComponent line = new TextComponent("");
+          for (int j = (HEIGHT - WIDTH) / 2; j < (HEIGHT - (HEIGHT - WIDTH) / 2); j++) {
+            line.addExtra(this.mapArray[i][j]);
+          }
+          returnValue[c] = line;
+          c++;
+        }
+        return returnValue;
+      }else {
+        for (int i = 0; i < HEIGHT; i++) {
+          TextComponent line = new TextComponent("");
+          for (int j = (HEIGHT - WIDTH) / 2; j < (HEIGHT - (HEIGHT - WIDTH) / 2)-1; j++) {
+            line.addExtra(this.mapArray[i][j]);
+          }
+          returnValue[c] = line;
+          c++;
+        }
+        return returnValue;
+      }
+    }
     if(SIZE_OF_SQUARE%2==0){
       double num = SIZE_OF_SQUARE - HEIGHT;
       rangeCount = (int) Math.ceil(num/2.0);
-      for(int i = rangeCount-1; i< SIZE_OF_SQUARE-(rangeCount); i++){
+      for(int i = rangeCount; i< SIZE_OF_SQUARE-(rangeCount)+1; i++){
         TextComponent line = new TextComponent("");
         TextComponent[] comp = this.mapArray[i];
         for(TextComponent block : comp){
@@ -268,7 +290,7 @@ public class MapCreator {
     }
   }
 
-  private TextComponent[] key() {
+  private BaseComponent[] key() {
     TextComponent[] compassComps = new TextComponent[HEIGHT];
 
     TextComponent blank = new TextComponent("");
@@ -317,7 +339,7 @@ public class MapCreator {
     return compassComps;
   }
 
-  private TextComponent[] compass() {
+  private BaseComponent[] compass() {
     TextComponent[] compassComps = new TextComponent[HEIGHT];
     ClickEvent gosouth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "S" + " " + x + " " + (z+2));
     ClickEvent gonorth = new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/map coord " + "N" + " " + x + " " + (z-2));

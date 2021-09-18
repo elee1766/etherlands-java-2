@@ -136,11 +136,9 @@ public class MapCreator {
   }
 
   public BaseComponent[] mapMenu() {
-    Bukkit.getLogger().info("center: " + this.x + " " + this.z);
     Player player = this.gamer.getPlayer();
     int x = this.x - SIZE_OF_SQUARE / 2 - 1;
     int z = this.z - SIZE_OF_SQUARE / 2 - 1;
-    Bukkit.getLogger().info("adjusted: " + x + " " + z);
     for (int i = 0; i < SIZE_OF_SQUARE; i++) {
       x++;
       for (int j = 0; j < SIZE_OF_SQUARE; j++) {

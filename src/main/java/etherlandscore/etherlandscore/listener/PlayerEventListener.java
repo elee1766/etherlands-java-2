@@ -195,6 +195,8 @@ public class PlayerEventListener extends ListenerClient implements Listener {
     Bukkit.getLogger().info("Creating Gamer for: " + event.getPlayer().getUniqueId());
     channels.master_command.publish(
         new Message<>(MasterCommand.context_create_gamer, event.getPlayer().getUniqueId()));
+    channels.master_command.publish(
+        new Message<>(MasterCommand.store_gamer_location, joiner, event.getPlayer().getLocation()));
   }
 
   @EventHandler
@@ -203,6 +205,10 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       return;
     }
     WriteGamer gamer = (WriteGamer) context.getGamer(event.getPlayer().getUniqueId());
+    if(event.getFrom().getChunk()!=event.getTo().getChunk()){
+      channels.master_command.publish(
+          new Message<>(MasterCommand.store_gamer_location, (Gamer) gamer, event.getPlayer().getLocation()));
+    }
     if(gamer.preferences.checkPreference(MessageToggles.DISTRICT)) {
       int fromx = event.getFrom().getChunk().getX();
       int fromz = event.getFrom().getChunk().getZ();

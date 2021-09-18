@@ -8,9 +8,11 @@ import etherlandscore.etherlandscore.fibers.*;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
+import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.write.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
 
@@ -88,6 +90,7 @@ public class MasterService extends ServerModule {
             case gamer_toggle_message -> context.gamer_toggle_message((WriteGamer) _args[0], (MessageToggles) _args[1], (ToggleValues) _args[2]);
             case touch_district -> context.touch_district((Integer) _args[0]);
             case touch_gamer -> context.touch_gamer((UUID) _args[0]);
+            case store_gamer_location -> context.storeGamerLocation((Gamer) _args[0], (Location) _args[1]);
         }
         if(message.hasChatResponse()){
                 forward_chat_message(message.getChatResponse());

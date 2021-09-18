@@ -40,6 +40,7 @@ public class Context {
   public final Set<WriteMap> maps = new HashSet<>();
   public final Map<String, WriteBankRecord> bankRecords = new HashMap<>();
   public final Map<Location, WriteShop> shops = new HashMap<>();
+  public final Map<Gamer, Location> gamerLocations = new HashMap<>();
 
   public final Map<UUID,Integer> balanceCache = new HashMap<>();
 
@@ -63,6 +64,18 @@ public class Context {
     couchPersister.saveContext(this);
   }
 
+  public void storeGamerLocation(Gamer gamer, Location location){
+    this.gamerLocations.put(gamer, location);
+  }
+
+  public Map<Gamer, Location> getGamerLocations(){
+    return this.gamerLocations;
+  }
+
+  public Location getGamerLocation(Gamer gamer){
+    return this.gamerLocations.get(gamer);
+  }
+
   public void context_create_gamer(UUID uuid) {
     if (!this.getGamers().containsKey(uuid)) {
       WriteGamer gamer = new WriteGamer(uuid);
@@ -70,7 +83,6 @@ public class Context {
       couchPersister.update(gamer);
     }
   }
-
 
   public Integer getBalance(UUID gamerId){
     return this.balanceCache.getOrDefault(gamerId,0);

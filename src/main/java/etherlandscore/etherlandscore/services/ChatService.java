@@ -18,6 +18,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -296,15 +297,12 @@ public class ChatService extends ListenerClient {
     local.setColor(ChatColor.LIGHT_PURPLE);
     local.addExtra(message);
     Player player = gamer.getPlayer();
-    player.sendMessage(local);
-    Bukkit.getScheduler().runTask(Bukkit.getPluginManager().getPlugin("EtherlandsCore"), () -> {
-      Collection<Entity> entities = player.getNearbyEntities(range,range,range);
-      for (Entity entity : entities) {
-        if(entity.getType() == EntityType.PLAYER){
-          entity.sendMessage(local);
-        }
+    for(Player check : Bukkit.getOnlinePlayers()){
+      Location checkLocal = context.getGamerLocation(context.getGamer(check.getUniqueId()));
+      if(Math.abs(checkLocal.getX()-player.getLocation().getX())<range && Math.abs(checkLocal.getX()-player.getLocation().getX())<range){
+        check.sendMessage(local);
       }
-    });
+    }
   }
   private void send_gamer(Gamer gamer,TextComponent message) {
     Player player = gamer.getPlayer();

@@ -89,4 +89,8 @@ public class ReadContext {
   public WriteShop getShop(Location location) { return context.getShop(location);}
 
   public Map<String, UUID> getLinks() { return context.getLinks();}
+
+  public Map<Gamer, Location> getGamerLocations(){return context.getGamerLocations();}
+
+  public Location getGamerLocation(Gamer gamer){return context.getGamerLocation(gamer);}
 }

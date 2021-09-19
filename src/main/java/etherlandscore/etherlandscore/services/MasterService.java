@@ -64,7 +64,7 @@ public class MasterService extends ServerModule {
             // gamer commands
             case gamer_add_friend ->context. gamer_add_friend((WriteGamer) _args[0], (WriteGamer) _args[1]);
             case gamer_remove_friend -> context.gamer_remove_friend((WriteGamer) _args[0],(WriteGamer) _args[1]);
-            case gamer_link_address -> context.gamer_link_address((WriteGamer) _args[0], (String) _args[1]);
+            case gamer_link_address -> context.gamer_link_address((UUID) _args[0], (String) _args[1]);
             //town commands
             case town_add_gamer -> context.town_add_gamer((WriteTown) _args[0], (WriteGamer) _args[1]);
             case town_remove_gamer -> context.town_remove_gamer((WriteTown) _args[0], (WriteGamer) _args[1]);

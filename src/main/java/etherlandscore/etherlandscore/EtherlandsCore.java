@@ -11,6 +11,7 @@ import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.listener.SignEventListener;
 import etherlandscore.etherlandscore.services.ChatService;
 import etherlandscore.etherlandscore.services.MasterService;
+import etherlandscore.etherlandscore.services.RedisListener;
 import etherlandscore.etherlandscore.services.Scheduler;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
@@ -106,6 +107,9 @@ public final class EtherlandsCore extends JavaPlugin {
 
     Fiber scheduleFiber = new ThreadFiber();
     modules.add(new Scheduler(channels, scheduleFiber));
+
+    Fiber redisSubscriberFiber = new ThreadFiber();
+    modules.add(new RedisListener(channels, redisSubscriberFiber));
 
     for (var m : modules) {
       getLogger().info(String.format("Starting MODULE %s", m.getClass().getName()));

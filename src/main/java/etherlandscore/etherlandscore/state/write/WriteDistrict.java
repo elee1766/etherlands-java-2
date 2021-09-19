@@ -119,7 +119,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public Gamer getOwnerObject() {
-    return state().getGamer(state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null));
+    return state().getGamer(state().getLinks().getFirstOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null));
   }
 
   @Override
@@ -249,7 +249,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public UUID getOwnerUUID() {
-    return state().getLinks().getOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), new UUID(0,0));
+    return state().getLinks().getFirstOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), new UUID(0,0));
   }
 
 

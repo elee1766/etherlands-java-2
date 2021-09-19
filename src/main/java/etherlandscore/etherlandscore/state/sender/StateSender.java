@@ -16,6 +16,8 @@ import etherlandscore.etherlandscore.state.read.Town;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import java.util.UUID;
+
 public class StateSender {
 
   public static void addFriend(Channels channels, Gamer self, Gamer gamer) {
@@ -29,8 +31,8 @@ public class StateSender {
         new Message<>(MasterCommand.gamer_remove_friend, self, newFriend));
   }
 
-  public static void setAddress(Channels channels, Gamer id, String address) {
-    channels.master_command.publish(new Message<>(MasterCommand.gamer_link_address, id, address));
+  public static void setAddress(Channels channels, UUID uuid, String address) {
+    channels.master_command.publish(new Message<>(MasterCommand.gamer_link_address, uuid, address));
   }
 
   public static void setMessageToggle(

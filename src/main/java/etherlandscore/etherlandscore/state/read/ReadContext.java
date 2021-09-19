@@ -7,6 +7,7 @@ import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import etherlandscore.etherlandscore.util.Map2;
+import etherlandscore.etherlandscore.util.TwoWay;
 import org.bukkit.Location;
 
 import java.util.Map;
@@ -88,7 +89,11 @@ public class ReadContext {
 
   public WriteShop getShop(Location location) { return context.getShop(location);}
 
-  public Map<String, UUID> getLinks() { return context.getLinks();}
+  public TwoWay<String, UUID> getLinks() { return context.getLinks();}
+
+  public String getAddressOf(UUID uuid) {
+    return context.getLinks().getSecondOrDefault(uuid,"");
+  }
 
   public Map<Gamer, Location> getGamerLocations(){return context.getGamerLocations();}
 

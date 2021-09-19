@@ -40,7 +40,7 @@ public class LinkInformation {
     return publickey;
   }
 
-  public void pubkey() {
+  public boolean pubkey() {
     String r = signature.substring(0, 66);
     String s = signature.substring(66, 130);
     String v = "0x" + signature.substring(130, 132);
@@ -55,14 +55,16 @@ public class LinkInformation {
                   Numeric.hexStringToByteArray(s)))
           .toString(16);
     } catch (SignatureException e) {
-      return;
+      return false;
     }
     String recoveredAddress = "0x" + Keys.getAddress(pubkey);
     Bukkit.getLogger().info("public key: " + recoveredAddress + " : " + this.message);
     if (recoveredAddress.equalsIgnoreCase(this.publickey)) {
       this.publickey = recoveredAddress.toLowerCase();
       this.passed = true;
+      return true;
     }
+    return false;
   }
 
   public String uuid() {

@@ -14,6 +14,7 @@ import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
+import etherlandscore.etherlandscore.util.TwoWay;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,7 +35,7 @@ public class Context {
   public final Map<UUID, WriteGamer> gamers = new HashMap<>();
   public final Map<Integer, WriteDistrict> districts = new HashMap<>();
   public final Map<String, WriteTown> towns = new HashMap<>();
-  public final Map<String, UUID> linked = new HashMap<>();
+  public final TwoWay<String, UUID> linked = new TwoWay<>();
   public final Map<String, WriteNFT> nftUrls = new HashMap<>();
   public final Map2<String,String,WriteNFT> nfts = new Map2<>();
   public final Set<WriteMap> maps = new HashSet<>();
@@ -244,10 +245,8 @@ public class Context {
     couchPersister.update(a);
   }
 
-  public void gamer_link_address(WriteGamer gamer, String address) {
-    gamer.setAddress(address);
-    getLinks().put(address, gamer.getUuid());
-    couchPersister.update(gamer);
+  public void gamer_link_address(UUID uuid, String address) {
+    getLinks().put(address, uuid);
   }
 
   public void gamer_remove_friend(WriteGamer a, Gamer b) {
@@ -273,7 +272,7 @@ public class Context {
 
   public Set<WriteMap> getMaps() {return maps; }
 
-  public Map<String, UUID> getLinks() {
+  public TwoWay<String, UUID> getLinks() {
     return linked;
   }
 

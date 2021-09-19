@@ -36,7 +36,7 @@ public class GamerCommand extends CommandProcessor {
 
   void link(Object o,Object[] args) {
     Gamer gamer  = (Gamer) args[0];
-    StateSender.setAddress(channels, gamer, (String) args[1]);
+    StateSender.setAddress(channels, gamer.getUuid(), (String) args[1]);
     Bukkit.getLogger().info(gamer.getUuid() + " has been linked successfully");
   }
 

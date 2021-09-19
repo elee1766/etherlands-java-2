@@ -85,21 +85,22 @@ public class WriteGamer extends CouchDocument implements Gamer {
 
   @Override
   public void friendList() {
-    Set<UUID> flist = this.getFriends();
+    Set<UUID> uuids = this.getFriends();
     StringBuilder friends = new StringBuilder();
-    for (UUID value : flist) {
-      friends.append(Bukkit.getPlayer(value).getName()).append(", ");
+    for (UUID value : uuids) {
+      friends.append(state().getGamer(value).getName()).append(", ");
     }
     this.getPlayer().sendMessage(friends.toString());
   }
 
   @Override
   public String getAddress() {
-    return address;
+    this.address = state().getAddressOf(this.getUuid());
+    return this.address;
   }
 
   public void setAddress(String address) {
-    this.address = address;
+    this.address = state().getAddressOf(this.getUuid());
   }
 
   @Override

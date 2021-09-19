@@ -16,6 +16,21 @@ public class PlayerSwitchAction extends PermissionedAction {
     this.event = event;
   }
 
+  @Override
+  public AccessFlags getFlag() {
+    return flag;
+  }
+
+  @Override
+  public Gamer getGamer() {return getContext().getGamer(event.getPlayer().getUniqueId());}
+
+  @Override
+  public District getDistrict() {
+    return
+        getContext()
+            .getDistrict(getChunkX(), getChunkZ());
+  }
+
   public Integer getChunkX(){
     if(event.getInteractionPoint() == null){
       return 0;

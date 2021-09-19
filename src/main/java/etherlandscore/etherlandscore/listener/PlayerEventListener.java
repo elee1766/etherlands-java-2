@@ -12,6 +12,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.sender.DistrictSender;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
@@ -137,7 +138,8 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       case RIGHT_CLICK_AIR, LEFT_CLICK_AIR, LEFT_CLICK_BLOCK:
         interactAction = new PlayerInteractAction(event);
         interactAction.process();
-      break;
+        DistrictSender.gamerFailAction(channels, interactAction);
+        break;
       case RIGHT_CLICK_BLOCK:
         if (
             event.getClickedBlock().getBlockData().getAsString().contains("door") ||
@@ -147,9 +149,11 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         ) {
           switchAction = new PlayerSwitchAction(event);
           switchAction.process();
+          DistrictSender.gamerFailAction(channels, switchAction);
         }else{
           interactAction = new PlayerInteractAction(event);
           interactAction.process();
+          DistrictSender.gamerFailAction(channels, interactAction);
         }
         break;
       case PHYSICAL:

@@ -5,6 +5,7 @@ import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.read.District;
+import etherlandscore.etherlandscore.state.sender.DistrictSender;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -50,12 +51,7 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockBreakAction action = new BlockBreakAction(breakEvent);
       boolean code = action.process();
       if (!code) {
-        District d = state().getDistrict(action.getChunkX(),action.getChunkZ());
-        if(d != null){
-          breakEvent.getPlayer().sendMessage("you do not have permission to DESTROY in district " + d.getIdInt());
-        }else{
-          breakEvent.getPlayer().sendMessage("The Plot at [" + breakEvent.getBlock().getChunk().getX() + ", " + breakEvent.getBlock().getChunk().getZ() + "] is unclaimed");
-        }
+        DistrictSender.gamerFailAction(channels,action);
       }
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
@@ -155,13 +151,8 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockPlaceAction action = new BlockPlaceAction(placeEvent);
       boolean code = action.process();
       if (!code) {
-        District dID = state().getPlot(placeEvent.getBlock().getChunk().getX(), placeEvent.getBlock().getChunk().getZ()).getDistrict();
-        if(dID != null){
-          placeEvent.getPlayer().sendMessage("you do not have permission to BUILD in district " + dID.getIdInt());
-        }else{
-          placeEvent.getPlayer().sendMessage("The Plot at [" + placeEvent.getBlock().getChunk().getX() + ", " + placeEvent.getBlock().getChunk().getZ() + "] is unclaimed");
+        DistrictSender.gamerFailAction(channels, action);
         }
-      }
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
       placeEvent.setCancelled(true);

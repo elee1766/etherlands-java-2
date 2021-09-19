@@ -22,7 +22,7 @@ public class Scheduler extends ServerModule {
         this.channels = channels;
         for (Integer district: RedisGetter.GetDistricts()) {
             if(!state().getDistricts().containsKey(district)){
-                DistrictSender.touchDistrict(this.channels,district);
+                DistrictSender.touchDistrict(this.channels,best_district);
                 if(district > best_district){
                     best_district = district;
                 }

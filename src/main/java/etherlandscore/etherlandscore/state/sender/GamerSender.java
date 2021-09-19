@@ -37,8 +37,11 @@ public class GamerSender {
             MasterCommand.gamer_toggle_message, gamer, flag, value).setChatResponse(
                 ChatTarget.gamer,gamer, new TextComponent("Automap "+ value.toString())
         )
-
     );
+  }
+  public static void sendGamerComponent(Channels channels, Gamer gamer, TextComponent component) {
+    channels.chat_message.publish(
+        new Message<>(ChatTarget.gamer, gamer, component));
   }
   public static void sendGamerInfo(Channels channels, Gamer gamer, Gamer target) {
     channels.chat_message.publish(

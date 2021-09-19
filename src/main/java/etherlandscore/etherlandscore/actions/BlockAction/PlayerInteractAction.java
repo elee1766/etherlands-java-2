@@ -10,6 +10,20 @@ public class PlayerInteractAction extends PermissionedAction {
   private final PlayerInteractEvent event;
   private final AccessFlags flag = AccessFlags.INTERACT;
 
+  @Override
+  public District getDistrict() {
+    return
+        getContext()
+            .getDistrict(getChunkX(), getChunkZ());
+  }
+
+  @Override
+  public AccessFlags getFlag() {
+    return flag;
+  }
+
+  @Override
+  public Gamer getGamer() {return getContext().getGamer(event.getPlayer().getUniqueId());}
 
   public PlayerInteractAction(PlayerInteractEvent event) {
     super(event);
@@ -37,12 +51,10 @@ public class PlayerInteractAction extends PermissionedAction {
     if (gamer.getPlayer().isOp()) {
       return super.process();
     }
-    District writeDistrict=
-        getContext().getDistrict(getChunkX(), getChunkZ());
-    if (writeDistrict == null) {
+    if (getDistrict() == null) {
       return super.rollback();
     }
-    Boolean canPerform = writeDistrict.canGamerPerform(this.flag, gamer);
+    boolean canPerform = getDistrict().canGamerPerform(this.flag, gamer);
     if (!canPerform) {
       return super.rollback();
     }

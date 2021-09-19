@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore.state.sender;
 
+import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
@@ -9,7 +10,6 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
-import org.bukkit.command.CommandSender;
 
 public class DistrictSender {
 
@@ -44,11 +44,14 @@ public class DistrictSender {
     );
   }
 
-  public static void touchDistrict(Channels channels, int i, CommandSender sender) {
-    channels.master_command.publish(new Message<>(MasterCommand.touch_district, i).setChatResponse(ChatTarget.district_touch_district, sender, i));
-  }
-
   public static void touchDistrict(Channels channels, int i) {
     channels.master_command.publish(new Message<>(MasterCommand.touch_district, i));
   }
+
+  public static void gamerFailAction(Channels channels, PermissionedAction action) {
+    channels.chat_message.publish(
+        new Message<>(ChatTarget.gamer_fail_action, action));
+  }
+
+
 }

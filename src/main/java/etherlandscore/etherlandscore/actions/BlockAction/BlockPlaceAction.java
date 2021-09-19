@@ -16,19 +16,40 @@ public class BlockPlaceAction extends PermissionedAction {
   }
 
   @Override
-  public boolean process() {
-    Gamer gamer = getContext().getGamer(event.getPlayer().getUniqueId());
-    District district =
+  public Integer getChunkX(){
+    return event.getBlock().getChunk().getX();
+  }
+  @Override
+  public Integer getChunkZ(){
+    return event.getBlock().getChunk().getZ();
+  }
+
+  @Override
+  public Gamer getGamer() {return getContext().getGamer(event.getPlayer().getUniqueId());}
+
+  @Override
+  public District getDistrict() {
+    return
         getContext()
             .getDistrict(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+  }
+
+  @Override
+  public AccessFlags getFlag() {
+    return flag;
+  }
+
+  @Override
+  public boolean process() {
+    Gamer gamer = getContext().getGamer(event.getPlayer().getUniqueId());
     // ops can always destroy
     if (gamer.getPlayer().isOp()) {
       return super.process();
     }
-    if (district == null) {
+    if (getDistrict() == null) {
       return super.rollback();
     }
-    boolean canPerform = district.canGamerPerform(this.flag, gamer);
+    boolean canPerform = getDistrict().canGamerPerform(this.flag, gamer);
     if (!canPerform) {
       return super.rollback();
     }

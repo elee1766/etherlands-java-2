@@ -19,28 +19,42 @@ public class BlockBreakAction extends PermissionedAction {
   public Integer getChunkX(){
     return event.getBlock().getChunk().getX();
   }
-
   public Integer getChunkZ(){
     return event.getBlock().getChunk().getZ();
   }
 
-  @Override
-  public boolean process() {
-    Gamer gamer = getContext().getGamer(event.getPlayer().getUniqueId());
-    // ops can always destroy
-    if (gamer.getPlayer().isOp()) {
-      return super.process();
-    }
 
+  @Override
+  public Gamer getGamer() {return getContext().getGamer(event.getPlayer().getUniqueId());}
+
+
+  @Override
+  public District getDistrict() {
+    return
+        getContext()
+            .getDistrict(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+  }
+
+
+  @Override
+  public AccessFlags getFlag() {
+    return flag;
+  }
+  @Override
+  public boolean hasPermission() {
+    // ops can always destroy
+    if (getGamer().getPlayer().isOp()) {
+      return true;
+    }
     District writeDistrict=
         getContext()
             .getDistrict(getChunkX(), getChunkZ());
     if (writeDistrict == null) {
-      return super.rollback();
+      return false;
     }
-    Boolean canPerform = writeDistrict.canGamerPerform(this.flag, gamer);
+    Boolean canPerform = writeDistrict.canGamerPerform(this.flag, getGamer());
     if (!canPerform) {
-      return super.rollback();
+      return false;
     }
     return super.process();
   }

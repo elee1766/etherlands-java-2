@@ -2,6 +2,7 @@ package etherlandscore.etherlandscore.services;
 
 import etherlandscore.etherlandscore.Menus.ComponentCreator;
 import etherlandscore.etherlandscore.Menus.MessageCreator;
+import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
@@ -11,6 +12,7 @@ import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.read.Town;
+import etherlandscore.etherlandscore.state.sender.GamerSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
@@ -62,11 +64,38 @@ public class ChatService extends ListenerClient {
           case gamer_team_info -> this.gamer_team_info((Gamer) _args[0], (Team) _args[1] );
           case gamer_land_unclaimed -> this.gamer_land_unclaimed((Gamer) _args[0]);
           case gamer_send_map -> this.gamer_send_map((TextComponent) _args[0], (Gamer) _args[1]);
+          case gamer_fail_action -> this.gamer_fail_action((PermissionedAction) _args[0]);
         }
       }
     }catch(Exception e){
       Bukkit.getLogger().warning("Failed to process ChatMessage" + message.getCommand());
       e.printStackTrace();
+    }
+  }
+
+  private void gamer_fail_action(PermissionedAction action) {
+    if(action.hasFailed()){
+        if(action.getGamer() == null){
+          return;
+        }
+      if(action.getDistrict() != null){
+        TextComponent component = ComponentCreator.ColoredText("You do not have permission to "+action.getFlag().toString()+" in ", ChatColor.WHITE);
+        component.addExtra(ComponentCreator.UUID(action.getGamer().getUuid()));
+        GamerSender.sendGamerComponent(
+            channels,
+            action.getGamer(),
+            component
+        );
+      }else{
+        GamerSender.sendGamerComponent(
+            channels,
+            action.getGamer(),
+            ComponentCreator.ColoredText(
+                "The Chunk at [" + action.getChunkX()+ ", " + action.getChunkZ() + "] is unclaimed",
+                ChatColor.WHITE
+            )
+        );
+      }
     }
   }
 

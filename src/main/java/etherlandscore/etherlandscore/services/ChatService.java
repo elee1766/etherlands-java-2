@@ -12,7 +12,7 @@ import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.read.Town;
-import etherlandscore.etherlandscore.state.sender.GamerSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
@@ -83,13 +83,13 @@ public class ChatService extends ListenerClient {
       if(action.getDistrict() != null){
         TextComponent component = ComponentCreator.ColoredText("You do not have permission to "+action.getFlag().toString()+" in ", ChatColor.WHITE);
         component.addExtra(ComponentCreator.District(action.getDistrict()));
-        GamerSender.sendGamerComponent(
+        StateSender.sendGamerComponent(
             channels,
             action.getGamer(),
             component
         );
       }else{
-        GamerSender.sendGamerComponent(
+        StateSender.sendGamerComponent(
             channels,
             action.getGamer(),
             ComponentCreator.ColoredText(

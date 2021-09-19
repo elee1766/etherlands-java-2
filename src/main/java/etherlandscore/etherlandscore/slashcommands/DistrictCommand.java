@@ -14,8 +14,7 @@ import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.read.Town;
-import etherlandscore.etherlandscore.state.sender.DistrictSender;
-import etherlandscore.etherlandscore.state.sender.TownSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Chunk;
@@ -41,7 +40,7 @@ public class DistrictCommand extends CommandProcessor {
     String i = (String) args[0];
     if (context.getDistrict(i) != null) {
       if (context.getDistrict(i).isOwner(gamer)) {
-        TownSender.delegateDistrict(
+        StateSender.delegateDistrict(
             this.channels,
             context.getDistrict(i),
             town
@@ -58,7 +57,7 @@ public class DistrictCommand extends CommandProcessor {
     Chunk chunk = gamer.getPlayer().getChunk();
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if (writeDistrict.getOwnerUUID().equals(gamer.getUuid())) {
-      TownSender.delegateDistrict(this.channels, writeDistrict, town);
+      StateSender.delegateDistrict(this.channels, writeDistrict, town);
     } else {
       sender.sendMessage("You do not own this district");
     }
@@ -91,7 +90,7 @@ public class DistrictCommand extends CommandProcessor {
     District writeDistrict = context.getDistrict(i);
     if(writeDistrict != null) {
       if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
-        DistrictSender.reclaimDistrict(this.channels, writeDistrict, gamer);
+        StateSender.reclaimDistrict(this.channels, writeDistrict, gamer);
       } else {
         sender.sendMessage("You do not own district:" + i);
       }
@@ -106,7 +105,7 @@ public class DistrictCommand extends CommandProcessor {
     District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
     if(writeDistrict != null) {
       if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
-        DistrictSender.reclaimDistrict(this.channels, writeDistrict, gamer);
+        StateSender.reclaimDistrict(this.channels, writeDistrict, gamer);
       } else {
         sender.sendMessage("You do not own district:" + writeDistrict.getIdInt());
       }
@@ -138,7 +137,7 @@ public class DistrictCommand extends CommandProcessor {
       Team member = (Team) args[2];
       AccessFlags flag = (AccessFlags) args[3];
       FlagValue value = (FlagValue) args[4];
-      DistrictSender.setTeamPermission(channels, member, flag, value, writeDistrict,manager);
+      StateSender.setTeamPermission(channels, member, flag, value, writeDistrict,manager);
     }
   }
 
@@ -153,7 +152,7 @@ public class DistrictCommand extends CommandProcessor {
       Gamer member = (Gamer) args[2];
       AccessFlags flag = (AccessFlags) args[3];
       FlagValue value = (FlagValue) args[4];
-      DistrictSender.setGamerPermission(channels, member, flag, value, writeDistrict);
+      StateSender.setGamerPermission(channels, member, flag, value, writeDistrict);
     }
   }
 

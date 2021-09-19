@@ -5,7 +5,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.sender.GamerSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -25,7 +25,7 @@ public class FriendCommand extends CommandProcessor {
     Gamer newFriend = (Gamer) args[0];
     if (!gamer.getFriends().contains(newFriend.getUuid())) {
       if (!gamer.getUuid().equals(newFriend.getUuid())) {
-        GamerSender.addFriend(this.channels, gamer, newFriend);
+        StateSender.addFriend(this.channels, gamer, newFriend);
       }
     }
   }
@@ -36,7 +36,7 @@ public class FriendCommand extends CommandProcessor {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Gamer oldFriend = (Gamer) args[0];
     if (gamer.getFriends().contains(oldFriend.getUuid())) {
-      GamerSender.removeFriend(this.channels, gamer, oldFriend);
+      StateSender.removeFriend(this.channels, gamer, oldFriend);
       sender.sendMessage("Friend successfully removed");
     } else {
       sender.sendMessage("Friend failed to be removed");

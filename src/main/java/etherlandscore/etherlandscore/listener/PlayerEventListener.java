@@ -12,8 +12,7 @@ import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.sender.DistrictSender;
-import etherlandscore.etherlandscore.state.sender.GamerSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import net.md_5.bungee.api.ChatColor;
@@ -138,7 +137,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       case RIGHT_CLICK_AIR, LEFT_CLICK_AIR, LEFT_CLICK_BLOCK:
         interactAction = new PlayerInteractAction(event);
         interactAction.process();
-        DistrictSender.gamerFailAction(channels, interactAction);
+        StateSender.gamerFailAction(channels, interactAction);
         break;
       case RIGHT_CLICK_BLOCK:
         if (
@@ -149,11 +148,11 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         ) {
           switchAction = new PlayerSwitchAction(event);
           switchAction.process();
-          DistrictSender.gamerFailAction(channels, switchAction);
+          StateSender.gamerFailAction(channels, switchAction);
         }else{
           interactAction = new PlayerInteractAction(event);
           interactAction.process();
-          DistrictSender.gamerFailAction(channels, interactAction);
+          StateSender.gamerFailAction(channels, interactAction);
         }
         break;
       case PHYSICAL:
@@ -253,7 +252,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
         MapCreator mapCreator = new MapCreator(context.getGamer(event.getPlayer().getUniqueId()), event.getPlayer().getLocation().getChunk().getX(), event.getPlayer().getLocation().getChunk().getZ());
         BaseComponent map = mapCreator.combined();
-        GamerSender.sendMap(channels, map, context.getGamer(event.getPlayer().getUniqueId()));
+        StateSender.sendMap(channels, map, context.getGamer(event.getPlayer().getUniqueId()));
       }
     }
   }

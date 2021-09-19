@@ -3,7 +3,7 @@ package etherlandscore.etherlandscore.services;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.singleton.RedisGetter;
-import etherlandscore.etherlandscore.state.sender.DistrictSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import org.jetlang.fibers.Fiber;
 
 import java.util.concurrent.TimeUnit;
@@ -22,7 +22,7 @@ public class Scheduler extends ServerModule {
         this.channels = channels;
         for (Integer district: RedisGetter.GetDistricts()) {
             if(!state().getDistricts().containsKey(district)){
-                DistrictSender.touchDistrict(this.channels,best_district);
+                StateSender.touchDistrict(this.channels,best_district);
                 if(district > best_district){
                     best_district = district;
                 }
@@ -34,7 +34,7 @@ public class Scheduler extends ServerModule {
                 if(state().getDistricts().containsKey(best_district)){
                     best_district = best_district + 1;
                 }
-                DistrictSender.touchDistrict(this.channels,best_district);
+                StateSender.touchDistrict(this.channels,best_district);
             },
             1,
             5,

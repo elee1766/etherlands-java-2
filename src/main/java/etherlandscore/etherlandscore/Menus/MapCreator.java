@@ -196,7 +196,6 @@ public class MapCreator {
     }
 
     this.mapArray = rotateMap(rotateMap(this.mapArray));
-    //flipHorizontalInPlace(this.mapArray);
     TextComponent[] returnValue = new TextComponent[HEIGHT];
 
     int c = 0;
@@ -404,24 +403,6 @@ public class MapCreator {
     return newMapArray;
   }
 
-  public static void flipInPlace(Object[][] theArray) {
-    for(int i = 0; i < (theArray.length / 2); i++) {
-      Object[] temp = theArray[i];
-      theArray[i] = theArray[theArray.length - i - 1];
-      theArray[theArray.length - i - 1] = temp;
-    }
-  }
-
-  public static void flipHorizontalInPlace(Object[][] theArray) {
-    Object temp;
-    for (int i = 0; i < theArray.length / 2; i++) {
-      for (int j = 0; j < theArray[i].length; j++) {
-        temp = theArray[i][j];
-        theArray[i][j] = theArray[theArray.length - 1 - i][j];
-        theArray[theArray.length - 1 -i][j] = temp;
-      }
-    }
-  }
   public static BlockFace getCardinalDirection(Player player) {
     double rotation = (player.getLocation().getYaw() - 180) % 360;
     if (rotation < 0) {

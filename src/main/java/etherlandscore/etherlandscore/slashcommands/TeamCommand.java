@@ -8,8 +8,7 @@ import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
 import etherlandscore.etherlandscore.state.read.Town;
-import etherlandscore.etherlandscore.state.sender.TeamSender;
-import etherlandscore.etherlandscore.state.sender.TownSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -70,7 +69,7 @@ public class TeamCommand extends CommandProcessor {
     if (town != null) {
       if (town.canAction(manager, subject)) {
         if (subject.getTown().equals(town.getName())) {
-          TeamSender.addMember(channels, team, subject);
+          StateSender.addMember(channels, team, subject);
           sender.sendMessage(
               subject.getName() + " has been added to " + team.getName());
         } else {
@@ -91,7 +90,7 @@ public class TeamCommand extends CommandProcessor {
     if (town != null) {
       if (town.canAction(manager, subject)) {
         if (subject.getTown().equals(town.getName())) {
-          TeamSender.removeMember(channels, team, subject);
+          StateSender.removeMember(channels, team, subject);
           sender.sendMessage(
               subject.getName() + " has been removed from " + team.getName());
         } else {
@@ -109,7 +108,7 @@ public class TeamCommand extends CommandProcessor {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Town town = gamer.getTownObject();
     if (town.isManager(gamer)) {
-      TownSender.createTeam(this.channels, (String) args[0], town);
+      StateSender.createTeam(this.channels, (String) args[0], town);
       sender.sendMessage(args[0] + " has been created");
     } else {
       sender.sendMessage("You are not manager");
@@ -120,7 +119,7 @@ public class TeamCommand extends CommandProcessor {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Town town = gamer.getTownObject();
     if (town.isManager(gamer)) {
-      TownSender.deleteTeam(this.channels, (String) args[0], town);
+      StateSender.deleteTeam(this.channels, (String) args[0], town);
       sender.sendMessage(args[0] + " has been deleted");
     } else {
       sender.sendMessage("You are not manager");
@@ -129,7 +128,7 @@ public class TeamCommand extends CommandProcessor {
 
   void info(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    TeamSender.sendTeamInfo(channels,gamer,(Team) args[0]);
+    StateSender.sendTeamInfo(channels,gamer,(Team) args[0]);
   }
 
 

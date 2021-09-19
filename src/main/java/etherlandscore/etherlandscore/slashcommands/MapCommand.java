@@ -9,7 +9,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.sender.GamerSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
@@ -31,7 +31,7 @@ public class MapCommand extends CommandProcessor {
         sender.getLocation().getChunk().getX(),
         sender.getLocation().getChunk().getZ());
     BaseComponent map = mapCreator.combined();
-    GamerSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
+    StateSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
   }
 
   void mapCoords(Player sender, Object[] args) {
@@ -42,15 +42,15 @@ public class MapCommand extends CommandProcessor {
             (Integer) args[1]
         );
     BaseComponent map = mapCreator.combined();
-    GamerSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
+    StateSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
   }
 
   void auto(Player sender, Object[] args){
     Gamer gamer = context.getGamer(sender.getUniqueId());
     if (gamer.getPreferences().checkPreference(MessageToggles.MAP)) {
-      GamerSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.DISABLED, gamer);
+      StateSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.DISABLED, gamer);
     }else{
-      GamerSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.ENABLED, gamer);
+      StateSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.ENABLED, gamer);
     }
   }
 

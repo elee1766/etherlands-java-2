@@ -6,7 +6,7 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.sender.GamerSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
@@ -26,17 +26,17 @@ public class GamerCommand extends CommandProcessor {
   void info(Player sender, Object[] args) {
     Gamer gamer = state().getGamer(sender.getUniqueId());
     Gamer target = (Gamer) args[0];
-    GamerSender.sendGamerInfo(channels,gamer,target);
+    StateSender.sendGamerInfo(channels,gamer,target);
   }
 
   void infoLocal(Player sender, Object[] args) {
     Gamer gamer = state().getGamer(sender.getUniqueId());
-    GamerSender.sendGamerInfo(channels,gamer,gamer);
+    StateSender.sendGamerInfo(channels,gamer,gamer);
   }
 
   void link(Object o,Object[] args) {
     Gamer gamer  = (Gamer) args[0];
-    GamerSender.setAddress(channels, gamer, (String) args[1]);
+    StateSender.setAddress(channels, gamer, (String) args[1]);
     Bukkit.getLogger().info(gamer.getUuid() + " has been linked successfully");
   }
 

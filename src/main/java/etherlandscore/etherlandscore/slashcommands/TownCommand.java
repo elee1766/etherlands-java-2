@@ -11,8 +11,7 @@ import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Town;
-import etherlandscore.etherlandscore.state.sender.TeamSender;
-import etherlandscore.etherlandscore.state.sender.TownSender;
+import etherlandscore.etherlandscore.state.sender.StateSender;
 import etherlandscore.etherlandscore.state.write.WriteTeam;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -60,7 +59,7 @@ public class TownCommand extends CommandProcessor {
     Town writeTown = manager.getTownObject();
     if (writeTown.isOwner(manager)) {
       if (manager.getTownObject().getName().equals(name)) {
-        TownSender.delete(channels, writeTown);
+        StateSender.delete(channels, writeTown);
         response.setText("Town has been deleted");
       } else {
         response.setText("You are not a manager");
@@ -77,13 +76,13 @@ public class TownCommand extends CommandProcessor {
   void info(Player sender, Object[] args) {
     Town town = context.getTown((String) args[0]);
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    TownSender.sendInfo(this.channels,gamer,town);
+    StateSender.sendInfo(this.channels,gamer,town);
   }
 
   void infoLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     if (gamer.hasTown()) {
-      TownSender.sendInfo(this.channels,gamer,gamer.getTownObject());
+      StateSender.sendInfo(this.channels,gamer,gamer.getTownObject());
     } else {
       response.setText("/town info <town_name>");
       channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
@@ -123,8 +122,8 @@ public class TownCommand extends CommandProcessor {
       if (town != null) {
         if (town.canJoin(this.invites.getOrDefault(town.getName(), new HashMap<>()), joiner)) {
           WriteTeam writeTeam = (WriteTeam) town.getTeam("member");
-          TownSender.addMember(this.channels, joiner, town);
-          TeamSender.addMember(this.channels, writeTeam, joiner);
+          StateSender.addMember(this.channels, joiner, town);
+          StateSender.addMember(this.channels, writeTeam, joiner);
           response.setText("Welcome to " + args[0]);
           channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
           if(Bukkit.getPlayer(town.getOwnerUUID()) != null){
@@ -146,7 +145,7 @@ public class TownCommand extends CommandProcessor {
     Town writeTown = manager.getTownObject();
     if (writeTown.isManager(manager)) {
       if (!writeTown.isManager(kicked)) {
-        TownSender.removeMember(channels, kicked, writeTown);
+        StateSender.removeMember(channels, kicked, writeTown);
         response.setText("You kicked " + kicked.getPlayer().getName());
         channels.chat_message.publish(new Message<>(ChatTarget.gamer,manager, response));
         response.setText("You have been kicked from " + writeTown.getName());
@@ -168,14 +167,14 @@ public class TownCommand extends CommandProcessor {
     Gamer kicked = (Gamer) args[0];
     Town writeTown = manager.getTownObject();
     if (writeTown.isOwner(manager)) {
-      TownSender.removeMember(channels, kicked, writeTown);
+      StateSender.removeMember(channels, kicked, writeTown);
       response.setText("You kicked " + kicked.getPlayer().getName());
       channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       return;
     }
     if (writeTown.isManager(manager)) {
       if (!writeTown.isManager(kicked)) {
-        TownSender.removeMember(channels, kicked, writeTown);
+        StateSender.removeMember(channels, kicked, writeTown);
         response.setText("You kicked " + kicked.getPlayer().getName());
         channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       }
@@ -197,7 +196,7 @@ public class TownCommand extends CommandProcessor {
         response.setText("You cannot leave the town you own");
         channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
       } else {
-        TownSender.removeMember(channels, gamer, writeTown);
+        StateSender.removeMember(channels, gamer, writeTown);
         response.setText("You have left " + gamer.getTown());
         channels.chat_message.publish(new Message<>(ChatTarget.gamer,context.getGamer(sender.getUniqueId()), response));
         Gamer owner = context.getGamer(writeTown.getOwnerUUID());

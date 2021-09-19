@@ -25,8 +25,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.C;
 import org.jetlang.fibers.Fiber;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.UUID;
@@ -67,12 +70,32 @@ public class ChatService extends ListenerClient {
           case gamer_land_unclaimed -> this.gamer_land_unclaimed((Gamer) _args[0]);
           case gamer_send_map -> this.gamer_send_map((TextComponent) _args[0], (Gamer) _args[1]);
           case gamer_fail_action -> this.gamer_fail_action((PermissionedAction) _args[0]);
+          case gamer_captcha -> this.gamer_send_captcha((Gamer) _args[0], (String[]) _args[1]);
         }
       }
     }catch(Exception e){
       Bukkit.getLogger().warning("Failed to process ChatMessage" + message.getCommand());
       e.printStackTrace();
     }
+  }
+
+  private void gamer_send_captcha(Gamer gamer, String[] args) {
+    TextComponent combined = new TextComponent("");
+    TextComponent linkEndpoint = new TextComponent("https://google.com/");
+    TextComponent captcha = new TextComponent("");
+    for(String word : args){
+      captcha.addExtra(word + " ");
+    }
+    linkEndpoint.setColor(ChatColor.BLUE);
+    linkEndpoint.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to open link")));
+    linkEndpoint.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, linkEndpoint.getText()));
+    captcha.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, captcha.getText()));
+    captcha.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to copy your captcha")));
+    captcha.setColor(ChatColor.GOLD);
+    combined.addExtra(linkEndpoint);
+    combined.addExtra(" ");
+    combined.addExtra(captcha);
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, combined));
   }
 
   private void gamer_fail_action(PermissionedAction action) {

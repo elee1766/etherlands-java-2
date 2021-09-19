@@ -42,6 +42,7 @@ public class Context {
   public final Map<String, WriteBankRecord> bankRecords = new HashMap<>();
   public final Map<Location, WriteShop> shops = new HashMap<>();
   public final Map<Gamer, Location> gamerLocations = new HashMap<>();
+  public final Map2<Integer, Integer, Integer> captchas = new Map2<>();
 
   public final Map<UUID,Integer> balanceCache = new HashMap<>();
 
@@ -82,6 +83,22 @@ public class Context {
       WriteGamer gamer = new WriteGamer(uuid);
       this.getGamers().put(uuid, gamer);
       couchPersister.update(gamer);
+    }
+  }
+
+  public void context_store_captcha(int a, int b, int c){
+    this.captchas.put(a, b, c);
+  }
+
+  public Map2<Integer, Integer, Integer> getCaptchas(){
+    return this.captchas;
+  }
+
+  public boolean isValidCaptcha(int a, int b, int c){
+    if(this.getCaptchas().get(a,b)==null){
+      return true;
+    }else{
+      return this.getCaptchas().get(a,b)!=c;
     }
   }
 

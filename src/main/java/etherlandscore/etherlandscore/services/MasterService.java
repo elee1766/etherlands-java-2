@@ -93,6 +93,7 @@ public class MasterService extends ServerModule {
             case touch_district -> context.touch_district((Integer) _args[0]);
             case touch_gamer -> context.touch_gamer((UUID) _args[0]);
             case store_gamer_location -> context.storeGamerLocation((Gamer) _args[0], (Location) _args[1]);
+            case context_store_captcha -> context.context_store_captcha((Integer) _args[0], (Integer) _args[1], (Integer) _args[2]);
         }
         if(message.hasChatResponse()){
                 forward_chat_message(message.getChatResponse());

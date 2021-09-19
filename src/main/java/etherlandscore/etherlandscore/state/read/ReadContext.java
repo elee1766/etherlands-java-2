@@ -98,4 +98,12 @@ public class ReadContext {
   public Map<Gamer, Location> getGamerLocations(){return context.getGamerLocations();}
 
   public Location getGamerLocation(Gamer gamer){return context.getGamerLocation(gamer);}
+
+  public Map2<Integer, Integer, Integer> getCaptchas(){
+    return context.getCaptchas();
+  }
+
+  public boolean isValidCaptcha(int a, int b, int c){
+    return context.isValidCaptcha(a, b, c);
+  }
 }

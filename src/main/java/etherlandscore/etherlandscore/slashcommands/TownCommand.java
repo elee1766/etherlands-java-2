@@ -212,11 +212,7 @@ public class TownCommand extends CommandProcessor {
   public void register() {
     CommandAPICommand TownCommand =
         createPlayerCommand("town",SlashCommands.infoLocal,this::infoLocal)
-            .withAliases("t")
             .withPermission("etherlands.public");
-    TownCommand.withSubcommand(
-        createPlayerCommand("help",SlashCommands.help,this::help)
-    );
     TownCommand.withSubcommand(
         createPlayerCommand("create",SlashCommands.create,this::create)
             .withAliases("cre")
@@ -248,7 +244,6 @@ public class TownCommand extends CommandProcessor {
             .withArguments(new StringArgument("town_name"))
             .executesPlayer(this::deleteTown));
 
-    createPlayerCommand("town",SlashCommands.infoLocal,this::infoLocal).register();
     createPlayerCommand("town",SlashCommands.info,this::info)
         .withArguments(new StringArgument("town").replaceSuggestions(info -> getTownStrings())).register();
 

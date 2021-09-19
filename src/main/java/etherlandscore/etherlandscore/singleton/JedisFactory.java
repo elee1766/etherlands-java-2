@@ -1,11 +1,9 @@
 package etherlandscore.etherlandscore.singleton;
 
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.time.Duration;
-import java.util.Set;
 
 public class JedisFactory {
 
@@ -15,7 +13,7 @@ public class JedisFactory {
     final JedisPoolConfig poolConfig = new JedisPoolConfig();
     poolConfig.setMaxTotal(128);
     poolConfig.setMaxIdle(128);
-    poolConfig.setMinIdle(16);
+    poolConfig.setMinIdle(17);
     poolConfig.setTestOnBorrow(true);
     poolConfig.setTestOnReturn(true);
     poolConfig.setTestWhileIdle(true);

@@ -10,6 +10,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class RedisListener extends ListenerClient {
 
@@ -37,11 +38,13 @@ public class RedisListener extends ListenerClient {
         Bukkit.getLogger().info("redislistener: unsubscribed from "+ channel);
       }
     };
+    fiber.schedule(
+        ()->{
     try(Jedis jedis = JedisFactory.getPool().getResource()){
       jedis.subscribe(pubSub,"link");
-      }catch(Exception e ){
+    }catch(Exception e ){
       Bukkit.getLogger().warning("Failed to connect to redis pub/sub!!!");
-      }
+    }},5, TimeUnit.SECONDS);
   }
 
 
@@ -64,7 +67,7 @@ public class RedisListener extends ListenerClient {
             }
           }
         }
-        }catch (Exception ignored){}
+      }catch (Exception ignored){}
     }
     Bukkit.getLogger().info("invalid link information");
   }

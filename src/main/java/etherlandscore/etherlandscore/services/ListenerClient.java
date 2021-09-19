@@ -30,6 +30,7 @@ public class ListenerClient extends ServerModule {
     super(fiber);
     this.channels = channels;
     this.fiber = fiber;
+    this.context = state();
     register();
   }
 

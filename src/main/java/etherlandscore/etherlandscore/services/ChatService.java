@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.UUID;
 
+import static etherlandscore.etherlandscore.services.MasterService.state;
+
 public class ChatService extends ListenerClient {
 
   private final Channels channels;
@@ -234,7 +236,7 @@ public class ChatService extends ListenerClient {
   }
 
   private void district_touch_district(CommandSender player, Integer id) {
-    if(context.getDistrict(id)==null){
+    if(state().getDistrict(id)==null){
       player.sendMessage("District does not exist");
     }else{
       player.sendMessage("District: " + id + "  has been updated");
@@ -296,7 +298,7 @@ public class ChatService extends ListenerClient {
     combined.addExtra(carrot);
     combined.addExtra(messageComp);
     for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
-      WriteGamer gamer = (WriteGamer) context.getGamer(onlinePlayer.getUniqueId());
+      WriteGamer gamer = (WriteGamer) state().getGamer(onlinePlayer.getUniqueId());
       if(gamer.preferences.checkPreference(MessageToggles.GLOBAL_CHAT)){
         onlinePlayer.sendMessage(combined);
       }
@@ -354,7 +356,7 @@ public class ChatService extends ListenerClient {
     local.addExtra(message);
     Player player = gamer.getPlayer();
     for(Player check : Bukkit.getOnlinePlayers()){
-      Location checkLocal = context.getGamerLocation(context.getGamer(check.getUniqueId()));
+      Location checkLocal = state().getGamerLocation(state().getGamer(check.getUniqueId()));
       if(Math.abs(checkLocal.getX()-player.getLocation().getX())<range && Math.abs(checkLocal.getX()-player.getLocation().getX())<range){
         check.sendMessage(local);
       }

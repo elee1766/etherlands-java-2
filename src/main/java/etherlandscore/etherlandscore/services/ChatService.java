@@ -82,7 +82,7 @@ public class ChatService extends ListenerClient {
         }
       if(action.getDistrict() != null){
         TextComponent component = ComponentCreator.ColoredText("You do not have permission to "+action.getFlag().toString()+" in ", ChatColor.WHITE);
-        component.addExtra(ComponentCreator.UUID(action.getGamer().getUuid()));
+        component.addExtra(ComponentCreator.District(action.getDistrict()));
         GamerSender.sendGamerComponent(
             channels,
             action.getGamer(),

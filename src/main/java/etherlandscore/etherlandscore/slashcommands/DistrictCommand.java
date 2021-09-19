@@ -114,18 +114,6 @@ public class DistrictCommand extends CommandProcessor {
     }
   }
 
-  void help(Player sender, Object[] args) {
-    TextComponent help = new TextComponent("======District Help======\n\n");
-    TextComponent delegate = new TextComponent("/district delegate [town_name] -> delegates plot to given town\n\n");
-    TextComponent reclaim = new TextComponent("/district reclaim [DistrictIDs/Nothing] -> reclaims given district from town\n\n");
-    TextComponent info = new TextComponent("/district info [DistrictID/Nothing] -> displays helpful info about the district");
-    help.addExtra(delegate);
-    help.addExtra(reclaim);
-    help.addExtra(info);
-    help.setColor(ChatColor.LIGHT_PURPLE);
-    sender.sendMessage(help);
-  }
-
   void setTeam(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Town town = manager.getTownObject();

@@ -31,23 +31,10 @@ public class GeneralCommand extends CommandProcessor {
     sender.sendMessage(rules);
   }
 
-  void help(Player sender, Object[] args) {
-    TextComponent rules = new TextComponent("====== HELP ======\n\n");
-    rules.addExtra("\\district \\flag \\friend \n\\gamer \\rules \\team \n\\image \\map \\plot \\town");
-    rules.setColor(ChatColor.GOLD);
-    sender.sendMessage(rules);
-  }
-
   public void register() {
     CommandAPICommand RulesCommand =
         createPlayerCommand("rules",SlashCommands.rules,this::rules)
             .withPermission("etherlands.public");
     RulesCommand.register();
-
-    CommandAPICommand HelpCommand =
-        createPlayerCommand("help", SlashCommands.help,this::help)
-            .withPermission("etherlands.public");
-
-    HelpCommand.register();
   }
 }

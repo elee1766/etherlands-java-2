@@ -72,14 +72,15 @@ public class ImageCommand extends CommandProcessor {
     int width = (int) args[2];
     Block placed = sender.getTargetBlock(null, 10);
     BlockFace facing = sender.getTargetBlockFace(10);
-    if(facing==BlockFace.WEST){
-      placed = placed.getWorld().getBlockAt(placed.getX()-1, placed.getY(), placed.getZ());
-    }else if(facing==BlockFace.EAST){
-      placed = placed.getWorld().getBlockAt(placed.getX()+1, placed.getY(), placed.getZ());
-    }else if(facing==BlockFace.NORTH){
-      placed = placed.getWorld().getBlockAt(placed.getX(), placed.getY(), placed.getZ()-1);
-    }else if(facing==BlockFace.SOUTH){
-      placed = placed.getWorld().getBlockAt(placed.getX(), placed.getY(), placed.getZ()+1);
+    switch (facing) {
+      case WEST:
+        placed = placed.getWorld().getBlockAt(placed.getX()-1, placed.getY(), placed.getZ());
+      case EAST:
+        placed = placed.getWorld().getBlockAt(placed.getX()+1, placed.getY(), placed.getZ());
+      case NORTH:
+        placed = placed.getWorld().getBlockAt(placed.getX(), placed.getY(), placed.getZ()-1);
+      case SOUTH:
+        placed = placed.getWorld().getBlockAt(placed.getX(), placed.getY(), placed.getZ()+1);
     }
     sender.sendMessage(slug + " " + item_id + " " + width);
     if(canBuildHere(width, placed, sender, facing)) {

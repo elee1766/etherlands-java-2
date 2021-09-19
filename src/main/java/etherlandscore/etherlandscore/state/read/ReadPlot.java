@@ -26,6 +26,11 @@ public class ReadPlot  {
       return chunk;
     }
 
+  @Override
+  public String toString(){
+    return this.x.toString() + this.z.toString();
+  }
+
     public District getDistrict() {
       if(this.id == null){
         return null;

@@ -33,7 +33,7 @@ public class GeneralCommand extends CommandProcessor {
 
   void help(Player sender, Object[] args) {
     TextComponent rules = new TextComponent("====== HELP ======\n\n");
-    rules.addExtra("\\district \\flag \\friend \n\\gamer \\rules \\group \n\\image \\map \\plot \\team");
+    rules.addExtra("\\district \\flag \\friend \n\\gamer \\rules \\team \n\\image \\map \\plot \\town");
     rules.setColor(ChatColor.GOLD);
     sender.sendMessage(rules);
   }

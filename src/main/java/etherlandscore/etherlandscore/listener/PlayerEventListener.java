@@ -77,8 +77,8 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       if(event.getDamager() instanceof  Player){
         Gamer origin = state().getGamer(event.getDamager().getUniqueId());
         Gamer target = state().getGamer(event.getEntity().getUniqueId());
-        if(origin.hasTeam() & target.hasTeam()){
-          if(origin.getTeam().equals(target.getTeam())){
+        if(origin.hasTown() & target.hasTown()){
+          if(origin.getTown().equals(target.getTown())){
             event.setDamage(0);
             event.setCancelled(true);
           }
@@ -218,30 +218,30 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       if (context.getDistrict(fromx, fromz) == null) {
         if (context.getDistrict(tox, toz) != null) {
           District d = context.getDistrict(tox, toz);
-          String team_name = "none";
-          if (d.getTeamObject() != null) {
-            team_name = d.getTeamObject().getName();
+          String town_name = "none";
+          if (d.getTownObject() != null) {
+            town_name = d.getTownObject().getName();
           }
-          event.getPlayer().sendTitle("Entering District: " + d.getIdInt(), "Managed by team: " + team_name, 10, 60, 10);
+          event.getPlayer().sendTitle("Entering District: " + d.getIdInt(), "Managed by town: " + town_name, 10, 60, 10);
         }
       } else {
         if (context.getDistrict(tox, toz) != null) {
           District d = context.getDistrict(tox, toz);
           if (d != context.getDistrict(fromx, fromz)) {
-            String team_name = "none";
-            if (d.getTeamObject() != null) {
-              team_name = d.getTeamObject().getName();
+            String town_name = "none";
+            if (d.getTownObject() != null) {
+              town_name = d.getTownObject().getName();
             }
-            TextComponent move = new TextComponent("Moving to District: " + d.getIdInt() + " Managed by team: " + team_name);
+            TextComponent move = new TextComponent("Moving to District: " + d.getIdInt() + " Managed by town: " + town_name);
             channels.chat_message.publish(new Message<>(ChatTarget.gamer,gamer, move));
           }
         } else {
           District d = context.getDistrict(fromx, fromz);
-          String team_name = "none";
-          if (d.getTeamObject() != null) {
-            team_name = d.getTeamObject().getName();
+          String town_name = "none";
+          if (d.getTownObject() != null) {
+            town_name = d.getTownObject().getName();
           }
-          event.getPlayer().sendTitle("Leaving District: " + d.getIdInt(), "Managed by team: " + team_name, 10, 60, 10);
+          event.getPlayer().sendTitle("Leaving District: " + d.getIdInt(), "Managed by town: " + town_name, 10, 60, 10);
         }
       }
     }

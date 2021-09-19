@@ -33,7 +33,7 @@ public class Context {
 
   public final Map<UUID, WriteGamer> gamers = new HashMap<>();
   public final Map<Integer, WriteDistrict> districts = new HashMap<>();
-  public final Map<String, WriteTeam> teams = new HashMap<>();
+  public final Map<String, WriteTown> towns = new HashMap<>();
   public final Map<String, UUID> linked = new HashMap<>();
   public final Map<String, WriteNFT> nftUrls = new HashMap<>();
   public final Map2<String,String,WriteNFT> nfts = new Map2<>();
@@ -225,9 +225,9 @@ public class Context {
     couchPersister.update(district);
   }
 
-  public void district_set_group_permission(
-      WriteDistrict district, WriteGroup writeGroup, AccessFlags flag, FlagValue value) {
-    district.setGroupPermission(writeGroup, flag, value);
+  public void district_set_team_permission(
+      WriteDistrict district, WriteTeam writeTeam, AccessFlags flag, FlagValue value) {
+    district.setTeamPermission(writeTeam, flag, value);
     couchPersister.update(district);
   }
 
@@ -294,12 +294,12 @@ public class Context {
     return districts;
   }
 
-  public Team getTeam(String team) {
-    return teams.get(team);
+  public Town getTown(String town) {
+    return towns.get(town);
   }
 
-  public Map<String, WriteTeam> getTeams() {
-    return teams;
+  public Map<String, WriteTown> getTowns() {
+    return towns;
   }
 
 
@@ -338,113 +338,112 @@ public class Context {
     return out;
   }
 
-  public void group_add_gamer(WriteGroup group, WriteGamer gamer) {
-    gamer.addGroup(group);
-    group.addMember(gamer);
-    couchPersister.update((WriteTeam) group.getTeamObject());
-    couchPersister.update(gamer);
-  }
-
-  public void group_remove_gamer(WriteGroup group, WriteGamer gamer) {
-    group.removeMember(gamer);
-    gamer.removeGroup(group.getName());
-    couchPersister.update((WriteTeam) group.getTeamObject());
-    couchPersister.update(gamer);
-  }
-
-  public void group_set_priority(WriteGroup group, Integer b) {
-    group.setPrioritySafe(b);
-    couchPersister.update((WriteTeam) group.getTeamObject());
-  }
-
-  public void district_reclaim_district(WriteDistrict district) {
-    WriteTeam team = (WriteTeam) getTeam(district.getTeam());
-    if(team!=null) {
-      System.out.println("updating team");
-      team.deleteDistrict(district.getIdInt());
-    }
-    district.removeTeam();
-    couchPersister.update(district);
-    couchPersister.update(team);
-  }
-
   public void team_add_gamer(WriteTeam team, WriteGamer gamer) {
-    team.addMember(gamer);
-    gamer.setTeam(team.getName());
-    couchPersister.update(team);
-    couchPersister.update(gamer);
-  }
-
-  public void team_create_group(WriteTeam team, String name) {
-    team.createGroup(name);
-    couchPersister.update(team);
-  }
-
-  public void team_create_team(WriteGamer gamer, String name) {
-    WriteTeam team = new WriteTeam(gamer, name);
-    if (!this.getTeams().containsKey(name)) {
-      this.getTeams().put(name, team);
-      gamer.setTeam(team.getName());
+      gamer.addTeam(team);
+      team.addMember(gamer);
+      couchPersister.update((WriteTown) team.getTownObject());
       couchPersister.update(gamer);
-      couchPersister.update(team);
-      System.out.println("Team created");
-      return;
-    }
-    System.out.println("Team failed to create");
-  }
-
-  public void team_delegate_district(WriteTeam team, WriteDistrict district) {
-    district_reclaim_district(district);
-    team.addDistrict(district);
-    district.setTeam(team.getName());
-    district.setDefaults();
-    couchPersister.update(team);
-    couchPersister.update(district);
-  }
-
-  public void team_delete_district(WriteTeam team, WriteDistrict writeDistrict) {
-    team.deleteDistrict(writeDistrict.getIdInt());
-    couchPersister.update(team);
-  }
-
-  public void team_delete_group(WriteTeam team, WriteGroup writeGroup) {
-    for (UUID member : team.getMembers()) {
-      WriteGamer gamer = getGamer(member);
-      gamer.setTeam("");
-      couchPersister.update(gamer);
-    }
-    WriteGamer gamer = getGamer(team.getOwnerUUID());
-    gamer.setTeam("");
-    team.deleteGroup(writeGroup.getName());
-    couchPersister.update(team);
-    couchPersister.update(gamer);
-  }
-
-  public void team_delete_team(WriteTeam writeTeam) {
-    for (UUID member : writeTeam.getMembers()) {
-      WriteGamer gamer = getGamer(member);
-      gamer.setTeam("");
-      gamer.clearGroups();
-      couchPersister.update(gamer);
-    }
-    WriteGamer gamer = getGamer(writeTeam.getOwnerUUID());
-    gamer.setTeam("");
-    gamer.clearGroups();
-    couchPersister.update(gamer);
-    for (District d: writeTeam.getDistrictObjects()) {
-      WriteDistrict wd = (WriteDistrict) getDistrict(d.getIdInt());
-      wd.removeTeam();
-      couchPersister.update(wd);
-    }
-    couchPersister.delete(writeTeam);
-    teams.remove(writeTeam.getName());
   }
 
   public void team_remove_gamer(WriteTeam team, WriteGamer gamer) {
-    team.removeMember(gamer);
-    gamer.setTeam("");
-    gamer.clearGroups();
-    couchPersister.update(team);
+      team.removeMember(gamer);
+      gamer.removeTeam(team.getName());
+    couchPersister.update((WriteTown) team.getTownObject());
+    couchPersister.update(gamer);
+  }
+
+  public void team_set_priority(WriteTeam team, Integer b) {
+    team.setPrioritySafe(b);
+    couchPersister.update((WriteTown) team.getTownObject());
+  }
+
+  public void district_reclaim_district(WriteDistrict district) {
+    WriteTown town = (WriteTown) getTown(district.getTown());
+    if(town!=null) {
+      town.deleteDistrict(district.getIdInt());
+    }
+    district.removeTown();
+    couchPersister.update(district);
+    couchPersister.update(town);
+  }
+
+  public void town_add_gamer(WriteTown town, WriteGamer gamer) {
+    town.addMember(gamer);
+    gamer.setTown(town.getName());
+    couchPersister.update(town);
+    couchPersister.update(gamer);
+  }
+
+  public void town_create_team(WriteTown town, String name) {
+    town.createTeam(name);
+    couchPersister.update(town);
+  }
+
+  public void town_create_town(WriteGamer gamer, String name) {
+    WriteTown town = new WriteTown(gamer, name);
+    if (!this.getTowns().containsKey(name)) {
+      this.getTowns().put(name, town);
+      gamer.setTown(town.getName());
+      couchPersister.update(gamer);
+      couchPersister.update(town);
+      System.out.println("Town created");
+      return;
+    }
+    System.out.println("Town failed to create");
+  }
+
+  public void town_delegate_district(WriteTown town, WriteDistrict district) {
+    district_reclaim_district(district);
+    town.addDistrict(district);
+    district.setTown(town.getName());
+    district.setDefaults();
+    couchPersister.update(town);
+    couchPersister.update(district);
+  }
+
+  public void town_delete_district(WriteTown town, WriteDistrict writeDistrict) {
+    town.deleteDistrict(writeDistrict.getIdInt());
+    couchPersister.update(town);
+  }
+
+  public void town_delete_team(WriteTown town, WriteTeam writeTeam) {
+    for (UUID member : town.getMembers()) {
+      WriteGamer gamer = getGamer(member);
+      gamer.setTown("");
+      couchPersister.update(gamer);
+    }
+    WriteGamer gamer = getGamer(town.getOwnerUUID());
+    gamer.setTown("");
+    town.deleteTeam(writeTeam.getName());
+    couchPersister.update(town);
+    couchPersister.update(gamer);
+  }
+
+  public void town_delete_town(WriteTown writeTown) {
+    for (UUID member : writeTown.getMembers()) {
+      WriteGamer gamer = getGamer(member);
+      gamer.setTown("");
+      gamer.clearTeams();
+      couchPersister.update(gamer);
+    }
+    WriteGamer gamer = getGamer(writeTown.getOwnerUUID());
+    gamer.setTown("");
+    gamer.clearTeams();
+    couchPersister.update(gamer);
+    for (District d: writeTown.getDistrictObjects()) {
+      WriteDistrict wd = (WriteDistrict) getDistrict(d.getIdInt());
+      wd.removeTown();
+      couchPersister.update(wd);
+    }
+    couchPersister.delete(writeTown);
+    towns.remove(writeTown.getName());
+  }
+
+  public void town_remove_gamer(WriteTown town, WriteGamer gamer) {
+    town.removeMember(gamer);
+    gamer.setTown("");
+    gamer.clearTeams();
+    couchPersister.update(town);
     couchPersister.update(gamer);
   }
 

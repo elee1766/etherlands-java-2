@@ -24,7 +24,7 @@ public class ChatCommand extends CommandProcessor {
     register();
   }
 
-  void toggleTeam(Player sender, Object[] args) {
+  void toggleTown(Player sender, Object[] args) {
     WriteGamer gamer = (WriteGamer) context.getGamer(sender.getUniqueId());
     GamerSender.setMessageToggle(channels, MessageToggles.LOCAL_CHAT, ToggleValues.DISABLED, gamer);
     GamerSender.setMessageToggle(channels, MessageToggles.TEAM_CHAT, ToggleValues.ENABLED, gamer);
@@ -52,7 +52,7 @@ public class ChatCommand extends CommandProcessor {
   }
 
   void help(Player sender, Object[] args) {
-    TextComponent help = new TextComponent("===CHAT TOGGLES===\n/chat toggle global\n/chat toggle team");
+    TextComponent help = new TextComponent("===CHAT TOGGLES===\n/chat toggle global\n/chat toggle town");
     help.setColor(ChatColor.GOLD);
     channels.chat_message.publish(new Message<>(ChatTarget.gamer, context.getGamer(sender.getUniqueId()), help));
   }
@@ -64,15 +64,15 @@ public class ChatCommand extends CommandProcessor {
         new CommandAPICommand("toggle");
     CommandAPICommand GlobalCommand =
         createPlayerCommand("global", SlashCommands.toggleGlobal,this::toggleGlobal);
-    CommandAPICommand TeamChat =
-        createPlayerCommand("team", SlashCommands.toggleTeam,this::toggleTeam);
+    CommandAPICommand TownChat =
+        createPlayerCommand("town", SlashCommands.toggleTown,this::toggleTown);
     CommandAPICommand LocalChat =
         createPlayerCommand("local", SlashCommands.toggleLocal,this::toggleLocal);
     CommandAPICommand GlobalChat =
         createPlayerCommand("global", SlashCommands.sendGlobal,this::sendGlobal);
 
     ToggleCommand.withSubcommand(GlobalCommand);
-    ChatCommand.withSubcommand(TeamChat);
+    ChatCommand.withSubcommand(TownChat);
     ChatCommand.withSubcommand(ToggleCommand);
     ChatCommand.withSubcommand(LocalChat);
     ChatCommand.withSubcommand(GlobalChat);

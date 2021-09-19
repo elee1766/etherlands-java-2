@@ -9,8 +9,8 @@ import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.singleton.RedisGetter;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.read.Town;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
 import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
@@ -50,15 +50,16 @@ public class ChatService extends ListenerClient {
           case global -> this.send_global((String) _args[0], (Gamer) _args[1]);
           case local -> this.send_local((Gamer) _args[0], (Integer) _args[1], (String) _args[2], (Gamer) _args[3]);
           case gamer -> this.send_gamer((Gamer) _args[0], (TextComponent) _args[1]);
+          case town_delegate_district -> this.town_delegate_district((District) _args[0], (Town) _args[1]);
           case gamer_base -> this.send_gamer_base((Gamer) _args[0], (BaseComponent[]) _args[1]);
-          case team -> this.send_team((Team) _args[0], (String) _args[1], (Gamer) _args[2]);
+          case town -> this.send_town((Town) _args[0], (String) _args[1], (Gamer) _args[2]);
           case gamer_add_friend_response -> this.gamer_add_friend_response((Gamer) _args[0], (Gamer) _args[1]);
-          case gamer_district_reclaim -> this.gamer_district_reclaim((Player) _args[0], (District) _args[1]);
+          case gamer_district_reclaim -> this.gamer_district_reclaim((Gamer) _args[0], (District) _args[1]);
           case district_touch_district -> this.district_touch_district((CommandSender) _args[0], (Integer) _args[1]);
           case gamer_district_info -> this.gamer_district_info((Gamer) _args[0], (District) _args[1] );
-          case gamer_team_info -> this.gamer_team_info((Gamer) _args[0], (Team) _args[1] );
+          case gamer_town_info -> this.gamer_town_info((Gamer) _args[0], (Town) _args[1] );
           case gamer_gamer_info -> this.gamer_gamer_info((Gamer) _args[0], (Gamer) _args[1] );
-          case gamer_group_info -> this.gamer_group_info((Gamer) _args[0], (Group) _args[1] );
+          case gamer_team_info -> this.gamer_team_info((Gamer) _args[0], (Team) _args[1] );
           case gamer_land_unclaimed -> this.gamer_land_unclaimed((Gamer) _args[0]);
           case gamer_send_map -> this.gamer_send_map((TextComponent) _args[0], (Gamer) _args[1]);
         }
@@ -69,6 +70,25 @@ public class ChatService extends ListenerClient {
     }
   }
 
+  private void town_delegate_district(District district, Town town) {
+    Gamer gamer = district.getOwnerObject();
+    if(gamer != null && town != null){
+      if(district.getTown().equals(town.getName())){
+        TextComponent prefix = ComponentCreator.ColoredText("District ", ChatColor.WHITE);
+        TextComponent id = ComponentCreator.District(district);
+        TextComponent suffix = ComponentCreator.ColoredText(" has been delegated to ", ChatColor.WHITE);
+        TextComponent townname = ComponentCreator.Town(town.getName());
+        prefix.addExtra(id);
+        prefix.addExtra(suffix);
+        prefix.addExtra(townname);
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, prefix));
+      }else{
+        TextComponent message = ComponentCreator.ColoredText("Error delegating district!",ChatColor.YELLOW);
+        channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, message));
+      }
+    }
+  }
+
   private void gamer_send_map(TextComponent map, Gamer gamer) {
     Player player = gamer.getPlayer();
     if(player != null){
@@ -76,38 +96,39 @@ public class ChatService extends ListenerClient {
     }
   }
 
-  private void gamer_group_info(Gamer gamer, Group group) {
-    if(group == null){
-      TextComponent message = ComponentCreator.ColoredText("Group not found",ChatColor.YELLOW);
+  private void gamer_team_info(Gamer gamer, Team team) {
+    if(team == null){
+      TextComponent message = ComponentCreator.ColoredText("Team not found",ChatColor.YELLOW);
       channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, message));
       return;
     }
     MessageCreator builder = new MessageCreator();
-    TextComponent title = ComponentCreator.Group(group.getName());
+    TextComponent title = ComponentCreator.Team(team.getName());
     builder.addHeader(title);
-    builder.addField("group",ComponentCreator.Group(group.getName()));
-    builder.addField("team",ComponentCreator.Team(group.getTeamObject().getName()));
-    builder.addField("members",ComponentCreator.UUIDs(group.getMembers()));
-    builder.addField("priority",ComponentCreator.ColoredText(group.getPriority().toString(), ChatColor.GRAY));
+    builder.addField("team",ComponentCreator.Team(team.getName()));
+    builder.addField("town",ComponentCreator.Town(team.getTownObject().getName()));
+    Bukkit.getLogger().info("team size:" + team.getMembers().size());
+    builder.addField("members",ComponentCreator.UUIDs(team.getMembers()));
+    builder.addField("priority",ComponentCreator.ColoredText(team.getPriority().toString(), ChatColor.GRAY));
     builder.addFooter();
     builder.finish();
     channels.chat_message.publish(new Message<>(ChatTarget.gamer_base, gamer, builder.getMessage()));
   }
 
-  private void gamer_team_info(Gamer gamer, Team target) {
+  private void gamer_town_info(Gamer gamer, Town target) {
     if(target == null){
-      TextComponent message = ComponentCreator.ColoredText("You are not in a team",ChatColor.YELLOW);
+      TextComponent message = ComponentCreator.ColoredText("You are not in a town",ChatColor.YELLOW);
       channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, message));
       return;
     }
     MessageCreator builder = new MessageCreator();
-    TextComponent title = ComponentCreator.Team(target.getName());
+    TextComponent title = ComponentCreator.Town(target.getName());
     builder.addHeader(title);
-    builder.addField("team",ComponentCreator.Team(target.getName()));
+    builder.addField("town",ComponentCreator.Town(target.getName()));
     builder.addField("owner",ComponentCreator.UUID(target.getOwnerUUID(),ChatColor.GOLD));
     builder.addField("members",ComponentCreator.UUIDs(target.getMembers()));
     builder.addField("districts",ComponentCreator.Districts(target.getDistrictObjects()));
-    builder.addField("groups",ComponentCreator.Groups(target.getGroups().keySet()));
+    builder.addField("teams",ComponentCreator.Teams(target.getTeams().keySet()));
     builder.finish();
 
     channels.chat_message.publish(new Message<>(ChatTarget.gamer_base, gamer, builder.getMessage()));
@@ -124,9 +145,9 @@ public class ChatService extends ListenerClient {
     builder.addHeader(title);
     builder.addField("nickname",ComponentCreator.UUID(target.getUuid(),ChatColor.GOLD));
     builder.addField("address",ComponentCreator.Address(target.getAddress()));
-    if(target.hasTeam()){
-      builder.addField("team",ComponentCreator.Team(target.getTeam()));
-      builder.addField("groups",ComponentCreator.Groups(target.getGroups()));
+    if(target.hasTown()){
+      builder.addField("town",ComponentCreator.Town(target.getTown()));
+      builder.addField("teams",ComponentCreator.Teams(target.getTeams()));
     }
     if(target.getFriends().size() > 0){
       builder.addField("friends",ComponentCreator.UUIDs(target.getFriends()));
@@ -136,7 +157,7 @@ public class ChatService extends ListenerClient {
       if(gamer.hasFriend(target.getUuid())){
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend remove "+target.getName()));
         component.setColor(ChatColor.DARK_RED);
-        builder.addField(ComponentCreator.ColoredText("remove friend:", ChatColor.GRAY),component);
+        builder.addField(ComponentCreator.ColoredText("remove friend", ChatColor.GRAY),component);
       }else{
         component.setColor(ChatColor.GREEN);
         component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/friend add "+target.getName()));
@@ -164,14 +185,14 @@ public class ChatService extends ListenerClient {
     builder.addField("nickname",ComponentCreator.ColoredText(district.getNickname(),ChatColor.DARK_GREEN));
     builder.addField("owner",ComponentCreator.UUID(district.getOwnerUUID(),ChatColor.GOLD));
     builder.addField("address",ComponentCreator.Address(district.getOwnerAddress()));
-    if(district.hasTeam()){
-      builder.addField("team",ComponentCreator.Team(district.getTeam()));
-      LinkedHashSet<String> all_groups = new LinkedHashSet<>();
-      all_groups.add("member");
-      all_groups.add("outsiders");
-      all_groups.addAll(district.getTeamObject().getGroups().keySet());
-      all_groups.remove("manager");
-      builder.addBody("group permissions",ComponentCreator.GroupPermissions(district.getGroupPermissionMap(),district.getIdInt(),all_groups.stream().toList()));
+    if(district.hasTown()){
+      builder.addField("town",ComponentCreator.Town(district.getTown()));
+      LinkedHashSet<String> all_teams = new LinkedHashSet<>();
+      all_teams.add("member");
+      all_teams.add("outsiders");
+      all_teams.addAll(district.getTownObject().getTeams().keySet());
+      all_teams.remove("manager");
+      builder.addBody("team permissions",ComponentCreator.TeamPermissions(district.getTeamPermissionMap(),district.getIdInt(),all_teams.stream().toList()));
       if(district.getGamerPermissionMap().getMap().size() > 0){
         builder.addBody("gamer permissions",ComponentCreator.GamerPermissions(district.getGamerPermissionMap(),district.getIdInt()));
       }
@@ -191,12 +212,15 @@ public class ChatService extends ListenerClient {
     }
   }
 
-  private void gamer_district_reclaim(Player arg, District district) {
-    if(district.hasTeam()){
-      arg.sendMessage("District " + district.getNickname() + " has been reclaimed");
+  private void gamer_district_reclaim(Gamer gamer, District district) {
+    TextComponent message;
+    if(!district.hasTown()){
+      message= ComponentCreator.ColoredText("You have reclaimed ",ChatColor.WHITE);
+      message.addExtra(ComponentCreator.District(district));
     }else{
-      arg.sendMessage("Reclaim has failed");
+      message= ComponentCreator.ColoredText("Failed to reclaim district",ChatColor.RED);
     }
+    channels.chat_message.publish(new Message<>(ChatTarget.gamer, gamer, message));
   }
 
   private void gamer_add_friend_response(Gamer arg, Gamer arg1) {
@@ -216,18 +240,18 @@ public class ChatService extends ListenerClient {
     name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+arg.getPlayer().getName()));
     TextComponent at = new TextComponent("@");
     at.setColor(ChatColor.RED);
-    TextComponent team = new TextComponent("");
+    TextComponent town = new TextComponent("");
     name.setColor(ChatColor.WHITE);
     prefix.setColor(ChatColor.GOLD);
     combined.addExtra(prefix);
     combined.addExtra(name);
-    if(arg.hasTeam()){
-      team.addExtra(arg.getTeam());
-      team.setColor(ChatColor.DARK_GRAY);
-      team.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
-      team.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+arg.getTeam()));
+    if(arg.hasTown()){
+      town.addExtra(arg.getTown());
+      town.setColor(ChatColor.DARK_GRAY);
+      town.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
+      town.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/town info "+arg.getTown()));
       combined.addExtra(at);
-      combined.addExtra(team);
+      combined.addExtra(town);
     }
     TextComponent messageComp = new TextComponent(message);
     TextComponent carrot;
@@ -249,20 +273,20 @@ public class ChatService extends ListenerClient {
       }
     }
   }
-  private void send_team(Team team, String message, Gamer arg){
-    if(team == null){
-      arg.getPlayer().sendMessage("you are not in a team");
+  private void send_town(Town town, String message, Gamer arg){
+    if(town == null){
+      arg.getPlayer().sendMessage("you are not in a town");
       return;
     }
-    Bukkit.getLogger().info("Sending team message");
-    String team_name = team.getName();
-    if(team_name.length()>12){
-      team_name = team_name.substring(0, 11);
+    Bukkit.getLogger().info("Sending town message");
+    String town_name = town.getName();
+    if(town_name.length()>12){
+      town_name = town_name.substring(0, 11);
     }
     TextComponent combined = new TextComponent("");
-    TextComponent prefix = new TextComponent("["+ team_name +"]");
+    TextComponent prefix = new TextComponent("["+ town_name +"]");
     prefix.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
-    prefix.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+team.getName()));
+    prefix.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/town info "+town.getName()));
     TextComponent name = new TextComponent(arg.getPlayer().getName());
     name.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("[Click to see info]")));
     name.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+arg.getPlayer().getName()));
@@ -283,11 +307,11 @@ public class ChatService extends ListenerClient {
     }
     combined.addExtra(carrot);
     combined.addExtra(messageComp);
-    Player owner = Bukkit.getPlayer(team.getOwnerUUID());
+    Player owner = Bukkit.getPlayer(town.getOwnerUUID());
     if(owner!=null){
       owner.sendMessage(combined);
     }
-    for (UUID member : team.getMembers()) {
+    for (UUID member : town.getMembers()) {
       Player player = Bukkit.getServer().getPlayer(member);
       if(player != null){
         player.sendMessage(combined);

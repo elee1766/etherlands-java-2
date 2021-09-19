@@ -49,7 +49,7 @@ public class CommandProcessor extends ListenerClient {
     this.executor_map.put(command,executor);
   }
 
-  private void runAsync(SlashCommands name, CommandSender sender, Object[] args){
+  protected void runAsync(SlashCommands name, CommandSender sender, Object[] args){
     this.execution_channel.publish(new CommandParameters(name, sender, args));
   }
 

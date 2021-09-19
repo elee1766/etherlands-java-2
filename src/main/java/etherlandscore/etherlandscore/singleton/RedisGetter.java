@@ -76,17 +76,40 @@ public class RedisGetter {
   public static String GetNameOfDistrict(Integer key){
     String name = "#" + key.toString();
     try (Jedis jedis = JedisFactory.getPool().getResource()) {
-      name = jedis.get("district:"+key.toString()+":name");
+      name = jedis.hget("district_name",key.toString());
     }catch (Exception ignored){
       return name;
     }
     return name;
   }
 
+  public static Set<String> GetDistrictNames(){
+    Set<String> output = new HashSet<>();
+    try (Jedis jedis = JedisFactory.getPool().getResource()) {
+      output.addAll(jedis.hkeys("name_district"));
+    }catch (Exception ignored){
+      return output;
+    }
+    return output;
+  }
+  public static Set<Integer> GetDistricts(){
+    Set<Integer> output = new HashSet<>();
+    try (Jedis jedis = JedisFactory.getPool().getResource()) {
+      for (String district_name : jedis.hkeys("district_name")) {
+        output.add(Integer.parseInt(district_name));
+      }
+    }catch (Exception ignored){
+      return output;
+    }
+    return output;
+  }
+
+
+
   public static Integer GetDistrictOfName(String name){
     int districtId = 0;
     try (Jedis jedis = JedisFactory.getPool().getResource()) {
-      districtId = Integer.parseInt(jedis.get("name:"+name+":district"));
+      districtId = Integer.parseInt(jedis.hget("name_district",name));
     } catch (Exception e){
       return null;
     }

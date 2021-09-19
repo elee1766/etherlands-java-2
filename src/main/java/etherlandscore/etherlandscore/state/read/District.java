@@ -14,7 +14,7 @@ public interface District extends Comparable<District> {
 
   FlagValue checkFlags(AccessFlags flag, Gamer gamer, FlagValue def);
 
-  FlagValue checkFlags(AccessFlags flag, Group writeGroup,FlagValue def);
+  FlagValue checkFlags(AccessFlags flag, Team writeTeam, FlagValue def);
 
   @Override
   int compareTo(District r);
@@ -32,23 +32,23 @@ public interface District extends Comparable<District> {
 
   Integer getPriority();
 
-  String getTeam();
+  String getTown();
 
-  Team getTeamObject();
+  Town getTownObject();
 
   UUID getOwnerUUID();
 
   Map2<UUID, AccessFlags, FlagValue> getGamerPermissionMap();
 
-  Map2<String, AccessFlags, FlagValue> getGroupPermissionMap();
+  Map2<String, AccessFlags, FlagValue> getTeamPermissionMap();
 
-  boolean hasTeam();
+  boolean hasTown();
 
   boolean isOwner(Gamer gamer);
 
   FlagValue readGamerPermission(Gamer gamer, AccessFlags flag);
 
-  FlagValue readGroupPermission(Group writeGroup, AccessFlags flag);
+  FlagValue readTeamPermission(Team writeTeam, AccessFlags flag);
 
   Integer getIdInt();
 

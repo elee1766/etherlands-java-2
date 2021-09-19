@@ -19,17 +19,17 @@ public interface Gamer {
 
   Set<UUID> getFriends();
 
-  Group getGroupObject(String name);
+  Team getTeamObject(String name);
 
-  Set<String> getGroups();
+  Set<String> getTeams();
 
   Player getPlayer();
 
   UserPreferences getPreferences();
 
-  String getTeam();
+  String getTown();
 
-  Team getTeamObject();
+  Town getTownObject();
 
   String getName();
 
@@ -37,7 +37,7 @@ public interface Gamer {
 
   boolean hasFriend(UUID player);
 
-  boolean hasTeam();
+  boolean hasTown();
 
   @Override
   int hashCode();

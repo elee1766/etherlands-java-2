@@ -18,9 +18,6 @@ public class Message<T> {
     return command;
   }
 
-  public void setChatResponse(Message<ChatTarget> chatResponse) {
-    this.chatResponse = chatResponse;
-  }
   public Message<T> setChatResponse(ChatTarget target, Object...args){
     this.chatResponse = new Message<>(target, args);
     return this;

@@ -3,101 +3,57 @@ package etherlandscore.etherlandscore.state.write;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
-import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
-import org.bukkit.Bukkit;
+import etherlandscore.etherlandscore.state.read.Town;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
-import java.time.Instant;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class WriteTeam extends CouchDocument implements Team {
+public class WriteTeam implements Team {
   private final String name;
   private Set<UUID> members;
-  private Set<Integer> plots;
-  private Set<Integer> districts;
-  private Map<String, WriteGroup> groups;
-  private UUID owner;
 
-  @JsonProperty("_id")
-  private String _id;
-
-  @JsonCreator
-  public WriteTeam(@JsonProperty("_id") String name){
-    this.name = name;
+  public void setMembers(Set<UUID> members) {
+    this.members = members;
   }
 
-  public WriteTeam(Gamer gamer,  String name) {
-    this._id = name;
+  @JsonProperty("default")
+  private final boolean isDefault;
+
+  private String town;
+  private Integer priority;
+
+  @JsonCreator
+  public WriteTeam(@JsonProperty("town") String town, @JsonProperty("name") String name, @JsonProperty("priority") Integer priority, @JsonProperty("default") boolean isDefault) {
     this.name = name;
-    this.owner = gamer.getUuid();
+    this.town = town;
     this.members = new HashSet<>();
-    this.plots = new HashSet<>();
-    this.districts = new HashSet<>();
-    this.groups = new HashMap<>();
-    this.groups.put("outsiders", new WriteGroup(this, "outsiders", -5, true));
-    this.groups.put("member", new WriteGroup(this, "member", -1, true));
-    this.groups.put("manager", new WriteGroup(this, "manager", 50, true));
+    this.priority = priority;
+    this.isDefault = isDefault;
+  }
+
+  public WriteTeam(Town writeTown, String name, Integer priority, boolean isDefault) {
+    this.name = name;
+    this.town = writeTown.getName();
+    this.priority = priority;
+    this.isDefault = isDefault;
+    this.members = new HashSet<>();
   }
 
   public void addMember(Gamer gamer) {
-    members.add(gamer.getUuid());
-  }
-
-  public void addDistrict(WriteDistrict district) {
-    this.districts.add(district.getIdInt());
+    this.members.add(gamer.getUuid());
   }
 
   @Override
-  public boolean canAction(Gamer actor, Gamer receiver) {
-    if (isManager(actor) && !isManager(receiver)) {
-      return true;
-    } else return isOwner(actor);
-  }
-
-  @Override
-  public boolean canInvite(Gamer inviter) {
-    return inviter.getUuid().equals(this.owner);
-  }
-
-  public boolean canJoin(Map<UUID, Long> invites, Gamer joiner) {
-    Long invite = invites.get(joiner.getUuid());
-    if (invite != null) {
-      Bukkit.getLogger().info(invite.toString());
-      return invite > Instant.now().getEpochSecond();
-    }
-    return false;
-  }
-
-  public void createGroup(String name) {
-    if (!this.groups.containsKey(name)) {
-      this.groups.put(name, new WriteGroup(this, name, 1, false));
-    }
-  }
-
-  public void deleteDistrict(Integer id) {
-    this.districts.remove(id);
-  }
-
-  public void deleteGroup(String name) {
-    if (groups.containsKey(name)) {
-      if (!groups.get(name).isDefault()) {
-        groups.remove(name);
-      }
-    }
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Team team = (Team) o;
-    return getName().equals(team.getName());
+  public int compareTo(@NotNull Team o) {
+    return this.getPriority().compareTo(o.getPriority());
   }
 
   @Override
@@ -111,64 +67,27 @@ public class WriteTeam extends CouchDocument implements Team {
   }
 
   @Override
-  @JsonIgnore
-  public District getDistrict(Integer x) {
-    return state().getDistrict(x);
-  }
-
-
-  @Override
-  @JsonIgnore
-  public Set<District> getDistrictObjects() {
-    Set<District> output = new HashSet<>();
-    for (Integer id : getDistricts()) {
-      District district = state().getDistrict(id);
-      if(district != null){
-        output.add(district);
-      }
-    }
-    return output;
+  public String toString(){
+    return this.getName();
   }
 
   @Override
-  public Set<Integer> getDistricts() {
-    return districts;
-  }
-  public void setDistricts(Set<Integer> districts) {
-    this.districts = districts;
-  }
-
-  @Override
-  public Group getGroup(String name) {
-    return groups.get(name);
-  }
-
-  @Override
-  public Map<String, Group> getGroups() {
-    return (Map) groups;
-  }
-
-  public void setGroups(Map<String, WriteGroup> groups) {
-    this.groups = groups;
-  }
-
-  @JsonProperty("_id")
-  public String getId() {
-    return this.name;
-  }
-
-  @JsonProperty("_id")
-  public void setId(String string) {
-    this._id = string;
+  @JsonProperty("default")
+  public boolean getDefault() {
+    return isDefault;
   }
 
   @Override
   public Set<UUID> getMembers() {
+    if (isDefault()) {
+      if (getName().equals("member")) {
+        return this.getTownObject().getMembers();
+      }
+      if (getName().equals("outsiders")) {
+        return new HashSet<>();
+      }
+    }
     return members;
-  }
-
-  public void setMembers(Set<UUID> members) {
-    this.members = members;
   }
 
   @Override
@@ -176,68 +95,57 @@ public class WriteTeam extends CouchDocument implements Team {
     return name;
   }
 
-  public UUID getOwner() {
-    return owner;
+  @Override
+  public Integer getPriority() {
+    return priority;
   }
 
-  public void setOwner(UUID owner) {
-    this.owner = owner;
+  public void setPriority(Integer newPriority) {
+    this.priority = newPriority;
+  }
+
+  public String getTown() {
+    return town;
+  }
+
+  public void setTown(String town) {
+    this.town = town;
   }
 
   @Override
   @JsonIgnore
-  public String getOwnerServerName() {
-    return Bukkit.getPlayer(this.owner).getName();
+  public Town getTownObject() {
+    return state().getTown(this.town);
   }
 
   @Override
-  @JsonIgnore
-  public UUID getOwnerUUID() {
-    return this.owner;
+  public boolean hasMember(Player player) {
+    return getMembers().contains(player.getUniqueId());
   }
 
   @Override
-  public Set<Integer> getPlots() {
-    return plots;
-  }
-
-  public void setPlots(Set<Integer> plots) {
-    this.plots = plots;
+  public boolean isDefault() {
+    return this.isDefault;
   }
 
   @Override
-  public int hashCode() {
-    return getName().hashCode();
-  }
-
-  @Override
-  public void inviteGamer(Map<UUID, Long> invites, UUID arg) {
-    invites.put(arg, (Instant.now().getEpochSecond()) + 5 * 60);
-    Bukkit.getLogger().info(arg.toString() + " " + invites.get(arg).toString());
-  }
-
-  @Override
-  public boolean isManager(Gamer manager) {
-    if (manager.getUuid().equals(getOwnerUUID())) {
-      return true;
-    }
-    return this.getGroup("manager").getMembers().contains(manager.getUuid());
-  }
-
-  @Override
-  public boolean isMember(Gamer gamer) {
-    if (isManager(gamer)) {
-      return true;
-    }
-    return members.contains(gamer.getUuid());
-  }
-
-  @Override
-  public boolean isOwner(Gamer manager) {
-    return manager.getUuid().equals(getOwnerUUID());
+  public int memberCount() {
+    return members.size();
   }
 
   public void removeMember(Gamer gamer) {
-    members.remove(gamer.getUuid());
+    if(isDefault()){
+      if(getName().equals("member")){
+        return;
+      }
+    }
+    this.members.remove(gamer.getUuid());
+  }
+
+  @JsonIgnore
+  public void setPrioritySafe(Integer newPriority) {
+    if (isDefault) return;
+    if (newPriority < 0) this.priority = 0;
+    if (newPriority > 100) this.priority = 0;
   }
 }

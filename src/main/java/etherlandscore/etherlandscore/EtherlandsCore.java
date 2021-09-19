@@ -11,6 +11,7 @@ import etherlandscore.etherlandscore.listener.PlayerEventListener;
 import etherlandscore.etherlandscore.listener.SignEventListener;
 import etherlandscore.etherlandscore.services.ChatService;
 import etherlandscore.etherlandscore.services.MasterService;
+import etherlandscore.etherlandscore.services.Scheduler;
 import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.*;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandDisabler;
@@ -67,6 +68,7 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(chatEventListener);
     manager.registerEvents(chatEventListener, this);
 
+
     getLogger().info("Hooking Commands");
     new CommandDisabler().disable();
     CommandAPI.unregister("help");
@@ -80,10 +82,10 @@ public final class EtherlandsCore extends JavaPlugin {
     modules.add(new ChatCommand(channels, chatCommandFiber));
     Fiber tradeCommandFiber = new ThreadFiber();
     modules.add(new TradeCommand(channels, tradeCommandFiber));
-    Fiber groupCommandFiber = new ThreadFiber();
-    modules.add(new GroupCommand(channels, groupCommandFiber));
     Fiber teamCommandFiber = new ThreadFiber();
     modules.add(new TeamCommand(channels, teamCommandFiber));
+    Fiber townCommandFiber = new ThreadFiber();
+    modules.add(new TownCommand(channels, townCommandFiber));
     Fiber plotCommandFiber = new ThreadFiber();
     modules.add(new PlotCommand(channels, plotCommandFiber));
     Fiber friendCommandFiber = new ThreadFiber();
@@ -101,6 +103,10 @@ public final class EtherlandsCore extends JavaPlugin {
     getLogger().info("initializing chat service");
     Fiber chatFiber = new ThreadFiber();
     modules.add(new ChatService(channels, chatFiber));
+
+    Fiber scheduleFiber = new ThreadFiber();
+    modules.add(new Scheduler(channels, scheduleFiber));
+
     for (var m : modules) {
       getLogger().info(String.format("Starting MODULE %s", m.getClass().getName()));
       m.start();

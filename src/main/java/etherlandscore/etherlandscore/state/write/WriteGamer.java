@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import etherlandscore.etherlandscore.state.read.Gamer;
-import etherlandscore.etherlandscore.state.read.Group;
 import etherlandscore.etherlandscore.state.read.Team;
+import etherlandscore.etherlandscore.state.read.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -21,8 +21,8 @@ import static etherlandscore.etherlandscore.services.MasterService.state;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WriteGamer extends CouchDocument implements Gamer {
   private final UUID uuid;
-  private final Set<String> groups;
-  private String team;
+  private final Set<String> teams;
+  private String town;
   private String address;
   private Set<UUID> friends;
   public UserPreferences preferences;
@@ -31,17 +31,21 @@ public class WriteGamer extends CouchDocument implements Gamer {
   private String _id;
 
   @JsonCreator
-  public WriteGamer(@JsonProperty("_id") UUID uuid, @JsonProperty("groups") Set<String> groups) {
+  public WriteGamer(@JsonProperty("_id") UUID uuid, @JsonProperty("teams") Set<String> teams) {
     this.uuid = uuid;
-    this.groups = groups;
+    this.teams = teams;
     this.address = "";
     this.preferences = new UserPreferences();
   }
 
   public WriteGamer(UUID uuid) {
     this.uuid = uuid;
-    this.groups = new HashSet<>();
+    this.teams = new HashSet<>();
     this.preferences = new UserPreferences();
+  }
+  @Override
+  public String toString(){
+    return this.uuid.toString();
   }
 
   @Override
@@ -51,7 +55,10 @@ public class WriteGamer extends CouchDocument implements Gamer {
       return this.getPlayer().getName();
     }
     if (this.getUuid() != null) {
-      return Bukkit.getOfflinePlayer(this.getUuid()).getName();
+      String name = Bukkit.getOfflinePlayer(this.getUuid()).getName();
+      if(name != null){
+        return name;
+      }
     }
     return "??????";
   }
@@ -60,12 +67,12 @@ public class WriteGamer extends CouchDocument implements Gamer {
     friends.add(gamer.getUuid());
   }
 
-  public void addGroup(Group writeGroup) {
-    groups.add(writeGroup.getName());
+  public void addTeam(WriteTeam writeTeam) {
+    teams.add(writeTeam.getName());
   }
 
-  public void clearGroups() {
-    groups.clear();
+  public void clearTeams() {
+    teams.clear();
   }
 
   @Override
@@ -115,16 +122,16 @@ public class WriteGamer extends CouchDocument implements Gamer {
 
   @Override
   @JsonIgnore
-  public Group getGroupObject(String name) {
-    return state().getTeam(this.getTeam()).getGroup(name);
+  public Team getTeamObject(String name) {
+    return state().getTown(this.getTown()).getTeam(name);
   }
 
   @Override
-  public Set<String> getGroups() {
-    if (hasTeam()) {
-      groups.add("member");
+  public Set<String> getTeams() {
+    if (hasTown()) {
+      teams.add("member");
     }
-    return groups;
+    return teams;
   }
 
   @JsonProperty("_id")
@@ -149,19 +156,19 @@ public class WriteGamer extends CouchDocument implements Gamer {
   }
 
   @Override
-  public String getTeam() {
-    return team;
+  public String getTown() {
+    return town;
   }
 
-  public void setTeam(String team) {
-    this.team = team;
+  public void setTown(String town) {
+    this.town = town;
 
   }
 
   @Override
   @JsonIgnore
-  public Team getTeamObject() {
-    return state().getTeam(this.team);
+  public Town getTownObject() {
+    return state().getTown(this.town);
   }
 
   @Override
@@ -177,11 +184,11 @@ public class WriteGamer extends CouchDocument implements Gamer {
 
 
   @Override
-  public boolean hasTeam() {
-    if (team == null) {
+  public boolean hasTown() {
+    if (town == null) {
       return false;
     }
-    return !team.equals("");
+    return !town.equals("");
   }
 
   @Override
@@ -193,7 +200,7 @@ public class WriteGamer extends CouchDocument implements Gamer {
     friends.remove(gamer.getUuid());
   }
 
-  public void removeGroup(String name) {
-    groups.remove(name);
+  public void removeTeam(String name) {
+    teams.remove(name);
   }
 }

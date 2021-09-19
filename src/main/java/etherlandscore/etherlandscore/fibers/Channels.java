@@ -15,14 +15,14 @@ public class Channels {
 
   public final MemoryChannel<WriteGamer> db_gamer = new MemoryChannel<>();
   public final MemoryChannel<WriteDistrict> db_district = new MemoryChannel<>();
-  public final MemoryChannel<WriteTeam> db_team = new MemoryChannel<>();
+  public final MemoryChannel<WriteTown> db_town = new MemoryChannel<>();
   public final MemoryChannel<WriteNFT> db_nft = new MemoryChannel<>();
   public final MemoryChannel<WriteMap> db_map = new MemoryChannel<>();
   public final MemoryChannel<WriteBankRecord> db_bank_record = new MemoryChannel<>();
 
   public final MemoryChannel<WriteGamer> db_gamer_delete = new MemoryChannel<>();
   public final MemoryChannel<WriteDistrict> db_district_delete = new MemoryChannel<>();
-  public final MemoryChannel<WriteTeam> db_team_delete = new MemoryChannel<>();
+  public final MemoryChannel<WriteTown> db_town_delete = new MemoryChannel<>();
   public final MemoryChannel<WriteNFT> db_nft_delete = new MemoryChannel<>();
   public final MemoryChannel<WriteMap> db_map_delete = new MemoryChannel<>();
 }

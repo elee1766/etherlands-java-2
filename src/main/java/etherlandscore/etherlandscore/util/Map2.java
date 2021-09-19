@@ -13,7 +13,7 @@ public class Map2<K1, K2, V> {
   @JsonCreator
   public Map2() {}
 
-  public void clearGroup(K1 name) {
+  public void clearTeam(K1 name) {
     map.remove(name);
   }
 

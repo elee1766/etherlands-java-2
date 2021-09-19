@@ -70,8 +70,8 @@ public class MessageFormatter  extends ListenerClient {
     TextComponent invite = new TextComponent("invite");
     TextComponent remove = new TextComponent("remove");
 
-    invite.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to invite them to your team!")));
-    invite.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team invite "+value));
+    invite.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to invite them to your town!")));
+    invite.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/town invite "+value));
     remove.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Click to remove them from your friends list.")));
     remove.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/friend remove "+value));
 
@@ -103,7 +103,7 @@ public class MessageFormatter  extends ListenerClient {
     }else if (name.toLowerCase().contains("address") || (name.toLowerCase().contains("uuid"))){
       valuecomp = new TextComponent(abbreviate(value, 10));
       valuecomp.setColor(ChatColor.GRAY);
-    }else if (name.toLowerCase().contains("group") || (name.toLowerCase().contains("members"))){
+    }else if (name.toLowerCase().contains("team") || (name.toLowerCase().contains("members"))){
       valuecomp = new TextComponent(value);
       valuecomp.setColor(ChatColor.GRAY);
     }else{
@@ -116,8 +116,8 @@ public class MessageFormatter  extends ListenerClient {
       String url = ("https://polygonscan.com/address/"+value);
       System.out.println("doing address");
       valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,url));
-    }else if(name.toLowerCase().contains("team")) {
-      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+value));
+    }else if(name.toLowerCase().contains("town")) {
+      valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/town info "+value));
     }else if(name.equalsIgnoreCase("owner")) {
       valuecomp.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+value));
     }else{

@@ -22,7 +22,7 @@ public class ReadContext {
     this.channels = channels;
   }
 
-  public void createTeam(Channels channels, Gamer gamer, String name) {
+  public void createTown(Channels channels, Gamer gamer, String name) {
   }
 
   public Object getBalance(UUID uniqueId) {
@@ -49,8 +49,8 @@ public class ReadContext {
     return context.getPlot(x, z);
   }
 
-  public Team getTeam(String team) {
-    return context.getTeam(team);
+  public Town getTown(String town) {
+    return context.getTown(town);
   }
 
   public Map<Integer, WriteDistrict> getDistricts() {
@@ -64,16 +64,16 @@ public class ReadContext {
     return context.getDistrict(nickname);
   }
 
-  public Map<String, Team> getTeams() {
-    return (Map) context.getTeams();
+  public Map<String, Town> getTowns() {
+    return (Map) context.getTowns();
   }
 
   public boolean hasGamer(UUID uniqueId) {
     return getGamers().containsKey(uniqueId);
   }
 
-  public boolean hasTeam(String name) {
-    return getTeams().containsKey(name);
+  public boolean hasTown(String name) {
+    return getTowns().containsKey(name);
   }
 
   public Map2<String, String, WriteNFT> getNfts() {return context.getNfts(); }

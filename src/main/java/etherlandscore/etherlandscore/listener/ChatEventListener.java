@@ -6,7 +6,7 @@ import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
 import etherlandscore.etherlandscore.state.write.WriteGamer;
-import etherlandscore.etherlandscore.state.write.WriteTeam;
+import etherlandscore.etherlandscore.state.write.WriteTown;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,11 +29,11 @@ public class ChatEventListener extends ListenerClient implements Listener {
     String message = event.getMessage();
     Player p = event.getPlayer();
     WriteGamer gamer = (WriteGamer) context.getGamer(p.getUniqueId());
-    WriteTeam team = (WriteTeam) gamer.getTeamObject();
+    WriteTown town = (WriteTown) gamer.getTownObject();
     if(gamer.preferences.checkPreference(MessageToggles.TEAM_CHAT)) {
-      Bukkit.getLogger().info("team chat enabled");
+      Bukkit.getLogger().info("town chat enabled");
       event.getRecipients().clear();
-      channels.chat_message.publish(new Message<>(ChatTarget.team, team, message, gamer));
+      channels.chat_message.publish(new Message<>(ChatTarget.town, town, message, gamer));
     }else if(gamer.preferences.checkPreference(MessageToggles.LOCAL_CHAT)){
       Bukkit.getLogger().info("local chat enabled");
       event.getRecipients().clear();

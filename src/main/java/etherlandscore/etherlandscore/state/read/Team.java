@@ -1,50 +1,31 @@
 package etherlandscore.etherlandscore.state.read;
 
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public interface Team {
-  boolean canAction(Gamer actor, Gamer receiver);
-
-  boolean canInvite(Gamer inviter);
-
-  boolean canJoin(Map<UUID, Long> orDefault, Gamer joiner);
-
+public interface Team extends Comparable<Team> {
   @Override
-  boolean equals(Object o);
+  int compareTo(@NotNull Team o);
 
   Field[] getDeclaredFields();
 
-  District getDistrict(Integer x);
-
-  Set<District> getDistrictObjects();
-
-  Set<Integer> getDistricts();
-
-  Group getGroup(String name);
-
-  Map<String, Group> getGroups();
+  boolean getDefault();
 
   Set<UUID> getMembers();
 
   String getName();
 
-  String getOwnerServerName();
+  Integer getPriority();
 
-  UUID getOwnerUUID();
+  Town getTownObject();
 
-  Set<Integer> getPlots();
+  boolean hasMember(Player player);
 
-  @Override
-  int hashCode();
+  boolean isDefault();
 
-  void inviteGamer(Map<UUID, Long> invites, UUID arg);
-
-  boolean isManager(Gamer manager);
-
-  boolean isMember(Gamer gamer);
-
-  boolean isOwner(Gamer manager);
+  int memberCount();
 }

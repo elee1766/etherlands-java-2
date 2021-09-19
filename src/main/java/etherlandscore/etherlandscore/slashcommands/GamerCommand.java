@@ -1,8 +1,6 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
-import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
@@ -10,7 +8,6 @@ import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.GamerSender;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -23,12 +20,12 @@ public class GamerCommand extends CommandProcessor {
     super(channels, fiber);
     this.channels = channels;
     register();
+    registerSync();
   }
 
   void info(Player sender, Object[] args) {
-    OfflinePlayer player = (OfflinePlayer) args[0];
     Gamer gamer = state().getGamer(sender.getUniqueId());
-    Gamer target = state().getGamer(player.getUniqueId());
+    Gamer target = (Gamer) args[0];
     GamerSender.sendGamerInfo(channels,gamer,target);
   }
 
@@ -38,14 +35,24 @@ public class GamerCommand extends CommandProcessor {
   }
 
   void link(Object o,Object[] args) {
-    Player p = (Player) args[0];
-    Gamer gamer = state().getGamer(p.getUniqueId());
+    Gamer gamer  = (Gamer) args[0];
     GamerSender.setAddress(channels, gamer, (String) args[1]);
-    Bukkit.getLogger().info(p.getUniqueId() + " has been linked successfully");
+    Bukkit.getLogger().info(gamer.getUuid() + " has been linked successfully");
   }
 
   void suicide(Player sender, Object[] args) {
     sender.setHealth(0.0D);
+  }
+
+  public void registerSync(){
+    // cannot do sender.setHealth async. DO NOT CONVERT THIS TO createPlayerCommand
+    CommandAPICommand SuicideCommand =
+        new CommandAPICommand("suicide")
+            .withAliases("neckrope").withPermission("etherlands.public")
+            .executesPlayer(this::suicide);
+
+    SuicideCommand.register();
+
   }
 
   public void register() {
@@ -54,33 +61,18 @@ public class GamerCommand extends CommandProcessor {
             .withAliases("g")
             .withPermission("etherlands.public");
 
-    // cannot do sender.setHealth async
-    CommandAPICommand SuicideCommand =
-        new CommandAPICommand("suicide")
-            .withAliases("neckrope").withPermission("etherlands.public")
-                .executesPlayer(this::suicide);
-
-    GamerCommand.withSubcommand(
-        createPlayerCommand("info",SlashCommands.infoGiven,this::info)
-            .withAliases("i")
+    createPlayerCommand("gamer",SlashCommands.infoGiven,this::info)
             .withArguments(
-                new OfflinePlayerArgument("gamer")
-                    .replaceSuggestions(info -> getPlayerStrings()))
-    );
-
-    GamerCommand.withSubcommand(
-        createPlayerCommand("info", SlashCommands.infoLocal,this::infoLocal)
-            .withAliases("i")
-            .executesPlayer(this::infoLocal));
+                gamerArgument("gamer"))
+        .register();
 
     GamerCommand.withSubcommand(
         new CommandAPICommand("link")
             .withArguments(
-                new PlayerArgument("gamer").replaceSuggestions(info -> getPlayerStrings()))
+                gamerArgument("gamer"))
             .withArguments(new StringArgument("address"))
             .executesConsole(this::link));
 
     GamerCommand.register();
-    SuicideCommand.register();
   }
 }

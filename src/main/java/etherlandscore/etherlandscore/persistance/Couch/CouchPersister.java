@@ -21,7 +21,7 @@ public class CouchPersister extends ServerModule {
 
   private final CouchDbInstance instance;
   private final GamerRepo gamerRepo;
-  private final TeamRepo teamRepo;
+  private final TownRepo townRepo;
   private final DistrictRepo districtRepo;
   private final NFTRepo nftRepo;
   private final MapRepo mapRepo;
@@ -43,21 +43,21 @@ public class CouchPersister extends ServerModule {
     this.gamerRepo =
         new GamerRepo(this.instance.createConnector("gamers", true), WriteGamer.class);
     this.districtRepo = new DistrictRepo(this.instance.createConnector("districts", true), WriteDistrict.class);
-    this.teamRepo = new TeamRepo(this.instance.createConnector("teams", true), WriteTeam.class);
+    this.townRepo = new TownRepo(this.instance.createConnector("towns", true), WriteTown.class);
     this.mapRepo = new MapRepo(this.instance.createConnector("maps", true), WriteMap.class);
     this.nftRepo = new NFTRepo(this.instance.createConnector("nfts", true), WriteNFT.class);
     this.bankRecordRepo = new BankRecordRepo(this.instance.createConnector("bankrecord", true), WriteBankRecord.class);
     this.linkConnector = this.instance.createConnector("linked",true);
 
     channels.db_gamer.subscribe(fiber, this::write);
-    channels.db_team.subscribe(fiber, this::write);
+    channels.db_town.subscribe(fiber, this::write);
     channels.db_district.subscribe(fiber, this::write);
     channels.db_nft.subscribe(fiber, this::write);
     channels.db_map.subscribe(fiber, this::write);
 
 
     channels.db_gamer_delete.subscribe(fiber, this::remove);
-    channels.db_team_delete.subscribe(fiber, this::remove);
+    channels.db_town_delete.subscribe(fiber, this::remove);
     channels.db_district_delete.subscribe(fiber, this::remove);
     channels.db_nft_delete.subscribe(fiber, this::remove);
     channels.db_map_delete.subscribe(fiber, this::remove);
@@ -66,7 +66,7 @@ public class CouchPersister extends ServerModule {
   public void saveContext(Context context) {
       gamerRepo.save(context.getGamers().values());
       districtRepo.save(context.getDistricts().values());
-      teamRepo.save(context.getTeams().values());
+      townRepo.save(context.getTowns().values());
       nftRepo.save(context.getNftUrls().values());
       bankRecordRepo.save(context.getBankRecords().values());
       mapRepo.save(context.getMaps());
@@ -82,9 +82,9 @@ public class CouchPersister extends ServerModule {
         }
       }
     }
-    Bukkit.getLogger().info("doing teams");
-    for (WriteTeam writeTeam : this.teamRepo.getAll()) {
-      empty.teams.put(writeTeam.getName(),writeTeam);
+    Bukkit.getLogger().info("doing towns");
+    for (WriteTown writeTown : this.townRepo.getAll()) {
+      empty.towns.put(writeTown.getName(),writeTown);
     }
     Bukkit.getLogger().info("doing districts");
     for (WriteDistrict writeDistrict : this.districtRepo.getAll()) {
@@ -114,8 +114,8 @@ public class CouchPersister extends ServerModule {
   public void write(WriteDistrict district){
     this.districtRepo.save(district);
   }
-  public void write(WriteTeam team){
-    this.teamRepo.save(team);
+  public void write(WriteTown town){
+    this.townRepo.save(town);
   }
   public void write(WriteMap map){
     this.mapRepo.save(map);
@@ -133,8 +133,8 @@ public class CouchPersister extends ServerModule {
   public void update(WriteDistrict district){
     this.channels.db_district.publish(district);
   }
-  public void update(WriteTeam team){
-    this.channels.db_team.publish(team);
+  public void update(WriteTown town){
+    this.channels.db_town.publish(town);
   }
   public void update(WriteNFT nft) {this.channels.db_nft.publish(nft); }
   public void update(WriteMap map) {this.channels.db_map.publish(map); }
@@ -148,8 +148,8 @@ public class CouchPersister extends ServerModule {
   public void remove(WriteDistrict district){
     this.districtRepo.delete(district);
   }
-  public void remove(WriteTeam team){
-    this.teamRepo.delete(team);
+  public void remove(WriteTown town){
+    this.townRepo.delete(town);
   }
   public void remove(WriteMap map){
     this.mapRepo.delete(map);
@@ -164,8 +164,8 @@ public class CouchPersister extends ServerModule {
   public void delete(WriteDistrict district){
     this.channels.db_district_delete.publish(district);
   }
-  public void delete(WriteTeam team){
-    this.channels.db_team_delete.publish(team);
+  public void delete(WriteTown town){
+    this.channels.db_town_delete.publish(town);
   }
 
 }

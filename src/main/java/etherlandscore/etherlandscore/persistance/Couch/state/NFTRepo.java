@@ -1,7 +1,7 @@
 package etherlandscore.etherlandscore.persistance.Couch.state;
 
 import etherlandscore.etherlandscore.state.write.WriteNFT;
-import etherlandscore.etherlandscore.state.write.WriteTeam;
+import etherlandscore.etherlandscore.state.write.WriteTown;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.support.View;
 

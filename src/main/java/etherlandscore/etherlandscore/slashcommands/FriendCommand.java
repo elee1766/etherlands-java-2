@@ -53,11 +53,11 @@ public class FriendCommand extends CommandProcessor {
             .withPermission("etherlands.public");
     FriendCommand.withSubcommand(
         createPlayerCommand("add",SlashCommands.friendAdd,this::friendAdd)
-            .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
+            .withArguments(gamerArgument("friend"))
     );
     FriendCommand.withSubcommand(
         createPlayerCommand("remove",SlashCommands.friendRemove,this::friendRemove)
-            .withArguments(gamerArgument("friend").replaceSuggestions(info -> getPlayerStrings()))
+            .withArguments(gamerArgument("friend"))
     );
     FriendCommand.register();
   }

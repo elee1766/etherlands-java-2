@@ -60,14 +60,14 @@ public class ComponentCreator {
         new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/district info " + district.getIdInt()));
     return component;
   }
-  public static TextComponent Groups(Set<String> groupObjects){
-    return ComponentCreator.Groups(groupObjects,ChatColor.BLUE);
+  public static TextComponent Teams(Set<String> teamObjects){
+    return ComponentCreator.Teams(teamObjects,ChatColor.BLUE);
   }
-  public static TextComponent Groups(Set<String> groupObjects,ChatColor colour) {
-    groupObjects.remove(null);
+  public static TextComponent Teams(Set<String> teamObjects,ChatColor colour) {
+    teamObjects.remove(null);
     TextComponent combined = new TextComponent();
-    for(String group : groupObjects){
-      TextComponent component = ComponentCreator.Group(group, colour);
+    for(String team : teamObjects){
+      TextComponent component = ComponentCreator.Team(team, colour);
       combined.addExtra(component);
       combined.addExtra(" ");
     }
@@ -110,12 +110,12 @@ public class ComponentCreator {
     return Clusters(clusters,ChatColor.AQUA);
   }
 
-  public static TextComponent Group(String group){
-    return ComponentCreator.Group(group,ChatColor.BLUE);
+  public static TextComponent Team(String team){
+    return ComponentCreator.Team(team,ChatColor.BLUE);
   }
-  public static TextComponent Group(String group, ChatColor colour) {
-    TextComponent component = ComponentCreator.ColoredText(group,colour);
-    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/group info "+group));
+  public static TextComponent Team(String team, ChatColor colour) {
+    TextComponent component = ComponentCreator.ColoredText(team,colour);
+    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+team));
     return component;
   }
 
@@ -130,12 +130,12 @@ public class ComponentCreator {
     return combined;
   }
 
-  public static TextComponent Team(String team) {
-    return ComponentCreator.Team(team,ChatColor.RED);
+  public static TextComponent Town(String town) {
+    return ComponentCreator.Town(town,ChatColor.RED);
   }
-  public static TextComponent Team(String team, ChatColor color){
-    TextComponent component = ComponentCreator.ColoredText(team,color);
-    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/team info "+team));
+  public static TextComponent Town(String town, ChatColor color){
+    TextComponent component = ComponentCreator.ColoredText(town,color);
+    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/town info "+town));
     return component;
   }
   public static TextComponent UUIDs(Set<UUID> members) {
@@ -162,18 +162,18 @@ public class ComponentCreator {
       return ComponentCreator.ColoredText("[Unlinked]",colour);
     }
     TextComponent component = ComponentCreator.ColoredText(gamer.getName(),colour);
-    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info "+ gamer.getName()));
+    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer "+ gamer.getName()));
     return component;
   }
 
-  public static TextComponent GroupPermissions(Map2<String,AccessFlags,FlagValue> perms, Integer district, List<String> groups){
+  public static TextComponent TeamPermissions(Map2<String,AccessFlags,FlagValue> perms, Integer district, List<String> teams){
     TextComponent combined = new TextComponent();
 
     int current_line = 0;
-    for(String group: groups){
-      TextComponent component =  ComponentCreator.Group(group);
+    for(String team: teams){
+      TextComponent component =  ComponentCreator.Team(team);
       component.addExtra("-");
-      TextComponent display =FlagDisplay(perms.getMap().get(group),"group",group, district);
+      TextComponent display =FlagDisplay(perms.getMap().get(team),"team",team, district);
       combined.addExtra(component);
       combined.addExtra(display);
       if(current_line > 40){
@@ -233,15 +233,15 @@ public class ComponentCreator {
     if(value.equals(FlagValue.ALLOW)){
       component.setText(String.valueOf(flag.charAt(0)));
       component.setColor(ChatColor.GREEN);
-      component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district set_" + type + " "+district + " "+ target + " " + flag + " DENY"  ));
+      component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district "+district + " " + "set_" + type +" "+ target + " " + flag + " DENY"  ));
     }else if(value.equals(FlagValue.NONE)){
       component.setText("-");
       component.setColor(ChatColor.DARK_GRAY);
-      component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district set_" + type + " "+district + " "+ target + " " + flag + " ALLOW"  ));
+      component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district "+district + " " + "set_" + type +" "+ target + " " + flag + " ALLOW"  ));
     }else if(value.equals(FlagValue.DENY)){
       component.setText(String.valueOf(flag.charAt(0)));
       component.setColor(ChatColor.DARK_RED);
-      component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district set_" + type + " "+district + " "+ target + " " + flag + "  NONE"  ));
+      component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/district "+district + " " + "set_" + type +" "+ target + " " + flag + " NONE"  ));
     }
     return component;
   }

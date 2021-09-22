@@ -71,7 +71,4 @@ public class RedisListener extends ListenerClient {
     }
     Bukkit.getLogger().info("invalid link information");
   }
-
-
-
 }

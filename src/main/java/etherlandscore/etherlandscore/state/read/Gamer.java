@@ -41,4 +41,6 @@ public interface Gamer {
 
   @Override
   int hashCode();
+
+  boolean isOnline();
 }

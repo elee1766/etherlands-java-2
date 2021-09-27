@@ -6,8 +6,7 @@ import etherlandscore.etherlandscore.state.write.WriteDistrict;
 import etherlandscore.etherlandscore.state.write.WriteMap;
 import etherlandscore.etherlandscore.state.write.WriteNFT;
 import etherlandscore.etherlandscore.state.write.WriteShop;
-import etherlandscore.etherlandscore.util.Map2;
-import etherlandscore.etherlandscore.util.TwoWay;
+import etherlandscore.etherlandscore.util.Map3;
 import org.bukkit.Location;
 
 import java.util.Map;
@@ -38,8 +37,8 @@ public class ReadContext {
     return (Map) context.getGamers();
   }
 
-  public Map2<String, String, WriteNFT> getNFTs() {
-    return (Map2) context.getNfts();
+  public Map3<Integer, Integer, Integer, WriteNFT> getNFTs() {
+    return (Map3) context.getNfts();
   }
 
   public ReadPlot getPlot(Integer id) {
@@ -77,7 +76,7 @@ public class ReadContext {
     return getTowns().containsKey(name);
   }
 
-  public Map2<String, String, WriteNFT> getNfts() {return context.getNfts(); }
+  public Map3<Integer, Integer, Integer, WriteNFT> getNfts() {return context.getNfts(); }
 
   public Map<String, WriteNFT> getNftUrls() {return context.getNftUrls(); }
 
@@ -89,19 +88,9 @@ public class ReadContext {
 
   public WriteShop getShop(Location location) { return context.getShop(location);}
 
-  public TwoWay<String, UUID> getLinks() { return context.getLinks();}
-
-  public String getAddressOf(UUID uuid) {
-    return context.getLinks().getSecondOrDefault(uuid,"");
-  }
-
   public Map<Gamer, Location> getGamerLocations(){return context.getGamerLocations();}
 
   public Location getGamerLocation(Gamer gamer){return context.getGamerLocation(gamer);}
-
-  public Map2<Integer, Integer, Integer> getCaptchas(){
-    return context.getCaptchas();
-  }
 
   public boolean isValidCaptcha(int a, int b, int c){
     return context.isValidCaptcha(a, b, c);

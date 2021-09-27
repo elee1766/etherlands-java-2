@@ -64,7 +64,6 @@ public class MasterService extends ServerModule {
             // gamer commands
             case gamer_add_friend ->context. gamer_add_friend((WriteGamer) _args[0], (WriteGamer) _args[1]);
             case gamer_remove_friend -> context.gamer_remove_friend((WriteGamer) _args[0],(WriteGamer) _args[1]);
-            case gamer_link_address -> context.gamer_link_address((UUID) _args[0], (String) _args[1]);
             //town commands
             case town_add_gamer -> context.town_add_gamer((WriteTown) _args[0], (WriteGamer) _args[1]);
             case town_remove_gamer -> context.town_remove_gamer((WriteTown) _args[0], (WriteGamer) _args[1]);
@@ -84,8 +83,8 @@ public class MasterService extends ServerModule {
             case district_set_team_permission -> context.district_set_team_permission((WriteDistrict) _args[0], (WriteTeam) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
             case district_set_gamer_permission -> context.district_set_gamer_permission((WriteDistrict) _args[0], (WriteGamer) _args[1], (AccessFlags) _args[2], (FlagValue) _args[3]);
             case nft_create_nft -> context.nft_create_nft((WriteNFT) _args[0]);
+            case nft_delete_nft -> context.nft_delete_nft((WriteNFT) _args[0]);
             case map_create_map -> context.map_create_map((WriteMap) _args[0]);
-            case map_render_maps -> context.map_rerender_maps();
             case context_process_gamer_transaction -> context.context_process_gamer_transaction((GamerTransaction) _args[0]);
             case context_mint_tokens -> context.context_mint_tokens((WriteGamer) _args[0], (Integer)_args[1]);
             case shop_create_shop -> context.shop_create_shop((WriteShop) _args[0]);
@@ -93,7 +92,6 @@ public class MasterService extends ServerModule {
             case touch_district -> context.touch_district((Integer) _args[0]);
             case touch_gamer -> context.touch_gamer((UUID) _args[0]);
             case store_gamer_location -> context.storeGamerLocation((Gamer) _args[0], (Location) _args[1]);
-            case context_store_captcha -> context.context_store_captcha((Integer) _args[0], (Integer) _args[1], (Integer) _args[2]);
         }
         if(message.hasChatResponse()){
                 forward_chat_message(message.getChatResponse());

@@ -28,5 +28,6 @@ public enum MasterCommand {
   context_mint_tokens,
   gamer_toggle_message,
   touch_district, touch_gamer, shop_create_shop,
-  context_store_captcha, store_gamer_location
+  context_store_captcha, store_gamer_location,
+  nft_delete_nft;
 }

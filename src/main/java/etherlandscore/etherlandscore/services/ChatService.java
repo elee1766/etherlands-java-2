@@ -7,7 +7,7 @@ import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.singleton.RedisGetter;
+import etherlandscore.etherlandscore.singleton.Asker;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -25,11 +25,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.C;
 import org.jetlang.fibers.Fiber;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.UUID;
@@ -232,7 +229,7 @@ public class ChatService extends ListenerClient {
       gamer_land_unclaimed(gamer);
       return;
     }
-    ArrayList<Triple<Integer, Integer, Integer>> clusters = RedisGetter.ClustersOfDistrict(district.getIdInt());
+    ArrayList<Triple<Integer, Integer, Integer>> clusters = Asker.ClustersOfDistrict(district.getIdInt());
     MessageCreator builder = new MessageCreator();
     TextComponent title = ComponentCreator.ColoredText(district.getNickname(),ChatColor.DARK_GREEN);
     builder.addHeader(title);

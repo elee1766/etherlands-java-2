@@ -6,7 +6,7 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.singleton.RedisGetter;
+import etherlandscore.etherlandscore.singleton.Asker;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
 import etherlandscore.etherlandscore.state.read.Town;
@@ -133,7 +133,7 @@ public class ListenerClient extends ServerModule {
     return new CustomArgument<>(districtID, (sender, input) -> input)
         .replaceSuggestions(
             sender -> {
-              Set<String> names = RedisGetter.GetDistrictNames();
+              Set<String> names = Asker.GetDistrictNames();
               ArrayList<String> output = new ArrayList<>();
               for (String name : names) {
                   output.add(name.replace("#", ""));

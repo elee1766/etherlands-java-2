@@ -8,13 +8,13 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.persistance.Couch.CouchPersister;
-import etherlandscore.etherlandscore.singleton.RedisGetter;
+import etherlandscore.etherlandscore.singleton.Asker;
 import etherlandscore.etherlandscore.state.bank.GamerTransaction;
 import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.state.write.*;
 import etherlandscore.etherlandscore.util.Map2;
-import etherlandscore.etherlandscore.util.TwoWay;
+import etherlandscore.etherlandscore.util.Map3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,7 +25,6 @@ import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -35,14 +34,14 @@ public class Context {
   public final Map<UUID, WriteGamer> gamers = new HashMap<>();
   public final Map<Integer, WriteDistrict> districts = new HashMap<>();
   public final Map<String, WriteTown> towns = new HashMap<>();
-  public final TwoWay<String, UUID> linked = new TwoWay<>();
   public final Map<String, WriteNFT> nftUrls = new HashMap<>();
-  public final Map2<String,String,WriteNFT> nfts = new Map2<>();
+  public final Map3<Integer, Integer,Integer, WriteNFT> nfts = new Map3<>();
   public final Set<WriteMap> maps = new HashSet<>();
   public final Map<String, WriteBankRecord> bankRecords = new HashMap<>();
   public final Map<Location, WriteShop> shops = new HashMap<>();
-  public final Map<Gamer, Location> gamerLocations = new HashMap<>();
   public final Map2<Integer, Integer, Integer> captchas = new Map2<>();
+
+  public final Map<Gamer, Location> gamerLocations = new HashMap<>();
 
   public final Map<UUID,Integer> balanceCache = new HashMap<>();
 
@@ -61,6 +60,7 @@ public class Context {
   public Map<String, WriteBankRecord> getBankRecords() {
     return this.bankRecords;
   }
+
 
   public void saveAll(){
     couchPersister.saveContext(this);
@@ -86,9 +86,6 @@ public class Context {
     }
   }
 
-  public void context_store_captcha(int a, int b, int c){
-    this.captchas.put(a, b, c);
-  }
 
   public Map2<Integer, Integer, Integer> getCaptchas(){
     return this.captchas;
@@ -106,7 +103,7 @@ public class Context {
     return this.balanceCache.getOrDefault(gamerId,0);
   }
   private Integer getAbsoluteBalance(UUID gamerId) {
-    Integer balance = 0;
+    int balance = 0;
     try {
       for (BankRecord bankRecord : bankRecords.values()) {
         if (bankRecord.getFrom().equals(gamerId)) {
@@ -262,10 +259,6 @@ public class Context {
     couchPersister.update(a);
   }
 
-  public void gamer_link_address(UUID uuid, String address) {
-    getLinks().put(address, uuid);
-  }
-
   public void gamer_remove_friend(WriteGamer a, Gamer b) {
     a.removeFriend(b);
     couchPersister.update(a);
@@ -283,27 +276,21 @@ public class Context {
     return gamers;
   }
 
-  public Map2<String, String, WriteNFT> getNfts() {return nfts; }
+  public Map3<Integer, Integer,Integer, WriteNFT> getNfts() {return nfts; }
 
   public Map<String, WriteNFT> getNftUrls() {return nftUrls; }
 
   public Set<WriteMap> getMaps() {return maps; }
 
-  public TwoWay<String, UUID> getLinks() {
-    return linked;
-  }
-
   public ReadPlot getPlot(Integer x, Integer z) {
-    Integer id = RedisGetter.GetPlotID(x.toString(),z.toString());
-    ReadPlot plot = new ReadPlot(id, x, z);
-    return plot;
+    Integer id = Asker.GetPlotID(x,z);
+    return new ReadPlot(id, x, z);
   }
 
   public ReadPlot getPlot(Integer id){
-    Integer x = RedisGetter.GetPlotX(id);
-    Integer z = RedisGetter.GetPlotZ(id);
-    ReadPlot plot = new ReadPlot(id, x, z);
-    return plot;
+    Integer x = Asker.GetPlotX(id);
+    Integer z = Asker.GetPlotZ(id);
+    return new ReadPlot(id, x, z);
   }
 
   public Map<Integer, WriteDistrict> getDistricts() {
@@ -322,12 +309,12 @@ public class Context {
   public District getDistrict(String nickname){
     String clean = nickname.replace("#","");
     try{
-      Integer numnick = Integer.parseInt(clean);
+      int numnick = Integer.parseInt(clean);
       if(this.getDistrict(numnick) != null){
         return this.getDistrict(numnick);
       }
     }catch(Exception ignored){}
-    Integer district_id = RedisGetter.GetDistrictOfName(clean);
+    Integer district_id = Asker.GetDistrictOfName(clean);
     if(district_id != null){
       return getDistrict(district_id);
     }
@@ -338,7 +325,9 @@ public class Context {
     if(this.districts.containsKey(id)){
       return this.districts.get(id);
     }
-    this.channels.master_command.publish(new Message<>(MasterCommand.touch_district,id));
+    if (id != 0) {
+      this.channels.master_command.publish(new Message<>(MasterCommand.touch_district, id));
+    }
     return null;
   }
 
@@ -346,7 +335,7 @@ public class Context {
     ReadPlot location = this.getPlot(x,z);
     District out = null;
     if(location != null){
-      Integer district_id = RedisGetter.GetDistrictOfPlot(location.getIdInt());
+      Integer district_id = Asker.GetDistrictOfPlot(location.getIdInt());
       if(district_id != null){
         out = getDistrict(district_id);
       }
@@ -464,9 +453,13 @@ public class Context {
   }
 
   public void nft_create_nft(WriteNFT entity){
-    this.getNftUrls().put(entity.getUrl(), entity);
-    this.getNfts().put(entity.getContract(), entity.getItem(), entity);
+    this.getNfts().put(entity.getXloc(), entity.getYloc(), entity.getZloc(),entity);
     couchPersister.update(entity);
+  }
+
+  public void nft_delete_nft(WriteNFT entity) {
+    this.getNfts().put(entity.getXloc(), entity.getYloc(), entity.getZloc(),null);
+    couchPersister.remove(entity);
   }
 
   public void map_create_map(WriteMap entity){
@@ -474,19 +467,6 @@ public class Context {
       couchPersister.update(entity);
     }
     this.getMaps().add(entity);
-  }
-
-  public void map_rerender_maps() {
-    for(WriteMap map : this.maps) {
-      Image image = null;
-      try {
-        image = ImageIO.read(map.getUrl());
-      }catch(Exception ex){
-        ex.printStackTrace();
-      }
-      Set<Integer> mapIds = map.getMaps();
-      renderHelper(image, mapIds);
-    }
   }
 
   public void renderHelper(Image image, Set<Integer> mapIds) {
@@ -539,7 +519,7 @@ public class Context {
   }
 
   public void touch_district(Integer id) {
-    String owner = RedisGetter.GetOwnerOfDistrict(id.toString());
+    String owner = Asker.GetOwnerOfDistrict(id.toString());
     if (owner != null) {
       if (!this.districts.containsKey(id)) {
         WriteDistrict dis = new WriteDistrict(id);

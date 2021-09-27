@@ -10,6 +10,7 @@ import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.singleton.CaptchaCreator;
+import etherlandscore.etherlandscore.singleton.RedisPublisher;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -22,8 +23,8 @@ import java.util.UUID;
 public class StateSender {
 
   public static void captcha(Channels channels, Gamer self){
-    CaptchaCreator captchaCreator = new CaptchaCreator(channels);
-    String[] captcha = captchaCreator.createCaptcha();
+    String[] captcha = CaptchaCreator.createCaptcha();
+    RedisPublisher.CreateLinkRequest(self,captcha[0],captcha[1],captcha[2]);
     //send link to linking endpoint here
     channels.chat_message.publish(
         new Message<>(ChatTarget.gamer_captcha, self, captcha));

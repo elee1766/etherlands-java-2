@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
-import etherlandscore.etherlandscore.singleton.RedisGetter;
+import etherlandscore.etherlandscore.singleton.Asker;
 import etherlandscore.etherlandscore.state.read.*;
 import etherlandscore.etherlandscore.util.Map2;
 import org.bukkit.Bukkit;
@@ -57,7 +57,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public String getNickname(){
-    return RedisGetter.GetNameOfDistrict(this.getIdInt());
+    return Asker.GetNameOfDistrict(this.getIdInt());
   }
 
   @Override
@@ -119,7 +119,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public Gamer getOwnerObject() {
-    return state().getGamer(state().getLinks().getFirstOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), null));
+    return state().getGamer(Asker.GetAddressUUID(this.getOwnerAddress()));
   }
 
   @Override
@@ -144,13 +144,13 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public String getOwnerAddress() {
-    return RedisGetter.GetOwnerOfDistrict(this._id);
+    return Asker.GetOwnerOfDistrict(this._id);
   }
 
   @JsonIgnore
   @Override
   public Set<Integer> getPlots() {
-    return RedisGetter.GetPlotsInDistrict(this._id);
+    return Asker.GetPlotsInDistrict(this._id);
   }
 
   @Override
@@ -249,7 +249,7 @@ public class WriteDistrict extends CouchDocument implements District {
   @Override
   @JsonIgnore
   public UUID getOwnerUUID() {
-    return state().getLinks().getFirstOrDefault(RedisGetter.GetOwnerOfDistrict(this._id), new UUID(0,0));
+    return Asker.GetAddressUUID(this.getOwnerAddress());
   }
 
 

@@ -7,7 +7,6 @@ import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.Context;
 import etherlandscore.etherlandscore.state.write.*;
 import org.bukkit.Bukkit;
-import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
@@ -26,7 +25,6 @@ public class CouchPersister extends ServerModule {
   private final NFTRepo nftRepo;
   private final MapRepo mapRepo;
   private final BankRecordRepo bankRecordRepo;
-  private final CouchDbConnector linkConnector;
   private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
   Channels channels;
 
@@ -47,7 +45,6 @@ public class CouchPersister extends ServerModule {
     this.mapRepo = new MapRepo(this.instance.createConnector("maps", true), WriteMap.class);
     this.nftRepo = new NFTRepo(this.instance.createConnector("nfts", true), WriteNFT.class);
     this.bankRecordRepo = new BankRecordRepo(this.instance.createConnector("bankrecord", true), WriteBankRecord.class);
-    this.linkConnector = this.instance.createConnector("linked",true);
 
     channels.db_gamer.subscribe(fiber, this::write);
     channels.db_town.subscribe(fiber, this::write);
@@ -76,11 +73,6 @@ public class CouchPersister extends ServerModule {
     Bukkit.getLogger().info("doing gamers");
     for (WriteGamer writeGamer : this.gamerRepo.getAll()) {
       empty.gamers.put(writeGamer.getUuid(),writeGamer);
-      if(!writeGamer.getAddress().equals("")){
-        if (writeGamer.getAddress() != null) {
-          empty.linked.put(writeGamer.getAddress(), writeGamer.getUuid());
-        }
-      }
     }
     Bukkit.getLogger().info("doing towns");
     for (WriteTown writeTown : this.townRepo.getAll()) {
@@ -96,8 +88,7 @@ public class CouchPersister extends ServerModule {
     }
     Bukkit.getLogger().info("doing nfts");
     for (WriteNFT writeNFT: this.nftRepo.getAll()) {
-      empty.nfts.put(writeNFT.getContract(), writeNFT.getItem(), writeNFT);
-      empty.nftUrls.put(writeNFT.getUrl(), writeNFT);
+      empty.nfts.put(writeNFT.getXloc(), writeNFT.getYloc(), writeNFT.getZloc(), writeNFT);
     }
     Bukkit.getLogger().info("doing bankRecords");
     for (WriteBankRecord bankRecord: this.bankRecordRepo.getAll()) {

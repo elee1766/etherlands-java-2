@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import dev.jorel.commandapi.CommandAPI;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
@@ -22,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class EtherlandsCore extends JavaPlugin {
-
+  private ProtocolManager protocolManager;
   @Override
   public void onDisable() {
     Channels channels = new Channels();
@@ -33,6 +35,7 @@ public final class EtherlandsCore extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    protocolManager = ProtocolLibrary.getProtocolManager();
     getLogger().info("onEnable is called!");
     List<ServerModule> modules = new ArrayList<>();
     Channels channels = new Channels();
@@ -108,8 +111,14 @@ public final class EtherlandsCore extends JavaPlugin {
     Fiber metadataFiber = new ThreadFiber();
     modules.add(new ExternalMetadataService(channels, metadataFiber));
 
-    Fiber redisSubscriberFiber = new ThreadFiber();
-    modules.add(new RedisListener(channels, redisSubscriberFiber));
+    Fiber askerFiber= new ThreadFiber();
+    modules.add(new ImpatientAsker(channels, askerFiber));
+
+    Fiber hitterFiber = new ThreadFiber();
+    modules.add(new ImpartialHitter(channels, hitterFiber));
+
+    Fiber nftRenderFiber= new ThreadFiber();
+    modules.add(new NftRenderingService(channels, nftRenderFiber));
 
     for (var m : modules) {
       getLogger().info(String.format("Starting MODULE %s", m.getClass().getName()));
@@ -117,7 +126,5 @@ public final class EtherlandsCore extends JavaPlugin {
     }
 
     getLogger().info("onEnable is done!");
-    channels.master_command.publish(
-        new Message<>(MasterCommand.map_render_maps));
   }
 }

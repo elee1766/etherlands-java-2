@@ -41,8 +41,7 @@ public class ExternalMetadataService extends ListenerClient {
   private void process_message(Message<IM> message){
     try{
       Bukkit.getLogger().info("external metadata:" + message.getCommand());
-      Object[] _args =
-message.getArgs();
+      Object[] _args = message.getArgs();
       switch(message.getCommand()){
         case save_bytes -> this.cacheNewBytes((String) _args[0], (String) _args[1], (byte[]) _args[2]);
       }

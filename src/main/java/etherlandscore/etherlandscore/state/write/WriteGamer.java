@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
+import etherlandscore.etherlandscore.singleton.Asker;
 import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.Team;
@@ -95,12 +96,21 @@ public class WriteGamer extends CouchDocument implements Gamer {
 
   @Override
   public String getAddress() {
-    this.address = state().getAddressOf(this.getUuid());
+    String addr = Asker.GetGamerAddress(this.getUuid());
+    if(addr != null){
+      this.address = addr;
+    }
     return this.address;
   }
 
+  @Override
+  public boolean isOnline(){
+    return Bukkit.getPlayer(getUuid())!= null;
+  }
+
+
   public void setAddress(String address) {
-    this.address = state().getAddressOf(this.getUuid());
+    this.address = Asker.GetGamerAddress(this.getUuid());
   }
 
   @Override
@@ -163,7 +173,6 @@ public class WriteGamer extends CouchDocument implements Gamer {
 
   public void setTown(String town) {
     this.town = town;
-
   }
 
   @Override

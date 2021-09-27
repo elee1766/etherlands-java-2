@@ -2,7 +2,7 @@ package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.singleton.RedisGetter;
+import etherlandscore.etherlandscore.singleton.Asker;
 import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.util.Map2;
@@ -123,7 +123,7 @@ public class ComponentCreator {
     TextComponent combined = new TextComponent();
     for(Integer plot : plots){
       TextComponent component = ComponentCreator.ColoredText(String.valueOf(plot), ChatColor.BLUE);
-      component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+ RedisGetter.GetPlotX(plot) + ", " + RedisGetter.GetPlotZ(plot)+")")));
+      component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+ Asker.GetPlotX(plot) + ", " + Asker.GetPlotZ(plot)+")")));
       combined.addExtra(component);
       combined.addExtra(" ");
     }

@@ -124,7 +124,6 @@ public final class EtherlandsCore extends JavaPlugin {
       getLogger().info(String.format("Starting MODULE %s", m.getClass().getName()));
       m.start();
     }
-
     getLogger().info("onEnable is done!");
   }
 }

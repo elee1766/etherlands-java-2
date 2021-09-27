@@ -27,6 +27,8 @@ public class ImpartialHitter extends ListenerClient {
     init = true;
   }
 
+
+
   private void publish(String s) {
     publisher.sendMore("HIT".getBytes(StandardCharsets.UTF_8));
     publisher.send(s.getBytes(StandardCharsets.UTF_8));

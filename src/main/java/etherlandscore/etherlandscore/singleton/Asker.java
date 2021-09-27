@@ -23,7 +23,7 @@ public class Asker {
       return new Triple<>(
           Integer.parseInt(split[0]),
           Integer.parseInt(split[1]),
-           Integer.parseInt(split[2])
+          Integer.parseInt(split[2])
       );
     }catch(Exception ignored){
       return new Triple<>(0,0,0);

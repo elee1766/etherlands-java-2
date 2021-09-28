@@ -1,8 +1,5 @@
 package etherlandscore.etherlandscore.state.write;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.net.URL;
 import java.util.Set;
 
@@ -12,22 +9,21 @@ public class WriteMap
   private final URL url;
   private String _id;
 
-  @JsonCreator
   public WriteMap(
-      @JsonProperty("_id") String id,
-      @JsonProperty("maps") Set<Integer> maps,
-      @JsonProperty("url") URL url) {
+      String id,
+      Set<Integer> maps,
+      URL url) {
     this.maps = maps;
     this.url = url;
     this._id = id;
   }
 
-  @JsonProperty("_id")
+
   public String getId() {
     return this._id;
   }
 
-  @JsonProperty("_id")
+
   public void setId(String string) {
     this._id = string;
   }

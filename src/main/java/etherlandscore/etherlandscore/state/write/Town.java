@@ -1,7 +1,5 @@
 package etherlandscore.etherlandscore.state.write;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.services.ImpatientAsker;
@@ -17,11 +15,9 @@ public class Town  {
   private final String name;
   private Set<Integer> districts;
 
-  @JsonProperty("_id")
   private String _id;
 
-  @JsonCreator
-  public Town(@JsonProperty("_id") String name) {
+  public Town(String name) {
     this.name = name;
   }
 

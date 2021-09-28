@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.state.write;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import etherlandscore.etherlandscore.services.ImpatientAsker;
 import etherlandscore.etherlandscore.state.preferences.UserPreferences;
 import org.bukkit.Bukkit;
@@ -56,7 +55,6 @@ public class Gamer {
   }
 
 
-  @JsonIgnore
   public Field[] getDeclaredFields() {
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field f : fields) {
@@ -78,7 +76,6 @@ public class Gamer {
   }
 
 
-  @JsonIgnore
   public String getName() {
     if (this.getPlayer() != null) {
       return this.getPlayer().getName();
@@ -93,7 +90,6 @@ public class Gamer {
   }
 
 
-  @JsonIgnore
   public Player getPlayer() {
     return Bukkit.getPlayer(uuid);
   }
@@ -116,13 +112,11 @@ public class Gamer {
   }
 
 
-  @JsonIgnore
   public Town getTownObject() {
     return state().getTown(getTown());
   }
 
 
-  @JsonIgnore
   public UUID getUuid() {
     return uuid;
   }

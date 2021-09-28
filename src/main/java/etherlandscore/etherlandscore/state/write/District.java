@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.state.write;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.services.ImpatientAsker;
@@ -11,7 +10,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class District {
-  @JsonProperty("_id")
   private String _id;
   public District(int id) {
     this._id = String.valueOf(id);

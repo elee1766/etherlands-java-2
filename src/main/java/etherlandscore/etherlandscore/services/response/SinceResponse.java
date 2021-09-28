@@ -1,17 +1,12 @@
 package etherlandscore.etherlandscore.services.response;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SinceResponse {
   private Integer[] update;
   private Integer block;
 
-  @JsonCreator
   public SinceResponse(
-      @JsonProperty("update") Integer[] update, @JsonProperty("block") Integer block) {
+      Integer[] update, Integer block) {
     this.update = update;
     this.block = block;
   }

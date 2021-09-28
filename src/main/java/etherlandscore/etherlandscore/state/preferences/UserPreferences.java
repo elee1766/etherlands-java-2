@@ -1,7 +1,5 @@
 package etherlandscore.etherlandscore.state.preferences;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.enums.ToggleValues;
 
@@ -12,7 +10,6 @@ public class UserPreferences {
 
   public Map<MessageToggles, ToggleValues> storage;
 
-  @JsonCreator
   public UserPreferences() {
     this.storage = new HashMap<>();
     apply_defaults();
@@ -30,7 +27,6 @@ public class UserPreferences {
     return storage.getOrDefault(preference, ToggleValues.DISABLED).equals(ToggleValues.ENABLED);
   }
 
-  @JsonIgnore
   public void set(MessageToggles toggles, ToggleValues value) {
     storage.put(toggles, value);
   }

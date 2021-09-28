@@ -5,9 +5,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.nms.WrapperPlayServerEntityMetadata;
 import etherlandscore.etherlandscore.nms.WrapperPlayServerSpawnEntity;
 import etherlandscore.etherlandscore.services.ExternalMetadataService;
@@ -31,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class WriteNFT  implements NFT {
-    @JsonIgnore
     public static final int DEFAULT_STARTING_ID = Integer.MAX_VALUE / 4;
     private static final AtomicInteger ID_COUNTER = new AtomicInteger(DEFAULT_STARTING_ID);
     private final String contract;
@@ -41,20 +37,18 @@ public class WriteNFT  implements NFT {
     private final Integer xloc;
     private final Integer yloc;
     private final Integer zloc;
-    @JsonIgnore
     private List<PacketContainer> packets = new ArrayList<>();
 
     private String _id;
 
-    @JsonCreator
     public WriteNFT(
-        @JsonProperty("contract") String contract,
-        @JsonProperty("item") String item,
-        @JsonProperty("width") Integer width,
-        @JsonProperty("placer") UUID placer,
-        @JsonProperty("xloc") Integer xloc,
-        @JsonProperty("yloc") Integer yloc,
-        @JsonProperty("zloc") Integer zloc
+         String contract,
+         String item,
+         Integer width,
+        UUID placer,
+         Integer xloc,
+        Integer yloc,
+         Integer zloc
     ){
         this.contract = contract;
         this.item = item;
@@ -171,22 +165,18 @@ public class WriteNFT  implements NFT {
         return contract;
     }
 
-    @JsonIgnore
     public Gamer getGamer(){
         return state().getGamer(placer);
     }
 
-    @JsonProperty("_id")
     public String getId() {
         return calculate_id();
     }
 
-    @JsonProperty("_id")
     public void setId(String string) {
         this._id = calculate_id();
     }
 
-    @JsonIgnore
     private BufferedImage getImage(){
         BufferedImage cachedBuffer = ExternalMetadataService.getCachedBuffer(this.getContract(), this.getItem());
         if(cachedBuffer == null){
@@ -209,7 +199,6 @@ public class WriteNFT  implements NFT {
         return this.placer;
     }
 
-    @JsonIgnore
     private BlockFace getSignDirection(){
         Block block = Bukkit.getWorld("world").getBlockAt(this.getXloc(), this.getYloc(), this.getZloc());
         if(block.getBlockData().getMaterial().toString().contains("WALL_SIGN")){
@@ -228,13 +217,11 @@ public class WriteNFT  implements NFT {
 
     public Integer getZloc(){return zloc;}
 
-    @JsonIgnore
     public boolean isAir(){
         Block block = Bukkit.getWorld("world").getBlockAt(this.getXloc(), this.getYloc(), this.getZloc());
         return block.getBlockData().getMaterial().toString().contains("AIR");
     }
 
-    @JsonIgnore
     public boolean sendGamer(Gamer gamer){
         ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
         Bukkit.getLogger().info(this.packets.size() + " size");

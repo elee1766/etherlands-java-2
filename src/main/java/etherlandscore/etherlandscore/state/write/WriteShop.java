@@ -1,7 +1,5 @@
 package etherlandscore.etherlandscore.state.write;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.state.read.Shop;
 import org.bukkit.Location;
 import org.bukkit.block.Chest;
@@ -19,15 +17,14 @@ public class WriteShop  implements Shop {
   private final ArmorStand label;
   private String _id;
 
-  @JsonCreator
   public WriteShop(
-      @JsonProperty("chest") Chest chest,
-      @JsonProperty("district") District district,
-      @JsonProperty("owner") Gamer owner,
-      @JsonProperty("inventory") Inventory shopInventory,
-      @JsonProperty("Item") ItemStack item,
-      @JsonProperty("Price") Integer price,
-      @JsonProperty("Label") ArmorStand armorStand) {
+      Chest chest,
+      District district,
+      Gamer owner,
+      Inventory shopInventory,
+      ItemStack item,
+      Integer price,
+      ArmorStand armorStand) {
     this.district = district;
     this.label = armorStand;
     this.chest = chest;
@@ -47,12 +44,10 @@ public class WriteShop  implements Shop {
     this.inventory.contains(item);
   }
 
-  @JsonProperty("_id")
   public String getId() {
     return this._id;
   }
 
-  @JsonProperty("_id")
   public void setId(String string) {
     this._id =
         (chest.getLocation().getBlockX() + "_" + chest.getLocation().getY() + "_" + chest.getZ());

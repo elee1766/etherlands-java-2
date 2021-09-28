@@ -98,12 +98,6 @@
             <version>0.5.2</version>
         </dependency>
         <dependency>
-            <groupId>net.luckperms</groupId>
-            <artifactId>api</artifactId>
-            <version>5.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>dev.jorel.CommandAPI</groupId>
             <artifactId>commandapi-core</artifactId>
             <version>6.1.0</version>
@@ -115,17 +109,10 @@
             <version>4.7.0</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jetlang/jetlang -->
         <dependency>
             <groupId>org.jetlang</groupId>
             <artifactId>jetlang</artifactId>
             <version>0.2.23</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jetlang/jetlang.remoting -->
-        <dependency>
-            <groupId>org.jetlang</groupId>
-            <artifactId>jetlang.remoting</artifactId>
-            <version>0.6.47</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

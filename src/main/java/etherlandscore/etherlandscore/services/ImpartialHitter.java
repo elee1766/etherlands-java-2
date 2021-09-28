@@ -64,10 +64,10 @@ public class ImpartialHitter extends ListenerClient {
           Bukkit.getLogger().info(key + "  -  " + content);
           String[] args = content.split(":");
           UUID uuid;
+          uuid = UUID.fromString(args[1]);
+          Gamer gamer = state().getGamer(uuid);
           switch (args[0]) {
             case "gamer":
-              uuid = UUID.fromString(args[1]);
-              Gamer gamer = state().getGamer(uuid);
               TextComponent component = ComponentCreator.ColoredText(args[2], ChatColor.WHITE);
               if (args[2].contains("[Error]")) {
                 component.setColor(ChatColor.RED);
@@ -75,12 +75,25 @@ public class ImpartialHitter extends ListenerClient {
               StateSender.sendGamerComponent(channels, gamer, component);
               break;
             case "modal":
-              uuid = UUID.fromString(args[1]);
               String modal_type = args[2];
               if (modal_type.equals("district")) {
                 int district_id = Integer.parseInt(args[3]);
-                this.channels.chat_message.publish(new Message<>(ChatTarget.gamer_district_info, new Gamer(uuid), new District(district_id)));
-              }
+                if (district_id != 0) {
+                  this.channels.chat_message.publish(
+                      new Message<>(
+                          ChatTarget.gamer_district_info,
+                          new Gamer(uuid),
+                          new District(district_id)));
+                }else{
+                  this.channels.chat_message.publish(
+                      new Message<>(
+                          ChatTarget.gamer_town_info,
+                          gamer,
+                          gamer.getTownObject()
+                          ));
+
+                  }
+                }
               break;
             default:
               break;

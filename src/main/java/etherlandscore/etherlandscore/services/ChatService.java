@@ -229,9 +229,16 @@ public class ChatService extends ListenerClient {
     builder.addHeader(title);
     builder.addField("town",ComponentCreator.Town(target.getName()));
     builder.addField("owner",ComponentCreator.UUID(target.getOwner(),ChatColor.GOLD));
+    builder.addField("managers",ComponentCreator.Gamers(target.getTeam("manager").getMembers()));
     builder.addField("members",ComponentCreator.Gamers(target.getMembers()));
     builder.addField("districts",ComponentCreator.Districts(target.getDistrictObjects()));
-    builder.addField("teams",ComponentCreator.Teams(target.getTeams().keySet()));
+    LinkedHashSet<String> all_teams = new LinkedHashSet<>();
+    all_teams.add("member");
+    all_teams.add("outsider");
+    all_teams.addAll(target.getTeams().keySet().stream().toList());
+    all_teams.remove("manager");
+    builder.addBody("default permissions",ComponentCreator.TeamPermissions(target.getId(), 0,all_teams.stream().toList()));
+
     builder.finish();
 
     channels.chat_message.publish(new Message<>(ChatTarget.gamer_base, gamer, builder.getMessage()));

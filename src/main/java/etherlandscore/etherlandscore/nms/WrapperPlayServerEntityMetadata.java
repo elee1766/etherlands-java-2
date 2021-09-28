@@ -1,6 +1,5 @@
 package etherlandscore.etherlandscore.nms;
 
-
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
@@ -11,8 +10,7 @@ import org.bukkit.entity.Entity;
 import java.util.List;
 
 public class WrapperPlayServerEntityMetadata extends AbstractPacket {
-  public static final PacketType TYPE =
-      PacketType.Play.Server.ENTITY_METADATA;
+  public static final PacketType TYPE = PacketType.Play.Server.ENTITY_METADATA;
 
   public WrapperPlayServerEntityMetadata() {
     super(new PacketContainer(TYPE), TYPE);
@@ -21,26 +19,6 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
 
   public WrapperPlayServerEntityMetadata(PacketContainer packet) {
     super(packet, TYPE);
-  }
-
-  /**
-   * Retrieve Entity ID.
-   * <p>
-   * Notes: entity's ID
-   *
-   * @return The current Entity ID
-   */
-  public int getEntityID() {
-    return handle.getIntegers().read(0);
-  }
-
-  /**
-   * Set Entity ID.
-   *
-   * @param value - new value.
-   */
-  public void setEntityID(int value) {
-    handle.getIntegers().write(0, value);
   }
 
   /**
@@ -61,6 +39,26 @@ public class WrapperPlayServerEntityMetadata extends AbstractPacket {
    */
   public Entity getEntity(PacketEvent event) {
     return getEntity(event.getPlayer().getWorld());
+  }
+
+  /**
+   * Retrieve Entity ID.
+   *
+   * <p>Notes: entity's ID
+   *
+   * @return The current Entity ID
+   */
+  public int getEntityID() {
+    return handle.getIntegers().read(0);
+  }
+
+  /**
+   * Set Entity ID.
+   *
+   * @param value - new value.
+   */
+  public void setEntityID(int value) {
+    handle.getIntegers().write(0, value);
   }
 
   /**

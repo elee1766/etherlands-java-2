@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore.state.read;
 
+import etherlandscore.etherlandscore.state.write.Gamer;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.Inventory;
@@ -7,17 +8,15 @@ import org.bukkit.inventory.ItemStack;
 
 public interface Shop {
 
-  Location getLocation();
-
   Inventory getInventory();
-
-  Gamer getOwner();
 
   ItemStack getItem();
 
-  Integer getPrice();
-
   ArmorStand getLabel();
 
+  Location getLocation();
 
+  Gamer getOwner();
+
+  Integer getPrice();
 }

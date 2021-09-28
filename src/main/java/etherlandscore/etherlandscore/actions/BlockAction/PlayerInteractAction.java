@@ -2,19 +2,36 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.write.District;
+import etherlandscore.etherlandscore.state.write.Gamer;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class PlayerInteractAction extends PermissionedAction {
   private final PlayerInteractEvent event;
   private final AccessFlags flag = AccessFlags.INTERACT;
 
+  public PlayerInteractAction(PlayerInteractEvent event) {
+    super(event);
+    this.event = event;
+  }
+
+  public Integer getChunkX() {
+    if (event.getClickedBlock() == null) {
+      return event.getPlayer().getChunk().getX();
+    }
+    return event.getClickedBlock().getChunk().getX();
+  }
+
+  public Integer getChunkZ() {
+    if (event.getInteractionPoint() == null) {
+      return event.getPlayer().getChunk().getZ();
+    }
+    return event.getInteractionPoint().getChunk().getZ();
+  }
+
   @Override
   public District getDistrict() {
-    return
-        getContext()
-            .getDistrict(getChunkX(), getChunkZ());
+    return getContext().getDistrict(getChunkX(), getChunkZ());
   }
 
   @Override
@@ -23,25 +40,8 @@ public class PlayerInteractAction extends PermissionedAction {
   }
 
   @Override
-  public Gamer getGamer() {return getContext().getGamer(event.getPlayer().getUniqueId());}
-
-  public PlayerInteractAction(PlayerInteractEvent event) {
-    super(event);
-    this.event = event;
-  }
-
-  public Integer getChunkX(){
-    if (event.getClickedBlock() == null) {
-      return event.getPlayer().getChunk().getX();
-    }
-    return event.getClickedBlock().getChunk().getX();
-  }
-
-  public Integer getChunkZ(){
-    if (event.getInteractionPoint() == null) {
-      return event.getPlayer().getChunk().getZ();
-    }
-    return event.getInteractionPoint().getChunk().getZ();
+  public Gamer getGamer() {
+    return getContext().getGamer(event.getPlayer().getUniqueId());
   }
 
   @Override

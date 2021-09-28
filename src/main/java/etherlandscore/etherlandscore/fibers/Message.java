@@ -14,18 +14,20 @@ public class Message<T> {
     return args;
   }
 
+  public Message<ChatTarget> getChatResponse() {
+    return chatResponse;
+  }
+
   public T getCommand() {
     return command;
   }
 
-  public Message<T> setChatResponse(ChatTarget target, Object...args){
-    this.chatResponse = new Message<>(target, args);
-    return this;
-  }
-  public boolean hasChatResponse(){
+  public boolean hasChatResponse() {
     return chatResponse != null;
   }
-  public Message<ChatTarget> getChatResponse(){
-    return chatResponse;
+
+  public Message<T> setChatResponse(ChatTarget target, Object... args) {
+    this.chatResponse = new Message<>(target, args);
+    return this;
   }
 }

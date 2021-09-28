@@ -10,9 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import etherlandscore.etherlandscore.nms.WrapperPlayServerEntityMetadata;
 import etherlandscore.etherlandscore.nms.WrapperPlayServerSpawnEntity;
-import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.services.ExternalMetadataService;
-import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.NFT;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -32,7 +30,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
-public class WriteNFT extends CouchDocument implements NFT {
+public class WriteNFT  implements NFT {
+    @JsonIgnore
+    public static final int DEFAULT_STARTING_ID = Integer.MAX_VALUE / 4;
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(DEFAULT_STARTING_ID);
     private final String contract;
     private final String item;
     private final Integer width;
@@ -40,11 +41,6 @@ public class WriteNFT extends CouchDocument implements NFT {
     private final Integer xloc;
     private final Integer yloc;
     private final Integer zloc;
-
-    @JsonIgnore
-    public static final int DEFAULT_STARTING_ID = Integer.MAX_VALUE / 4;
-    private static final AtomicInteger ID_COUNTER = new AtomicInteger(DEFAULT_STARTING_ID);
-
     @JsonIgnore
     private List<PacketContainer> packets = new ArrayList<>();
 
@@ -69,97 +65,8 @@ public class WriteNFT extends CouchDocument implements NFT {
         this.zloc = zloc;
     }
 
-    @JsonProperty("_id")
-    public String getId() {
-        return calculate_id();
-    }
-
     private String calculate_id(){
         return this.xloc + "_" + this.yloc + "_" + this.zloc;
-    }
-
-    @JsonProperty("_id")
-    public void setId(String string) {
-        this._id = calculate_id();
-    }
-
-    @Override
-    public String getContract() {
-        return contract;
-    }
-
-    @Override
-    public String getItem() {
-        return item;
-    }
-
-    @Override
-    public Integer getWidth() {return width;}
-
-    public UUID getPlacer() {
-        return this.placer;
-    }
-    public Integer getXloc(){return xloc;}
-    public Integer getYloc(){return yloc;}
-    public Integer getZloc(){return zloc;}
-
-    @JsonIgnore
-    public Gamer getGamer(){
-        return state().getGamer(placer);
-    }
-
-
-    @JsonIgnore
-    private BufferedImage getImage(){
-        BufferedImage cachedBuffer = ExternalMetadataService.getCachedBuffer(this.getContract(), this.getItem());
-        if(cachedBuffer == null){
-            return null;
-        }
-        Image scaledInstance = cachedBuffer.getScaledInstance(this.getWidth() * 128, this.getWidth() * 128, BufferedImage.SCALE_SMOOTH);
-        BufferedImage image = new BufferedImage(scaledInstance.getWidth(null), scaledInstance.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2D = image.createGraphics();
-        g2D.drawImage(scaledInstance,0,0,null);
-        g2D.dispose();
-        return image;
-    }
-
-    @JsonIgnore
-    public boolean sendGamer(Gamer gamer){
-        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
-        Bukkit.getLogger().info(this.packets.size() + " size");
-        if(this.packets.size() > 0){
-            for (PacketContainer packet : this.packets) {
-                try {
-                    Bukkit.getLogger().info(packet.toString());
-                    protocolManager.sendServerPacket(gamer.getPlayer(),packet);
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-            return true;
-        }
-        try{
-            createMaps();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @JsonIgnore
-    public boolean isAir(){
-        Block block = Bukkit.getWorld("world").getBlockAt(this.getXloc(), this.getYloc(), this.getZloc());
-        return block.getBlockData().getMaterial().toString().contains("AIR");
-    }
-
-    @JsonIgnore
-    private BlockFace getSignDirection(){
-        Block block = Bukkit.getWorld("world").getBlockAt(this.getXloc(), this.getYloc(), this.getZloc());
-        if(block.getBlockData().getMaterial().toString().contains("WALL_SIGN")){
-            Bukkit.getLogger().info(String.valueOf((WallSign) block.getBlockData()));
-            return ((WallSign) block.getBlockData()).getFacing();
-        }
-        return null;
     }
 
     private void createMaps(){
@@ -257,6 +164,97 @@ public class WriteNFT extends CouchDocument implements NFT {
         }
 
         return colors;
+    }
+
+    @Override
+    public String getContract() {
+        return contract;
+    }
+
+    @JsonIgnore
+    public Gamer getGamer(){
+        return state().getGamer(placer);
+    }
+
+    @JsonProperty("_id")
+    public String getId() {
+        return calculate_id();
+    }
+
+    @JsonProperty("_id")
+    public void setId(String string) {
+        this._id = calculate_id();
+    }
+
+    @JsonIgnore
+    private BufferedImage getImage(){
+        BufferedImage cachedBuffer = ExternalMetadataService.getCachedBuffer(this.getContract(), this.getItem());
+        if(cachedBuffer == null){
+            return null;
+        }
+        Image scaledInstance = cachedBuffer.getScaledInstance(this.getWidth() * 128, this.getWidth() * 128, BufferedImage.SCALE_SMOOTH);
+        BufferedImage image = new BufferedImage(scaledInstance.getWidth(null), scaledInstance.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2D = image.createGraphics();
+        g2D.drawImage(scaledInstance,0,0,null);
+        g2D.dispose();
+        return image;
+    }
+
+    @Override
+    public String getItem() {
+        return item;
+    }
+
+    public UUID getPlacer() {
+        return this.placer;
+    }
+
+    @JsonIgnore
+    private BlockFace getSignDirection(){
+        Block block = Bukkit.getWorld("world").getBlockAt(this.getXloc(), this.getYloc(), this.getZloc());
+        if(block.getBlockData().getMaterial().toString().contains("WALL_SIGN")){
+            Bukkit.getLogger().info(String.valueOf(block.getBlockData()));
+            return ((WallSign) block.getBlockData()).getFacing();
+        }
+        return null;
+    }
+
+    @Override
+    public Integer getWidth() {return width;}
+
+    public Integer getXloc(){return xloc;}
+
+    public Integer getYloc(){return yloc;}
+
+    public Integer getZloc(){return zloc;}
+
+    @JsonIgnore
+    public boolean isAir(){
+        Block block = Bukkit.getWorld("world").getBlockAt(this.getXloc(), this.getYloc(), this.getZloc());
+        return block.getBlockData().getMaterial().toString().contains("AIR");
+    }
+
+    @JsonIgnore
+    public boolean sendGamer(Gamer gamer){
+        ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
+        Bukkit.getLogger().info(this.packets.size() + " size");
+        if(this.packets.size() > 0){
+            for (PacketContainer packet : this.packets) {
+                try {
+                    Bukkit.getLogger().info(packet.toString());
+                    protocolManager.sendServerPacket(gamer.getPlayer(),packet);
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+            return true;
+        }
+        try{
+            createMaps();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
 

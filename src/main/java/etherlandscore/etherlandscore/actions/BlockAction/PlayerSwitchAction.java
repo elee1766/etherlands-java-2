@@ -2,18 +2,37 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.write.District;
+import etherlandscore.etherlandscore.state.write.Gamer;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class PlayerSwitchAction extends PermissionedAction {
   private final PlayerInteractEvent event;
   private final AccessFlags flag = AccessFlags.SWITCH;
 
-
   public PlayerSwitchAction(PlayerInteractEvent event) {
     super(event);
     this.event = event;
+  }
+
+  public Integer getChunkX() {
+    if (event.getInteractionPoint() == null) {
+      return 0;
+    }
+    return event.getInteractionPoint().getChunk().getX();
+  }
+
+  public Integer getChunkZ() {
+    if (event.getInteractionPoint() == null) {
+      return 0;
+    }
+
+    return event.getInteractionPoint().getChunk().getZ();
+  }
+
+  @Override
+  public District getDistrict() {
+    return getContext().getDistrict(getChunkX(), getChunkZ());
   }
 
   @Override
@@ -22,28 +41,8 @@ public class PlayerSwitchAction extends PermissionedAction {
   }
 
   @Override
-  public Gamer getGamer() {return getContext().getGamer(event.getPlayer().getUniqueId());}
-
-  @Override
-  public District getDistrict() {
-    return
-        getContext()
-            .getDistrict(getChunkX(), getChunkZ());
-  }
-
-  public Integer getChunkX(){
-    if(event.getInteractionPoint() == null){
-      return 0;
-    }
-    return event.getInteractionPoint().getChunk().getX();
-  }
-
-  public Integer getChunkZ(){
-    if (event.getInteractionPoint() == null) {
-      return 0;
-      }
-
-    return event.getInteractionPoint().getChunk().getZ();
+  public Gamer getGamer() {
+    return getContext().getGamer(event.getPlayer().getUniqueId());
   }
 
   @Override
@@ -53,8 +52,7 @@ public class PlayerSwitchAction extends PermissionedAction {
     if (gamer.getPlayer().isOp()) {
       return super.process();
     }
-    District writeDistrict=
-        getContext().getDistrict(getChunkX(), getChunkZ());
+    District writeDistrict = getContext().getDistrict(getChunkX(), getChunkZ());
     if (writeDistrict == null) {
       return super.rollback();
     }

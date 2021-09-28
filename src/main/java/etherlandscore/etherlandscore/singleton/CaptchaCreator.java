@@ -17,7 +17,4 @@ public class CaptchaCreator {
     output[2] = wordlist.get(c);
     return output;
   }
-
-
-
 }

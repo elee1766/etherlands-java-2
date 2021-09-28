@@ -16,5 +16,7 @@ public enum ChatTarget {
   gamer_town_info,
   gamer_team_info,
   district_touch_district,
-  gamer_fail_action, gamer_captcha, gamer_send_map
+  gamer_fail_action,
+  gamer_captcha,
+  gamer_send_map
 }

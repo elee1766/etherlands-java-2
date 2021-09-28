@@ -4,8 +4,8 @@ import etherlandscore.etherlandscore.actions.BlockAction.BlockBreakAction;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.read.District;
 import etherlandscore.etherlandscore.state.sender.StateSender;
+import etherlandscore.etherlandscore.state.write.District;
 import etherlandscore.etherlandscore.state.write.WriteShop;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -36,13 +36,13 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockBreak(BlockBreakEvent breakEvent) {
-    if(breakEvent.getBlock().getState() instanceof Chest){
+    if (breakEvent.getBlock().getState() instanceof Chest) {
       WriteShop shop = state().getShop(breakEvent.getBlock().getLocation());
-      if(shop!=null){
-        if(state().getGamer(breakEvent.getPlayer().getUniqueId()).equals(shop.getOwner())){
+      if (shop != null) {
+        if (state().getGamer(breakEvent.getPlayer().getUniqueId()).equals(shop.getOwner())) {
           shop.getLabel().remove();
           return;
-        }else{
+        } else {
           breakEvent.setCancelled(true);
         }
       }
@@ -51,7 +51,7 @@ public class BlockEventListener extends ListenerClient implements Listener {
       BlockBreakAction action = new BlockBreakAction(breakEvent);
       boolean code = action.process();
       if (!code) {
-        StateSender.gamerFailAction(channels,action);
+        StateSender.gamerFailAction(channels, action);
       }
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
@@ -60,29 +60,15 @@ public class BlockEventListener extends ListenerClient implements Listener {
   }
 
   @EventHandler
-  public void onBlockSpread(BlockSpreadEvent spreadEvent) {
-    Block spreadFrom = spreadEvent.getSource();
-    Block spreadTo = spreadEvent.getBlock();
-    try {
-      District fromDistrict = state().getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
-      District toDistrict = state().getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
-      if(fromDistrict!=toDistrict){
-        spreadEvent.setCancelled(true);
-      }
-    } catch (Exception e) {
-      Bukkit.getLogger().warning(e.toString());
-      spreadEvent.setCancelled(true);
-    }
-  }
-
-  @EventHandler
   public void onBlockBurn(BlockBurnEvent burnEvent) {
     Block spreadFrom = burnEvent.getIgnitingBlock();
     Block spreadTo = burnEvent.getBlock();
     try {
-      District fromDistrict = state().getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
-      District toDistrict = state().getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
-      if(fromDistrict!=toDistrict){
+      District fromDistrict =
+          state().getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
+      District toDistrict =
+          state().getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
+      if (fromDistrict != toDistrict) {
         burnEvent.setCancelled(true);
       }
     } catch (Exception e) {
@@ -94,51 +80,40 @@ public class BlockEventListener extends ListenerClient implements Listener {
   @EventHandler
   public void onBlockExplode(EntityExplodeEvent explodeEvent) {
     try {
-      District d = state().getDistrict(explodeEvent.getLocation().getChunk().getX(), explodeEvent.getLocation().getChunk().getX());
+      District d =
+          state()
+              .getDistrict(
+                  explodeEvent.getLocation().getChunk().getX(),
+                  explodeEvent.getLocation().getChunk().getX());
       List<Block> blockList = explodeEvent.blockList();
       Iterator<Block> it = blockList.iterator();
       while (it.hasNext()) {
         Block block = it.next();
-        if (state().getDistrict(block.getChunk().getX(), block.getChunk().getZ())==null) {
+        if (state().getDistrict(block.getChunk().getX(), block.getChunk().getZ()) == null) {
           it.remove();
-        }else{
+        } else {
           District db = state().getDistrict(block.getChunk().getX(), block.getChunk().getZ());
-          if(db!=d){
+          if (db != d) {
             it.remove();
           }
         }
       }
-    } catch(Exception e){
+    } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
       explodeEvent.setCancelled(true);
     }
   }
 
-
-  @EventHandler
-  public void onLiquidFlow(BlockFromToEvent flowEvent) {
-    try {
-      District dFrom = state().getDistrict(flowEvent.getBlock().getChunk().getX(), flowEvent.getBlock().getChunk().getZ());
-      District dTo = state().getDistrict(flowEvent.getToBlock().getChunk().getX(), flowEvent.getToBlock().getChunk().getZ());
-      if(dFrom!=dTo){
-        flowEvent.setCancelled(true);
-      }
-    } catch(Exception e){
-      Bukkit.getLogger().warning(e.toString());
-      flowEvent.setCancelled(true);
-    }
-  }
-
   @EventHandler
   public void onBlockPlace(BlockPlaceEvent placeEvent) {
-    if(placeEvent.getBlock().getState() instanceof Chest){
+    if (placeEvent.getBlock().getState() instanceof Chest) {
       Block chest = placeEvent.getBlock();
       Location loc = chest.getLocation();
       World world = loc.getWorld();
-      for(int i = -1; i<2; i++){
-        for(int j = -1; j<2; j++){
-          Location check = new Location(world, loc.getX()+i, loc.getY(), loc.getZ()+j);
-          if(!check.equals(loc)) {
+      for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+          Location check = new Location(world, loc.getX() + i, loc.getY(), loc.getZ() + j);
+          if (!check.equals(loc)) {
             if (world.getBlockAt(check).getState() instanceof Chest) {
               placeEvent.setCancelled(true);
               return;
@@ -152,10 +127,49 @@ public class BlockEventListener extends ListenerClient implements Listener {
       boolean code = action.process();
       if (!code) {
         StateSender.gamerFailAction(channels, action);
-        }
+      }
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
       placeEvent.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onBlockSpread(BlockSpreadEvent spreadEvent) {
+    Block spreadFrom = spreadEvent.getSource();
+    Block spreadTo = spreadEvent.getBlock();
+    try {
+      District fromDistrict =
+          state().getDistrict(spreadFrom.getChunk().getX(), spreadFrom.getChunk().getZ());
+      District toDistrict =
+          state().getDistrict(spreadTo.getChunk().getX(), spreadTo.getChunk().getZ());
+      if (fromDistrict != toDistrict) {
+        spreadEvent.setCancelled(true);
+      }
+    } catch (Exception e) {
+      Bukkit.getLogger().warning(e.toString());
+      spreadEvent.setCancelled(true);
+    }
+  }
+
+  @EventHandler
+  public void onLiquidFlow(BlockFromToEvent flowEvent) {
+    try {
+      District dFrom =
+          state()
+              .getDistrict(
+                  flowEvent.getBlock().getChunk().getX(), flowEvent.getBlock().getChunk().getZ());
+      District dTo =
+          state()
+              .getDistrict(
+                  flowEvent.getToBlock().getChunk().getX(),
+                  flowEvent.getToBlock().getChunk().getZ());
+      if (dFrom != dTo) {
+        flowEvent.setCancelled(true);
+      }
+    } catch (Exception e) {
+      Bukkit.getLogger().warning(e.toString());
+      flowEvent.setCancelled(true);
     }
   }
 }

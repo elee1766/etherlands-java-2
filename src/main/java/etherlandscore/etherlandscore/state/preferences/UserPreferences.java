@@ -26,12 +26,12 @@ public class UserPreferences {
     set(MessageToggles.LOCAL_CHAT, ToggleValues.DISABLED);
   }
 
+  public boolean checkPreference(MessageToggles preference) {
+    return storage.getOrDefault(preference, ToggleValues.DISABLED).equals(ToggleValues.ENABLED);
+  }
+
   @JsonIgnore
   public void set(MessageToggles toggles, ToggleValues value) {
     storage.put(toggles, value);
-  }
-
-  public boolean checkPreference(MessageToggles preference) {
-    return storage.getOrDefault(preference, ToggleValues.DISABLED).equals(ToggleValues.ENABLED);
   }
 }

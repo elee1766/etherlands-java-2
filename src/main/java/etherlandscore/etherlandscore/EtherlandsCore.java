@@ -25,12 +25,12 @@ import java.util.List;
 
 public final class EtherlandsCore extends JavaPlugin {
   private ProtocolManager protocolManager;
+
   @Override
   public void onDisable() {
     Channels channels = new Channels();
     Bukkit.getServer().getConsoleSender().sendMessage("Saving context and shutting down...");
-    channels.master_command.publish(
-        new Message<>(MasterCommand.context_save_all));
+    channels.master_command.publish(new Message<>(MasterCommand.context_save_all));
   }
 
   @Override
@@ -46,8 +46,7 @@ public final class EtherlandsCore extends JavaPlugin {
     var manager = getServer().getPluginManager();
     getLogger().info("Hooking Sign Event Listener");
     Fiber signEventListenerFiber = new ThreadFiber();
-    SignEventListener signEventListener =
-        new SignEventListener(channels, signEventListenerFiber);
+    SignEventListener signEventListener = new SignEventListener(channels, signEventListenerFiber);
     modules.add(signEventListener);
     manager.registerEvents(signEventListener, this);
     getLogger().info("Hooking Player Event Listener");
@@ -64,11 +63,9 @@ public final class EtherlandsCore extends JavaPlugin {
     manager.registerEvents(blockEventListener, this);
     getLogger().info("Hooking Chat Event Listener");
     Fiber chatEventListenerFiber = new ThreadFiber();
-    ChatEventListener chatEventListener =
-        new ChatEventListener(channels, chatEventListenerFiber);
+    ChatEventListener chatEventListener = new ChatEventListener(channels, chatEventListenerFiber);
     modules.add(chatEventListener);
     manager.registerEvents(chatEventListener, this);
-
 
     getLogger().info("Hooking Commands");
     new CommandDisabler().disable();
@@ -111,13 +108,13 @@ public final class EtherlandsCore extends JavaPlugin {
     Fiber metadataFiber = new ThreadFiber();
     modules.add(new ExternalMetadataService(channels, metadataFiber));
 
-    Fiber askerFiber= new ThreadFiber();
+    Fiber askerFiber = new ThreadFiber();
     modules.add(new ImpatientAsker(channels, askerFiber));
 
     Fiber hitterFiber = new ThreadFiber();
     modules.add(new ImpartialHitter(channels, hitterFiber));
 
-    Fiber nftRenderFiber= new ThreadFiber();
+    Fiber nftRenderFiber = new ThreadFiber();
     modules.add(new NftRenderingService(channels, nftRenderFiber));
 
     for (var m : modules) {

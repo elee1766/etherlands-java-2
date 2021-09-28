@@ -7,9 +7,10 @@ import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
 import etherlandscore.etherlandscore.singleton.Asker;
-import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadContext;
-import etherlandscore.etherlandscore.state.read.Town;
+import etherlandscore.etherlandscore.state.write.District;
+import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.write.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -52,6 +53,27 @@ public class ListenerClient extends ServerModule {
     return new CustomArgument<>(nodeName, input -> input.replaceAll("[^a-zA-Z0-9_]", ""));
   }
 
+  public Argument districtArgument(String districtID) {
+    return new CustomArgument<>(districtID, input -> {
+      try {
+        Integer district_id = Asker.GetDistrictOfName(input);
+        return new District(district_id);
+      } catch (Exception e) {
+        throw new CustomArgument.CustomArgumentException(
+            new CustomArgument.MessageBuilder("Invalid district"));
+      }
+    })
+        .replaceSuggestions(
+            sender -> {
+              Set<String> names = Asker.GetDistrictNames();
+              ArrayList<String> output = new ArrayList<>();
+              for (String name : names) {
+                output.add(name.replace("#", ""));
+              }
+              return output.toArray(new String[0]);
+            });
+  }
+
   public Argument flagValueArgument(String nodeName) {
     return new CustomArgument<>(
             nodeName,
@@ -68,22 +90,24 @@ public class ListenerClient extends ServerModule {
 
   public Argument gamerArgument(String nodeName) {
     return new CustomArgument<>(
-        nodeName,
-        input -> {
-          OfflinePlayer player = Bukkit.getOfflinePlayer(input);
-          if (!player.hasPlayedBefore()) {
-            throw new CustomArgument.CustomArgumentException(
-                new CustomArgument.MessageBuilder("Player not found"));
-          } else {
-            return context.getGamer(player.getUniqueId());
-          }
-        })
+            nodeName,
+            input -> {
+              OfflinePlayer player = Bukkit.getOfflinePlayer(input);
+              if (!player.hasPlayedBefore()) {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("Player not found"));
+              } else {
+                return context.getGamer(player.getUniqueId());
+              }
+            })
         .replaceSuggestions(
             sender -> {
               Set<String> names = new HashSet<>();
-              for (Map.Entry<UUID, Gamer> entry : state().getGamers().entrySet()) {
-                Gamer gamer = entry.getValue();
-                if(!gamer.getName().equals("??????")){
+              OfflinePlayer[] players = Bukkit.getOfflinePlayers();
+
+              for (OfflinePlayer player : players) {
+                Gamer gamer = new Gamer(player.getUniqueId());
+                if (!gamer.getName().equals("??????")) {
                   names.add(gamer.getName());
                 }
               }
@@ -124,21 +148,35 @@ public class ListenerClient extends ServerModule {
   }
 
   private void register() {
-    channels.global_update.subscribe(
-        fiber,
-        global -> context = new ReadContext(global,channels));
+    channels.global_update.subscribe(fiber, global -> context = new ReadContext(global, channels));
   }
 
-  public Argument districtArgument(String districtID) {
-    return new CustomArgument<>(districtID, (sender, input) -> input)
+  public Argument townMemberArgument(String nodeName) {
+    return new CustomArgument<>(
+            nodeName,
+            input -> {
+              OfflinePlayer player = Bukkit.getOfflinePlayer(input);
+              if (player.hasPlayedBefore()) {
+                return context.getGamer(player.getUniqueId());
+              } else {
+                throw new CustomArgument.CustomArgumentException(
+                    new CustomArgument.MessageBuilder("Town member not found."));
+              }
+            })
         .replaceSuggestions(
             sender -> {
-              Set<String> names = Asker.GetDistrictNames();
-              ArrayList<String> output = new ArrayList<>();
-              for (String name : names) {
-                  output.add(name.replace("#", ""));
+              Player player = Bukkit.getPlayer(sender.sender().getName());
+              if (player != null) {
+                List<String> list = new ArrayList<>();
+                Gamer gamer = state().getGamer(player.getUniqueId());
+                Town town = gamer.getTownObject();
+                Set<Gamer> members = town.getMembers();
+                for (Gamer member: members) {
+                  list.add(member.getName());
+                }
+                return list.toArray(new String[0]);
               }
-              return output.toArray(new String[0]);
+              return null;
             });
   }
 
@@ -164,38 +202,6 @@ public class ListenerClient extends ServerModule {
                 if (gamer.getTownObject() != null) {
                   return gamer.getTownObject().getTeams().keySet().toArray(new String[0]);
                 }
-              }
-              return null;
-            });
-  }
-
-  public Argument townMemberArgument(String nodeName) {
-    return new CustomArgument<>(
-            nodeName,
-            input -> {
-              OfflinePlayer player = Bukkit.getOfflinePlayer(input);
-              if (player.hasPlayedBefore()) {
-                return context.getGamer(player.getUniqueId());
-              } else {
-                throw new CustomArgument.CustomArgumentException(
-                    new CustomArgument.MessageBuilder("Town member not found."));
-              }
-            })
-        .replaceSuggestions(
-            sender -> {
-              Player player = Bukkit.getPlayer(sender.sender().getName());
-              if (player != null) {
-                List<String> list = new ArrayList<>();
-                Gamer gamer = state().getGamer(player.getUniqueId());
-                Town town = gamer.getTownObject();
-                Set<UUID> members = town.getMembers();
-                for (UUID uuid : members) {
-                  Gamer member = state().getGamer(uuid);
-                  if(member != null){
-                    list.add(member.getName());
-                  }
-                }
-                return list.toArray(new String[0]);
               }
               return null;
             });

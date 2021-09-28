@@ -1,5 +1,7 @@
 package etherlandscore.etherlandscore.state.read;
 
+import etherlandscore.etherlandscore.state.write.Gamer;
+
 public interface NFT {
   String getContract();
 
@@ -10,7 +12,9 @@ public interface NFT {
   Integer getWidth();
 
   Integer getXloc();
+
   Integer getYloc();
+
   Integer getZloc();
 
   boolean isAir();

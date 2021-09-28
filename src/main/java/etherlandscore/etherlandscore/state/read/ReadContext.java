@@ -2,10 +2,8 @@ package etherlandscore.etherlandscore.state.read;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.state.Context;
-import etherlandscore.etherlandscore.state.write.WriteDistrict;
-import etherlandscore.etherlandscore.state.write.WriteMap;
-import etherlandscore.etherlandscore.state.write.WriteNFT;
-import etherlandscore.etherlandscore.state.write.WriteShop;
+import etherlandscore.etherlandscore.state.write.*;
+import etherlandscore.etherlandscore.state.write.District;
 import etherlandscore.etherlandscore.util.Map3;
 import org.bukkit.Location;
 
@@ -22,23 +20,54 @@ public class ReadContext {
     this.channels = channels;
   }
 
-  public void createTown(Channels channels, Gamer gamer, String name) {
-  }
+  public void createTown(Channels channels, Gamer gamer, String name) {}
 
   public Object getBalance(UUID uniqueId) {
     return context.getBalance(uniqueId);
+  }
+
+  public District getDistrict(int id) {
+    return context.getDistrict(id);
+  }
+
+  public District getDistrict(String nickname) {
+    return context.getDistrict(nickname);
+  }
+
+  public District getDistrict(int x, int z) {
+    return context.getDistrict(x, z);
+  }
+
+  public Map<Integer, etherlandscore.etherlandscore.state.write.District> getDistricts() {
+    return context.getDistricts();
   }
 
   public Gamer getGamer(UUID uuid) {
     return context.getGamer(uuid);
   }
 
-  public Map<UUID, Gamer> getGamers() {
-    return (Map) context.getGamers();
+  public Location getGamerLocation(Gamer gamer) {
+    return context.getGamerLocation(gamer);
+  }
+
+  public Map<Gamer, Location> getGamerLocations() {
+    return context.getGamerLocations();
+  }
+
+  public Set<WriteMap> getMaps() {
+    return context.getMaps();
   }
 
   public Map3<Integer, Integer, Integer, WriteNFT> getNFTs() {
-    return (Map3) context.getNfts();
+    return context.getNfts();
+  }
+
+  public Map<String, WriteNFT> getNftUrls() {
+    return context.getNftUrls();
+  }
+
+  public Map3<Integer, Integer, Integer, WriteNFT> getNfts() {
+    return context.getNfts();
   }
 
   public ReadPlot getPlot(Integer id) {
@@ -49,50 +78,27 @@ public class ReadContext {
     return context.getPlot(x, z);
   }
 
+  public WriteShop getShop(Location location) {
+    return context.getShop(location);
+  }
+
+  public Map<Location, WriteShop> getShops() {
+    return context.getShops();
+  }
+
   public Town getTown(String town) {
-    return context.getTown(town);
-  }
-
-  public Map<Integer, WriteDistrict> getDistricts() {
-    return context.getDistricts();
-  }
-  public District getDistrict(int id) {
-    return context.getDistrict(id);
-  }
-
-  public District getDistrict(String nickname) {
-    return context.getDistrict(nickname);
+    return new Town(town);
   }
 
   public Map<String, Town> getTowns() {
     return (Map) context.getTowns();
   }
 
-  public boolean hasGamer(UUID uniqueId) {
-    return getGamers().containsKey(uniqueId);
-  }
-
   public boolean hasTown(String name) {
     return getTowns().containsKey(name);
   }
 
-  public Map3<Integer, Integer, Integer, WriteNFT> getNfts() {return context.getNfts(); }
-
-  public Map<String, WriteNFT> getNftUrls() {return context.getNftUrls(); }
-
-  public Set<WriteMap> getMaps() {return context.getMaps(); }
-
-  public District getDistrict(int x, int z) { return context.getDistrict(x, z); }
-
-  public Map<Location, WriteShop> getShops() { return context.getShops();}
-
-  public WriteShop getShop(Location location) { return context.getShop(location);}
-
-  public Map<Gamer, Location> getGamerLocations(){return context.getGamerLocations();}
-
-  public Location getGamerLocation(Gamer gamer){return context.getGamerLocation(gamer);}
-
-  public boolean isValidCaptcha(int a, int b, int c){
+  public boolean isValidCaptcha(int a, int b, int c) {
     return context.isValidCaptcha(a, b, c);
   }
 }

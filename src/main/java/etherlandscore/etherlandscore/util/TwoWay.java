@@ -19,7 +19,12 @@ public class TwoWay<F, S> {
     if (!forward.containsKey(key)) {
       return null;
     }
-    return forward.getOrDefault(key,null);
+    return forward.getOrDefault(key, null);
+  }
+
+  @JsonIgnore
+  public S getFirstOrDefault(F key, S def) {
+    return forward.getOrDefault(key, def);
   }
 
   @JsonIgnore
@@ -27,23 +32,17 @@ public class TwoWay<F, S> {
     if (!backward.containsKey(key)) {
       return null;
     }
-    return backward.getOrDefault(key,null);
+    return backward.getOrDefault(key, null);
   }
 
-
   @JsonIgnore
-  public S getFirstOrDefault(F key, S def){
-    return forward.getOrDefault(key,def);
-  }
-  @JsonIgnore
-  public F getSecondOrDefault(S key, F def){
-    return backward.getOrDefault(key,def);
+  public F getSecondOrDefault(S key, F def) {
+    return backward.getOrDefault(key, def);
   }
 
   @JsonIgnore
   public void put(F first, S second) {
-    this.forward.put(first,second);
-    this.backward.put(second,first);
+    this.forward.put(first, second);
+    this.backward.put(second, first);
   }
-
 }

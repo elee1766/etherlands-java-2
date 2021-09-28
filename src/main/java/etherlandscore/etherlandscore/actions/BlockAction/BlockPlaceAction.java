@@ -2,8 +2,8 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
+import etherlandscore.etherlandscore.state.write.District;
+import etherlandscore.etherlandscore.state.write.Gamer;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BlockPlaceAction extends PermissionedAction {
@@ -16,27 +16,29 @@ public class BlockPlaceAction extends PermissionedAction {
   }
 
   @Override
-  public Integer getChunkX(){
+  public Integer getChunkX() {
     return event.getBlock().getChunk().getX();
   }
+
   @Override
-  public Integer getChunkZ(){
+  public Integer getChunkZ() {
     return event.getBlock().getChunk().getZ();
   }
 
   @Override
-  public Gamer getGamer() {return getContext().getGamer(event.getPlayer().getUniqueId());}
-
-  @Override
   public District getDistrict() {
-    return
-        getContext()
-            .getDistrict(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+    return getContext()
+        .getDistrict(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
   }
 
   @Override
   public AccessFlags getFlag() {
     return flag;
+  }
+
+  @Override
+  public Gamer getGamer() {
+    return getContext().getGamer(event.getPlayer().getUniqueId());
   }
 
   @Override

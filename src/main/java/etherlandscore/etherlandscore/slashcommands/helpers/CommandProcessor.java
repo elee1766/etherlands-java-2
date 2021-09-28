@@ -19,18 +19,35 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class CommandProcessor extends ListenerClient {
+  private static PoolFiberFactory fact;
   private final MemoryChannel<CommandParameters> execution_channel;
   private final Map<SlashCommands, IExecutorNormal> executor_map = new HashMap<>();
-
-  static private PoolFiberFactory fact;
 
   public CommandProcessor(Channels channels, Fiber fiber) {
     super(channels, fiber);
     this.execution_channel = new MemoryChannel<>();
-    this.execution_channel.subscribe(fiber,this::execute);
+    this.execution_channel.subscribe(fiber, this::execute);
 
     ExecutorService service = Executors.newCachedThreadPool();
     fact = new PoolFiberFactory(service);
+  }
+
+  protected CommandAPICommand createPlayerCommand(
+      String commandName, SlashCommands signal, PlayerCommandExecutor executor) {
+    hook(signal, executor);
+    return new CommandAPICommand(commandName)
+        .executesPlayer(
+            (sender, args) -> {
+              runAsync(signal, sender, args);
+            });
+  }
+
+  protected CommandAPICommand createPlayerCommand(String commandName, SlashCommands signal) {
+    return new CommandAPICommand(commandName)
+        .executesPlayer(
+            (sender, args) -> {
+              runAsync(signal, sender, args);
+            });
   }
 
   private void execute(CommandParameters msg) {
@@ -40,7 +57,8 @@ public class CommandProcessor extends ListenerClient {
       fiber.execute(
           () -> {
             try {
-              Bukkit.getLogger().info("attempting to execute command: " + msg.getCommand().toString());
+              Bukkit.getLogger()
+                  .info("attempting to execute command: " + msg.getCommand().toString());
               exec.run(msg.getSender(), msg.getArgs());
             } catch (WrapperCommandSyntaxException e) {
               Bukkit.getLogger().warning("Failed to execute command: " + e.getMessage());
@@ -50,29 +68,17 @@ public class CommandProcessor extends ListenerClient {
           });
       fiber.start();
     }
-    }
-
-  protected void hook(SlashCommands command, CommandExecutor executor){
-    this.executor_map.put(command,executor);
   }
 
-  protected void hook(SlashCommands command, PlayerCommandExecutor executor){
-    this.executor_map.put(command,executor);
+  protected void hook(SlashCommands command, CommandExecutor executor) {
+    this.executor_map.put(command, executor);
   }
 
-  protected void runAsync(SlashCommands name, CommandSender sender, Object[] args){
+  protected void hook(SlashCommands command, PlayerCommandExecutor executor) {
+    this.executor_map.put(command, executor);
+  }
+
+  protected void runAsync(SlashCommands name, CommandSender sender, Object[] args) {
     this.execution_channel.publish(new CommandParameters(name, sender, args));
-  }
-
-  protected CommandAPICommand createPlayerCommand(String commandName, SlashCommands signal, PlayerCommandExecutor executor){
-    hook(signal,executor);
-    return new CommandAPICommand(commandName).executesPlayer(
-        (sender, args)->{runAsync(signal,sender,args);}
-    );
-  }
-  protected CommandAPICommand createPlayerCommand(String commandName, SlashCommands signal){
-    return new CommandAPICommand(commandName).executesPlayer(
-        (sender, args)->{runAsync(signal,sender,args);}
-    );
   }
 }

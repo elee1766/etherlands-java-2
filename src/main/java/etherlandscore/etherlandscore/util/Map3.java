@@ -17,7 +17,7 @@ public class Map3<K1, K2, K3, V> {
     if (!map.containsKey(key1)) {
       return null;
     }
-    if(!map.get(key1).containsKey(key2)){
+    if (!map.get(key1).containsKey(key2)) {
       return null;
     }
     return map.get(key1).get(key2).getOrDefault(key3, null);
@@ -36,7 +36,7 @@ public class Map3<K1, K2, K3, V> {
     if (!map.containsKey(key1)) {
       return o;
     }
-    if(!map.get(key1).containsKey(key2)){
+    if (!map.get(key1).containsKey(key2)) {
       return o;
     }
     return map.get(key1).get(key2).getOrDefault(key3, o);
@@ -47,7 +47,7 @@ public class Map3<K1, K2, K3, V> {
     if (!map.containsKey(key1)) {
       map.put(key1, new HashMap<>());
     }
-    if(!map.get(key1).containsKey(key2)){
+    if (!map.get(key1).containsKey(key2)) {
       map.get(key1).put(key2, new HashMap<>());
     }
     map.get(key1).get(key2).put(key3, value);

@@ -6,17 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SinceResponse {
-  public Integer[] getUpdate() {
-    return update;
-  }
-
-  public void setUpdate(Integer[] update) {
-    this.update = update;
-  }
+  private Integer[] update;
+  private Integer block;
 
   @JsonCreator
-  public SinceResponse(@JsonProperty("update") Integer[] update,
-                       @JsonProperty("block") Integer block) {
+  public SinceResponse(
+      @JsonProperty("update") Integer[] update, @JsonProperty("block") Integer block) {
     this.update = update;
     this.block = block;
   }
@@ -29,6 +24,11 @@ public class SinceResponse {
     this.block = block;
   }
 
-  private Integer[] update;
-  private Integer block;
+  public Integer[] getUpdate() {
+    return update;
+  }
+
+  public void setUpdate(Integer[] update) {
+    this.update = update;
+  }
 }

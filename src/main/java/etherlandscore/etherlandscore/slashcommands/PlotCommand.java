@@ -17,34 +17,24 @@ public class PlotCommand extends CommandProcessor {
     register();
   }
 
-  public void register() {
-
-    CommandAPICommand ChunkCommand =
-        createPlayerCommand("plot",SlashCommands.plot,this::coord)
-            .withAliases("p")
-            .withPermission("etherlands.public")
-            .withArguments(new IntegerArgument("PlotID"));
-    ChunkCommand.register();
-
-    CommandAPICommand ChunkCommandidGiven =
-        createPlayerCommand("plot",SlashCommands.idGiven,this::idGiven)
-            .withPermission("etherlands.public")
-            .withArguments(new IntegerArgument("X"))
-            .withArguments(new IntegerArgument("Z"));
-    ChunkCommandidGiven.register();
-
-    CommandAPICommand ChunkCommandidLocal =
-        createPlayerCommand("plot", SlashCommands.idLocal,this::idLocal)
-            .withPermission("etherlands.public");
-    ChunkCommandidLocal.register();
-  }
-
   void coord(Player player, Object[] args) {
-    Integer id= (Integer) args[0];
+    Integer id = (Integer) args[0];
     String x = Asker.GetPlotX(id).toString();
     String z = Asker.GetPlotZ(id).toString();
     Integer district = Asker.GetDistrictOfPlot(id);
     player.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
+  }
+
+  void idGiven(Player sender, Object[] args) {
+    Integer x = (Integer) args[0];
+    Integer z = (Integer) args[1];
+    Integer plotIDs = Asker.GetPlotID(x, z);
+    if (plotIDs == null) {
+      sender.sendMessage("There is no plot here");
+    } else {
+      Integer district = Asker.GetDistrictOfPlot(plotIDs.toString());
+      sender.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
+    }
   }
 
   void idLocal(Player sender, Object[] args) {
@@ -52,22 +42,32 @@ public class PlotCommand extends CommandProcessor {
     int x = loc.getChunk().getX();
     int z = loc.getChunk().getZ();
     Integer plotIDs = Asker.GetPlotID(x, z);
-    if(plotIDs==null){
+    if (plotIDs == null) {
       sender.sendMessage("There is no plot here");
-    }else {
+    } else {
       sender.sendMessage("Plot ID: " + plotIDs);
     }
   }
 
-  void idGiven(Player sender, Object[] args) {
-    Integer x = (Integer) args[0];
-    Integer z = (Integer) args[1];
-    Integer plotIDs = Asker.GetPlotID(x, z);
-    if(plotIDs==null){
-      sender.sendMessage("There is no plot here");
-    }else{
-      Integer district = Asker.GetDistrictOfPlot(plotIDs.toString());
-      sender.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
-    }
+  public void register() {
+
+    CommandAPICommand ChunkCommand =
+        createPlayerCommand("plot", SlashCommands.plot, this::coord)
+            .withAliases("p")
+            .withPermission("etherlands.public")
+            .withArguments(new IntegerArgument("PlotID"));
+    ChunkCommand.register();
+
+    CommandAPICommand ChunkCommandidGiven =
+        createPlayerCommand("plot", SlashCommands.idGiven, this::idGiven)
+            .withPermission("etherlands.public")
+            .withArguments(new IntegerArgument("X"))
+            .withArguments(new IntegerArgument("Z"));
+    ChunkCommandidGiven.register();
+
+    CommandAPICommand ChunkCommandidLocal =
+        createPlayerCommand("plot", SlashCommands.idLocal, this::idLocal)
+            .withPermission("etherlands.public");
+    ChunkCommandidLocal.register();
   }
 }

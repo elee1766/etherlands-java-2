@@ -2,12 +2,11 @@ package etherlandscore.etherlandscore.state.write;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import etherlandscore.etherlandscore.persistance.Couch.CouchDocument;
 import etherlandscore.etherlandscore.state.read.BankRecord;
 
 import java.util.UUID;
 
-public class WriteBankRecord extends CouchDocument implements BankRecord {
+public class WriteBankRecord  implements BankRecord {
   private final UUID from;
   private final UUID to;
   private final Integer timestamp;
@@ -35,6 +34,11 @@ public class WriteBankRecord extends CouchDocument implements BankRecord {
     return delta;
   }
 
+  @Override
+  public UUID getFrom() {
+    return from;
+  }
+
   @JsonProperty("_id")
   public String getId() {
     return this._id;
@@ -45,19 +49,13 @@ public class WriteBankRecord extends CouchDocument implements BankRecord {
     this._id = string;
   }
 
-
   @Override
-  public UUID getFrom() {
-    return from;
+  public Integer getTimestamp() {
+    return timestamp;
   }
 
   @Override
   public UUID getTo() {
     return to;
-  }
-
-  @Override
-  public Integer getTimestamp() {
-    return timestamp;
   }
 }

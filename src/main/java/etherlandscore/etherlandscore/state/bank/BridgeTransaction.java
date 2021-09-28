@@ -1,4 +1,3 @@
 package etherlandscore.etherlandscore.state.bank;
 
-public class BridgeTransaction {
-}
+public class BridgeTransaction {}

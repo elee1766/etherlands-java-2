@@ -8,7 +8,7 @@ public class CommandParameters {
   private final CommandSender sender;
   private final Object[] args;
 
-  public CommandParameters(SlashCommands name, CommandSender sender, Object[] args){
+  public CommandParameters(SlashCommands name, CommandSender sender, Object[] args) {
     this.command_name = name;
     this.sender = sender;
     this.args = args;

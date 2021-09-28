@@ -20,13 +20,16 @@ public abstract class AbstractPacket {
    */
   protected AbstractPacket(PacketContainer handle, PacketType type) {
     // Make sure we're given a valid packet
-    if (handle == null)
-      throw new IllegalArgumentException("Packet handle cannot be NULL.");
+    if (handle == null) throw new IllegalArgumentException("Packet handle cannot be NULL.");
     if (!Objects.equal(handle.getType(), type))
-      throw new IllegalArgumentException(handle.getHandle()
-          + " is not a packet of type " + type);
+      throw new IllegalArgumentException(handle.getHandle() + " is not a packet of type " + type);
 
     this.handle = handle;
+  }
+
+  /** Send the current packet to all online players. */
+  public void broadcastPacket() {
+    ProtocolLibrary.getProtocolManager().broadcastServerPacket(getHandle());
   }
 
   /**
@@ -39,25 +42,17 @@ public abstract class AbstractPacket {
   }
 
   /**
-   * Send the current packet to the given receiver.
+   * Simulate receiving the current packet from the given sender.
    *
-   * @param receiver - the receiver.
-   * @throws RuntimeException If the packet cannot be sent.
+   * @param sender - the sender.
+   * @throws RuntimeException if the packet cannot be received.
    */
-  public void sendPacket(Player receiver) {
+  public void receivePacket(Player sender) {
     try {
-      ProtocolLibrary.getProtocolManager().sendServerPacket(receiver,
-          getHandle());
-    } catch (InvocationTargetException e) {
-      throw new RuntimeException("Cannot send packet.", e);
+      ProtocolLibrary.getProtocolManager().recieveClientPacket(sender, getHandle());
+    } catch (Exception e) {
+      throw new RuntimeException("Cannot receive packet.", e);
     }
-  }
-
-  /**
-   * Send the current packet to all online players.
-   */
-  public void broadcastPacket() {
-    ProtocolLibrary.getProtocolManager().broadcastServerPacket(getHandle());
   }
 
   /**
@@ -71,25 +66,23 @@ public abstract class AbstractPacket {
   @Deprecated
   public void recievePacket(Player sender) {
     try {
-      ProtocolLibrary.getProtocolManager().recieveClientPacket(sender,
-          getHandle());
+      ProtocolLibrary.getProtocolManager().recieveClientPacket(sender, getHandle());
     } catch (Exception e) {
       throw new RuntimeException("Cannot recieve packet.", e);
     }
   }
 
   /**
-   * Simulate receiving the current packet from the given sender.
+   * Send the current packet to the given receiver.
    *
-   * @param sender - the sender.
-   * @throws RuntimeException if the packet cannot be received.
+   * @param receiver - the receiver.
+   * @throws RuntimeException If the packet cannot be sent.
    */
-  public void receivePacket(Player sender) {
+  public void sendPacket(Player receiver) {
     try {
-      ProtocolLibrary.getProtocolManager().recieveClientPacket(sender,
-          getHandle());
-    } catch (Exception e) {
-      throw new RuntimeException("Cannot receive packet.", e);
+      ProtocolLibrary.getProtocolManager().sendServerPacket(receiver, getHandle());
+    } catch (InvocationTargetException e) {
+      throw new RuntimeException("Cannot send packet.", e);
     }
   }
 }

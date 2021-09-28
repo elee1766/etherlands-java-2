@@ -4,8 +4,8 @@ import dev.jorel.commandapi.CommandAPICommand;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
-import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.sender.StateSender;
+import etherlandscore.etherlandscore.state.write.Gamer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -30,8 +30,6 @@ public class FriendCommand extends CommandProcessor {
     }
   }
 
-
-
   void friendRemove(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Gamer oldFriend = (Gamer) args[0];
@@ -49,16 +47,14 @@ public class FriendCommand extends CommandProcessor {
 
   public void register() {
     CommandAPICommand FriendCommand =
-        createPlayerCommand("friend", SlashCommands.help,this::help)
+        createPlayerCommand("friend", SlashCommands.help, this::help)
             .withPermission("etherlands.public");
     FriendCommand.withSubcommand(
-        createPlayerCommand("add",SlashCommands.friendAdd,this::friendAdd)
-            .withArguments(gamerArgument("friend"))
-    );
+        createPlayerCommand("add", SlashCommands.friendAdd, this::friendAdd)
+            .withArguments(gamerArgument("friend")));
     FriendCommand.withSubcommand(
-        createPlayerCommand("remove",SlashCommands.friendRemove,this::friendRemove)
-            .withArguments(gamerArgument("friend"))
-    );
+        createPlayerCommand("remove", SlashCommands.friendRemove, this::friendRemove)
+            .withArguments(gamerArgument("friend")));
     FriendCommand.register();
   }
 }

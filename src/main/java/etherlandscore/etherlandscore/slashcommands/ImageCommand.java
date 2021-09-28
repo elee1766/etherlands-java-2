@@ -24,7 +24,8 @@ public class ImageCommand extends CommandProcessor {
   }
 
   public void getImage(Player sender, Object[] args) {
-    BufferedImage cachedBuffer = ExternalMetadataService.getCachedBuffer((String) args[0], (String) args[1]);
+    BufferedImage cachedBuffer =
+        ExternalMetadataService.getCachedBuffer((String) args[0], (String) args[1]);
     if (cachedBuffer != null) {
       Bukkit.getLogger().info(cachedBuffer.toString());
     }
@@ -34,7 +35,7 @@ public class ImageCommand extends CommandProcessor {
     sender.sendMessage("/image display [contract address|collection name] [tokenID] [size]");
   }
 
-  public void register(){
+  public void register() {
     CommandAPICommand ImageCommand =
         new CommandAPICommand("image")
             .withPermission("etherlands.public")

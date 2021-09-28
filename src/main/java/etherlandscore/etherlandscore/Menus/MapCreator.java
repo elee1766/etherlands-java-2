@@ -1,8 +1,8 @@
 package etherlandscore.etherlandscore.Menus;
 
-import etherlandscore.etherlandscore.state.read.District;
-import etherlandscore.etherlandscore.state.read.Gamer;
 import etherlandscore.etherlandscore.state.read.ReadPlot;
+import etherlandscore.etherlandscore.state.write.District;
+import etherlandscore.etherlandscore.state.write.Gamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -78,22 +78,32 @@ public class MapCreator {
     friendKey.setColor(ChatColor.DARK_GREEN);
   }
 
-  public BaseComponent title(){
-    int initial_length = 50;
-    String title = "Map (" + x + ", " + z + ")";
-    int title_length = title.length();
-    int new_length = initial_length - title_length;
-    int half_length = new_length / 2;
-    String left = StringUtils.repeat("_",half_length) + ",[ ";
-    String right = " ],"+StringUtils.repeat("_",half_length);
-    TextComponent componentLeft = ComponentCreator.ColoredText(left, ChatColor.GOLD);
-    TextComponent componentRight = ComponentCreator.ColoredText(right,ChatColor.GOLD);
-    TextComponent header = new TextComponent("");
-    header.addExtra(componentLeft);
-    header.addExtra(title);
-    header.addExtra(componentRight);
-    header.addExtra("\n");
-    return header;
+  public static BlockFace getCardinalDirection(Player player) {
+    double rotation = (player.getLocation().getYaw() - 180) % 360;
+    if (rotation < 0) {
+      rotation += 360.0;
+    }
+    if (0 <= rotation && rotation < 22.5) {
+      return BlockFace.NORTH;
+    } else if (22.5 <= rotation && rotation < 67.5) {
+      return BlockFace.NORTH_EAST;
+    } else if (67.5 <= rotation && rotation < 112.5) {
+      return BlockFace.EAST;
+    } else if (112.5 <= rotation && rotation < 157.5) {
+      return BlockFace.SOUTH_EAST;
+    } else if (157.5 <= rotation && rotation < 202.5) {
+      return BlockFace.SOUTH;
+    } else if (202.5 <= rotation && rotation < 247.5) {
+      return BlockFace.SOUTH_WEST;
+    } else if (247.5 <= rotation && rotation < 292.5) {
+      return BlockFace.WEST;
+    } else if (292.5 <= rotation && rotation < 337.5) {
+      return BlockFace.NORTH_WEST;
+    } else if (337.5 <= rotation && rotation < 360.0) {
+      return BlockFace.NORTH;
+    } else {
+      return BlockFace.NORTH;
+    }
   }
 
   public BaseComponent combined(){
@@ -115,190 +125,6 @@ public class MapCreator {
       }
     }
     return output;
-  }
-
-  public BaseComponent[] mapMenu() {
-    Player player = this.gamer.getPlayer();
-    int x = this.x - SIZE_OF_SQUARE / 2 - 1;
-    int z = this.z - SIZE_OF_SQUARE / 2 - 1;
-    for (int i = 0; i < SIZE_OF_SQUARE; i++) {
-      x++;
-      for (int j = 0; j < SIZE_OF_SQUARE; j++) {
-        z++;
-        boolean selfFlag = false;
-        boolean friendflag = false;
-        boolean playerflag = false;
-        boolean claimedflag = false;
-        boolean ownedflag = false;
-        HoverEvent friendHover = null;
-        HoverEvent playerHover = null;
-        HoverEvent claimedHover = null;
-        ClickEvent friendClick = null;
-        ClickEvent playerClick = null;
-        ClickEvent claimedClick = null;
-
-        ReadPlot plot = state().getPlot(x,z);
-        if(plot.getIdInt() != null){
-          District district = state().getDistrict(x, z);
-          if(district != null){
-            claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+x + ", " + z+")"));
-            claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district info " + district.getIdInt()));
-            claimedflag = true;
-            if (district.isOwner(gamer)) {
-              ownedflag = true;
-            }
-          }
-        }
-
-        for (Player p : Bukkit.getOnlinePlayers()) {
-          Chunk pc = p.getChunk();
-          if (pc.getZ() == z && pc.getX() == x) {
-            if (p.equals(player)) {
-              selfFlag = true;
-            } else if (this.gamer.hasFriend(p.getUniqueId())) {
-              friendflag = true;
-              friendHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Friend: " + p.getName()));
-              friendClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/gamer info " + p.getName()));
-            } else {
-              playerflag = true;
-              playerHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Player: " + p.getName()));
-              playerClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/gamer info " + p.getName()));
-            }
-          }
-        }
-
-        if (selfFlag) {
-          mapArray[j][i] = new TextComponent(selfKey);
-          mapArray[j][i].setHoverEvent((new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("You"))));
-          mapArray[j][i].setClickEvent((new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info")));
-        } else if (friendflag) {
-          mapArray[j][i] = new TextComponent(friendKey);
-          mapArray[j][i].setHoverEvent(friendHover);
-          mapArray[j][i].setClickEvent(friendClick);
-        } else if (playerflag) {
-          mapArray[j][i] = new TextComponent(playerKey);
-          mapArray[j][i].setHoverEvent(playerHover);
-          mapArray[j][i].setClickEvent(playerClick);
-        } else if (ownedflag) {
-          mapArray[j][i] = new TextComponent(ownedKey);
-          mapArray[j][i].setHoverEvent(claimedHover);
-          mapArray[j][i].setClickEvent(claimedClick);
-        } else if (claimedflag) {
-          mapArray[j][i] = new TextComponent(claimedKey);
-          mapArray[j][i].setHoverEvent(claimedHover);
-          mapArray[j][i].setClickEvent(claimedClick);
-        } else {
-          mapArray[j][i] = new TextComponent(unclaimedKey);
-          mapArray[j][i].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Unclaimed: ("+x+", "+z+")")));
-        }
-      }
-      z = z - SIZE_OF_SQUARE;
-    }
-
-    this.mapArray = rotateMap(rotateMap(this.mapArray));
-    TextComponent[] returnValue = new TextComponent[HEIGHT];
-
-    int c = 0;
-    int rangeCount = 0;
-    if(WIDTH<HEIGHT){
-      if(WIDTH%2!=0) {
-        for (int i = 0; i < HEIGHT; i++) {
-          TextComponent line = new TextComponent("");
-          for (int j = (HEIGHT - WIDTH) / 2; j < (HEIGHT - (HEIGHT - WIDTH) / 2); j++) {
-            line.addExtra(this.mapArray[i][j]);
-          }
-          returnValue[c] = line;
-          c++;
-        }
-        return returnValue;
-      }else {
-        for (int i = 0; i < HEIGHT; i++) {
-          TextComponent line = new TextComponent("");
-          for (int j = (HEIGHT - WIDTH) / 2; j < (HEIGHT - (HEIGHT - WIDTH) / 2)-1; j++) {
-            line.addExtra(this.mapArray[i][j]);
-          }
-          returnValue[c] = line;
-          c++;
-        }
-        return returnValue;
-      }
-    }
-    if(SIZE_OF_SQUARE%2==0){
-      double num = SIZE_OF_SQUARE - HEIGHT;
-      rangeCount = (int) Math.ceil(num/2.0);
-      for(int i = rangeCount; i< SIZE_OF_SQUARE-(rangeCount)+1; i++){
-        TextComponent line = new TextComponent("");
-        TextComponent[] comp = this.mapArray[i];
-        for(TextComponent block : comp){
-          line.addExtra(block);
-        }
-        returnValue[c]=line;
-        c++;
-      }
-      return returnValue;
-
-    }else{
-      rangeCount = (SIZE_OF_SQUARE-HEIGHT)/2;
-      for(int i = rangeCount; i< SIZE_OF_SQUARE-(rangeCount); i++){
-        TextComponent line = new TextComponent("");
-        TextComponent[] comp = this.mapArray[i];
-        for(TextComponent block : comp){
-          line.addExtra(block);
-        }
-        returnValue[c]=line;
-        c++;
-      }
-      return returnValue;
-    }
-  }
-
-  private BaseComponent[] key() {
-    TextComponent[] compassComps = new TextComponent[HEIGHT];
-
-    TextComponent blank = new TextComponent("");
-
-    TextComponent unclaimed = new TextComponent(" -");
-    unclaimed.setColor(ChatColor.GRAY);
-    unclaimed.addExtra(" = unclaimed");
-
-    TextComponent claimed = new TextComponent(" +");
-    claimed.setColor(ChatColor.LIGHT_PURPLE);
-    claimed.addExtra(" = claimed");
-
-    TextComponent yourPlot = new TextComponent(" +");
-    yourPlot.setColor(ChatColor.GREEN);
-    yourPlot.addExtra(" = your plot");
-
-    TextComponent you = new TextComponent(" ^");
-    you.setColor(ChatColor.YELLOW);
-    you.addExtra(" = you");
-
-    TextComponent friend = new TextComponent(" +");
-    friend.setColor(ChatColor.DARK_GREEN);
-    friend.addExtra(" = friend");
-
-    TextComponent player = new TextComponent(" +");
-    player.setColor(ChatColor.DARK_RED);
-    player.addExtra(" = player");
-
-    Player p = this.gamer.getPlayer();
-    Location pLoc = p.getLocation();
-    TextComponent pos = new TextComponent(" Pos: (" + (int)pLoc.getX() + ", " + (int)pLoc.getY() + ", " + (int)pLoc.getZ() + ")");
-    TextComponent npos = new TextComponent(" Nether: (" + ((int)pLoc.getX())/8 + ", " + ((int)pLoc.getY()) + ", " + ((int)pLoc.getZ())/8 + ")");
-    pos.setColor(ChatColor.GOLD);
-    npos.setColor(ChatColor.RED);
-
-    compassComps[0] = unclaimed;
-    compassComps[1] = claimed;
-    compassComps[2] = yourPlot;
-    compassComps[3] = you;
-    compassComps[4] = friend;
-    compassComps[5] = player;
-    compassComps[6] = blank;
-    compassComps[7] = blank;
-    compassComps[8] = blank;
-
-    return compassComps;
   }
 
   private BaseComponent[] compass() {
@@ -393,6 +219,190 @@ public class MapCreator {
     return compassComps;
   }
 
+  private BaseComponent[] key() {
+    TextComponent[] compassComps = new TextComponent[HEIGHT];
+
+    TextComponent blank = new TextComponent("");
+
+    TextComponent unclaimed = new TextComponent(" -");
+    unclaimed.setColor(ChatColor.GRAY);
+    unclaimed.addExtra(" = unclaimed");
+
+    TextComponent claimed = new TextComponent(" +");
+    claimed.setColor(ChatColor.LIGHT_PURPLE);
+    claimed.addExtra(" = claimed");
+
+    TextComponent yourPlot = new TextComponent(" +");
+    yourPlot.setColor(ChatColor.GREEN);
+    yourPlot.addExtra(" = your plot");
+
+    TextComponent you = new TextComponent(" ^");
+    you.setColor(ChatColor.YELLOW);
+    you.addExtra(" = you");
+
+    TextComponent friend = new TextComponent(" +");
+    friend.setColor(ChatColor.DARK_GREEN);
+    friend.addExtra(" = friend");
+
+    TextComponent player = new TextComponent(" +");
+    player.setColor(ChatColor.DARK_RED);
+    player.addExtra(" = player");
+
+    Player p = this.gamer.getPlayer();
+    Location pLoc = p.getLocation();
+    TextComponent pos = new TextComponent(" Pos: (" + (int)pLoc.getX() + ", " + (int)pLoc.getY() + ", " + (int)pLoc.getZ() + ")");
+    TextComponent npos = new TextComponent(" Nether: (" + ((int)pLoc.getX())/8 + ", " + ((int)pLoc.getY()) + ", " + ((int)pLoc.getZ())/8 + ")");
+    pos.setColor(ChatColor.GOLD);
+    npos.setColor(ChatColor.RED);
+
+    compassComps[0] = unclaimed;
+    compassComps[1] = claimed;
+    compassComps[2] = yourPlot;
+    compassComps[3] = you;
+    compassComps[4] = friend;
+    compassComps[5] = player;
+    compassComps[6] = blank;
+    compassComps[7] = blank;
+    compassComps[8] = blank;
+
+    return compassComps;
+  }
+
+  public BaseComponent[] mapMenu() {
+    Player player = this.gamer.getPlayer();
+    int x = this.x - SIZE_OF_SQUARE / 2 - 1;
+    int z = this.z - SIZE_OF_SQUARE / 2 - 1;
+    for (int i = 0; i < SIZE_OF_SQUARE; i++) {
+      x++;
+      for (int j = 0; j < SIZE_OF_SQUARE; j++) {
+        z++;
+        boolean selfFlag = false;
+        boolean friendflag = false;
+        boolean playerflag = false;
+        boolean claimedflag = false;
+        boolean ownedflag = false;
+        HoverEvent friendHover = null;
+        HoverEvent playerHover = null;
+        HoverEvent claimedHover = null;
+        ClickEvent friendClick = null;
+        ClickEvent playerClick = null;
+        ClickEvent claimedClick = null;
+
+        ReadPlot plot = state().getPlot(x,z);
+        if(plot.getIdInt() != null){
+          District district = state().getDistrict(x, z);
+          if(district != null){
+            claimedHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("("+x + ", " + z+")"));
+            claimedClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/district " + district.getIdInt()));
+            claimedflag = true;
+            if (district.isOwner(gamer)) {
+              ownedflag = true;
+            }
+          }
+        }
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+          Chunk pc = p.getChunk();
+          if (pc.getZ() == z && pc.getX() == x) {
+            if (p.equals(player)) {
+              selfFlag = true;
+            } else if (this.gamer.hasFriend(p.getUniqueId())) {
+              friendflag = true;
+              friendHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Friend: " + p.getName()));
+              friendClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/gamer " + p.getName()));
+            } else {
+              playerflag = true;
+              playerHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Player: " + p.getName()));
+              playerClick = new ClickEvent(ClickEvent.Action.RUN_COMMAND, ("/gamer " + p.getName()));
+            }
+          }
+        }
+
+        if (selfFlag) {
+          mapArray[j][i] = new TextComponent(selfKey);
+          mapArray[j][i].setHoverEvent((new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("You"))));
+          mapArray[j][i].setClickEvent((new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/gamer info")));
+        } else if (friendflag) {
+          mapArray[j][i] = new TextComponent(friendKey);
+          mapArray[j][i].setHoverEvent(friendHover);
+          mapArray[j][i].setClickEvent(friendClick);
+        } else if (playerflag) {
+          mapArray[j][i] = new TextComponent(playerKey);
+          mapArray[j][i].setHoverEvent(playerHover);
+          mapArray[j][i].setClickEvent(playerClick);
+        } else if (ownedflag) {
+          mapArray[j][i] = new TextComponent(ownedKey);
+          mapArray[j][i].setHoverEvent(claimedHover);
+          mapArray[j][i].setClickEvent(claimedClick);
+        } else if (claimedflag) {
+          mapArray[j][i] = new TextComponent(claimedKey);
+          mapArray[j][i].setHoverEvent(claimedHover);
+          mapArray[j][i].setClickEvent(claimedClick);
+        } else {
+          mapArray[j][i] = new TextComponent(unclaimedKey);
+          mapArray[j][i].setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Unclaimed: ("+x+", "+z+")")));
+        }
+      }
+      z = z - SIZE_OF_SQUARE;
+    }
+
+    this.mapArray = rotateMap(rotateMap(this.mapArray));
+    TextComponent[] returnValue = new TextComponent[HEIGHT];
+
+    int c = 0;
+    int rangeCount = 0;
+    if(WIDTH<HEIGHT){
+      if(WIDTH%2!=0) {
+        for (int i = 0; i < HEIGHT; i++) {
+          TextComponent line = new TextComponent("");
+          for (int j = (HEIGHT - WIDTH) / 2; j < (HEIGHT - (HEIGHT - WIDTH) / 2); j++) {
+            line.addExtra(this.mapArray[i][j]);
+          }
+          returnValue[c] = line;
+          c++;
+        }
+        return returnValue;
+      }else {
+        for (int i = 0; i < HEIGHT; i++) {
+          TextComponent line = new TextComponent("");
+          for (int j = (HEIGHT - WIDTH) / 2; j < (HEIGHT - (HEIGHT - WIDTH) / 2)-1; j++) {
+            line.addExtra(this.mapArray[i][j]);
+          }
+          returnValue[c] = line;
+          c++;
+        }
+        return returnValue;
+      }
+    }
+    if(SIZE_OF_SQUARE%2==0){
+      double num = SIZE_OF_SQUARE - HEIGHT;
+      rangeCount = (int) Math.ceil(num/2.0);
+      for(int i = rangeCount; i< SIZE_OF_SQUARE-(rangeCount)+1; i++){
+        TextComponent line = new TextComponent("");
+        TextComponent[] comp = this.mapArray[i];
+        for(TextComponent block : comp){
+          line.addExtra(block);
+        }
+        returnValue[c]=line;
+        c++;
+      }
+      return returnValue;
+
+    }else{
+      rangeCount = (SIZE_OF_SQUARE-HEIGHT)/2;
+      for(int i = rangeCount; i< SIZE_OF_SQUARE-(rangeCount); i++){
+        TextComponent line = new TextComponent("");
+        TextComponent[] comp = this.mapArray[i];
+        for(TextComponent block : comp){
+          line.addExtra(block);
+        }
+        returnValue[c]=line;
+        c++;
+      }
+      return returnValue;
+    }
+  }
+
   private TextComponent[][] rotateMap(TextComponent[][] flip) {
     TextComponent[][] newMapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
     for (int i = 0; i < flip[0].length; i++) {
@@ -403,32 +413,22 @@ public class MapCreator {
     return newMapArray;
   }
 
-  public static BlockFace getCardinalDirection(Player player) {
-    double rotation = (player.getLocation().getYaw() - 180) % 360;
-    if (rotation < 0) {
-      rotation += 360.0;
-    }
-    if (0 <= rotation && rotation < 22.5) {
-      return BlockFace.NORTH;
-    } else if (22.5 <= rotation && rotation < 67.5) {
-      return BlockFace.NORTH_EAST;
-    } else if (67.5 <= rotation && rotation < 112.5) {
-      return BlockFace.EAST;
-    } else if (112.5 <= rotation && rotation < 157.5) {
-      return BlockFace.SOUTH_EAST;
-    } else if (157.5 <= rotation && rotation < 202.5) {
-      return BlockFace.SOUTH;
-    } else if (202.5 <= rotation && rotation < 247.5) {
-      return BlockFace.SOUTH_WEST;
-    } else if (247.5 <= rotation && rotation < 292.5) {
-      return BlockFace.WEST;
-    } else if (292.5 <= rotation && rotation < 337.5) {
-      return BlockFace.NORTH_WEST;
-    } else if (337.5 <= rotation && rotation < 360.0) {
-      return BlockFace.NORTH;
-    } else {
-      return BlockFace.NORTH;
-    }
+  public BaseComponent title(){
+    int initial_length = 50;
+    String title = "Map (" + x + ", " + z + ")";
+    int title_length = title.length();
+    int new_length = initial_length - title_length;
+    int half_length = new_length / 2;
+    String left = StringUtils.repeat("_",half_length) + ",[ ";
+    String right = " ],"+StringUtils.repeat("_",half_length);
+    TextComponent componentLeft = ComponentCreator.ColoredText(left, ChatColor.GOLD);
+    TextComponent componentRight = ComponentCreator.ColoredText(right,ChatColor.GOLD);
+    TextComponent header = new TextComponent("");
+    header.addExtra(componentLeft);
+    header.addExtra(title);
+    header.addExtra(componentRight);
+    header.addExtra("\n");
+    return header;
   }
 
 }

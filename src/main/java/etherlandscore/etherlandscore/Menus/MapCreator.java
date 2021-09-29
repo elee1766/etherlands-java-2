@@ -40,19 +40,12 @@ public class MapCreator {
     this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
     this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
 
-    unclaimedKey = new TextComponent("-");
-    unclaimedKey.setColor(ChatColor.GRAY);
-    claimedKey = new TextComponent("+");
-    claimedKey.setColor(ChatColor.LIGHT_PURPLE);
-    ownedKey = new TextComponent("+");
-    ownedKey.setColor(ChatColor.GREEN);
-    playerKey = new TextComponent("+");
-    playerKey.setColor(ChatColor.DARK_RED);
-    selfKey = new TextComponent("^");
-    selfKey.setColor(ChatColor.YELLOW);
-    friendKey = new TextComponent("+");
-    friendKey.setColor(ChatColor.DARK_GREEN);
-    ComponentBuilder builder = new ComponentBuilder();
+    unclaimedKey = ComponentCreator.ColoredText("-",ChatColor.GRAY);
+    claimedKey = ComponentCreator.ColoredText("+",ChatColor.LIGHT_PURPLE);
+    ownedKey = ComponentCreator.ColoredText("+",ChatColor.GREEN);
+    playerKey = ComponentCreator.ColoredText("+",ChatColor.DARK_RED);
+    selfKey = ComponentCreator.ColoredText("^",ChatColor.YELLOW);
+    friendKey = ComponentCreator.ColoredText("+",ChatColor.DARK_GREEN);
   }
 
   public MapCreator(Gamer gamer, int xin, int zin) {
@@ -64,18 +57,12 @@ public class MapCreator {
     this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
     this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
 
-    unclaimedKey = new TextComponent("-");
-    unclaimedKey.setColor(ChatColor.GRAY);
-    claimedKey = new TextComponent("+");
-    claimedKey.setColor(ChatColor.LIGHT_PURPLE);
-    ownedKey = new TextComponent("+");
-    ownedKey.setColor(ChatColor.GREEN);
-    playerKey = new TextComponent("+");
-    playerKey.setColor(ChatColor.DARK_RED);
-    selfKey = new TextComponent("^");
-    selfKey.setColor(ChatColor.YELLOW);
-    friendKey = new TextComponent("+");
-    friendKey.setColor(ChatColor.DARK_GREEN);
+    unclaimedKey = ComponentCreator.ColoredText("-",ChatColor.GRAY);
+    claimedKey = ComponentCreator.ColoredText("+",ChatColor.LIGHT_PURPLE);
+    ownedKey = ComponentCreator.ColoredText("+",ChatColor.GREEN);
+    playerKey = ComponentCreator.ColoredText("+",ChatColor.DARK_RED);
+    selfKey = ComponentCreator.ColoredText("^",ChatColor.YELLOW);
+    friendKey = ComponentCreator.ColoredText("+",ChatColor.DARK_GREEN);
   }
 
   public static BlockFace getCardinalDirection(Player player) {

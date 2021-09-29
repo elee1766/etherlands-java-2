@@ -4,6 +4,7 @@ import etherlandscore.etherlandscore.Menus.ComponentCreator;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
+import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.sender.StateSender;
 import etherlandscore.etherlandscore.state.write.District;
 import etherlandscore.etherlandscore.state.write.Gamer;
@@ -18,6 +19,7 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
@@ -28,16 +30,17 @@ public class ImpartialHitter extends ListenerClient {
   private static ZMQ.Socket publisher;
   private static ZMQ.Socket subscriber;
   private static boolean init = false;
+  private static Properties settings = SettingsSingleton.getSettings();
 
   public ImpartialHitter(Channels channels, Fiber fiber) {
     super(channels, fiber);
     ZContext context = new ZContext();
     publisher = context.createSocket(SocketType.PUB);
-    publisher.connect("tcp://127.0.0.1:10106");
+    publisher.connect("tcp://127.0.0.1:"+settings.get("publisher_port"));
 
     ThreadFiber subscriberFiber = new ThreadFiber();
     subscriber = context.createSocket(SocketType.SUB);
-    subscriber.connect("tcp://127.0.0.1:10105");
+    subscriber.connect("tcp://127.0.0.1:"+settings.get("subscriber_port"));
     subscriber.subscribe("CHAT");
     subscriberFiber.execute(poll_subscribe());
     subscriberFiber.start();

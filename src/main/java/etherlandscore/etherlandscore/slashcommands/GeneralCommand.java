@@ -14,9 +14,9 @@ import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Map;
+import java.util.Properties;
 
 public class GeneralCommand extends CommandProcessor {
-  private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
   private final Fiber fiber;
   private final Channels channels;
 
@@ -44,8 +44,8 @@ public class GeneralCommand extends CommandProcessor {
 
   void rules(Player sender, Object[] args) {
     TextComponent rules = new TextComponent("====== RULES ======\n\n");
-    rules.addExtra(settings.get("rules"));
-    rules.setColor(ChatColor.GOLD);
-    sender.sendMessage(rules);
+    //rules.addExtra(settings.get("rules").toString());
+    //rules.setColor(ChatColor.GOLD);
+    //sender.sendMessage(rules);
   }
 }

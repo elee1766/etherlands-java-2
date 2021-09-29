@@ -12,10 +12,10 @@ import org.jetlang.fibers.Fiber;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
+import java.util.Properties;
 
 public class ImageCommand extends CommandProcessor {
   private final Channels channels;
-  private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
 
   public ImageCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);

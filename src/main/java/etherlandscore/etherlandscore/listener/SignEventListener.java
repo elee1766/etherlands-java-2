@@ -18,12 +18,12 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.jetlang.fibers.Fiber;
 
 import java.util.Map;
+import java.util.Properties;
 
 public class SignEventListener extends ListenerClient implements Listener {
 
   public final Fiber fiber;
   public final Channels channels;
-  private final Map<String, String> settings = SettingsSingleton.getSettings().getSettings();
 
   public SignEventListener(Channels channels, Fiber fiber) {
     super(channels, fiber);

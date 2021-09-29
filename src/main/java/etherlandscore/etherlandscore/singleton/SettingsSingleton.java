@@ -1,21 +1,23 @@
 package etherlandscore.etherlandscore.singleton;
 
-import com.google.gson.Gson;
 import etherlandscore.etherlandscore.persistance.Json.JsonPersister;
 import org.bukkit.Bukkit;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.Date;
+import java.util.Properties;
 
 public class SettingsSingleton {
-  private static SettingsStrings settings = null;
-  private static SettingsSingleton settings_instance = null;
+  public static Properties settings = null;
 
-  private final Gson gson;
-  private final JsonPersister<SettingsStrings> settingsPersister;
+  public static Properties getSettings(){
+    if(settings==null){
+      readSettings();
+    }
+    return settings;
+  }
 
-  private SettingsSingleton() {
-    this.gson = new Gson();
+  public static void readSettings(){
     String root =
         Bukkit.getServer()
             .getPluginManager()
@@ -23,33 +25,28 @@ public class SettingsSingleton {
             .getDataFolder()
             .getAbsolutePath();
     new File(root).mkdirs();
-    File json = new File(root + "/settings.json");
+
+    InputStream inputStream = null;
+
+    File properties = new File(root + "/config.properties");
+    settings = new Properties();
     try {
-      if (json.createNewFile()) {
-        SettingsSingleton.loadDefaults(root);
+
+      inputStream = new FileInputStream(properties);
+
+      if (inputStream != null) {
+        settings.load(inputStream);
+      } else {
+        throw new FileNotFoundException("property file '" + properties.getName() + "' not found in the classpath");
       }
-    } catch (IOException e) {
-      e.printStackTrace();
+    } catch (Exception e) {
+      System.out.println("Exception: " + e);
+    } finally {
+      try{
+        inputStream.close();
+      }catch(Exception e){
+        System.out.println("Exception: " + e);
+      }
     }
-    this.settingsPersister = new JsonPersister<>(root + "/settings.json");
-    settings = settingsPersister.readJson(this.gson, SettingsStrings.class);
-  }
-
-  public static SettingsSingleton getInstance() {
-    if (settings_instance == null) {
-      settings_instance = new SettingsSingleton();
-    }
-    return settings_instance;
-  }
-
-  public static SettingsStrings getSettings() {
-    if (settings_instance == null) {
-      settings_instance = new SettingsSingleton();
-    }
-    return settings;
-  }
-
-  private static void loadDefaults(String root) throws IOException {
-    // figure out how to load defaults into file
   }
 }

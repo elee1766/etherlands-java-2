@@ -43,7 +43,8 @@ public class MapCommand extends CommandProcessor {
         new MapCreator(
             context.getGamer(sender.getUniqueId()),
             sender.getLocation().getChunk().getX(),
-            sender.getLocation().getChunk().getZ());
+            sender.getLocation().getChunk().getZ(),
+            true);
     BaseComponent map = mapCreator.combined();
     StateSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
   }
@@ -51,7 +52,7 @@ public class MapCommand extends CommandProcessor {
   void mapCoords(Player sender, Object[] args) {
     MapCreator mapCreator =
         new MapCreator(
-            context.getGamer(sender.getUniqueId()), (Integer) args[0], (Integer) args[1]);
+            context.getGamer(sender.getUniqueId()), (Integer) args[0], (Integer) args[1], true);
     BaseComponent map = mapCreator.combined();
     StateSender.sendMap(channels, map, context.getGamer(sender.getUniqueId()));
   }

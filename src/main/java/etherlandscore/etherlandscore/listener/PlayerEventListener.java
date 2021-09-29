@@ -139,7 +139,8 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         MapCreator mapCreator = new MapCreator(
             WorldAsker.GetGamer(event.getPlayer().getUniqueId()),
             tox,
-            toz
+            toz,
+            true
         );
         BaseComponent map = mapCreator.combined();
         StateSender.sendMap(channels, map, WorldAsker.GetGamer(event.getPlayer().getUniqueId()));

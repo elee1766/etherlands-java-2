@@ -1,8 +1,10 @@
 package etherlandscore.etherlandscore.Menus;
 
+import etherlandscore.etherlandscore.singleton.WorldAsker;
 import etherlandscore.etherlandscore.state.Plot;
 import etherlandscore.etherlandscore.state.District;
 import etherlandscore.etherlandscore.state.Gamer;
+import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -12,6 +14,10 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
@@ -30,6 +36,8 @@ public class MapCreator {
   private final TextComponent selfKey;
   private final TextComponent friendKey;
   private TextComponent[][] mapArray;
+  private boolean showGamer = false;
+  private Map<UUID, Triple<Integer, Integer, Integer>> gamerLocations = new HashMap<>();
 
   public MapCreator(Gamer gamer, int xin, int zin, int size) {
     this.gamer = gamer;
@@ -48,7 +56,7 @@ public class MapCreator {
     friendKey = ComponentCreator.ColoredText("+",ChatColor.DARK_GREEN);
   }
 
-  public MapCreator(Gamer gamer, int xin, int zin) {
+  public MapCreator(Gamer gamer, int xin, int zin, boolean showGamer) {
     this.gamer = gamer;
     this.facing = getCardinalDirection(gamer.getPlayer());
     this.x = xin;
@@ -56,6 +64,8 @@ public class MapCreator {
     this.WIDTH = 25;
     this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
     this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
+    this.showGamer = showGamer;
+    getGamerLocations();
 
     unclaimedKey = ComponentCreator.ColoredText("-",ChatColor.GRAY);
     claimedKey = ComponentCreator.ColoredText("+",ChatColor.LIGHT_PURPLE);
@@ -63,6 +73,13 @@ public class MapCreator {
     playerKey = ComponentCreator.ColoredText("+",ChatColor.DARK_RED);
     selfKey = ComponentCreator.ColoredText("^",ChatColor.YELLOW);
     friendKey = ComponentCreator.ColoredText("+",ChatColor.DARK_GREEN);
+  }
+
+  private void getGamerLocations() {
+    for(Player p : Bukkit.getOnlinePlayers()){
+      UUID uuid = p.getUniqueId();
+      gamerLocations.put(p.getUniqueId(), WorldAsker.GetGamerXYZ(uuid));
+    }
   }
 
   public static BlockFace getCardinalDirection(Player player) {
@@ -289,8 +306,8 @@ public class MapCreator {
         }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-          Chunk pc = p.getChunk();
-          if (pc.getZ() == z && pc.getX() == x) {
+          Triple<Integer, Integer, Integer> loc = gamerLocations.get(p.getUniqueId());
+          if (loc.getThird() == z && loc.getFirst() == x) {
             if (p.equals(player)) {
               selfFlag = true;
             } else if (this.gamer.hasFriend(p.getUniqueId())) {

@@ -1,15 +1,21 @@
 package etherlandscore.etherlandscore.singleton;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import de.tr7zw.nbtinjector.javassist.bytecode.AccessFlag;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.services.ImpatientAsker;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
 import kotlin.Triple;
 
 import java.util.*;
 
-public class Asker {
+public class WorldAsker {
+
+  private static Cache<String, String> forever_cache = Caffeine.newBuilder()
+      .maximumSize(1000000)
+      .build();
 
   public static ArrayList<Triple<Integer, Integer, Integer>> ClustersOfDistrict(Integer key) {
     if (key == null) {
@@ -21,7 +27,7 @@ public class Asker {
   public static ArrayList<Triple<Integer, Integer, Integer>> ClustersOfDistrict(String key) {
     ArrayList<Triple<Integer, Integer, Integer>> output =
         new ArrayList<Triple<Integer, Integer, Integer>>();
-    String name = ImpatientAsker.AskWorld("district", key, "clusters");
+    String name = ImpatientAsker.AskWorld(15, "district", key, "clusters");
     if (name.equals("")) {
       return null;
     }
@@ -40,11 +46,11 @@ public class Asker {
   }
 
   public static UUID GetAddressUUID(String ownerAddress) {
-    return ImpatientAsker.AskWorldUUID("links", ownerAddress);
+    return ImpatientAsker.AskWorldUUID(15, "links", ownerAddress);
   }
 
   public static Set<String> GetDistrictNames() {
-    String unsplit = ImpatientAsker.AskWorld("query", "district_names");
+    String unsplit = ImpatientAsker.AskWorld(15, "query", "district_names");
     if (unsplit == null) {
       return new HashSet<>();
     }
@@ -59,10 +65,10 @@ public class Asker {
         try{
         return Integer.parseInt(name.replace("#",""));
         }catch(Exception e2){
-          return ImpatientAsker.AskWorldInteger("query", "district_by_name", name);
+          return ImpatientAsker.AskWorldInteger(15, "query", "district_by_name", name);
         }
       }
-      return ImpatientAsker.AskWorldInteger("query", "district_by_name", name);
+      return ImpatientAsker.AskWorldInteger(15,"query", "district_by_name", name);
     }
   }
 
@@ -74,22 +80,7 @@ public class Asker {
   }
 
   public static Integer GetDistrictOfPlot(String key) {
-    return ImpatientAsker.AskWorldInteger("plot", key, "district");
-  }
-
-  public static Set<Integer> GetDistricts() {
-    HashSet<Integer> output = new HashSet<>();
-    String unsplit = ImpatientAsker.AskWorld("query", "district_ids");
-    if (unsplit == null) {
-      return output;
-    }
-    for (String s : unsplit.split(";")) {
-      try {
-        output.add(Integer.parseInt(s));
-      } catch (Exception ignored) {
-      }
-    }
-    return output;
+    return ImpatientAsker.AskWorldInteger(-1,"plot", key, "district");
   }
 
   public static Gamer GetGamer(UUID uniqueId) {
@@ -126,15 +117,21 @@ public class Asker {
   }
 
   public static String GetOwnerOfDistrict(String key) {
-    return ImpatientAsker.AskWorld("district", key, "owner_addr");
+    return ImpatientAsker.AskWorld(5,"district", key, "owner_addr");
   }
 
   public static Integer GetPlotID(Integer x, Integer z) {
-    return ImpatientAsker.AskWorldInteger("query", "plot_coord", x.toString() + ";" + z.toString());
+    if(Math.abs(x) < 3 || Math.abs(z) < 3){
+      return null;
+    }
+    return ImpatientAsker.AskWorldInteger(-1,"query", "plot_coord", x.toString() + ";" + z.toString());
   }
 
   public static District GetDistrict(Integer x, Integer z) {
-    return ImpatientAsker.AskWorldDistrict("query", "district_coord", x.toString() + ";" + z.toString());
+    if(Math.abs(x) < 3 || Math.abs(z) < 3){
+      return null;
+    }
+    return ImpatientAsker.AskWorldDistrict(15,"query", "district_coord", x.toString() + ";" + z.toString());
   }
 
   public static Integer GetPlotX(Integer key) {
@@ -142,7 +139,7 @@ public class Asker {
   }
 
   public static Integer GetPlotX(String key) {
-    return ImpatientAsker.AskWorldInteger("plot", key, "x");
+    return ImpatientAsker.AskWorldInteger(-1,"plot", key, "x");
   }
 
   public static Integer GetPlotZ(Integer key) {
@@ -150,7 +147,7 @@ public class Asker {
   }
 
   public static Integer GetPlotZ(String key) {
-    return ImpatientAsker.AskWorldInteger("plot", key, "z");
+    return ImpatientAsker.AskWorldInteger(-1,"plot", key, "z");
   }
 
   public static Set<Integer> GetPlotsInDistrict(String key) {
@@ -177,5 +174,13 @@ public class Asker {
       val = FlagValue.valueOf(result.toUpperCase(Locale.ROOT));
     }catch(Exception ignored){}
     return val;
+  }
+
+  public static String[] GetTownNames() {
+    String result = ImpatientAsker.AskWorld(15,"query","towns");
+    if(result == null){
+      return new String[]{};
+    }
+    return result.split(";");
   }
 }

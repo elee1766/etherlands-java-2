@@ -1,6 +1,6 @@
 package etherlandscore.etherlandscore.state.read;
 
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.Gamer;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.Inventory;

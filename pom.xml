@@ -124,5 +124,10 @@
             <artifactId>kotlin-stdlib</artifactId>
             <version>1.5.31</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.0.4</version>
+        </dependency>
     </dependencies>
 </project>

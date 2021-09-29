@@ -4,13 +4,10 @@ import etherlandscore.etherlandscore.Menus.ComponentCreator;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import net.md_5.bungee.api.ChatColor;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
 import org.jetlang.channels.MemoryChannel;
 import org.jetlang.fibers.Fiber;
 import org.jetlang.fibers.ThreadFiber;
@@ -19,10 +16,10 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 import java.util.UUID;
 
 import static etherlandscore.etherlandscore.services.MasterService.state;
+import static etherlandscore.etherlandscore.singleton.SettingsSingleton.getSettings;
 
 public class ImpartialHitter extends ListenerClient {
 
@@ -30,17 +27,16 @@ public class ImpartialHitter extends ListenerClient {
   private static ZMQ.Socket publisher;
   private static ZMQ.Socket subscriber;
   private static boolean init = false;
-  private static Properties settings = SettingsSingleton.getSettings();
 
   public ImpartialHitter(Channels channels, Fiber fiber) {
     super(channels, fiber);
     ZContext context = new ZContext();
     publisher = context.createSocket(SocketType.PUB);
-    publisher.connect("tcp://127.0.0.1:"+settings.get("publisher_port"));
+    publisher.connect("tcp://127.0.0.1:"+getSettings().get("publisher_port"));
 
     ThreadFiber subscriberFiber = new ThreadFiber();
     subscriber = context.createSocket(SocketType.SUB);
-    subscriber.connect("tcp://127.0.0.1:"+settings.get("subscriber_port"));
+    subscriber.connect("tcp://127.0.0.1:"+getSettings().get("subscriber_port"));
     subscriber.subscribe("CHAT");
     subscriberFiber.execute(poll_subscribe());
     subscriberFiber.start();
@@ -64,17 +60,14 @@ public class ImpartialHitter extends ListenerClient {
         String key = subscriber.recvStr();
         String content = subscriber.recvStr();
         try {
-          Bukkit.getLogger().info(key + "  -  " + content);
+        //  Bukkit.getLogger().info(key + "  -  " + content);
           String[] args = content.split(":");
           UUID uuid;
           uuid = UUID.fromString(args[1]);
           Gamer gamer = state().getGamer(uuid);
           switch (args[0]) {
             case "gamer":
-              TextComponent component = ComponentCreator.ColoredText(args[2], ChatColor.WHITE);
-              if (args[2].contains("[Error]")) {
-                component.setColor(ChatColor.RED);
-              }
+              TextComponent component = ComponentCreator.AddHyperlinks(args[2]);
               StateSender.sendGamerComponent(channels, gamer, component);
               break;
             case "modal":

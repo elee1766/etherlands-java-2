@@ -14,7 +14,6 @@ public enum MasterCommand {
   team_set_priority,
   town_create_team,
   town_delete_team,
-  town_create_district,
   town_delete_district,
   town_delegate_district,
   district_set_team_permission,
@@ -27,10 +26,8 @@ public enum MasterCommand {
   context_process_gamer_transaction,
   context_mint_tokens,
   gamer_toggle_message,
-  touch_district,
   touch_gamer,
   shop_create_shop,
-  context_store_captcha,
   store_gamer_location,
   nft_delete_nft
 }

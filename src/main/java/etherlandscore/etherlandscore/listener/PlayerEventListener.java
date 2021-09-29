@@ -1,5 +1,6 @@
 package etherlandscore.etherlandscore.listener;
 
+import etherlandscore.etherlandscore.Menus.ComponentCreator;
 import etherlandscore.etherlandscore.Menus.MapCreator;
 import etherlandscore.etherlandscore.actions.BlockAction.PlayerInteractAction;
 import etherlandscore.etherlandscore.actions.BlockAction.PlayerSwitchAction;
@@ -9,10 +10,10 @@ import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.Asker;
+import etherlandscore.etherlandscore.singleton.WorldAsker;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -85,10 +86,9 @@ public class PlayerEventListener extends ListenerClient implements Listener {
       PlayerInteractAction interactAction;
       PlayerSwitchAction switchAction;
       switch (event.getAction()) {
-      case RIGHT_CLICK_AIR, LEFT_CLICK_AIR, LEFT_CLICK_BLOCK:
+        case RIGHT_CLICK_AIR, LEFT_CLICK_AIR, PHYSICAL:
         interactAction = new PlayerInteractAction(event);
         interactAction.process();
-        StateSender.gamerFailAction(channels, interactAction);
         break;
       case RIGHT_CLICK_BLOCK:
         if (
@@ -99,16 +99,14 @@ public class PlayerEventListener extends ListenerClient implements Listener {
         ) {
           switchAction = new PlayerSwitchAction(event);
           switchAction.process();
-          StateSender.gamerFailAction(channels, switchAction);
         }else{
           interactAction = new PlayerInteractAction(event);
           interactAction.process();
-          StateSender.gamerFailAction(channels, interactAction);
         }
         break;
-      case PHYSICAL:
+        case LEFT_CLICK_BLOCK:
         break;
-    }
+      }
     }catch(Exception e){
       Bukkit.getLogger().warning("Failed to parse Player Interact Event");
       e.printStackTrace();
@@ -120,7 +118,7 @@ public class PlayerEventListener extends ListenerClient implements Listener {
   public void onPlayerJoin(PlayerJoinEvent event) {
     TextComponent welcome = new TextComponent("Welcome to Etherlands!");
     welcome.setColor(ChatColor.GOLD);
-    Gamer joiner = (Gamer) Asker.GetGamer(event.getPlayer().getUniqueId());
+    Gamer joiner = (Gamer) WorldAsker.GetGamer(event.getPlayer().getUniqueId());
     channels.chat_message.publish(new Message<>(ChatTarget.gamer,joiner, welcome));
     Bukkit.getLogger().info("Creating Gamer for: " + event.getPlayer().getUniqueId());
     channels.master_command.publish(
@@ -131,52 +129,53 @@ public class PlayerEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onPlayerMove(PlayerMoveEvent event) {
-    Gamer gamer = Asker.GetGamer(event.getPlayer().getUniqueId());
-    if(event.getFrom().getChunk()!=event.getTo().getChunk()){
-      if(gamer.preferences.checkPreference(MessageToggles.MAP)){
-        if(!(event.getFrom().getChunk().equals(event.getTo().getChunk()))){
-          MapCreator mapCreator = new MapCreator(Asker.GetGamer(event.getPlayer().getUniqueId()), event.getPlayer().getLocation().getChunk().getX(), event.getPlayer().getLocation().getChunk().getZ());
-          BaseComponent map = mapCreator.combined();
-          StateSender.sendMap(channels, map, Asker.GetGamer(event.getPlayer().getUniqueId()));
+    Gamer gamer = WorldAsker.GetGamer(event.getPlayer().getUniqueId());
+    if(!event.getFrom().getChunk().equals(event.getTo().getChunk())){
+      int fromx = event.getFrom().getChunk().getX();
+      int fromz = event.getFrom().getChunk().getZ();
+      int tox = event.getTo().getChunk().getX();
+      int toz = event.getTo().getChunk().getZ();
+      if(gamer.getPreferences().checkPreference(MessageToggles.MAP)){
+        MapCreator mapCreator = new MapCreator(
+            WorldAsker.GetGamer(event.getPlayer().getUniqueId()),
+            tox,
+            toz
+        );
+        BaseComponent map = mapCreator.combined();
+        StateSender.sendMap(channels, map, WorldAsker.GetGamer(event.getPlayer().getUniqueId()));
+      }
+      if(gamer.getPreferences().checkPreference(MessageToggles.DISTRICT)) {
+
+        District fromDistrict = WorldAsker.GetDistrict(fromx,fromz);
+        District toDistrict = WorldAsker.GetDistrict(tox,toz);
+
+        if(fromDistrict != null && toDistrict == null){
+          String subtitle = "";
+          if(fromDistrict.getTown() != null){
+            subtitle = "town of " + fromDistrict.getTown();
+          }
+          event.getPlayer().sendTitle("Leaving " + fromDistrict.getNickname(), subtitle , 10, 45, 10);
         }
-        if(gamer.preferences.checkPreference(MessageToggles.DISTRICT)) {
-          int fromx = event.getFrom().getChunk().getX();
-          int fromz = event.getFrom().getChunk().getZ();
-          int tox = event.getTo().getChunk().getX();
-          int toz = event.getTo().getChunk().getZ();
-          District fromDistrict = Asker.GetDistrict(fromx,fromz);
-          District toDistrict = Asker.GetDistrict(tox,toz);
-          if (fromDistrict== null) {
-            if (toDistrict != null) {
-              String town_name = "none";
-              if (toDistrict.getTownObject() != null) {
-                town_name = toDistrict.getTownObject().getName();
-              }
-              event.getPlayer().sendTitle("Entering District: " + toDistrict.getIdInt(), "Managed by town: " + town_name, 10, 60, 10);
+        if (fromDistrict == null && toDistrict != null) {
+          String subtitle = "";
+          if(toDistrict.getTown() != null){
+            subtitle = "town of " + toDistrict.getTown();
+          }
+          event.getPlayer().sendTitle("Entering " + toDistrict.getNickname(), subtitle , 10, 45, 10);
+        }
+        if (toDistrict != null && fromDistrict != null) {
+          if(!toDistrict.getIdInt().equals(fromDistrict.getIdInt())){
+            TextComponent move = new TextComponent("Moving to ");
+            move.addExtra(ComponentCreator.District(toDistrict));
+            if(toDistrict.getTown() != null){
+              move.addExtra(" of ");
+              move.addExtra(ComponentCreator.Town(toDistrict.getTown()));
             }
-          } else {
-            if (toDistrict != null) {
-              if (toDistrict != Asker.GetDistrict(fromx, fromz)) {
-                String town_name = "none";
-                if (toDistrict.getTownObject() != null) {
-                  town_name = toDistrict.getTownObject().getName();
-                }
-                TextComponent move = new TextComponent("Moving to District: " + toDistrict.getIdInt() + " ManagetoDistrict by town: " + town_name);
-                channels.chat_message.publish(new Message<>(ChatTarget.gamer,gamer, move));
-              }
-            } else {
-              String town_name = "none";
-              if (fromDistrict.getTownObject() != null) {
-                town_name = fromDistrict.getTownObject().getName();
-              }
-              event.getPlayer().sendTitle("Leaving District: " + fromDistrict.getIdInt(), "ManagetoDistrict by town: " + town_name, 10, 60, 10);
-            }
+            channels.chat_message.publish(new Message<>(ChatTarget.gamer,gamer, move));
           }
         }
-
       }
     }
-
   }
 
   private boolean useShop(PlayerInteractEvent event){

@@ -7,12 +7,12 @@ import etherlandscore.etherlandscore.enums.MessageToggles;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.singleton.Asker;
+import etherlandscore.etherlandscore.singleton.WorldAsker;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import etherlandscore.etherlandscore.state.write.Team;
-import etherlandscore.etherlandscore.state.write.Town;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.state.Town;
 import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -64,7 +64,7 @@ public class ChatService extends ListenerClient {
       gamer_land_unclaimed(gamer);
       return;
     }
-    ArrayList<Triple<Integer, Integer, Integer>> clusters = Asker.ClustersOfDistrict(district.getIdInt());
+    ArrayList<Triple<Integer, Integer, Integer>> clusters = WorldAsker.ClustersOfDistrict(district.getIdInt());
     MessageCreator builder = new MessageCreator();
     TextComponent title = ComponentCreator.ColoredText(district.getNickname(),ChatColor.DARK_GREEN);
     builder.addHeader(title);
@@ -247,7 +247,6 @@ public class ChatService extends ListenerClient {
   private void process_chat(Message<ChatTarget> message){
     try{
     if(message!=null){
-      Bukkit.getLogger().info(message.toString());
         Object[] _args = message.getArgs();
         switch(message.getCommand()) {
           case global -> this.send_global((String) _args[0], (Gamer) _args[1]);
@@ -326,7 +325,7 @@ public class ChatService extends ListenerClient {
     combined.addExtra(messageComp);
     for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
       Gamer gamer = (Gamer) state().getGamer(onlinePlayer.getUniqueId());
-      if(gamer.preferences.checkPreference(MessageToggles.GLOBAL_CHAT)){
+      if(gamer.getPreferences().checkPreference(MessageToggles.GLOBAL_CHAT)){
         onlinePlayer.sendMessage(combined);
       }
     }

@@ -1,4 +1,4 @@
-package etherlandscore.etherlandscore.state.write;
+package etherlandscore.etherlandscore.state;
 
 import etherlandscore.etherlandscore.state.read.Shop;
 import org.bukkit.Location;

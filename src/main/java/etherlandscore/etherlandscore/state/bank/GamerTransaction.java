@@ -1,6 +1,6 @@
 package etherlandscore.etherlandscore.state.bank;
 
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.Gamer;
 import kotlin.Pair;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;

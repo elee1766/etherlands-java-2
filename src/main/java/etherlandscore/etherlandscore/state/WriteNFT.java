@@ -1,4 +1,4 @@
-package etherlandscore.etherlandscore.state.write;
+package etherlandscore.etherlandscore.state;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;

@@ -4,14 +4,9 @@ import etherlandscore.etherlandscore.actions.BlockAction.BlockBreakAction;
 import etherlandscore.etherlandscore.actions.BlockAction.BlockPlaceAction;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.WriteShop;
+import etherlandscore.etherlandscore.state.District;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
@@ -36,23 +31,9 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockBreak(BlockBreakEvent breakEvent) {
-    if (breakEvent.getBlock().getState() instanceof Chest) {
-      WriteShop shop = state().getShop(breakEvent.getBlock().getLocation());
-      if (shop != null) {
-        if (state().getGamer(breakEvent.getPlayer().getUniqueId()).equals(shop.getOwner())) {
-          shop.getLabel().remove();
-          return;
-        } else {
-          breakEvent.setCancelled(true);
-        }
-      }
-    }
     try {
       BlockBreakAction action = new BlockBreakAction(breakEvent);
-      boolean code = action.process();
-      if (!code) {
-        StateSender.gamerFailAction(channels, action);
-      }
+      action.process();
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
       breakEvent.setCancelled(true);
@@ -106,28 +87,9 @@ public class BlockEventListener extends ListenerClient implements Listener {
 
   @EventHandler
   public void onBlockPlace(BlockPlaceEvent placeEvent) {
-    if (placeEvent.getBlock().getState() instanceof Chest) {
-      Block chest = placeEvent.getBlock();
-      Location loc = chest.getLocation();
-      World world = loc.getWorld();
-      for (int i = -1; i < 2; i++) {
-        for (int j = -1; j < 2; j++) {
-          Location check = new Location(world, loc.getX() + i, loc.getY(), loc.getZ() + j);
-          if (!check.equals(loc)) {
-            if (world.getBlockAt(check).getState() instanceof Chest) {
-              placeEvent.setCancelled(true);
-              return;
-            }
-          }
-        }
-      }
-    }
     try {
       BlockPlaceAction action = new BlockPlaceAction(placeEvent);
-      boolean code = action.process();
-      if (!code) {
-        StateSender.gamerFailAction(channels, action);
-      }
+      action.process();
     } catch (Exception e) {
       Bukkit.getLogger().warning(e.toString());
       placeEvent.setCancelled(true);

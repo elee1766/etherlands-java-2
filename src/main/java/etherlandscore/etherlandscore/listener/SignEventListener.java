@@ -5,9 +5,8 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ListenerClient;
-import etherlandscore.etherlandscore.singleton.SettingsSingleton;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.WriteNFT;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.WriteNFT;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Directional;
@@ -16,9 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.jetlang.fibers.Fiber;
-
-import java.util.Map;
-import java.util.Properties;
 
 public class SignEventListener extends ListenerClient implements Listener {
 

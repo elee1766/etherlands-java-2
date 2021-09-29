@@ -1,8 +1,8 @@
 package etherlandscore.etherlandscore.Menus;
 
-import etherlandscore.etherlandscore.state.read.ReadPlot;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.Plot;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -250,8 +250,8 @@ public class MapCreator {
 
     Player p = this.gamer.getPlayer();
     Location pLoc = p.getLocation();
-    TextComponent pos = new TextComponent(" Pos: (" + (int)pLoc.getX() + ", " + (int)pLoc.getY() + ", " + (int)pLoc.getZ() + ")");
-    TextComponent npos = new TextComponent(" Nether: (" + ((int)pLoc.getX())/8 + ", " + ((int)pLoc.getY()) + ", " + ((int)pLoc.getZ())/8 + ")");
+    TextComponent pos = new TextComponent(" Pos: (" + x*16 + ", " + (int)pLoc.getY() + ", " + z*16 + ")");
+    TextComponent npos = new TextComponent(" Nether: (" + (x*2 + ", " + ((int)pLoc.getY()) + ", " + z*2 + ")"));
     pos.setColor(ChatColor.GOLD);
     npos.setColor(ChatColor.RED);
 
@@ -288,7 +288,7 @@ public class MapCreator {
         ClickEvent playerClick = null;
         ClickEvent claimedClick = null;
 
-        ReadPlot plot = state().getPlot(x,z);
+        Plot plot = state().getPlot(x,z);
         if(plot.getIdInt() != null){
           District district = state().getDistrict(x, z);
           if(district != null){

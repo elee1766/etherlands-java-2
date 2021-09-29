@@ -4,9 +4,9 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.MasterCommand;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.singleton.Asker;
+import etherlandscore.etherlandscore.singleton.WorldAsker;
 import etherlandscore.etherlandscore.state.read.NFT;
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.Gamer;
 import etherlandscore.etherlandscore.util.Map2;
 import kotlin.Pair;
 import kotlin.Triple;
@@ -40,7 +40,7 @@ public class NftRenderingService extends ServerModule {
             return;
           }
           Gamer gamer = new Gamer(UUID.randomUUID());
-          Triple<Integer, Integer, Integer> loc = Asker.GetGamerXYZ(gamer.getUuid());
+          Triple<Integer, Integer, Integer> loc = WorldAsker.GetGamerXYZ(gamer.getUuid());
           Integer x = loc.getFirst();
           Integer y = loc.getSecond();
           Integer z = loc.getThird();
@@ -95,7 +95,7 @@ public class NftRenderingService extends ServerModule {
     }
     for (Player onlinePlayer : Bukkit.getServer().getOnlinePlayers()) {
       Gamer gamer = state().getGamer(onlinePlayer.getUniqueId());
-      Triple<Integer, Integer, Integer> loc = Asker.GetGamerXYZ(gamer.getUuid());
+      Triple<Integer, Integer, Integer> loc = WorldAsker.GetGamerXYZ(gamer.getUuid());
       Integer x = loc.getFirst();
       Integer y = loc.getSecond();
       Integer z = loc.getThird();

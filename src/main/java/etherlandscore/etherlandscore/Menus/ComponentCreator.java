@@ -2,11 +2,12 @@ package etherlandscore.etherlandscore.Menus;
 
 import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
-import etherlandscore.etherlandscore.singleton.Asker;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import etherlandscore.etherlandscore.state.write.Town;
+import etherlandscore.etherlandscore.singleton.WorldAsker;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Town;
 import etherlandscore.etherlandscore.util.Map2;
+import kotlin.Pair;
 import kotlin.Triple;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -19,6 +20,93 @@ import java.util.*;
 import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class ComponentCreator {
+
+  public static TextComponent AddHyperlinks(String target){
+
+    boolean active = false;
+    int count = 0;
+    List<List<Character>> text_parts = new ArrayList<>();
+    text_parts.add(new ArrayList<>());
+    for (Character c : target.toCharArray()) {
+      if(active){
+        if(c == ']'){
+          count = count + 1;
+          text_parts.add(new ArrayList<>());
+          active = false;
+        }else{
+          text_parts.get(count).add(c);
+        }
+      }else{
+        if(c == '['){
+          count = count + 1;
+          text_parts.add(new ArrayList<>());
+          active = true;
+        }else{
+          text_parts.get(count).add(c);
+        }
+      }
+    }
+
+    List<String> phrases = new ArrayList<>();
+    for (List<Character> text_part : text_parts) {
+      StringBuilder builder = new StringBuilder();
+      for (Character character : text_part) {
+        builder.append(character);
+      }
+      phrases.add(builder.toString());
+    }
+    TextComponent component = new TextComponent();
+
+    for (String phrase : phrases) {
+      String[] split = phrase.split("\\.");
+      String s = split[0];
+      switch(s) {
+        case "uuid":
+          if(split.length == 2){
+            UUID uuid = UUID.fromString(split[1]);
+            component.addExtra(UUID(uuid));
+          }
+          break;
+        case "district":
+          if(split.length == 2){
+            Integer district_id= Integer.parseInt(split[1]);
+            component.addExtra(District(new District(district_id)));
+          }
+          break;
+        case "town":
+          if(split.length == 2){
+            component.addExtra(Town(split[1]));
+          }
+          break;
+        case "team":
+          if(split.length == 2){
+            component.addExtra(Team(split[1]));
+          }
+          break;
+        case "invite":
+          if(split.length == 2){
+            component.addExtra(TownInvite(split[1]));
+          }
+          break;
+        case "Error":
+          component.addExtra(ColoredText("Error:",ChatColor.DARK_RED));
+          break;
+        default:
+          component.addExtra(phrase);
+          break;
+      }
+    }
+    return component;
+  }
+
+  private static String TownInvite(String s) {
+    TextComponent component = Town(s);
+    component.addExtra(ColoredText(" [Click Here]",ChatColor.LIGHT_PURPLE));
+    component.addExtra(ColoredText(" or type `/team join "+"s"+"`",ChatColor.WHITE));
+    component.setClickEvent(
+        new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/team join " + s));
+    return null;
+  }
 
   public static TextComponent Address(String string) {
     TextComponent component = new TextComponent(abbreviate(string));
@@ -96,40 +184,69 @@ public class ComponentCreator {
     return combined;
   }
 
+
+
+  private static ChatColor GetPermissionColor(
+      FlagValue flag
+  ){
+    switch (flag) {
+      case NONE -> {
+        return ChatColor.DARK_GRAY;
+      }
+      case ALLOW -> {
+        return ChatColor.GREEN;
+      }
+      case DENY -> {
+        return ChatColor.RED;
+      }
+    }
+    return ChatColor.DARK_GRAY;
+  }
+
   public static TextComponent FlagDisplay(
-      Map<AccessFlags, FlagValue> permissions, String type, String target, Integer district) {
+      Pair<Map<AccessFlags, FlagValue>,Map<AccessFlags, FlagValue>> permissions, String type, String target, Integer district) {
     if (permissions == null) {
-      permissions = new HashMap<>();
+      permissions = new Pair<>(new HashMap<>(),new HashMap<>());
     }
     TextComponent component = new TextComponent();
+    ChatColor destroyColor =
+        GetPermissionColor(permissions.getSecond().getOrDefault(AccessFlags.DESTROY, FlagValue.NONE));
+    ChatColor buildColor = GetPermissionColor(permissions.getSecond().getOrDefault(AccessFlags.BUILD, FlagValue.NONE));
+    ChatColor interactColor = GetPermissionColor(permissions.getSecond().getOrDefault(AccessFlags.INTERACT, FlagValue.NONE));
+    ChatColor switchColor = GetPermissionColor(permissions.getSecond().getOrDefault(AccessFlags.SWITCH, FlagValue.NONE));
     TextComponent d =
         createPermissionLetter(
             "DESTROY",
-            permissions.getOrDefault(AccessFlags.DESTROY, FlagValue.NONE),
+            permissions.getFirst().getOrDefault(AccessFlags.DESTROY, FlagValue.NONE),
             type,
             target,
-            district);
+            district,
+            destroyColor
+        );
     TextComponent b =
         createPermissionLetter(
             "BUILD",
-            permissions.getOrDefault(AccessFlags.BUILD, FlagValue.NONE),
+            permissions.getFirst().getOrDefault(AccessFlags.BUILD, FlagValue.NONE),
             type,
             target,
-            district);
+            district,
+            buildColor);
     TextComponent i =
         createPermissionLetter(
             "INTERACT",
-            permissions.getOrDefault(AccessFlags.INTERACT, FlagValue.NONE),
+            permissions.getFirst().getOrDefault(AccessFlags.INTERACT, FlagValue.NONE),
             type,
             target,
-            district);
+            district,
+            interactColor);
     TextComponent s =
         createPermissionLetter(
             "SWITCH",
-            permissions.getOrDefault(AccessFlags.SWITCH, FlagValue.NONE),
+            permissions.getFirst().getOrDefault(AccessFlags.SWITCH, FlagValue.NONE),
             type,
             target,
-            district);
+            district,
+            switchColor);
     TextComponent prefix = ComponentCreator.ColoredText("[", ChatColor.DARK_GRAY);
     TextComponent postfix = ComponentCreator.ColoredText("]", ChatColor.DARK_GRAY);
     component.addExtra(prefix);
@@ -150,7 +267,7 @@ public class ComponentCreator {
       TextComponent component = ComponentCreator.UUID(uuid);
       String name = state().getGamer(uuid).getName();
       component.addExtra(ColoredText(": ", ChatColor.BLUE));
-      component.addExtra(FlagDisplay(perms.getMap().get(uuid), "gamer", name, district));
+      component.addExtra(FlagDisplay(new Pair<>(perms.getMap().get(uuid), new HashMap<>()), "gamer", name, district));
       combined.addExtra(component);
       if (current_line > 40) {
         combined.addExtra("\n");
@@ -169,7 +286,7 @@ public class ComponentCreator {
       component.setHoverEvent(
           new HoverEvent(
               HoverEvent.Action.SHOW_TEXT,
-              new Text("(" + Asker.GetPlotX(plot) + ", " + Asker.GetPlotZ(plot) + ")")));
+              new Text("(" + WorldAsker.GetPlotX(plot) + ", " + WorldAsker.GetPlotZ(plot) + ")")));
       combined.addExtra(component);
       combined.addExtra(" ");
     }
@@ -201,7 +318,7 @@ public class ComponentCreator {
         current_line = 0;
         combined.addExtra("\n");
       } else {
-        combined.addExtra("      ");
+        combined.addExtra("   ");
         current_line = current_line + component.getText().length();
       }
     }
@@ -226,8 +343,8 @@ public class ComponentCreator {
     }
     for (String team : defaultObjects) {
       TextComponent component = ComponentCreator.Team(team, colour);
-    combined.addExtra(component);
-    combined.addExtra(" ");
+      combined.addExtra(component);
+      combined.addExtra(" ");
     }
     for (String team : teamObjects) {
       TextComponent component = ComponentCreator.Team(team, colour);
@@ -300,6 +417,44 @@ public class ComponentCreator {
       return value;
     }
     return value.substring(0, 10 / 2 - 2) + ".." + value.substring(value.length() - 10 / 4);
+  }
+
+
+  private static TextComponent createPermissionLetter(
+      String flag, FlagValue value, String type, String target, Integer district, ChatColor color) {
+    TextComponent component = new TextComponent();
+    if (value.equals(FlagValue.ALLOW)) {
+      component.setText(String.valueOf(flag.charAt(0)));
+      component.setColor(ChatColor.GREEN);
+      component.setClickEvent(
+          new ClickEvent(
+              ClickEvent.Action.RUN_COMMAND,
+              "/district " + district + " " + "set_" + type + " " + target + " " + flag + " DENY"));
+    } else if (value.equals(FlagValue.NONE)) {
+      component.setText("-");
+      component.setColor(color);
+      component.setClickEvent(
+          new ClickEvent(
+              ClickEvent.Action.RUN_COMMAND,
+              "/district "
+                  + district
+                  + " "
+                  + "set_"
+                  + type
+                  + " "
+                  + target
+                  + " "
+                  + flag
+                  + " ALLOW"));
+    } else if (value.equals(FlagValue.DENY)) {
+      component.setText(String.valueOf(flag.charAt(0)));
+      component.setColor(ChatColor.DARK_RED);
+      component.setClickEvent(
+          new ClickEvent(
+              ClickEvent.Action.RUN_COMMAND,
+              "/district " + district + " " + "set_" + type + " " + target + " " + flag + " NONE"));
+    }
+    return component;
   }
 
   private static TextComponent createPermissionLetter(

@@ -1,13 +1,11 @@
 package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.StringArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import org.bukkit.Bukkit;
+import etherlandscore.etherlandscore.state.Gamer;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -15,6 +13,8 @@ import static etherlandscore.etherlandscore.services.MasterService.state;
 
 public class GamerCommand extends CommandProcessor {
   private final Channels channels;
+
+
 
   public GamerCommand(Channels channels, Fiber fiber) {
     super(channels, fiber);
@@ -34,12 +34,6 @@ public class GamerCommand extends CommandProcessor {
     StateSender.sendGamerInfo(channels, gamer, gamer);
   }
 
-  void link(Object o, Object[] args) {
-    Gamer gamer = (Gamer) args[0];
-    StateSender.setAddress(channels, gamer.getUuid(), (String) args[1]);
-    Bukkit.getLogger().info(gamer.getUuid() + " has been linked successfully");
-  }
-
   public void register() {
     CommandAPICommand GamerCommand =
         createPlayerCommand("gamer", SlashCommands.infoLocal, this::infoLocal)
@@ -50,11 +44,6 @@ public class GamerCommand extends CommandProcessor {
         .withArguments(gamerArgument("gamer"))
         .register();
 
-    GamerCommand.withSubcommand(
-        new CommandAPICommand("link")
-            .withArguments(gamerArgument("gamer"))
-            .withArguments(new StringArgument("address"))
-            .executesConsole(this::link));
 
     GamerCommand.register();
   }

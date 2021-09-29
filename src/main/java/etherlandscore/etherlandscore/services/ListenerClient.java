@@ -6,11 +6,11 @@ import etherlandscore.etherlandscore.enums.AccessFlags;
 import etherlandscore.etherlandscore.enums.FlagValue;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ServerModule;
-import etherlandscore.etherlandscore.singleton.Asker;
+import etherlandscore.etherlandscore.singleton.WorldAsker;
 import etherlandscore.etherlandscore.state.read.ReadContext;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import etherlandscore.etherlandscore.state.write.Town;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Town;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -56,7 +56,7 @@ public class ListenerClient extends ServerModule {
   public Argument districtArgument(String districtID) {
     return new CustomArgument<>(districtID, input -> {
       try {
-        Integer district_id = Asker.GetDistrictOfName(input);
+        Integer district_id = WorldAsker.GetDistrictOfName(input);
         return new District(district_id);
       } catch (Exception e) {
         throw new CustomArgument.CustomArgumentException(
@@ -65,7 +65,7 @@ public class ListenerClient extends ServerModule {
     })
         .replaceSuggestions(
             sender -> {
-              Set<String> names = Asker.GetDistrictNames();
+              Set<String> names = WorldAsker.GetDistrictNames();
               ArrayList<String> output = new ArrayList<>();
               for (String name : names) {
                 output.add(name.replace("#", ""));
@@ -144,11 +144,11 @@ public class ListenerClient extends ServerModule {
   }
 
   protected String[] getTownStrings() {
-    return this.context.getTowns().keySet().stream().map(Object::toString).toArray(String[]::new);
+    return WorldAsker.GetTownNames();
   }
 
   private void register() {
-    channels.global_update.subscribe(fiber, global -> context = new ReadContext(global, channels));
+    channels.global_update.subscribe(fiber, global -> context = new ReadContext(global));
   }
 
   public Argument townMemberArgument(String nodeName) {

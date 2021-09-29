@@ -1,10 +1,9 @@
-package etherlandscore.etherlandscore.state.write;
+package etherlandscore.etherlandscore.state;
 
-import etherlandscore.etherlandscore.state.read.BankRecord;
 
 import java.util.UUID;
 
-public class WriteBankRecord  implements BankRecord {
+public class BankRecord {
   private final UUID from;
   private final UUID to;
   private final Integer timestamp;
@@ -12,7 +11,7 @@ public class WriteBankRecord  implements BankRecord {
 
   private String _id;
 
-  public WriteBankRecord(
+  public BankRecord(
       String _id,
       UUID from,
       UUID to,
@@ -25,12 +24,10 @@ public class WriteBankRecord  implements BankRecord {
     this.delta = delta;
   }
 
-  @Override
   public Integer getDelta() {
     return delta;
   }
 
-  @Override
   public UUID getFrom() {
     return from;
   }
@@ -43,12 +40,10 @@ public class WriteBankRecord  implements BankRecord {
     this._id = string;
   }
 
-  @Override
   public Integer getTimestamp() {
     return timestamp;
   }
 
-  @Override
   public UUID getTo() {
     return to;
   }

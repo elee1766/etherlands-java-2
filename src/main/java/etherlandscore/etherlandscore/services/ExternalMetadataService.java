@@ -2,7 +2,7 @@ package etherlandscore.etherlandscore.services;
 
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.Message;
-import etherlandscore.etherlandscore.singleton.Hitter;
+import etherlandscore.etherlandscore.singleton.WorldHitter;
 import kotlin.Pair;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.Dsl;
@@ -39,7 +39,7 @@ public class ExternalMetadataService extends ListenerClient {
           if(response.getStatusCode() == 200){
             internal_request.publish(new Message<>(IM.save_bytes,contract_address, token_id, response.getResponseBodyAsBytes()));
           }else{
-            Hitter.RequestImageDownload(contract_address,token_id);
+            WorldHitter.RequestImageDownload(contract_address,token_id);
           }
           return null;
         });

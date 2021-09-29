@@ -2,19 +2,14 @@ package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.singleton.SettingsSingleton;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import net.md_5.bungee.api.ChatColor;
+import etherlandscore.etherlandscore.state.Gamer;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
-
-import java.util.Map;
-import java.util.Properties;
 
 public class GeneralCommand extends CommandProcessor {
   private final Fiber fiber;

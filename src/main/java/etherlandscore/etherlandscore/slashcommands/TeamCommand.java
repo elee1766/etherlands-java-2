@@ -7,9 +7,9 @@ import etherlandscore.etherlandscore.services.ImpartialHitter;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import etherlandscore.etherlandscore.state.write.Team;
-import etherlandscore.etherlandscore.state.write.Town;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Team;
+import etherlandscore.etherlandscore.state.Town;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
 
@@ -35,8 +35,8 @@ public class TeamCommand extends CommandProcessor {
         "team",
         team.getName(),
         "removemember",
-        gamer.getUuid().toString(),
-        target.getUuid().toString()
+        gamer.getUuidString(),
+        target.getUuidString()
     );
   }
 
@@ -51,8 +51,8 @@ public class TeamCommand extends CommandProcessor {
         "team",
         team.getName(),
         "addmember",
-        gamer.getUuid().toString(),
-        target.getUuid().toString()
+        gamer.getUuidString(),
+        target.getUuidString()
     );
   }
 
@@ -66,7 +66,7 @@ public class TeamCommand extends CommandProcessor {
         "team",
         name,
         "create",
-        gamer.getUuid().toString()
+        gamer.getUuidString()
     );
   }
 
@@ -80,7 +80,7 @@ public class TeamCommand extends CommandProcessor {
         "team",
         team.getName(),
         "create",
-        gamer.getUuid().toString()
+        gamer.getUuidString()
     );
   }
 
@@ -119,7 +119,7 @@ public class TeamCommand extends CommandProcessor {
     createPlayerCommand("team", SlashCommands.modify, this::modify)
         .withArguments(townTeamArgument("team"))
         .withArguments(new MultiLiteralArgument("add", "remove"))
-        .withArguments(townMemberArgument("player"))
+        .withArguments(gamerArgument("player"))
         .register();
 
     hook(SlashCommands.add, this::add);

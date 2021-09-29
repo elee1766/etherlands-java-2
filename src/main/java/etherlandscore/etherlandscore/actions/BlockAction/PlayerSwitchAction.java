@@ -2,8 +2,8 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class PlayerSwitchAction extends PermissionedAction {

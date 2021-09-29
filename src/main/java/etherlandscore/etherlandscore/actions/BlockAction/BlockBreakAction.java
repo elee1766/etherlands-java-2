@@ -2,8 +2,8 @@ package etherlandscore.etherlandscore.actions.BlockAction;
 
 import etherlandscore.etherlandscore.actions.PermissionedAction;
 import etherlandscore.etherlandscore.enums.AccessFlags;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
 import org.bukkit.event.block.BlockBreakEvent;
 
 public class BlockBreakAction extends PermissionedAction {
@@ -36,22 +36,22 @@ public class BlockBreakAction extends PermissionedAction {
 
   @Override
   public Gamer getGamer() {
-    return getContext().getGamer(event.getPlayer().getUniqueId());
+    return new Gamer(event.getPlayer().getUniqueId());
   }
 
   @Override
-  public boolean hasPermission() {
+  public boolean process() {
     // ops can always destroy
     if (getGamer().getPlayer().isOp()) {
-      return true;
+      return super.process();
     }
     District writeDistrict = getContext().getDistrict(getChunkX(), getChunkZ());
     if (writeDistrict == null) {
-      return false;
+      return super.rollback();
     }
-    Boolean canPerform = writeDistrict.canGamerPerform(this.flag, getGamer());
+    boolean canPerform = getDistrict().canGamerPerform(this.flag, getGamer());
     if (!canPerform) {
-      return false;
+      return super.rollback();
     }
     return super.process();
   }

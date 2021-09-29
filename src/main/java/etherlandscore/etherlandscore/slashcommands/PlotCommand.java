@@ -3,7 +3,7 @@ package etherlandscore.etherlandscore.slashcommands;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import etherlandscore.etherlandscore.fibers.Channels;
-import etherlandscore.etherlandscore.singleton.Asker;
+import etherlandscore.etherlandscore.singleton.WorldAsker;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import org.bukkit.Location;
@@ -19,20 +19,20 @@ public class PlotCommand extends CommandProcessor {
 
   void coord(Player player, Object[] args) {
     Integer id = (Integer) args[0];
-    String x = Asker.GetPlotX(id).toString();
-    String z = Asker.GetPlotZ(id).toString();
-    Integer district = Asker.GetDistrictOfPlot(id);
+    String x = WorldAsker.GetPlotX(id).toString();
+    String z = WorldAsker.GetPlotZ(id).toString();
+    Integer district = WorldAsker.GetDistrictOfPlot(id);
     player.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
   }
 
   void idGiven(Player sender, Object[] args) {
     Integer x = (Integer) args[0];
     Integer z = (Integer) args[1];
-    Integer plotIDs = Asker.GetPlotID(x, z);
+    Integer plotIDs = WorldAsker.GetPlotID(x, z);
     if (plotIDs == null) {
       sender.sendMessage("There is no plot here");
     } else {
-      Integer district = Asker.GetDistrictOfPlot(plotIDs.toString());
+      Integer district = WorldAsker.GetDistrictOfPlot(plotIDs.toString());
       sender.sendMessage("Plot coords: " + x + ", " + z + " district: " + district);
     }
   }
@@ -41,7 +41,7 @@ public class PlotCommand extends CommandProcessor {
     Location loc = sender.getLocation();
     int x = loc.getChunk().getX();
     int z = loc.getChunk().getZ();
-    Integer plotIDs = Asker.GetPlotID(x, z);
+    Integer plotIDs = WorldAsker.GetPlotID(x, z);
     if (plotIDs == null) {
       sender.sendMessage("There is no plot here");
     } else {

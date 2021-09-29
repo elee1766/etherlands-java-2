@@ -10,8 +10,8 @@ import etherlandscore.etherlandscore.services.ImpartialHitter;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import etherlandscore.etherlandscore.state.write.Town;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Town;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
@@ -72,27 +72,27 @@ public class TownCommand extends CommandProcessor {
         "town",
         town.getName(),
         "invite",
-        inviter.getUuid().toString(),
-        receiver.getUuid().toString());
+        inviter.getUuidString(),
+        receiver.getUuidString());
   }
 
   void join(Player sender, Object[] args) {
     Gamer joiner = new Gamer(sender.getUniqueId());
     Town town = new Town((String) args[0]);
-    ImpartialHitter.HitWorld("town", town.getName(), "join", joiner.getUuid().toString());
+    ImpartialHitter.HitWorld("town", town.getName(), "join", joiner.getUuidString());
   }
 
   void kick(Player sender, Object[] args) {
     Gamer manager = context.getGamer(sender.getUniqueId());
     Gamer kicked = (Gamer) args[0];
     Town town = manager.getTownObject();
-    ImpartialHitter.HitWorld("town", town.getName(), "kick", manager.getUuid().toString(), kicked.getUuid().toString());
+    ImpartialHitter.HitWorld("town", town.getName(), "kick", manager.getUuidString(), kicked.getUuidString());
   }
 
   void leave(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Town town = gamer.getTownObject();
-    ImpartialHitter.HitWorld("town", town.getName(), "leave", gamer.getUuid().toString());
+    ImpartialHitter.HitWorld("town", town.getName(), "leave", gamer.getUuidString());
   }
 
   public void register() {
@@ -120,7 +120,6 @@ public class TownCommand extends CommandProcessor {
         createPlayerCommand("delete", SlashCommands.deleteTown, this::deleteTown)
             .withArguments(new StringArgument("town_name"))
             .executesPlayer(this::deleteTown));
-
     createPlayerCommand("town", SlashCommands.info, this::info)
         .withArguments(new StringArgument("town").replaceSuggestions(info -> getTownStrings()))
         .register();

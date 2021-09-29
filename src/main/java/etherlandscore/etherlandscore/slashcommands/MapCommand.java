@@ -2,14 +2,15 @@ package etherlandscore.etherlandscore.slashcommands;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.IntegerArgument;
+import etherlandscore.etherlandscore.Menus.ComponentCreator;
 import etherlandscore.etherlandscore.Menus.MapCreator;
 import etherlandscore.etherlandscore.enums.MessageToggles;
-import etherlandscore.etherlandscore.enums.ToggleValues;
 import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
 import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.Gamer;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
 import org.jetlang.fibers.Fiber;
@@ -27,10 +28,13 @@ public class MapCommand extends CommandProcessor {
 
   void auto(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
-    if (gamer.getPreferences().checkPreference(MessageToggles.MAP)) {
-      StateSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.DISABLED, gamer);
-    } else {
-      StateSender.setMessageToggle(channels, MessageToggles.MAP, ToggleValues.ENABLED, gamer);
+    switch (gamer.getPreferences().toggle(MessageToggles.MAP)) {
+      case ENABLED -> {
+        StateSender.sendGamerComponent(channels,gamer, ComponentCreator.ColoredText("auto-map enabled", ChatColor.GREEN));
+      }
+      case DISABLED -> {
+        StateSender.sendGamerComponent(channels,gamer, ComponentCreator.ColoredText("auto-map disabled",ChatColor.RED));
+      }
     }
   }
 

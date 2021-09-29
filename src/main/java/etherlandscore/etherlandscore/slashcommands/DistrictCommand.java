@@ -8,13 +8,12 @@ import etherlandscore.etherlandscore.fibers.Channels;
 import etherlandscore.etherlandscore.fibers.ChatTarget;
 import etherlandscore.etherlandscore.fibers.Message;
 import etherlandscore.etherlandscore.services.ImpartialHitter;
-import etherlandscore.etherlandscore.singleton.Asker;
+import etherlandscore.etherlandscore.singleton.WorldAsker;
 import etherlandscore.etherlandscore.slashcommands.helpers.CommandProcessor;
 import etherlandscore.etherlandscore.slashcommands.helpers.SlashCommands;
-import etherlandscore.etherlandscore.state.sender.StateSender;
-import etherlandscore.etherlandscore.state.write.District;
-import etherlandscore.etherlandscore.state.write.Gamer;
-import etherlandscore.etherlandscore.state.write.Team;
+import etherlandscore.etherlandscore.state.District;
+import etherlandscore.etherlandscore.state.Gamer;
+import etherlandscore.etherlandscore.state.Team;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -35,14 +34,14 @@ public class DistrictCommand extends CommandProcessor {
   void delegate(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     District district = (District) args[0];
-    ImpartialHitter.HitWorld("district",district.getId(),"delegate", gamer.getUuid().toString());
+    ImpartialHitter.HitWorld("district",district.getId(),"delegate", gamer.getUuidString());
   }
 
   void delegateLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Chunk chunk = gamer.getPlayer().getChunk();
-    District district = Asker.GetDistrict(chunk.getX(), chunk.getZ());
-    ImpartialHitter.HitWorld("district",district.getId(),"delegate", gamer.getUuid().toString());
+    District district = WorldAsker.GetDistrict(chunk.getX(), chunk.getZ());
+    ImpartialHitter.HitWorld("district",district.getId(),"delegate", gamer.getUuidString());
 
   }
 
@@ -81,22 +80,15 @@ public class DistrictCommand extends CommandProcessor {
   void reclaim(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     District district = (District) args[0];
-    ImpartialHitter.HitWorld("district",district.getId(),"reclaim", gamer.getUuid().toString());
+    ImpartialHitter.HitWorld("district",district.getId(),"reclaim", gamer.getUuidString());
   }
 
   void reclaimLocal(Player sender, Object[] args) {
     Gamer gamer = context.getGamer(sender.getUniqueId());
     Chunk chunk = gamer.getPlayer().getChunk();
-    District writeDistrict = context.getDistrict(chunk.getX(), chunk.getZ());
-    if(writeDistrict != null) {
-      if (writeDistrict.getOwnerAddress().equals(gamer.getAddress())) {
-        StateSender.reclaimDistrict(this.channels, writeDistrict, gamer);
-      } else {
-        sender.sendMessage("You do not own district:" + writeDistrict.getIdInt());
-      }
-    }else{
-      sender.sendMessage("This district is currently unclaimed");
-    }
+    District district = context.getDistrict(chunk.getX(), chunk.getZ());
+    ImpartialHitter.HitWorld("district",district.getId(),"reclaim", gamer.getUuidString());
+
   }
 
   public void register() {
@@ -109,19 +101,19 @@ public class DistrictCommand extends CommandProcessor {
             .withPermission("etherlands.public")
             .withArguments(districtArgument("district"));
 
-    hook(SlashCommands.setPlayer,this::setPlayer);
-    hook(SlashCommands.setTeam,this::setTeam);
-    createPlayerCommand("set", SlashCommands.modify, this::modify)
-        .withArguments(districtArgument("district"))
-        .withArguments(new MultiLiteralArgument("set_player","set_p","setp","setPlayer").replaceSuggestions(n-> new String[]{"set_player"}))
-        .withArguments(townMemberArgument("member"))
-        .withArguments(accessFlagArgument("flag"))
-        .withArguments(flagValueArgument("value"))
-        .executesPlayer(this::setPlayer).register();
+//  hook(SlashCommands.setPlayer,this::setPlayer);
+//  hook(SlashCommands.setTeam,this::setTeam);
+//  createPlayerCommand("set", SlashCommands.modify, this::modify)
+//      .withArguments(districtArgument("district"))
+//      .withArguments(new MultiLiteralArgument("set_player","set_p","setp","setPlayer").replaceSuggestions(n-> new String[]{"set_player"}))
+//      .withArguments(townMemberArgument("member"))
+//      .withArguments(accessFlagArgument("flag"))
+//      .withArguments(flagValueArgument("value"))
+//      .executesPlayer(this::setPlayer).register();
 
     createPlayerCommand("district", SlashCommands.setTeam,this::setTeam)
         .withArguments(districtArgument("district"))
-        .withArguments(new MultiLiteralArgument("set_team","set_g","setg","setTeam").replaceSuggestions(n-> new String[]{"set_player"}))
+        .withArguments(new MultiLiteralArgument("set_team","set_g","setg","setTeam"))
         .withArguments(townTeamArgument("team"))
         .withArguments(accessFlagArgument("flag"))
         .withArguments(flagValueArgument("value"))
@@ -148,11 +140,11 @@ public class DistrictCommand extends CommandProcessor {
     ImpartialHitter.HitWorld(
         "flags",
         "gamer",
-        member.getUuid().toString(),
+        member.getUuidString(),
         district.getId(),
         flag.toString().toLowerCase(),
         value.toString().toLowerCase(),
-        manager.getUuid().toString()
+        manager.getUuidString()
     );
   }
 
@@ -170,7 +162,7 @@ public class DistrictCommand extends CommandProcessor {
         team.getName(),
         flag.toString().toLowerCase(),
         value.toString().toLowerCase(),
-        manager.getUuid().toString()
+        manager.getUuidString()
     );
   }
 }

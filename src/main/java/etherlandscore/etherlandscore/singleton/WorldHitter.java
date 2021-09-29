@@ -1,14 +1,14 @@
 package etherlandscore.etherlandscore.singleton;
 
 import etherlandscore.etherlandscore.services.ImpartialHitter;
-import etherlandscore.etherlandscore.state.write.Gamer;
+import etherlandscore.etherlandscore.state.Gamer;
 
 import java.util.Locale;
 
-public class Hitter {
+public class WorldHitter {
 
   public static void CreateLinkRequest(Gamer gamer, String a, String b, String c) {
-    ImpartialHitter.HitWorld("link_request", gamer.getUuid().toString(), a, b, c);
+    ImpartialHitter.HitWorld("link_request", gamer.getUuidString(), a, b, c);
   }
 
   public static void RequestImageDownload(String collection, String id) {
@@ -22,7 +22,7 @@ public class Hitter {
       int z = (int) gamer.getPlayer().getLocation().getZ();
       ImpartialHitter.HitWorld(
           "gamer",
-          gamer.getUuid().toString().toLowerCase(Locale.ROOT),
+          gamer.getUuidString().toLowerCase(Locale.ROOT),
           "pos",
           Integer.toString(x),
           Integer.toString(y),

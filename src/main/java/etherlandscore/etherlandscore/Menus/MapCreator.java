@@ -66,7 +66,6 @@ public class MapCreator {
     this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
     this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
     this.showGamer = showGamer;
-    getGamerLocations();
 
     unclaimedKey = ComponentCreator.ColoredText("-",ChatColor.GRAY);
     claimedKey = ComponentCreator.ColoredText("+",ChatColor.LIGHT_PURPLE);
@@ -267,7 +266,7 @@ public class MapCreator {
   }
 
   public BaseComponent[] mapMenu() {
-    Player player = this.gamer.getPlayer();
+    getGamerLocations();
     int x = this.x - SIZE_OF_SQUARE / 2 - 1;
     int z = this.z - SIZE_OF_SQUARE / 2 - 1;
     for (int i = 0; i < SIZE_OF_SQUARE; i++) {
@@ -285,7 +284,11 @@ public class MapCreator {
         ClickEvent friendClick = null;
         ClickEvent playerClick = null;
         ClickEvent claimedClick = null;
-
+        if(x == this.x && z == this.z){
+          if(this.showGamer){
+            selfFlag = true;
+          }
+        }
         Plot plot = state().getPlot(x,z);
         if(plot.getIdInt() != null){
           District district = state().getDistrict(x, z);
@@ -299,13 +302,11 @@ public class MapCreator {
           }
         }
 
-        Bukkit.getLogger().info("Location: " + gamerLocations.get(this.gamer.getUuid()));
         for (Player p : Bukkit.getOnlinePlayers()) {
           Triple<Integer, Integer, Integer> loc = gamerLocations.get(p.getUniqueId());
-          Bukkit.getLogger().info(gamerLocations.get(p.getUniqueId()).toString());
           if (loc.getThird() == z && loc.getFirst() == x) {
             if (p.getUniqueId()==this.gamer.getUuid()) {
-              selfFlag = true;
+              //selfFlag = true;
             } else if (this.gamer.hasFriend(p.getUniqueId())) {
               friendflag = true;
               friendHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT,new Text("Friend: " + p.getName()));

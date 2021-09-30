@@ -36,10 +36,10 @@ public class MapCreator {
   private final TextComponent selfKey;
   private final TextComponent friendKey;
   private TextComponent[][] mapArray;
-  private boolean showGamer = false;
+  private boolean showGamer;
   private Map<UUID, Triple<Integer, Integer, Integer>> gamerLocations = new HashMap<>();
 
-  public MapCreator(Gamer gamer, int xin, int zin, int size) {
+  public MapCreator(Gamer gamer, int xin, int zin, int size, boolean showGamer) {
     this.gamer = gamer;
     this.facing = getCardinalDirection(gamer.getPlayer());
     this.x = xin;
@@ -47,6 +47,7 @@ public class MapCreator {
     this.WIDTH = size;
     this.SIZE_OF_SQUARE = Math.max(this.WIDTH, this.HEIGHT);
     this.mapArray = new TextComponent[SIZE_OF_SQUARE][SIZE_OF_SQUARE];
+    this.showGamer = showGamer;
 
     unclaimedKey = ComponentCreator.ColoredText("-",ChatColor.GRAY);
     claimedKey = ComponentCreator.ColoredText("+",ChatColor.LIGHT_PURPLE);
@@ -252,13 +253,6 @@ public class MapCreator {
     player.setColor(ChatColor.DARK_RED);
     player.addExtra(" = player");
 
-    Player p = this.gamer.getPlayer();
-    Location pLoc = p.getLocation();
-    TextComponent pos = new TextComponent(" Pos: (" + x*16 + ", " + (int)pLoc.getY() + ", " + z*16 + ")");
-    TextComponent npos = new TextComponent(" Nether: (" + (x*2 + ", " + ((int)pLoc.getY()) + ", " + z*2 + ")"));
-    pos.setColor(ChatColor.GOLD);
-    npos.setColor(ChatColor.RED);
-
     compassComps[0] = unclaimed;
     compassComps[1] = claimed;
     compassComps[2] = yourPlot;
@@ -305,10 +299,12 @@ public class MapCreator {
           }
         }
 
+        Bukkit.getLogger().info("Location: " + gamerLocations.get(this.gamer.getUuid()));
         for (Player p : Bukkit.getOnlinePlayers()) {
           Triple<Integer, Integer, Integer> loc = gamerLocations.get(p.getUniqueId());
+          Bukkit.getLogger().info(gamerLocations.get(p.getUniqueId()).toString());
           if (loc.getThird() == z && loc.getFirst() == x) {
-            if (p.equals(player)) {
+            if (p.getUniqueId()==this.gamer.getUuid()) {
               selfFlag = true;
             } else if (this.gamer.hasFriend(p.getUniqueId())) {
               friendflag = true;
